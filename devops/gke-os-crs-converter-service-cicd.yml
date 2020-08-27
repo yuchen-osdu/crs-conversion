@@ -1,0 +1,126 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+      - kuber-migration
+  paths:
+    exclude:
+      - README.md
+      - .gitignore
+
+pool:
+  name: Hosted Ubuntu 1604
+  demands: maven
+
+variables:
+  osProjectName: crs-converter
+  buildMavenModules: $(osProjectName)-core, provider/$(osProjectName)-gcp/$(osProjectName)-gke
+  dockerDir: provider/$(osProjectName)-gcp/$(osProjectName)-gke/docker
+  devintRepository: gcr.io/opendes/
+  tag: $(Build.BuildNumber)
+  imageName: os-$(osProjectName)-app
+  sourceImageName: $(devIntRepository)$(imageName)
+  deploymentDir: provider/$(osProjectName)-gcp/$(osProjectName)-gke/kubernetes/deployments
+  deploymentFile: deployment-os-$(osProjectName)-service.yml
+  deploymentName: os-crs-converter-service
+  mavenSettings: ./maven/settings.xml
+  integrationTestsDir: testing/crs_converter_test_gcp
+  SIS_DATA: $(Build.SourcesDirectory)/apachesis_setup/SIS_DATA
+
+stages:
+  - stage: Build_Push_DeployToDev
+    variables:
+    - group: 'GKE_DEVINT_INTEGRATION_TESTS'
+    - group: 'GKE_CRS_CONVERTER_INTEGRATION_TESTS'
+    - group: 'GKE_CICD_FEED_TOKEN'
+    jobs:
+      - job: Build_Push_DeployToDev
+        steps:
+
+          - task: DownloadSecureFile@1
+            name: gcrKey
+            inputs:
+              secureFile: cicd-push-image-to-cr-keyfile.json
+
+          - task: DownloadSecureFile@1
+            name: kuberConfig
+            inputs:
+              secureFile: kubeconfig
+
+          - task: Maven@3
+            displayName: 'Build'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              options: '--settings $(mavenSettings) -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN) install'
+              publishJUnitResults: false
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+
+          - bash: |
+              #!/bin/bash
+              set -e
+              pushd provider/crs-converter-gcp/crs-converter-gke/crs-converter-gke
+              sed "s|ENTITLEMENT_URL|$(ENTITLEMENT_URL_DEVINT)|g" values.yaml.tmpl > values.yaml
+              cat values.yaml
+              popd
+            displayName: 'generate values.yaml with actual variables: $(ENTITLEMENT_URL_DEVINT)'
+          - bash: |
+              #!/bin/bash
+              set -e
+              curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+              chmod 700 get_helm.sh
+              ./get_helm.sh
+              # package helm chart
+              helm package provider/crs-converter-gcp/crs-converter-gke/crs-converter-gke --version 0.0.1 --destination '$(build.artifactstagingdirectory)'
+            displayName: 'install helm 3 and package helm chart'
+
+          - bash: |
+              #!/bin/bash
+              set -e
+              pushd $(dockerDir)
+              docker-compose build $(imageName)
+              echo 'Image done.'
+              cat $(gcrKey.secureFilePath) | docker login -u _json_key --password-stdin https://gcr.io
+              echo 'Login done.'
+
+              docker tag $(sourceImageName) $(sourceImageName):$(tag)
+              echo 'Image $(sourceImageName):$(tag) tagged with $(imageName):$(tag)'
+              docker tag $(sourceImageName) $(sourceImageName):latest
+              echo 'Image $(sourceImageName):latest tagged with $(imageName):$(tag)'
+              docker push $(sourceImageName):$(tag)
+              docker push $(sourceImageName)
+              echo 'Push done.'
+
+              helm upgrade --kubeconfig $(kuberConfig.secureFilePath) --install --wait --set-string repository=$(devintRepository),tag=$(tag) --cleanup-on-fail '$(deploymentName)' '$(build.artifactstagingdirectory)/$(deploymentName)-0.0.1.tgz'
+              kubectl --kubeconfig $(kuberConfig.secureFilePath) rollout restart deployment/$(deploymentName)
+              popd
+
+              attempt_counter=0
+              max_attempts=60
+              until $(curl --head $(CRS_CONVERTER_DEVINT_READINESS_URL) --silent -o /dev/null --fail); do
+              if [ ${attempt_counter} -eq ${max_attempts} ];then
+                  echo "Service is not available, integraton tests are skipped"
+                  exit 1
+              fi
+
+              printf '.'
+              attempt_counter=$(($attempt_counter+1))
+              sleep 2
+              done
+            displayName: "Build Docker image and deploy"
+
+          - bash: |
+              #!/bin/bash
+              set -e
+              pushd $(integrationTestsDir)
+              chmod +x run-integration-tests.sh
+              ./run-integration-tests.sh $(INTEGRATION_TESTER) $(GOOGLE_AUDIENCES)
+              popd
+            displayName: "Run integration tests"

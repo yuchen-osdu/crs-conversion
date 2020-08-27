@@ -1,0 +1,13 @@
+apiVersion: skaffold/v1beta15
+kind: Config
+metadata:
+  name: os-crs-converter
+deploy:
+  kubectl:
+    manifests:
+    - provider\crs-converter-azure\crs-converter-aks\istio\destination-rule.yaml
+    - provider\crs-converter-azure\crs-converter-aks\istio\gateway.yaml
+    - provider\crs-converter-azure\crs-converter-aks\istio\virtualservice-v2.yaml
+    - provider\crs-converter-gcp\crs-converter-gke\istio\destination-rule.yaml
+    - provider\crs-converter-gcp\crs-converter-gke\istio\gateway.yaml
+    - provider\crs-converter-gcp\crs-converter-gke\istio\virtualservice-v2.yaml
