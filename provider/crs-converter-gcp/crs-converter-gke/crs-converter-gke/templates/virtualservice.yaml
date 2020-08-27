@@ -1,0 +1,26 @@
+{{- if .Values.virtualservice.enabled -}}
+{{- $fullName := include "os-crs-converter-service.fullname" . -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "os-crs-converter-service.name" . }}
+    helm.sh/chart: {{ include "os-crs-converter-service.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - os-osdu-gateway
+  http:
+    - match:
+        - uri:
+            prefix: {{ .Values.virtualservice.prefix }}
+      route:
+        - destination:
+            port:
+              number: {{ .Values.virtualservice.port }}
+            host: {{ $fullName }}
+{{- end }}

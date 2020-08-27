@@ -1,0 +1,15 @@
+variables:
+  SIS_DATA: $CI_PROJECT_DIR/apachesis_setup/SIS_DATA
+
+include:
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "standard-setup.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "build/maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/fossa.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/gitlab-ultimate.yml"

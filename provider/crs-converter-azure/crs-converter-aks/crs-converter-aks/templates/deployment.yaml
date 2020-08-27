@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crs-converter-aks
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: crs-converter-aks
+    version: v2
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: crs-converter-aks
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: crs-converter-aks
+        version: v2
+    spec:
+      containers:
+        - name: crs-converter
+          image: "{{ .Values.image.converter.repository }}:{{ .Values.image.converter.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.http.targetPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: ENTITLEMENT_URL
+              value: "{{.Values.service.entitlement.url}}"
+            - name: client-id
+              value: "{{.Values.service.client.url}}"
+      imagePullSecrets:
+        - name: {{ .Values.image.imagePullSecrets }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
