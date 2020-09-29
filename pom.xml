@@ -8,18 +8,20 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.9.RELEASE</version>
     </parent>
-
+    
     <properties>
         <java.version>1.8</java.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <spring-boot-version>2.2.9.RELEASE</spring-boot-version>
         <springfox-version>2.9.2</springfox-version>
         <powermock.version>2.0.6</powermock.version>
         <slf4j.version>1.7.25</slf4j.version>
         <docker.image.prefix>org.opengroup.osdu</docker.image.prefix>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <os-core-common.version>0.3.3</os-core-common.version>
+        <os-core-common.version>0.3.8</os-core-common.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
     </properties>
 
     <licenses>
@@ -54,29 +56,38 @@
     <distributionManagement>
         <repository>
             <id>${gitlab-server}</id>
-            <url>https://community.opengroup.org/api/v4/projects/22/packages/maven</url>
+            <url>https://community.opengroup.org/api/v4/projects/74/packages/maven</url>
         </repository>
         <snapshotRepository>
             <id>${gitlab-server}</id>
-            <url>https://community.opengroup.org/api/v4/projects/22/packages/maven</url>
+            <url>https://community.opengroup.org/api/v4/projects/74/packages/maven</url>
         </snapshotRepository>
     </distributionManagement>
 
     <dependencyManagement>    
         <dependencies>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-security</artifactId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot-version}</version>
             </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring-boot-version}</version>
+        </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot-version}</version>
                 <scope>test</scope>
             </dependency>
 

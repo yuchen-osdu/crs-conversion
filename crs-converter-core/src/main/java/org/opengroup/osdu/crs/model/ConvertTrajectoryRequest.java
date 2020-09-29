@@ -28,7 +28,7 @@ public class ConvertTrajectoryRequest {
 	@NotEmpty
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_CRS, required = true, dataType = "String",
-			example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+			example = Constants.SWAGGER_TARGET_CRS_EX)
 	private String trajectoryCRS;
 
     @JsonProperty("azimuthReference")
@@ -38,17 +38,18 @@ public class ConvertTrajectoryRequest {
 			example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
 	private String azimuthReference;
 
+	@NotEmpty
     @JsonProperty("unitXY")
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_UNIT_XY, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
+			example = Constants.SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE)
 	private String unitXY;
 
     @JsonProperty("unitZ")
 	@NotEmpty
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_UNIT_Z, required = true, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
+			example = Constants.SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE)
 	private String unitZ;
 
     @JsonProperty("referencePoint")
@@ -58,7 +59,8 @@ public class ConvertTrajectoryRequest {
     @JsonProperty("inputStations")
 	@Valid
 	@NotEmpty
-	@ApiModelProperty(value = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS, required = true)
+	@ApiModelProperty(value = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS,
+			example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX, required = true)
 	private List<TrajectoryStationIn> inputStations;
 
     @JsonProperty("method")
@@ -75,7 +77,8 @@ public class ConvertTrajectoryRequest {
 	private String inputKind;
 
     @JsonProperty("interpolate")
-	@ApiModelProperty(value=Constants.SWAGGER_TRJ_REQ_INTERPOLATE, dataType = "Boolean")
+	@ApiModelProperty(value=Constants.SWAGGER_TRJ_REQ_INTERPOLATE,
+			example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX, dataType = "Boolean")
 	private boolean interpolate;
 
     @Override

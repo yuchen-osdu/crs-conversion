@@ -1,0 +1,17 @@
+global:
+  replicaCount: 1
+
+image:
+  imagePullSecrets: acr
+
+app:
+  repository: delfi.azurecr.io/crs-conversion-app
+  tag: latest
+  pullPolicy: Always
+
+trajectory:
+  repository: delfi.azurecr.io/trajectory
+  tag: v2
+  pullPolicy: IfNotPresent
+
+

@@ -11,13 +11,12 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @ApiModel(description = Constants.SWAGGER_GEO_JSON_CONVERT_REQUEST_DESCR)
 public class ConvertGeoJsonRequest {
-	@ApiModelProperty(value = Constants.SWAGGER_GEO_JSON_FEATURE_COLLECTION, required = true,
-					  example = Constants.SWAGGER_GEO_JSON_FEATURE_COLLECTION_EXAMPLE)
+	@ApiModelProperty(value = Constants.SWAGGER_GEO_JSON_FEATURE_COLLECTION, required = true)
 	private GeoJsonFeatureCollection featureCollection;
 
 	@NotEmpty
 	@ApiModelProperty(value = Constants.SWAGGER_TARGET_CRS, required = true, dataType = "String",
-			          example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+			example = Constants.SWAGGER_TARGET_CRS_GEO_EXAMPLE)
 	private String toCRS;
 
 	@ApiModelProperty(value = Constants.SWAGGER_TARGET_Z_UNIT, required = true, dataType = "String",

@@ -15,7 +15,4 @@ logging:
       springframework:
         web: INFO
 LOG_PREFIX: converter
-azure:
-  activedirectory:
-    client-id: ${client-id}
-    session-stateless: true
+

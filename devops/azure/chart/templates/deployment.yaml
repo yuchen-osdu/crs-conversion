@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: osdu
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        aadpodidbinding: osdu-identity
+    spec:
+      volumes:
+      - name: azure-keyvault
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: azure-keyvault
+      - name: shared-data
+        emptyDir: {}
+      imagePullSecrets:
+        - name: {{ .Values.image.imagePullSecrets }}                     
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.app.repository }}:{{ .Values.app.tag }}"
+        imagePullPolicy: {{ .Values.app.pullPolicy }}
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /api/crs/converter/_ah/readiness_check
+            port: 8080
+        volumeMounts:
+        - name: azure-keyvault
+          mountPath: "/mnt/azure-keyvault"
+          readOnly: true         
+        env:
+        - name: spring_application_name
+          value: crs-conversion-service
+        - name: server.servlet.contextPath
+          value: /api/crs/converter/
+        - name: server_port
+          value: "8080"
+        - name: ACCEPT_HTTP  # TEMPORARY UNTIL HTTPS
+          value: "true"
+        - name: KEYVAULT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: osdu-svc-properties
+              key: ENV_KEYVAULT
+        - name: AZURE_TENANT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: osdu-svc-properties
+              key: ENV_TENANT_ID
+        - name: client-id
+          valueFrom:
+            secretKeyRef:
+              name: clientid
+              key: clientid
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: clientpassword
+              key: clientpassword
+        - name: aad_client_id
+          valueFrom:
+            secretKeyRef:
+              name: appid
+              key: appid
+        - name: appinsights_key
+          valueFrom:
+            secretKeyRef:
+              name: appinsights
+              key: appinsights
+        - name: ENTITLEMENT_URL
+          value: http://entitlements-azure/entitlements/v1
+        - name: azure_istioauth_enabled
+          value: "true"
+      - name: trajectory
+        image: "{{ .Values.trajectory.repository }}:{{ .Values.trajectory.tag }}"
+        imagePullPolicy: {{ .Values.trajectory.pullPolicy }}
+        ports:
+          - name: http
+            containerPort: 8081          
