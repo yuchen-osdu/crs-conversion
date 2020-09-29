@@ -82,9 +82,4 @@ spec:
           value: http://entitlements-azure/entitlements/v1
         - name: azure_istioauth_enabled
           value: "true"
-      - name: trajectory
-        image: "{{ .Values.trajectory.repository }}:{{ .Values.trajectory.tag }}"
-        imagePullPolicy: {{ .Values.trajectory.pullPolicy }}
-        ports:
-          - name: http
-            containerPort: 8081          
+         

@@ -5,13 +5,10 @@ image:
   imagePullSecrets: acr
 
 app:
-  repository: delfi.azurecr.io/crs-conversion-app
+  repository: community.opengroup.org:5555/osdu/platform/ref-and-helper/crs-conversion-app
+  branch: master
   tag: latest
   pullPolicy: Always
 
-trajectory:
-  repository: delfi.azurecr.io/trajectory
-  tag: v2
-  pullPolicy: IfNotPresent
 
 
