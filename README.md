@@ -85,3 +85,8 @@ requires the following environment variables:
 | ENTITLEMENT_URL | Required |
 | ESRI_DATA_PATH | Required, e.g. /C/osdu-delfi/crs-conversion-service/ |
 | client-id | Required, Azure AAD client id |
+
+## GCP
+
+Instructions for running the Google Cloud Platform implementation locally can be found [here](./provider/crs-converter-gke/README.md).
+
