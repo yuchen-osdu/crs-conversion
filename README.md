@@ -83,4 +83,8 @@ requires the following environment variables:
 | Variable | Contents |
 |----------|----------|
 | ENTITLEMENT_URL | Required |
-| ESRI_DATA_PATH | Required, e.g. /C/osdu-delfi/crs-conversion-service/ |
+
+## GCP
+
+Instructions for running the Google Cloud Platform implementation locally can be found [here](./provider/crs-converter-gke/README.md).
+
