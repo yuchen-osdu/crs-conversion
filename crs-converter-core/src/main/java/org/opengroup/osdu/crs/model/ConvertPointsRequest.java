@@ -18,11 +18,12 @@ public class ConvertPointsRequest {
 
 	@NotEmpty
 	@ApiModelProperty(value = Constants.SWAGGER_TARGET_CRS, required = true, dataType = "String",
-			          example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+					  example = Constants.SWAGGER_CONVERT_TARGET_CRS_EXAMPLE)
 	private String toCRS;
 
 	@Valid
 	@NotEmpty
-	@ApiModelProperty(value = Constants.SWAGGER_LIST_OF_POINTS_TO_BE_CONVERTED, required = true)
+	@ApiModelProperty(value = Constants.SWAGGER_LIST_OF_POINTS_TO_BE_CONVERTED, required = true,
+					  example = Constants.SWAGGER_LIST_OF_POINTS_TO_BE_CONVERTED_EXAMPLE)
 	private List<Point> points;
 }

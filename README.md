@@ -25,7 +25,7 @@ mvn clean install
 ```
 - Run application with command
 ```bash
-java -Dclient-id=${aad_client_id} -jar provider/crs-converter-azure/crs-converter-aks/target/crs-converter-aks-1.0.0.jar
+java -jar provider/crs-converter-azure/crs-converter-aks/target/crs-converter-aks-1.0.0.jar
 ```
 
 ### Debug CRS Conversion Service locally
@@ -83,8 +83,6 @@ requires the following environment variables:
 | Variable | Contents |
 |----------|----------|
 | ENTITLEMENT_URL | Required |
-| ESRI_DATA_PATH | Required, e.g. /C/osdu-delfi/crs-conversion-service/ |
-| client-id | Required, Azure AAD client id |
 
 ## GCP
 

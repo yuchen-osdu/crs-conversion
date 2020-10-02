@@ -1,0 +1,6 @@
+apiVersion: v2
+name: crs-conversion-service
+appVersion: "latest"
+description: Helm Chart for installing crs-conversion-service service.
+version: 0.1.0
+type: application

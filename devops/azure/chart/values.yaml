@@ -1,0 +1,14 @@
+global:
+  replicaCount: 1
+
+image:
+  imagePullSecrets: acr
+
+app:
+  repository: community.opengroup.org:5555/osdu/platform/ref-and-helper/crs-conversion-app
+  branch: master
+  tag: latest
+  pullPolicy: Always
+
+
+

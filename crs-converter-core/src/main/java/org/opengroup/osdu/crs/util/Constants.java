@@ -50,7 +50,7 @@ public final class Constants {
     public static final String SWAGGER_CONVERSION_RESPONSE = "Response of a CRS conversion/transformation operation";
     public static final String SWAGGER_CONVERT_AUDIT = "The list of operations performed on the points as a list of strings";
     public static final String SWAGGER_TARGET_Z_UNIT = "Optional: the target Z-unit for the z-axis scaling.";
-    public static final String SWAGGER_TARGET_Z_UNIT_EXAMPLE = "{\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"scaleOffset\":{\"offset\":0.0,\"scale\":1.0},\"symbol\":\"m\",\"type\":\"USO\"}";
+    public static final String SWAGGER_TARGET_Z_UNIT_EXAMPLE = "\"{\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"scaleOffset\":{\"offset\":0.0,\"scale\":1.0},\"symbol\":\"m\",\"type\":\"USO\"}\"";
 
     public static final String SWAGGER_GEO_JSON_CONVERT_TITLE = "Convert a GeoJSON or AnyCrsGeoJson structure";
     public static final String SWAGGER_GEO_JSON_CONVERT_NOTES = "Convert a GeoJSON or AnyCrsGeoJson structure";
@@ -130,6 +130,7 @@ public final class Constants {
     public static final String SWAGGER_TRJ_REQ_INPUT_KIND = "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.";
     public static final String SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE = "MD_Inclination_Azimuth";
     public static final String SWAGGER_TRJ_REQ_INTERPOLATE = "Perform trajectory interpolation on demand; default is true.";
+    public static final String SWAGGER_TRJ_REQ_INTERPOLATE_EX = "True";
 
     public static final String SWAGGER_TRJ_STN_IN_DESCRIPTION = "Input trajectory station record; context is provided by the container.";
     public static final String SWAGGER_MD = "MD (measured depth) from vertical reference point in 'unitZ'.";

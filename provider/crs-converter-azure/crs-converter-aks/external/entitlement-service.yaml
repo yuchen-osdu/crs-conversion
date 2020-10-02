@@ -1,7 +1,0 @@
-kind: Service
-apiVersion: v1
-metadata:
- name: entitlements
-spec:
- type: ExternalName
- externalName: entitlements-dot-opendes.appspot.com
