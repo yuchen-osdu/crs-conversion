@@ -50,10 +50,8 @@ mkdir test-reports
 chmod +x run-integration-tests.sh
 echo Running CRS Converter Service Integration Tests...
 ./run-integration-tests.sh
-
-popd
-
 TEST_EXIT_CODE=$?
+popd
 
 #### COPY TEST REPORTS #########################################################################
 
