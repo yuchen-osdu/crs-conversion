@@ -517,6 +517,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
         except ApiException as e:
+            reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue("Forbidden"==e.reason or "Unauthorized"==e.reason)
 
