@@ -19,7 +19,9 @@ See also the test's [README.md](testing/README.md)
 - Set the required environments described in [Release/deployment](##Release/deployment) section
 - Navigate to the Converter Service's root folder ```crs-conversion-service``` 
 - Build core and run unit tests on command line:
+    - In order to run unit tests, set the SIS_DATA variable before building
 ```bash
+export SIS_DATA=${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA
 mvn clean install 
 # To run without tests add -DskipTests=true
 ```
@@ -58,6 +60,7 @@ http://localhost:8080/api/crs/converter/swagger-ui.html
 ```
 
 Headers for Postman:
+
 | Key | Value |
 |----------|----------|
 | Authorization | Bearer `<token>` |
@@ -80,9 +83,10 @@ Headers for Postman:
 VSTS release definition is located at provider\crs-converter-azure\crs-converter-aks\devops, which 
 requires the following environment variables:
 
-| Variable | Contents |
-|----------|----------|
-| ENTITLEMENT_URL | Required |
+| Variable | Contents | Example |
+|----------|----------|----------|
+| ENTITLEMENT_URL | Required | |
+| SIS_DATA | Required | ${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA |
 
 ## GCP
 
