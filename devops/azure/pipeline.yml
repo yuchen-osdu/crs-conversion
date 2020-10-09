@@ -1,0 +1,68 @@
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - /**/*.md
+      - .gitignore
+      - /docs
+
+resources:
+  repositories:
+  - repository: FluxRepo
+    type: git
+    name: gitops-manifests
+  - repository: TemplateRepo
+    type: git
+    name: infra-azure-provisioning
+
+variables:
+  - group: 'Azure - OSDU'
+  - group: 'Azure - OSDU Secrets'
+
+  - name: serviceName
+    value: "crs-conversion-service"
+  - name: chartPath
+    value: "devops/azure/chart"
+  - name: valuesFile
+    value: "devops/azure/chart/helm-config.yaml"
+  - name: 'MANIFEST_REPO'
+    value: $[ resources.repositories['FluxRepo'].name ]
+  - name: dockerFile
+    value: "devops/azure/Dockerfile"
+
+stages:
+  - template: /devops/build-stage.yml@TemplateRepo
+    parameters:
+      mavenGoal: 'package'
+      mavenPublishJUnitResults: true
+      serviceCoreMavenOptions: ''
+      mavenOptions: ''
+      copyFileContents: |
+        pom.xml
+        provider/crs-converter-azure/crs-converter-aks/pom.xml
+        provider/crs-converter-azure/crs-converter-aks/target/*.jar
+        devops/azure/Dockerfile
+        EsriCatalog/**
+      copyFileContentsToFlatten: ''
+      mavenSettingsFile: './maven/settings.xml'
+      serviceBase: ${{ variables.serviceName }}
+      testingRootFolder: 'testing'
+      chartPath: ${{ variables.chartPath }}
+
+  - template: /devops/deploy-stages.yml@TemplateRepo
+    parameters:
+      serviceName: ${{ variables.serviceName }}
+      chartPath: ${{ variables.chartPath }}
+      valuesFile: ${{ variables.valuesFile }}
+      dockerFile: ${{ variables.dockerFile }}
+      testCoreMavenPomFile: ''
+      testCoreMavenOptions: ''
+      skipDeploy: ${{ variables.SKIP_DEPLOY }}
+      skipTest: 'true'
+      providers:
+        -  name: Azure
+           environments: ['dev']
