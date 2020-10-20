@@ -52,3 +52,6 @@ testing/contract/consumer/target/
 crs-converter-core/.settings/org.eclipse.jdt.apt.core.prefs
 provider/crs-converter-aws/target
 *.settings
+.DS_Store
+*.factorypath
+dist/
