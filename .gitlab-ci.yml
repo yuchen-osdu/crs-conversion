@@ -6,7 +6,8 @@ variables:
   AWS_SERVICE: crs-conversion
   AWS_ENVIRONMENT: dev
   AWS_INT_TEST_TYPE: python
-
+  AWS_TEST_ALLOW_FAILURE: true
+  
 include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "standard-setup.yml"
