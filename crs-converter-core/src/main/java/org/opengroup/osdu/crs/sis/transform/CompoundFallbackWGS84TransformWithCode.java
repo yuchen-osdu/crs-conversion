@@ -173,4 +173,16 @@ public class CompoundFallbackWGS84TransformWithCode implements IWGS84Transform {
         }
         return new OperationResponse(operations, totalSuccessCount);
     }
+
+    @Override
+    public boolean supports3dPointConversion() {
+        //for now don't support 3d point conversion for compund transforms
+        return false;
+    }
+
+    @Override
+    public void enable3DPointConversion(boolean enable) {
+        //for now don't support 3d point conversion for compund transforms
+    }
+
 }

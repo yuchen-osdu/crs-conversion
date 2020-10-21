@@ -27,5 +27,15 @@ public class CRSTransformFromWGS84Operation implements ICRSCoordinateOperation {
     public OperationResponse convertPoints(double[] xyValues, double[] zValues) {
         return operation.transformWGS84PointsToXY(xyValues, zValues);
     }
+    
+    @Override
+    public boolean supports3DPointConversion() {
+        return operation.supports3dPointConversion();
+    }
+
+    @Override
+    public void enable3DPointConversion(boolean enable) {
+        operation.enable3DPointConversion(enable);
+    }
 
 }

@@ -9,17 +9,17 @@ import org.opengroup.osdu.crs.model.Impl.AuthorityCode;
 
 public class SisCrsFactory {
 
-    private final CRSAuthorityFactory epsFactory;
+    private final CRSAuthorityFactory epsgFactory;
 
     public SisCrsFactory() throws FactoryException {
-        epsFactory = CRS.getAuthorityFactory("EPSG");
+        epsgFactory = CRS.getAuthorityFactory("EPSG");
     }
 
     public ISisCrs createSisCrs(String wkt, AuthorityCode authorityCode, String crsName) throws Exception {
         if (AuthorityCodeUtils.isEpsgCode(authorityCode)) {
             try {
                 //try to create crs from authority code first
-                CoordinateReferenceSystem crs = epsFactory.createCoordinateReferenceSystem(authorityCode.getCode());
+                CoordinateReferenceSystem crs = epsgFactory.createCoordinateReferenceSystem(authorityCode.getCode());
                 //make sure wkt provided is valid
                 if (isInvalidWkt(wkt, crsName, authorityCode)) {
                     throw new SisCrsFactoryException("Invalid wkt");

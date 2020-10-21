@@ -6,9 +6,11 @@ import org.opengroup.osdu.crs.sis.transform.ISisMathTransform.TransformDerivedTy
 public class SisMathTransformFromCode implements ISisMathTransform{
 
     private final CoordinateOperation transformOperation;
+    private final boolean supports3DConversion;
 
-    public SisMathTransformFromCode(CoordinateOperation transformOperation) {
+    public SisMathTransformFromCode(CoordinateOperation transformOperation, boolean supports3DConversion) {
         this.transformOperation = transformOperation;
+        this.supports3DConversion = supports3DConversion;
     }
 
     @Override
@@ -36,4 +38,11 @@ public class SisMathTransformFromCode implements ISisMathTransform{
         }
         return true;
     }
+
+    @Override
+    public boolean supports3DPointConversion() {
+        return supports3DConversion;
+    }
+    
+    
 }
