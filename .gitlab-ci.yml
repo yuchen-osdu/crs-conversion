@@ -25,6 +25,6 @@ include:
 
 
 #Remove once CRS 3D Conversion is fixed
-aws-test-java:
+aws-test-python:
   allow_failure: true
  
