@@ -44,6 +44,7 @@
         <module>provider/crs-converter-azure/crs-converter-aks</module>
         <module>provider/crs-converter-gcp/crs-converter-gae</module>
         <module>provider/crs-converter-gcp/crs-converter-gke</module>
+        <module>provider/crs-converter-aws</module>
     </modules>
 
     <repositories>

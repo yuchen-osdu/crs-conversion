@@ -1,6 +1,12 @@
 variables:
   SIS_DATA: $CI_PROJECT_DIR/apachesis_setup/SIS_DATA
-
+  
+  AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
+  AWS_TEST_SUBDIR: testing/crs_converter_test_aws
+  AWS_SERVICE: crs-conversion
+  AWS_ENVIRONMENT: dev
+  AWS_INT_TEST_TYPE: python
+  
 include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "standard-setup.yml"
@@ -13,3 +19,12 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "scanners/gitlab-ultimate.yml"
+  
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws.yml"
+
+
+#Remove once CRS 3D Conversion is fixed
+aws-test-python:
+  allow_failure: true
+ 

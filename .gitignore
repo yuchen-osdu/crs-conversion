@@ -49,3 +49,9 @@ provider/crs-converter-gcp/crs-converter-gae/.settings/org.eclipse.core.resource
 provider/crs-converter-gcp/crs-converter-gae/.settings/org.eclipse.jdt.core.prefs
 
 testing/contract/consumer/target/
+crs-converter-core/.settings/org.eclipse.jdt.apt.core.prefs
+provider/crs-converter-aws/target
+*.settings
+.DS_Store
+*.factorypath
+dist/
