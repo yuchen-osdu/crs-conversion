@@ -8,8 +8,10 @@ import org.opengroup.osdu.core.common.model.entitlements.EntitlementsException;
 import org.opengroup.osdu.core.common.model.entitlements.Groups;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.util.AppException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,13 +25,14 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+@Component
 public class AuthenticationRequestFilter extends OncePerRequestFilter {
 
     private static Logger logger = Logger.getLogger(AuthenticationRequestFilter.class.getName());
 
     private final String entitlementUrl;
 
-    public AuthenticationRequestFilter(@NonNull String entitlementUrl) {
+    public AuthenticationRequestFilter(@NonNull @Value("${ENTITLEMENT_URL}") String entitlementUrl) {
         this.entitlementUrl = entitlementUrl;
     }
 

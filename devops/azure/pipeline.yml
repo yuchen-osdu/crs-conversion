@@ -46,7 +46,6 @@ stages:
         provider/crs-converter-azure/crs-converter-aks/pom.xml
         provider/crs-converter-azure/crs-converter-aks/target/*.jar
         devops/azure/Dockerfile
-        EsriCatalog/**
       copyFileContentsToFlatten: ''
       mavenSettingsFile: './maven/settings.xml'
       serviceBase: ${{ variables.serviceName }}
