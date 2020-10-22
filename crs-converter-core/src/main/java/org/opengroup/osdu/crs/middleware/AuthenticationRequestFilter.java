@@ -11,33 +11,45 @@ import org.opengroup.osdu.crs.util.AppException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.function.Function;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component
 public class AuthenticationRequestFilter extends OncePerRequestFilter {
 
     private static Logger logger = Logger.getLogger(AuthenticationRequestFilter.class.getName());
 
-    private final String entitlementUrl;
+    private final String entitlementsUrl;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
-    public AuthenticationRequestFilter(@NonNull @Value("${ENTITLEMENT_URL}") String entitlementUrl) {
-        this.entitlementUrl = entitlementUrl;
+    public AuthenticationRequestFilter(@Value("${ENTITLEMENT_URL}") String entitlementsUrl,
+                                       HandlerExceptionResolver handlerExceptionResolver) {
+        this.entitlementsUrl = entitlementsUrl;
+        this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest,
+                                    @NonNull HttpServletResponse httpServletResponse,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         MultiValueMap<String, String> requestHeaders = httpHeaders(httpServletRequest);
         DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(requestHeaders.entrySet());
         dpsHeaders.addCorrelationIdIfMissing();
@@ -46,13 +58,20 @@ public class AuthenticationRequestFilter extends OncePerRequestFilter {
         try {
             Groups groups = service.getGroups();
             String message = String.format("User authenticated | User: %s", groups.getMemberEmail());
-            logger.fine(message);
-
+            logger.info(message);
+            putAuthenticationIntoContext(groups);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (EntitlementsException e) {
             String message = String.format(String.format("User not authenticated. Response: %s", e.getHttpResponse()), e);
             logger.warning(message);
-            throw AppException.createUnauthorized("Error: " + e.getMessage());
+            AppException unauthorized =  AppException.createUnauthorized("Error: " + e.getMessage());
+            handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
+        }
+        catch (NullPointerException e) { // Common library throws null pointer exception when auth permission is denied.
+            String message = String.format("User not authenticated. Null pointer exception: %s", e.getMessage());
+            logger.warning(message);
+            AppException unauthorized = AppException.createUnauthorized("Error: " + e.getMessage());
+            handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
         }
     }
 
@@ -69,6 +88,12 @@ public class AuthenticationRequestFilter extends OncePerRequestFilter {
     }
 
     private IEntitlementsFactory getEntitlementsFactory() {
-        return new EntitlementsFactory(EntitlementsAPIConfig.builder().rootUrl(entitlementUrl).build());
+        return new EntitlementsFactory(EntitlementsAPIConfig.builder().rootUrl(entitlementsUrl).build());
+    }
+
+    private void putAuthenticationIntoContext(Groups groups) {
+        AuthenticationToken authentication = new AuthenticationToken(groups, Collections.emptyList());
+        authentication.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
