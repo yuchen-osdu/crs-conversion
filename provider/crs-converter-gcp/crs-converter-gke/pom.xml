@@ -25,13 +25,22 @@
     <name>crs-converter-gke</name>
     <description>CRS converter service Google Kubernetes Engine deployment</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.opengroup.osdu.crs-converter-service</groupId>
-            <artifactId>crs-converter-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.opengroup.osdu.crs-converter-service</groupId>
+      <artifactId>crs-converter-core</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-jwt</artifactId>
+      <version>1.0.10.RELEASE</version>
+    </dependency>
+  </dependencies>
 
     <build>
         <plugins>
