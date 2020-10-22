@@ -89,8 +89,10 @@ The following software have components provided under the terms of this license:
 - Netty/Transport (from http://netty.io/)
 - Netty/Transport/Native/Unix/Common (from )
 - Nimbus JOSE+JWT (from https://bitbucket.org/connect2id/nimbus-jose-jwt)
+- Nimbus JOSE+JWT (from https://bitbucket.org/connect2id/nimbus-jose-jwt)
 - Nimbus LangTag (from https://bitbucket.org/connect2id/nimbus-language-tags)
 - Non-Blocking Reactive Foundation for the JVM (from https://github.com/reactor/reactor)
+- OAuth 2.0 SDK with OpenID Connect extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
 - OAuth 2.0 SDK with OpenID Connect extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
 - Objenesis (from http://objenesis.org)
 - OpenCensus (from https://github.com/census-instrumentation/opencensus-java)
@@ -120,6 +122,7 @@ The following software have components provided under the terms of this license:
 - Spring Expression Language (SpEL) (from https://github.com/spring-projects/spring-framework)
 - Spring Plugin - Core (from )
 - Spring Plugin - Metadata Extension (from )
+- Spring Security JWT Library (from http://github.com/spring-projects/spring-security-oauth)
 - Spring TestContext Framework (from https://github.com/spring-projects/spring-framework)
 - Spring Web (from https://github.com/spring-projects/spring-framework)
 - Spring Web MVC (from https://github.com/spring-projects/spring-framework)
@@ -152,6 +155,8 @@ The following software have components provided under the terms of this license:
 - secure-sm (from https://github.com/elastic/elasticsearch)
 - spring-security-config (from http://spring.io/spring-security)
 - spring-security-core (from http://spring.io/spring-security)
+- spring-security-oauth2-client (from http://spring.io/spring-security)
+- spring-security-oauth2-core (from http://spring.io/spring-security)
 - spring-security-web (from http://spring.io/spring-security)
 - springfox-core (from https://github.com/springfox/springfox)
 - springfox-schema (from https://github.com/springfox/springfox)
@@ -332,6 +337,7 @@ The following software have components provided under the terms of this license:
 
 - Azure AD Spring Security Integration Spring Boot Starter (from https://github.com/Microsoft/azure-spring-boot)
 - Azure Spring Boot AutoConfigure (from https://github.com/Microsoft/azure-spring-boot)
+- Bouncy Castle Provider (from http://www.bouncycastle.org/java.html)
 - Checker Qual (from https://checkerframework.org)
 - JOpt Simple (from http://pholser.github.io/jopt-simple)
 - JUL to SLF4J bridge (from http://www.slf4j.org)
@@ -411,6 +417,8 @@ public-domain
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (from http://www.bouncycastle.org/java.html)
+- Bouncy Castle Provider (from http://www.bouncycastle.org/java.html)
 - Guava: Google Core Libraries for Java (from https://github.com/google/guava.git)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
@@ -418,6 +426,7 @@ The following software have components provided under the terms of this license:
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Project Lombok (from https://projectlombok.org)
 - Project Lombok (from https://projectlombok.org)
+- Spring Security JWT Library (from http://github.com/spring-projects/spring-security-oauth)
 - Spring Web (from https://github.com/spring-projects/spring-framework)
 - reactive-streams (from http://www.reactive-streams.org/)
 
@@ -426,6 +435,8 @@ unknown
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (from http://www.bouncycastle.org/java.html)
+- Bouncy Castle Provider (from http://www.bouncycastle.org/java.html)
 - Byte Buddy (without dependencies) (from )
 - JUnit Jupiter (Aggregator) (from https://junit.org/junit5/)
 - JavaBeans Activation Framework API jar (from )
