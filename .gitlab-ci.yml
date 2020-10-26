@@ -22,9 +22,4 @@ include:
   
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/aws.yml"
-
-
-#Remove once CRS 3D Conversion is fixed
-aws-test-python:
-  allow_failure: true
  

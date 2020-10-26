@@ -229,4 +229,15 @@ public class SingleWGS84TransformFromCrs implements IWGS84Transform {
         operations.add(String.format("transformation %s to %s; %d points successfully transformed", xyCRSName, "GCS_WGS_1984", successfulConversionCount));
         return new OperationResponse(operations, successfulConversionCount);
     }
+
+    @Override
+    public boolean supports3dPointConversion() {
+        return false;
+    }
+
+    @Override
+    public void enable3DPointConversion(boolean enable) {
+    }
+    
+    
 }
