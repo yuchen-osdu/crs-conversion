@@ -8,12 +8,10 @@ import org.opengroup.osdu.core.common.model.entitlements.EntitlementsException;
 import org.opengroup.osdu.core.common.model.entitlements.Groups;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.util.AppException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -32,7 +30,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Component
 public class AuthenticationRequestFilter extends OncePerRequestFilter {
 
     private static Logger logger = Logger.getLogger(AuthenticationRequestFilter.class.getName());
@@ -40,7 +37,7 @@ public class AuthenticationRequestFilter extends OncePerRequestFilter {
     private final String entitlementsUrl;
     private final HandlerExceptionResolver handlerExceptionResolver;
 
-    public AuthenticationRequestFilter(@Value("${ENTITLEMENT_URL}") String entitlementsUrl,
+    public AuthenticationRequestFilter(String entitlementsUrl,
                                        HandlerExceptionResolver handlerExceptionResolver) {
         this.entitlementsUrl = entitlementsUrl;
         this.handlerExceptionResolver = handlerExceptionResolver;

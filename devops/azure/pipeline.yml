@@ -62,6 +62,9 @@ stages:
       testCoreMavenOptions: ''
       skipDeploy: ${{ variables.SKIP_DEPLOY }}
       skipTest: 'true'
+      runPythonTest: 'true'
+      testPythonFilePath: 'testing/crs_converter_test_sauth'
+      testPythonFile: 'run-integration-tests.sh'
       providers:
         -  name: Azure
            environments: ['dev']
