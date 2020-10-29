@@ -23,13 +23,13 @@ public class SisMathTransformFromCrs implements ISisMathTransform {
     }
 
     @Override
-    public TransformDerivedType getDerivedType() {
-        return TransformDerivedType.DERIVED_FROM_CRS;
+    public ISisMathTransform.TransformDerivedType getDerivedType() {
+        return ISisMathTransform.TransformDerivedType.DERIVED_FROM_CRS;
     }
 
     @Override
     public boolean isEqual(ISisMathTransform otherOperation) {
-        if (otherOperation.getDerivedType() != TransformDerivedType.DERIVED_FROM_CRS) {
+        if (otherOperation.getDerivedType() != ISisMathTransform.TransformDerivedType.DERIVED_FROM_CRS) {
             return false;
         }
         if (!this.getToWGS84Operation().equals(otherOperation.getToWGS84Operation())) {
@@ -39,5 +39,10 @@ public class SisMathTransformFromCrs implements ISisMathTransform {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean supports3DPointConversion() {
+        return false;
     }
 }

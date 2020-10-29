@@ -14,6 +14,7 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory;
+import org.opengis.referencing.operation.SingleOperation;
 import org.opengroup.osdu.crs.model.CRSType;
 import org.opengroup.osdu.crs.model.ICompoundTrf;
 import org.opengroup.osdu.crs.model.ILateBoundCrs;
@@ -21,9 +22,12 @@ import org.opengroup.osdu.crs.model.ISingleTrf;
 import org.opengroup.osdu.crs.model.ITrf;
 import org.opengroup.osdu.crs.sis.AuthorityCodeUtils;
 import org.opengroup.osdu.crs.sis.ISisCrs;
-import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCrs;
-import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCode;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
+import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCode;
+import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCrs;
+import org.opengroup.osdu.crs.sis.wkt.IWktAttribute;
+import org.opengroup.osdu.crs.sis.wkt.WktParser;
+import org.opengroup.osdu.crs.sis.wkt.WktSection;
 
 @Data
 public class SingleTrf implements ISingleTrf {
@@ -48,11 +52,11 @@ public class SingleTrf implements ISingleTrf {
     SingleTrf(org.opengroup.osdu.crs.model.v1.SingleTRF parsedItem) {
         this(parsedItem, null);
     }
-    
+
     SingleTrf(org.opengroup.osdu.crs.model.v2.SingleTrf parsedItem) {
         this(parsedItem, null);
     }
-    
+
     SingleTrf(org.opengroup.osdu.crs.model.v1.SingleTRF parsedItem, ILateBoundCrs lateBoundCrs) {
         this.implementationV1 = parsedItem;
         this.implementationV2 = null;
@@ -65,6 +69,16 @@ public class SingleTrf implements ISingleTrf {
         this.lateBoundCrs = lateBoundCrs;
         this.engineVersion = parsedItem.getEngineVersion();
         loadImplementation();
+    }
+    
+    private boolean is3dConversionDisable() {
+        String env = System.getenv("DISABLE_3D_CONVERSIONS");
+        if (env != null && !env.isEmpty()) {
+            if (env.equalsIgnoreCase("true")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     SingleTrf(org.opengroup.osdu.crs.model.v2.SingleTrf parsedItem, ILateBoundCrs lateBoundCrs) {
@@ -106,9 +120,72 @@ public class SingleTrf implements ISingleTrf {
         try {
             CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
             CoordinateOperation operation = opFactory.createCoordinateOperation(authorityCode.getCode());
-            return new SisMathTransformFromCode(operation);
+            boolean supports3DPointConversion = supports3DPointConversion(operation);
+            return new SisMathTransformFromCode(operation, supports3DPointConversion);
         } catch (NoSuchAuthorityCodeException e) {
             return createBestTransformationWithoutCode(lateBoundCrs);
+        }
+    }
+
+    private boolean supports3DPointConversion(CoordinateOperation operation) {
+        if (is3dConversionDisable()) {
+            return false;
+        }
+        try {
+            if (!(operation instanceof SingleOperation)) {
+                return false;
+            }
+            SingleOperation singleOperation = (SingleOperation) operation;
+            String methodName = singleOperation.getMethod().getName().getCode();
+            if (!methodName.contains("geog2D")) {
+                return false;
+            }
+            if (wellKnownText != null) {
+                WktParser parser = new WktParser();
+                WktSection section = parser.parseWkt(wellKnownText);
+                if (section == null) {
+                    return false;
+                }
+                WktSection methodSection = section.getSubsection("METHOD");
+                if (methodSection == null) {
+                    return false;
+                }
+                List<IWktAttribute> methodAttributes = methodSection.getAttributes();
+                if (methodAttributes == null || methodAttributes.size() != 1) {
+                    return false;
+                }
+                String methodNameFromWKT = (String) methodAttributes.get(0).getValue();
+                methodNameFromWKT = methodNameFromWKT.replace("\"", "").toLowerCase();
+                switch (methodNameFromWKT) {
+                    case "geocentric_translation":
+                    case "position_vector":
+                    case "molodensky":
+                    case "molodensky_abridged":
+                    case "coordinate_frame":
+                    case "molodensky_badekas":
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            String formattedMethodName = methodName.replace("\"", "").replace(" ", "_").toLowerCase();
+            if (formattedMethodName.startsWith("geocentric_translation")) {
+                return true;
+            }
+            if (formattedMethodName.startsWith("position_vector")) {
+                return true;
+            }
+            if (formattedMethodName.startsWith("molodensky")) {
+                return true;
+            }
+            if (formattedMethodName.startsWith("coordinate_frame")) {
+                return true;
+            }
+
+            //parse wkt first
+            return false;
+        } catch (Exception ex) {
+            return false;
         }
     }
 
@@ -195,6 +272,5 @@ public class SingleTrf implements ISingleTrf {
         }
         return false;
     }
-    
-    
+
 }

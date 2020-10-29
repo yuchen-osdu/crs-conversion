@@ -8,11 +8,16 @@ import org.apache.sis.geometry.DirectPosition2D;
 import org.apache.sis.referencing.CRS;
 import org.apache.sis.referencing.crs.AbstractCRS;
 import org.apache.sis.referencing.cs.AxesConvention;
+import org.apache.sis.referencing.operation.matrix.Matrices;
+import org.apache.sis.referencing.operation.transform.MathTransforms;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.operation.CoordinateOperation;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.Matrix;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 
 public class CRSProjectionOperation implements ICRSCoordinateOperation {
@@ -23,6 +28,7 @@ public class CRSProjectionOperation implements ICRSCoordinateOperation {
     private CoordinateReferenceSystem toCRS;
     private boolean negativeScale = false;
     private final CoordinateOperation projectionOperation;
+    private MathTransform projectionTransform;
     private boolean longLatOrder = true;
     private String fromCRSName = "Unknown";
     private String toCRSName = "Unknown";
@@ -39,32 +45,26 @@ public class CRSProjectionOperation implements ICRSCoordinateOperation {
         this.toCRS = AbstractCRS.castOrCopy(toCRS).forConvention(AxesConvention.DISPLAY_ORIENTED);
 
         this.projectionOperation = CRS.findOperation(fromCRS, toCRS, bb);
+        this.projectionTransform = projectionOperation.getMathTransform();
 
-        /*
-         * Check if the lat/long are specified in the proper order
-         */
         CoordinateSystemAxis firstAxis = projectionOperation.getSourceCRS().getCoordinateSystem().getAxis(0);
-        if (firstAxis.getAbbreviation().toLowerCase().contains("lat")) {
-            longLatOrder = false;
+        this.longLatOrder = firstAxis.getDirection() != AxisDirection.NORTH;
+        if (!longLatOrder) {
+            Matrix swapMatrix = Matrices.createTransform(
+                    new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
+                    new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
+
+            projectionTransform = MathTransforms.concatenate(MathTransforms.linear(swapMatrix), projectionTransform);
         }
-        fromCRSName = fromSisCrs.getName();
-        toCRSName = toSisCrs.getName();
+        this.fromCRSName = fromSisCrs.getName();
+        this.toCRSName = toSisCrs.getName();
     }
 
     @Override
     public double[] convertSinglePoint(double x, double y, double z) {
         try {
-            /*
-         * reorient to Long/Lat if first axis is Latitude
-             */
-            if (!longLatOrder) {
-                double temp = x;
-                x = y;
-                y = temp;
-            }
-
             DirectPosition source = new DirectPosition2D(x, y);
-            DirectPosition target = projectionOperation.getMathTransform().transform(source, null);
+            DirectPosition target = projectionTransform.transform(source, null);
             double[] coordinate = target.getCoordinate();
             // Temporary workaround because library does not support negative scale factors
             if (negativeScale) {
@@ -86,17 +86,11 @@ public class CRSProjectionOperation implements ICRSCoordinateOperation {
     public OperationResponse convertPoints(double[] xyValues, double[] zValues) {
         int numPoints = xyValues.length / 2;
         double[] pointsToConvert = new double[xyValues.length];
-        if (!longLatOrder) {
-            for (int i = 0; i < numPoints; i++) {
-                pointsToConvert[i * 2] = xyValues[(i * 2) + 1];
-                pointsToConvert[(i * 2) + 1] = xyValues[i * 2];
-            }
-        } else {
-            System.arraycopy(xyValues, 0, pointsToConvert, 0, xyValues.length);
-        }
+        System.arraycopy(xyValues, 0, pointsToConvert, 0, xyValues.length);
+        
         double[] convertedPoints = new double[xyValues.length];
         try {
-            projectionOperation.getMathTransform().transform(pointsToConvert, 0, convertedPoints, 0, numPoints);
+            projectionTransform.transform(pointsToConvert, 0, convertedPoints, 0, numPoints);
         } catch (Exception ex) {
             //will need to convert each point individually
             return fallbackConvertPoints(xyValues, zValues, numPoints);
@@ -147,4 +141,14 @@ public class CRSProjectionOperation implements ICRSCoordinateOperation {
         operations.add(String.format("conversion from %s to %s; %d points converted", fromCRSName, toCRSName, successfulConversionCount));
         return new OperationResponse(operations, successfulConversionCount);
     }
+
+    @Override
+    public boolean supports3DPointConversion() {
+        return false;
+    }
+
+    @Override
+    public void enable3DPointConversion(boolean enable) {
+    }
+
 }

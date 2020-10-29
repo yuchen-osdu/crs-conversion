@@ -15,4 +15,8 @@ public interface IWGS84Transform {
 
     public OperationResponse transformWGS84PointsToXY(double[] xyValues, double[] zValues);
     
+    public boolean supports3dPointConversion();
+    
+    public void enable3DPointConversion(boolean enable);
+    
 }

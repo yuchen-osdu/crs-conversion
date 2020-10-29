@@ -5,14 +5,13 @@ import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
-import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.model.*;
-import org.springframework.stereotype.Service;
-
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialReference;
 import org.opengroup.osdu.crs.sis.operation.CRSCoordinateOperationFactory;
 import org.opengroup.osdu.crs.sis.operation.ICRSCoordinateOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
+import org.opengroup.osdu.crs.util.Constants;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CRSConverter implements ICRSConverter {
@@ -50,11 +49,21 @@ public class CRSConverter implements ICRSConverter {
         int successCount = zCoordinates.length;
         CRSCoordinateOperationFactory opFactory = new CRSCoordinateOperationFactory();
         List<ICRSCoordinateOperation> operations = opFactory.createOperations(sourceCRS, targetCRS);
+        boolean shouldEnable3DConversion = shouldEnable3DConversion(operations);
+        double[] initialZCoordinates = new double[zCoordinates.length];
+        System.arraycopy(zCoordinates, 0, initialZCoordinates, 0, zCoordinates.length);
         for (ICRSCoordinateOperation currentOperation : operations) {
+            if (shouldEnable3DConversion) {
+                currentOperation.enable3DPointConversion(true);
+            }
             OperationResponse response = currentOperation.convertPoints(xyCoordinates, zCoordinates);
             opState.getOperations().addAll(response.getOperationsApplied());
             successCount = response.getSuccessCount();
         }
+
+        if (shouldEnable3DConversion) {
+            System.arraycopy(initialZCoordinates, 0, zCoordinates, 0, initialZCoordinates.length);
+        } 
 
         ConvertPointsResponse response = new ConvertPointsResponse();
         response.setSuccessCount(successCount);
@@ -118,6 +127,17 @@ public class CRSConverter implements ICRSConverter {
                 if (lb_crs.isGeographicCrs()) {
                     return lb_crs.getBaseGeographicCrs().isEqual(wgs84.getBaseGeographicCrs());
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldEnable3DConversion(List<ICRSCoordinateOperation> operations) {
+        for (int i = 0; i < operations.size() - 1; i++) {
+            ICRSCoordinateOperation currentOperation = operations.get(i);
+            ICRSCoordinateOperation nextOperation = operations.get(i + 1);
+            if (currentOperation.supports3DPointConversion() && nextOperation.supports3DPointConversion()) {
+                return true;
             }
         }
         return false;

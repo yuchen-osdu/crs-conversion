@@ -16,4 +16,6 @@ public interface ISisMathTransform {
     public TransformDerivedType getDerivedType();
 
     public boolean isEqual(ISisMathTransform otherOperation);
+    
+    public boolean supports3DPointConversion();
 }
