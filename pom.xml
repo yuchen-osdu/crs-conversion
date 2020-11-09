@@ -45,6 +45,7 @@
         <module>provider/crs-converter-gcp/crs-converter-gae</module>
         <module>provider/crs-converter-gcp/crs-converter-gke</module>
         <module>provider/crs-converter-aws</module>
+        <module>provider/crs-converter-ibm/crs-converter-ocp</module>
     </modules>
 
     <repositories>
