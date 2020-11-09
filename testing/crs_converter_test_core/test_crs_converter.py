@@ -519,7 +519,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
         except ApiException as e:
             reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
-            self.assertTrue("Forbidden"==e.reason or "Unauthorized"==e.reason)
+            self.assertTrue("Forbidden"==reason or "Unauthorized"==reason)
 
 
 if __name__ == '__main__':
