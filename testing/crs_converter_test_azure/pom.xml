@@ -5,7 +5,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.opengroup.osdu.crs-converter-service-testing</groupId>
+        <groupId>org.opengroup.osdu.crs-converter-service</groupId>
         <artifactId>crs-converter-service</artifactId>
         <version>1.0.0</version>
         <relativePath>../../../pom.xml</relativePath>
@@ -21,10 +21,10 @@
         <maven>3.1.0</maven>
     </prerequisites>
 
-    <artifactId>crs-converter-aks</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
-    <name>crs-converter-aks</name>
-    <description>CRS converter service Azure Kubernetes Deployment</description>
+    <artifactId>crs-converter-aks-test</artifactId>
+    <version>1.0.1.1-SNAPSHOT</version>
+    <name>crs-converter-aks-test</name>
+    <description>CRS converter service Azure Kubernetes Deployment for test</description>
 
     <dependencies>
         <dependency>
