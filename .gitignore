@@ -55,3 +55,8 @@ provider/crs-converter-aws/target
 .DS_Store
 *.factorypath
 dist/
+
+*.iml
+*/target
+target/
+.idea
