@@ -5,6 +5,7 @@ variables:
   AZURE_BUILD_SUBDIR: provider/crs-converter-azure/crs-converter-aks
   AZURE_TEST_SUBDIR: testing/crs_converter_test_azure
   AZURE_TEST_TYPE: python
+  ESRI_DATA_PATH: provider/crs-converter-azure/crs-converter-aks
 
   AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
   AWS_TEST_SUBDIR: testing/crs_converter_test_aws
