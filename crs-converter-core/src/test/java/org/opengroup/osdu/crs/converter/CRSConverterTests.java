@@ -124,19 +124,19 @@ public class CRSConverterTests {
         }
         // Series of tests asserting that exceptions are thrown before the point conversion starts (values don't matter)
         try {
-//            converter.convertPoint(
-//                    ConstantsTests.STRF_Egy_WGS84[ConstantsTests.V1],
-//                    ConstantsTests.EB_AGD66_AMG56[ConstantsTests.V1],
-//                    xyCoordinates, zCoordinates);
+            converter.convertPoint(
+                    ConstantsTests.STRF_Egy_WGS84[ConstantsTests.V1],
+                    ConstantsTests.EB_AGD66_AMG56[ConstantsTests.V1],
+                    xyCoordinates, zCoordinates);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_INVALID_INPUT_CRS_SPECIFICATION));
         }
         // invalid WKTs
         String fromCrs = ConstantsTests.EB_G1_G1G2[ConstantsTests.V1].replace("SPHEROID", "CUBE");
         try {
-//            converter.convertPoint(fromCrs,
-//                    ConstantsTests.EB_G1_G2G1[ConstantsTests.V1],
-//                    xyCoordinates, zCoordinates);
+            converter.convertPoint(fromCrs,
+                    ConstantsTests.EB_G1_G2G1[ConstantsTests.V1],
+                    xyCoordinates, zCoordinates);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_INVALID_INPUT_CRS_SPECIFICATION));
         }
@@ -167,13 +167,13 @@ public class CRSConverterTests {
 
         CRSConverter converter = new CRSConverter();
 
-/*        ConvertPointsResponse result = converter.convertPoint(
+        ConvertPointsResponse result = converter.convertPoint(
                 ConstantsTests.LB_WGS84[ConstantsTests.V1],
                 ConstantsTests.EB_AGD66_AMG56[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
-*/
+
         if (!isIsSis) { // out-side of transformation grid not detectable by Apache SIS
-  //          assertEquals((Integer)3, result.getSuccessCount());
+            assertEquals((Integer)3, result.getSuccessCount());
 
             for (int i = 0; i < xyCoordinates.length; i++) {
                 assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
@@ -189,29 +189,25 @@ public class CRSConverterTests {
                 575552.77163896244, 8909822.0452746954, 385075.77416639356, 7037223.5214302186};
         expectedZCoordinates = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
 
-       /* result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.LB_WGS84[ConstantsTests.V1],
                 ConstantsTests.EB_AGD66_AMG56_1108[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
         assertEquals((Integer)5, result.getSuccessCount());
-
-        */
-/*        for (int i = 0; i < xyCoordinates.length; i++) {
+        for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_L);
-        }*/
+        }
         // GCS_WGS_1984 -> "AGD66 * OGP-Aus 0.1m / AMG zone 56 [20256,55100]"
         // test forward direction with hand-crafted custom transformation
         xyCoordinates = new double[]{150.0, -43.7, 153.69, -43.7, 150.0, -9.86, 153.69, -9.86, 151.845, -26.78};
-      /*  result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.LB_WGS84[ConstantsTests.V1],
                 ConstantsTests.EB_AGD66_AMG56_551000[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
         assertEquals((Integer)5, result.getSuccessCount());
-
-       */
         if (!isIsSis) { // out-side of transformation grid not detectable by Apache SIS
             for (int i = 0; i < xyCoordinates.length; i++) {
                 assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
@@ -225,13 +221,11 @@ public class CRSConverterTests {
         expectedXYCoordinates = new double[]{
                 212172.22206768271, 3382455.3819584004,
                 500000.0, 6225000.3891552407};
-       /* result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.LB_WGS84_UTM10N[ConstantsTests.V1],
                 ConstantsTests.EB_NAD83_UTM10N_1188[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
         assertEquals((Integer)(2), result.getSuccessCount());
-
-        */
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
         }
@@ -249,29 +243,27 @@ public class CRSConverterTests {
 
         CRSConverter converter = new CRSConverter();
 
-/*        ConvertPointsResponse result = converter.convertPoint(
+        ConvertPointsResponse result = converter.convertPoint(
                 ConstantsTests.EB_AGD66_AMG56_1108[ConstantsTests.V1],
                 ConstantsTests.LB_WGS84[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
         assertEquals((Integer)5, result.getSuccessCount());
 
- */
-
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_A);
- //           assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_A);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_A);
+            assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_A);
         }
 
         xyCoordinates = new double[]{258161.14759287942, 5156880.8973767,
                 555494.98909638089, 5161024.1125602322, 170823.28710301331, 8908423.5781765822,
                 575552.77163896244, 8909822.0452746954, 385075.77416639356, 7037223.5214302186};
-        /*result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.EB_AGD66_AMG56_551000[ConstantsTests.V1],
                 ConstantsTests.LB_WGS84[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
-        assertEquals((Integer)5, result.getSuccessCount());*/
+        assertEquals((Integer)5, result.getSuccessCount());
 
         if (!isIsSis) {
             for (int i = 0; i < xyCoordinates.length; i++) {
@@ -286,11 +278,11 @@ public class CRSConverterTests {
         expectedXYCoordinates = new double[]{
                 212172.22206646437, 3382455.3819633052,
                 500000.0, 6225000.3891823227};
-       /* result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.EB_NAD83_UTM10N_1188[ConstantsTests.V1],
                 ConstantsTests.LB_WGS84_UTM10N[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
-        assertEquals((Integer)2, result.getSuccessCount());*/
+        assertEquals((Integer)2, result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
         }
@@ -312,13 +304,13 @@ public class CRSConverterTests {
 
         CRSConverter converter = new CRSConverter();
 
-/*        ConvertPointsResponse result = converter.convertPoint(
+        ConvertPointsResponse result = converter.convertPoint(
                 ConstantsTests.EB_NAD83_UTM10N_1188[ConstantsTests.V1],
                 ConstantsTests.EB_NAD83_UTM11N_1702[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
-*/
+
         if (!isIsSis) { // out-side of transformation grid not detectable by Apache SIS
-        //    assertEquals((Integer)0, result.getSuccessCount());  // None of the points made it
+            assertEquals((Integer)0, result.getSuccessCount());  // None of the points made it
 
             for (int i = 0; i < xyCoordinates.length; i++) {
                 assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
@@ -342,17 +334,17 @@ public class CRSConverterTests {
                 379890.17153715715, 7168438.6452857619
         };
         expectedZCoordinates = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
-    /*    result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.EB_AGD66_AMG56[ConstantsTests.V1],
                 ConstantsTests.EB_AGD84_AMG56[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
         assertEquals((Integer)5, result.getSuccessCount());
-*/
-/*        for (int i = 0; i < xyCoordinates.length; i++) {
+
+        for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_L);
-        }*/
+        }
         // successful example GCS_Provisional_S_American_1956 -> Trinidad_1903_Trinidad_Grid with transformation via WGS84
         xyCoordinates = new double[]{
                 -62.088361835310273, 9.8331328244829646,
@@ -370,16 +362,16 @@ public class CRSConverterTests {
                 586399.423030929, 448578.26031174022
         };
         expectedZCoordinates = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
-      /*  result = converter.convertPoint(
+        result = converter.convertPoint(
                 ConstantsTests.EB_PSAD56_1209[ConstantsTests.V1],
                 ConstantsTests.EB_TRINIDAD_10085[ConstantsTests.V1],
                 xyCoordinates, zCoordinates);
 
-        assertEquals((Integer)5, resulct.getSuccessCount());
-*/
+        assertEquals((Integer)5, result.getSuccessCount());
+
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-//            assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_L);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_L);
         }
 
     }
@@ -404,8 +396,8 @@ public class CRSConverterTests {
         double[] zCoordinates = new double[]{0.0, 0.0, 0.0};
         CRSConverter converter = new CRSConverter();
 
-     //   ConvertPointsResponse result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-     //   assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
         }
@@ -419,10 +411,10 @@ public class CRSConverterTests {
                 500000, 7988932.50315411,
                 293363.50411435, 7999233.63722938
         };
-      //  result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
-      //  assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
+        result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
+        assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
         }
     }
 
@@ -449,11 +441,11 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0, 0.0, 0.0};
         CRSConverter converter = new CRSConverter();
 
- //       result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
- //       assertEquals("conversion from Geographic1 to Geographic1 UTM_31N; 3 points converted", result.getOperationsApplied().get(0));
- //       assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals("conversion from Geographic1 to Geographic1 UTM_31N; 3 points converted", result.getOperationsApplied().get(0));
+        assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
         }
         xyCoordinates = new double[]{
                 3.0, 36.0,
@@ -465,12 +457,12 @@ public class CRSConverterTests {
                 706636.49588565, 7999233.63722938,
                 500000, 7988932.50315411
         };
-/*        result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
         assertEquals("conversion from Geographic1 to Geographic1 UTM_30N; 3 points converted", result.getOperationsApplied().get(0));
         assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-        }*/
+        }
         xyCoordinates = new double[]{
                 3.0, 36.0,
                 3.0, 72.0,
@@ -484,20 +476,20 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0, 0.0, 0.0};
         converter = new CRSConverter();
 
-/*        result = converter.convertPoint(fromCRS, fromCRS, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, fromCRS, xyCoordinates, zCoordinates);
         assertEquals("no operation applied", result.getOperationsApplied().get(0));
         assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-        }*/
+        }
         converter = new CRSConverter();
 
-/*        result = converter.convertPoint(to_CRS2, to_CRS2, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(to_CRS2, to_CRS2, xyCoordinates, zCoordinates);
         assertEquals("no operation applied", result.getOperationsApplied().get(0));
         assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-        }*/
+        }
 
     }
 
@@ -552,23 +544,23 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         expectedZCoordinates = new double[]{Double.NaN, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-//        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-//        assertEquals((Integer)(expectedXYCoordinates.length / 2 - 1), result.getSuccessCount()); // one point fails.
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals((Integer)(expectedXYCoordinates.length / 2 - 1), result.getSuccessCount()); // one point fails.
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-//            assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
         }
         // inverse direction
         xyCoordinates = expectedXYCoordinates;
         expectedXYCoordinates = backUpCoordinates;
         expectedXYCoordinates[0] = Double.NaN;
         expectedXYCoordinates[1] = Double.NaN;
-/*        result = converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
         assertEquals((Integer)(expectedXYCoordinates.length / 2 - 1), result.getSuccessCount()); // one point fails.
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
-        }*/
+        }
 
         // same tests, but only supplying food for one transformation
         xyCoordinates = new double[]{
@@ -581,12 +573,12 @@ public class CRSConverterTests {
         };
         zCoordinates = new double[]{0.0, 0.0};
         expectedZCoordinates = new double[]{0.0, 0.0};
-/*        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
         assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount()); // all succeed.
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
-        }*/
+        }
 
         //
         xyCoordinates = new double[]{
@@ -601,12 +593,12 @@ public class CRSConverterTests {
         };
         zCoordinates = new double[]{0.0, 0.0, 0.0};
         expectedZCoordinates = new double[]{0.0, 0.0, 0.0};
-/*        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
         assertEquals((Integer)(expectedXYCoordinates.length / 2), result.getSuccessCount()); // all succeed.
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
-        }*/
+        }
         //
         xyCoordinates = new double[]{
                 -40.0, 20.0,  // outside either
@@ -619,12 +611,12 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0, 0.0};
         expectedZCoordinates = new double[]{Double.NaN, Double.NaN};
 
-/*        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
         assertEquals((Integer)0, result.getSuccessCount()); // none succeed.
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
-        }*/
+        }
     }
 
     @Test
@@ -648,12 +640,12 @@ public class CRSConverterTests {
         expectedZCoordinates = new double[]{0.0, 0.0};
         CRSConverter converter = new CRSConverter();
 
-//        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-//        assertEquals((Integer)2, result.getSuccessCount()); // all points in US
-/*        for (int i = 0; i < xyCoordinates.length; i++) {
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals((Integer)2, result.getSuccessCount()); // all points in US
+        for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
-        }*/
+        }
     }
 
     @Ignore
@@ -787,17 +779,17 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0};
         CRSConverter converter = new CRSConverter();
         try {
-//            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
         // reverse must fail as well
         try {
-//            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
 
         // PSAD56 * DMA-Ven [4248,1209] [dega]
@@ -805,17 +797,17 @@ public class CRSConverterTests {
         // Trinidad Grid [30200] [lkCla]
         to_CRS1 = ConstantsTests.LB_Trinidad_30200[ConstantsTests.V1];    // lacks the transform
         try {
-//            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
         // reverse must fail as well
         try {
-//            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
 
         // PSAD56[4248] [dega]
@@ -823,17 +815,17 @@ public class CRSConverterTests {
         // Trinidad Grid [30200] [lkCla]
         to_CRS1 = ConstantsTests.LB_Trinidad_30200[ConstantsTests.V1]; // lacks the transform
         try {
-//            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
         // reverse must fail as well
         try {
-//            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
-//            Assert.fail("convert should have failed");
+            converter.convertPoint(to_CRS1, fromCRS, xyCoordinates, zCoordinates);
+            Assert.fail("convert should have failed");
         } catch (IllegalArgumentException e) {
-//            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
+            assertTrue(e.getMessage().startsWith(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION));
         }
     }
 
@@ -849,16 +841,16 @@ public class CRSConverterTests {
         zCoordinates = new double[]{0.0};
         CRSConverter converter = new CRSConverter();
         try {
- //           result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
-//            assertEquals((Integer)1, result.getSuccessCount());
+            result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+            assertEquals((Integer)1, result.getSuccessCount());
         } catch (IllegalArgumentException e) {
             Assert.fail("Unexpected failure " + e.getMessage());
         }
         try {
-//            result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
-//            assertEquals((Integer)1, result.getSuccessCount());
+            result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
+            assertEquals((Integer)1, result.getSuccessCount());
         } catch (IllegalArgumentException e) {
-//            Assert.fail("Unexpected failure " + e.getMessage());
+            Assert.fail("Unexpected failure " + e.getMessage());
         }
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_A);
@@ -869,16 +861,16 @@ public class CRSConverterTests {
         toCRS = ConstantsTests.LB_WGS84_UTM19[ConstantsTests.V1];    // LBCRS 32619
         xyCoordinates = expectedXYCoordinates.clone();
         try {
-//            result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
-//            assertEquals((Integer)1, result.getSuccessCount());
+            result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+            assertEquals((Integer)1, result.getSuccessCount());
         } catch (IllegalArgumentException e) {
-//            Assert.fail("Unexpected failure " + e.getMessage());
+            Assert.fail("Unexpected failure " + e.getMessage());
         }
         try {
-//            result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
-//            assertEquals((Integer)1, result.getSuccessCount());
+            result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
+            assertEquals((Integer)1, result.getSuccessCount());
         } catch (IllegalArgumentException e) {
-//            Assert.fail("Unexpected failure " + e.getMessage());
+            Assert.fail("Unexpected failure " + e.getMessage());
         }
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_A);
@@ -925,11 +917,11 @@ public class CRSConverterTests {
         expectedZCoordinates = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         CRSConverter converter = new CRSConverter();
 
-//        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
- //       assertEquals((Integer)10, result.getSuccessCount()); // all points in US
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals((Integer)10, result.getSuccessCount()); // all points in US
         for (int i = 0; i < xyCoordinates.length; i++) {
-//            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
-//            assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
         }
     }
 
@@ -954,15 +946,15 @@ public class CRSConverterTests {
         expectedZCoordinates = new double[]{0.0};
         CRSConverter converter = new CRSConverter();
 
-  //      result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
-  //      assertEquals((Integer) 1, result.getSuccessCount());
+        result = converter.convertPoint(fromCRS, to_CRS1, xyCoordinates, zCoordinates);
+        assertEquals((Integer) 1, result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
             assertEquals(expectedZCoordinates[i / 2], zCoordinates[i / 2], DELTA_L);
         }
-       // assertEquals(1, result.getOperationsApplied().size()); // "no operation"
+        assertEquals(1, result.getOperationsApplied().size()); // "no operation"
 
-/*        result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(fromCRS, to_CRS2, xyCoordinates, zCoordinates);
         assertEquals((Integer) 1, result.getSuccessCount());
         for (int i = 0; i < xyCoordinates.length; i++) {
             assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
@@ -971,26 +963,24 @@ public class CRSConverterTests {
         if (!isIsSis) { // Apache SIS does not support custom transformations
             assertEquals(4, result.getOperationsApplied().size());
         }
-
- */
     }
 
     @Test
     public void testConvertGeoJson() {
         CRSConverter converter = new CRSConverter();
         GeoJsonFeatureCollection fc = (GeoJsonFeatureCollection) GeoJsonBase.createInstance(ConstantsTests.GEO_JSON_02);
-//        assertNotNull(fc);
- //       assertEquals(GeoJsonBase.GeoJsonVariant.GEO_JSON, fc.getGeoJsonVariant());
-   //     ConvertGeoJsonResponse response = converter.convertGeoJson(fc, ConstantsTests.EB_ED5023031024, ConstantsTests.UNIT_FT_v2);
- //       assertNotNull(response);
- //       GeoJsonFeatureCollection fcc = response.getFeatureCollection();
- //       assertNotNull(fcc);
- //       assertEquals(500090.8360209118, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[0], DELTA_L);
- //       assertEquals(6540267.101024315, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[1], DELTA_L);
-  //      assertEquals(2.0 / 0.3048, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[2], DELTA_L);
-   //     assertEquals(GeoJsonBase.GeoJsonVariant.ANY_CRS_GEO_JSON, fcc.getGeoJsonVariant());
+        assertNotNull(fc);
+        assertEquals(GeoJsonBase.GeoJsonVariant.GEO_JSON, fc.getGeoJsonVariant());
+        ConvertGeoJsonResponse response = converter.convertGeoJson(fc, ConstantsTests.EB_ED5023031024, ConstantsTests.UNIT_FT_v2);
+        assertNotNull(response);
+        GeoJsonFeatureCollection fcc = response.getFeatureCollection();
+        assertNotNull(fcc);
+        assertEquals(500090.8360209118, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[0], DELTA_L);
+        assertEquals(6540267.101024315, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[1], DELTA_L);
+        assertEquals(2.0 / 0.3048, ((GeoJsonPoint) fcc.getFeatures()[0].getGeometry()).getCoordinates()[2], DELTA_L);
+        assertEquals(GeoJsonBase.GeoJsonVariant.ANY_CRS_GEO_JSON, fcc.getGeoJsonVariant());
 
-/*
+
         fc = (GeoJsonFeatureCollection) GeoJsonBase.createInstance(ConstantsTests.GEO_JSON_01);
         assert fc != null;
         response = converter.convertGeoJson(fc, ConstantsTests.EB_ED5023031024, null);
@@ -1006,7 +996,7 @@ public class CRSConverterTests {
         assertEquals((Integer)(fc.getLength()), response.getTotalCount());
         assertEquals(response.getTotalCount(), response.getSuccessCount());
         assertEquals(GeoJsonBase.GeoJsonVariant.GEO_JSON, response.getFeatureCollection().getGeoJsonVariant());
-    */}
+    }
 
     private GeoJsonFeatureCollection makeTestFeatureCollection(int mode, int dimension) {
         ArrayList<GeoJsonFeature> fs = new ArrayList<>();
@@ -1237,8 +1227,8 @@ public class CRSConverterTests {
             for (int dimension = 2; dimension < 4; dimension++) {
                 GeoJsonFeatureCollection fc_ref = makeTestFeatureCollection(mode, dimension);
                 GeoJsonFeatureCollection fc = makeTestFeatureCollection(mode, dimension);
-//                assertNotNull(fc);
- /*               assertNotNull(fc_ref);
+                assertNotNull(fc);
+                assertNotNull(fc_ref);
                 response = converter.convertGeoJson(fc,
                         toCRS[mode], toUnitZ[mode]);
                 assertNotNull(response);
@@ -1255,7 +1245,7 @@ public class CRSConverterTests {
                     for (int i = 0; i < fc_ref.getFeatures()[i].getBbox().length; i++) {
                         assertEquals(response.getFeatureCollection().getFeatures()[i].getBbox()[i], fc_ref.getFeatures()[i].getBbox()[i], DELTA_A);
                     }
-                }*/
+                }
             }
         }
     }
