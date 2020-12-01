@@ -329,17 +329,17 @@ class TestCrsConverterIntegration(unittest.TestCase):
         self.assertIsNotNone(request)
         #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
-            api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
-            #  prepare round-trip
-            n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
-            api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
-            c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
-            ok = c.compare_feature_collections()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
+        api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        #  prepare round-trip
+        n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
+        api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
+        ok = c.compare_feature_collections()
+        self.assertTrue(ok, 'Actual response is different from expected response.')
         #except ApiException as e:
         #    self.fail(str(e))
 
