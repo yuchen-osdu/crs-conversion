@@ -327,7 +327,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
         request = self.__read_request('v2/data/AnyCrsGeoJsonPolygon.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
-        try:
+        #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
             api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
@@ -340,8 +340,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
             c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
             ok = c.compare_feature_collections()
             self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
+        #except ApiException as e:
+        #    self.fail(str(e))
 
     @staticmethod
     def __read_request(file_name):
