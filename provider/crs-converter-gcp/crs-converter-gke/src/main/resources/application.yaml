@@ -22,4 +22,4 @@ LOG_PREFIX: converter
 # [Required] URL of the Entitlements Service
 osdu:
   entitlement:
-    url: ${ENTITLEMENT_URL}
+    url: localhost
