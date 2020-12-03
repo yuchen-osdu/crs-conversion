@@ -90,5 +90,5 @@ requires the following environment variables:
 
 ## GCP
 
-Instructions for running the Google Cloud Platform implementation locally can be found [here](./provider/crs-converter-gke/README.md).
+Instructions for Google Cloud Platform implementation can be found [here](./provider/crs-catalog-gcp/crs-catalog-gke/README.md).
 
