@@ -326,8 +326,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
     def test_any_crs_to_geo_json(self):
         request = self.__read_request('v2/data/AnyCrsGeoJsonPolygon.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        print "::: this is data partition header"
-        print data_partition_header
+        print ("::: this is data partition header")
+        print (data_partition_header)
         self.assertIsNotNone(request)
         #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
