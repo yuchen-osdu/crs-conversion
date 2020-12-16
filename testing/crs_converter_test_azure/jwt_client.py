@@ -6,7 +6,7 @@ logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
 def get_id_token():
     # Generate valid Token for given tenant.
-    tenant_id = os.getenv('AZURE_AD_TENANT_ID')
+    tenant_id = os.getenv('AZURE_TENANT_ID')
     resource_id = os.getenv('AZURE_AD_APP_RESOURCE_ID')
     client_id = os.getenv('INTEGRATION_TESTER')
     client_secret = os.getenv('AZURE_TESTER_SERVICEPRINCIPAL_SECRET')
