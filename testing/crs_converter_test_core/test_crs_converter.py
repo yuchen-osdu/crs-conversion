@@ -8,6 +8,10 @@ import json
 import urllib3
 urllib3.disable_warnings()
 
+import logging
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+
+
 from crs_converter_test_core.v2.swagger_client import ApiClient, CRSPointConversionApi, TrajectoryComputationAndConversionApi, \
     TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse
 from crs_converter_test_core.v2.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point, ConvertTrajectoryRequest, \
@@ -199,6 +203,10 @@ class TestCrsConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
@@ -369,6 +377,10 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
@@ -483,6 +495,10 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up;  BASE_URL, ROOT_URL, MY_TENANT not set.')
