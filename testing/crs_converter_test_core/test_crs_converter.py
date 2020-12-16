@@ -7,7 +7,7 @@ import json
 
 import urllib3
 urllib3.disable_warnings()
-
+import warnings
 import logging
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
