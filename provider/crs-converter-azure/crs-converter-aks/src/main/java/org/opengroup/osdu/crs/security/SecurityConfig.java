@@ -35,21 +35,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final String[] AUTH_WHITELIST = {
-            "/",
-            "/index.html",
-            "/_ah/*",
-            "/v2/api-docs",
-            "/configuration/ui",
-            "/swagger-resources/**",
-            "/configuration/security",
-            "/swagger",
-            "/swagger-ui.html",
-            "/webjars/**",
-            "/csrf"
+        "/",
+        "/api-docs",
+        "/swagger-resources/**",
+        "/swagger-ui.html",
+        "/webjars/**",
+        "/_ah/**",
+        "/error",
+        "/favicon.ico",
+        "/csrf"
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually
-    public SecurityConfig(@Value("${ENTITLEMENT_URL}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
+    public SecurityConfig(@Value("${osdu.entitlement.url}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
         authFilter = new AuthenticationRequestFilter(entitlementsUrl, handlerExceptionResolver);
     }
 
