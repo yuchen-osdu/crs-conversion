@@ -15,7 +15,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ .Chart.Name }}-jwt-authz
+  name: crs-conversion-service-jwt-authz
   namespace: osdu
 spec:
   selector:
@@ -33,5 +33,5 @@ spec:
                        "*/swagger","*/swagger-resources","*/swagger-ui.html",
                        "*/actuator/health", "*/health",
                        "*/configuration/ui","*/configuration/security",
-                       "/api/{{ .Chart.Name }}/swagger-resources/*",
-                       "/api/{{ .Chart.Name }}/webjars/*"]
+                       "/api/crs/converter/swagger-resources/*",
+                       "/api/crs/converter/webjars/*","/api/crs/converter/webjars/**"]
