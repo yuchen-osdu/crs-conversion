@@ -34,4 +34,4 @@ spec:
                        "*/actuator/health", "*/health",
                        "*/configuration/ui","*/configuration/security",
                        "/api/crs/converter/swagger-resources/*",
-                       "/api/crs/converter/webjars/*","/api/crs/converter/webjars/**"]
+                       "/api/crs/converter/webjars/*", "/api/crs/converter/webjars/**"]
