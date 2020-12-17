@@ -41,9 +41,11 @@ public class AADSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/",
                         "/v2/api-docs",
                         "/configuration/ui",
+                        "/configuration/security",
                         "/swagger-resources/**",
                         "/configuration/security",
                         "/swagger",
+                        "/swagger.json",
                         "/swagger-ui.html",
                         "/webjars/**").permitAll()
                 .anyRequest().authenticated()
