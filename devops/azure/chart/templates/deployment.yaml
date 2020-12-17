@@ -91,7 +91,7 @@ spec:
             - name: ENTITLEMENT_URL
               value: http://entitlements-azure/entitlements/v1
             - name: azure_istioauth_enabled
-              value: "false"
+              value: "true"
             - name: ESRI_DATA_PATH
               value: \crs-conversion-service  
             - name: cosmosdb_database
