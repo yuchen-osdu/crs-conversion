@@ -33,5 +33,5 @@ spec:
                        "*/swagger","*/swagger-resources","*/swagger-ui.html",
                        "*/actuator/health", "*/health",
                        "*/configuration/ui","*/configuration/security",
-                       "/api/{{ .Chart.Name }}/v2/swagger-resources/*",
-                       "/api/{{ .Chart.Name }}/v2/webjars/*"]
+                       "/api/crs/converter/swagger-resources/*",
+                       "/api/crs/converter/webjars/*", "/api/crs/converter/webjars/**"]
