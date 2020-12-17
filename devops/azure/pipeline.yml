@@ -8,12 +8,14 @@ trigger:
       - /**/*.md
       - .gitignore
       - /docs
-
+      - /provider/crs-converter-aws
+      - /provider/crs-converter-gcp
+      - /provider/crs-converter-ibm
 resources:
   repositories:
   - repository: FluxRepo
     type: git
-    name: gitops-manifests
+    name: k8-gitops-manifests
   - repository: TemplateRepo
     type: git
     name: infra-azure-provisioning
@@ -30,17 +32,20 @@ variables:
     value: "devops/azure/chart/helm-config.yaml"
   - name: 'MANIFEST_REPO'
     value: $[ resources.repositories['FluxRepo'].name ]
+  - name: 'MAVEN_CACHE_FOLDER'
+    value: $(Pipeline.Workspace)/.m2/repository
 stages:
   - template: /devops/build-stage.yml@TemplateRepo
     parameters:
       mavenGoal: 'package'
       mavenPublishJUnitResults: true
-      serviceCoreMavenOptions: ''
-      mavenOptions: ''
+      serviceCoreMavenOptions: '-P crs-converter-core --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+      mavenOptions: '-P crs-converter-azure --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
       copyFileContents: |
         pom.xml
-        provider/crs-converter-azure/crs-converter-aks/pom.xml
-        provider/crs-converter-azure/crs-converter-aks/target/*.jar
+        maven/settings.xml
+        provider/unit-azure/unit-aks/pom.xml
+        provider/unit-azure/unit-aks/target/unit-aks-*.jar
       copyFileContentsToFlatten: ''
       mavenSettingsFile: './maven/settings.xml'
       serviceBase: ${{ variables.serviceName }}
@@ -57,8 +62,8 @@ stages:
       skipDeploy: ${{ variables.SKIP_DEPLOY }}
       skipTest: 'true'
       runPythonTest: 'true'
-      testPythonFilePath: 'testing/crs_converter_test_sauth'
+      testPythonFilePath: 'testing/crs_converter_test_azure'
       testPythonFile: 'run-integration-tests.sh'
       providers:
         -  name: Azure
-           environments: ['dev']
+           environments: ['demo']
