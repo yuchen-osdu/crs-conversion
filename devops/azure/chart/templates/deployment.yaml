@@ -96,5 +96,7 @@ spec:
               value: \crs-conversion-service  
             - name: cosmosdb_database
               value: osdu-db
+            - name: service_domain_name
+              value: contoso.com
             - name: SIS_DATA
               value: /crs-converter/apachesis_setup/SIS_DATA
