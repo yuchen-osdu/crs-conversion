@@ -15,7 +15,7 @@ python3 -m pip install -r requirements.txt
 echo ***RUNNING CRS Converter API TESTS***
 python3 run_test_api.py
 TEST_STATUS=$?
-echo ***FINISHED CRS Converter API V2 TESTS***
+echo ***FINISHED CRS Converter API TESTS***
 echo ""
 
 	
