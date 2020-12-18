@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually
-    public SecurityConfig(@Value("${ENTITLEMENT_URL}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
+    public SecurityConfig(@Value("${osdu.entitlement.url}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
         authFilter = new AuthenticationRequestFilter(entitlementsUrl, handlerExceptionResolver);
     }
 
