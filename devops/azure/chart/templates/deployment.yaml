@@ -99,4 +99,4 @@ spec:
             - name: service_domain_name
               value: contoso.com
             - name: SIS_DATA
-              value: .\
+              value: \crs-conversion-service\apachesis_setup\SIS_DATA
