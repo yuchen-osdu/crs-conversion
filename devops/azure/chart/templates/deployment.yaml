@@ -93,10 +93,10 @@ spec:
             - name: azure_istioauth_enabled
               value: "true"
             - name: ESRI_DATA_PATH
-              value: \crs-conversion-service  
+              value: /crs-conversion-service  
             - name: cosmosdb_database
               value: osdu-db
             - name: service_domain_name
               value: contoso.com
             - name: SIS_DATA
-              value: \crs-conversion-service\apachesis_setup\SIS_DATA
+              value: $CI_PROJECT_DIR/apachesis_setup/SIS_DATA
