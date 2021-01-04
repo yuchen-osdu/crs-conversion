@@ -14,5 +14,14 @@ logging:
     org:
       springframework:
         web: INFO
+  transaction:
+    enabled: true
+  slf4jlogger:
+    enabled: true
+  mdccontext:
+    enabled: true
 LOG_PREFIX: converter
 
+azure:
+  application-insights:
+    instrumentation-key: ${appinsights_key}
