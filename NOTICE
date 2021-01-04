@@ -148,6 +148,7 @@ The following software have components provided under the terms of this license:
 - Spring Boot Actuator Starter (from http://projects.spring.io/spring-boot/)
 - Spring Boot AutoConfigure (from http://projects.spring.io/spring-boot/)
 - Spring Boot Json Starter (from https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-json)
+- Spring Boot Log4J2 Starter (from http://projects.spring.io/spring-boot/)
 - Spring Boot Logging Starter (from http://projects.spring.io/spring-boot/)
 - Spring Boot Starter (from http://projects.spring.io/spring-boot/)
 - Spring Boot Test (from http://projects.spring.io/spring-boot/)
