@@ -99,4 +99,4 @@ spec:
             - name: service_domain_name
               value: contoso.com
             - name: SIS_DATA
-              value: /builds/osdu/platform/system/reference/crs-conversion-service/apachesis_setup/SIS_DATA
+              value: /apachesis_setup/SIS_DATA
