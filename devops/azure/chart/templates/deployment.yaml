@@ -43,6 +43,9 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: azure-keyvault
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: crs-pvc        
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ .Chart.Name }}-{{ .Values.image.branch }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
