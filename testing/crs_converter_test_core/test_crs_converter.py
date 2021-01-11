@@ -334,8 +334,6 @@ class TestCrsConverterIntegration(unittest.TestCase):
     def test_any_crs_to_geo_json(self):
         request = self.__read_request('v2/data/AnyCrsGeoJsonPolygon.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        print ("::: this is data partition header")
-        print (data_partition_header)
         self.assertIsNotNone(request)
         #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
@@ -535,6 +533,9 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
         except ApiException as e:
+            print("::::: I am going to fail :::::: ")
+            print(self)
+            print(e)
             reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue("Forbidden"==reason or "Unauthorized"==reason)

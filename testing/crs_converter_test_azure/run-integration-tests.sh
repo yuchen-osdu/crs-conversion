@@ -11,10 +11,6 @@ source env/bin/activate
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 
-echo ***TESTING***
-python3 copy_sis.py
-echo ***End TESTING**
-
 # Run tests
 echo ***RUNNING CRS Converter API TESTS***
 python3 run_test_api.py
