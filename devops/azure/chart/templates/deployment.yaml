@@ -67,6 +67,8 @@ spec:
             - name: azure-keyvault
               mountPath: "/mnt/azure-keyvault"
               readOnly: true
+            - name: shared-data
+              mountPath: /mnt/crs_conversion  
           env:
             - name: spring_application_name
               value: crs-conversion-service
