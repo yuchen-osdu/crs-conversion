@@ -19,7 +19,8 @@ azure:
   istio:
     auth:
       enabled: true
-
+  application-insights:
+    instrumentation-key: ${appinsights_key}
 logging:
   level:
     org:
@@ -32,7 +33,3 @@ logging:
   mdccontext:
     enabled: true
 LOG_PREFIX: converter
-
-azure:
-  application-insights:
-    instrumentation-key: ${appinsights_key}
