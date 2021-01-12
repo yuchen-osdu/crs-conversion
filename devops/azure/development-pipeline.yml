@@ -43,11 +43,12 @@ stages:
       mavenOptions: '-P crs-converter-azure --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
       copyFileContents: |
         pom.xml
-        maven/settings.xml
+        provider/crs-converter-azure/crs-converter-aks/maven/settings.xml
         provider/crs-converter-azure/crs-converter-aks/pom.xml
-        provider/crs-converter-azure/crs-converter-aks/target/crs-converter-aks-*.jar
+        provider/crs-converter-azure/crs-converter-aks/target/*-spring-boot.jar
+        .mvn/community-maven.settings.xml
       copyFileContentsToFlatten: ''
-      mavenSettingsFile: './maven/settings.xml'
+      mavenSettingsFile: '.mvn/community-maven.settings.xml'
       serviceBase: ${{ variables.serviceName }}
       testingRootFolder: 'testing'
       chartPath: ${{ variables.chartPath }}
@@ -66,4 +67,4 @@ stages:
       testPythonFile: 'run-integration-tests.sh'
       providers:
         -  name: Azure
-           environments: ['demo']
+           environments: ['dev']

@@ -43,6 +43,9 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: azure-keyvault
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: crs-conversion-pvc        
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ .Chart.Name }}-{{ .Values.image.branch }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -64,6 +67,8 @@ spec:
             - name: azure-keyvault
               mountPath: "/mnt/azure-keyvault"
               readOnly: true
+            - name: shared-data
+              mountPath: /mnt/crs_conversion  
           env:
             - name: spring_application_name
               value: crs-conversion-service
@@ -93,8 +98,10 @@ spec:
             - name: azure_istioauth_enabled
               value: "true"
             - name: ESRI_DATA_PATH
-              value: \crs-conversion-service  
+              value: /crs-conversion-service  
             - name: cosmosdb_database
               value: osdu-db
             - name: service_domain_name
               value: contoso.com
+            - name: SIS_DATA
+              value: /mnt/crs_conversion/apachesis_setup/SIS_DATA

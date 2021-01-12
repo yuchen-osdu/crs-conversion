@@ -43,11 +43,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
             "/swagger",
             "/swagger-ui.html",
             "/webjars/**",
+            "/swagger.json",
             "/csrf"
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually
-    public SecurityConfig(@Value("${ENTITLEMENT_URL}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
+    public SecurityConfig(@Value("${osdu.entitlement.url}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
         authFilter = new AuthenticationRequestFilter(entitlementsUrl, handlerExceptionResolver);
     }
 

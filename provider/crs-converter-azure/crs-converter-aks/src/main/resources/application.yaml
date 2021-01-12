@@ -9,6 +9,17 @@ server:
 
 spring.mvc.throw-exception-if-no-handler-found: true
 
+# Entitlement properties
+#
+#
+# [Required] URL of the Entitlements Service
+osdu.entitlement.url: ${ENTITLEMENT_URL}
+# Istio Auth Enabled
+azure:
+  istio:
+    auth:
+      enabled: true
+
 logging:
   level:
     org:
