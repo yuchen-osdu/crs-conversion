@@ -537,7 +537,12 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             print(unittest)
             print(e)
             print(os.environ)
-            reason = json.loads(e.body)['reason']
+            VENDOR = os.getenv("VENDOR")
+            print(VENDOR)
+            if VENDOR == "azure":
+                reason = e.reason
+            else:
+                reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue("Forbidden"==reason or "Unauthorized"==reason)
 
