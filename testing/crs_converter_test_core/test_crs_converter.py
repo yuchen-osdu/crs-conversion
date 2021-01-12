@@ -533,12 +533,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
         except ApiException as e:
-            print("::::: I am going to fail :::::: ")
-            print(unittest)
-            print(e)
-            print(os.environ)
             VENDOR = os.getenv("VENDOR")
-            print(VENDOR)
             if VENDOR == "azure":
                 reason = e.reason
             else:
