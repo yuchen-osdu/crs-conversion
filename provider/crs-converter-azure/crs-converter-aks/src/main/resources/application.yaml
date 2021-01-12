@@ -19,11 +19,17 @@ azure:
   istio:
     auth:
       enabled: true
-
+  application-insights:
+    instrumentation-key: ${appinsights_key}
 logging:
   level:
     org:
       springframework:
         web: INFO
+  transaction:
+    enabled: true
+  slf4jlogger:
+    enabled: true
+  mdccontext:
+    enabled: true
 LOG_PREFIX: converter
-
