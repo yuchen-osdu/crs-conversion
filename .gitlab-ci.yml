@@ -4,7 +4,9 @@ variables:
   AZURE_SERVICE: crs_converter
   AZURE_BUILD_SUBDIR: provider/crs-converter-azure/crs-converter-aks
   AZURE_TEST_SUBDIR: testing/crs_converter_test_azure
-
+  AZURE_TEST_TYPE: python
+  ESRI_DATA_PATH: /crs
+  SHARE_NAME: crs-conversion
 
   AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
   AWS_TEST_SUBDIR: testing/crs_converter_test_aws
