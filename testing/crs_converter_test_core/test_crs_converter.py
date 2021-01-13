@@ -7,6 +7,10 @@ import json
 
 import urllib3
 urllib3.disable_warnings()
+import warnings
+import logging
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+
 
 from crs_converter_test_core.v2.swagger_client import ApiClient, CRSPointConversionApi, TrajectoryComputationAndConversionApi, \
     TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse
@@ -199,6 +203,10 @@ class TestCrsConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
@@ -327,21 +335,21 @@ class TestCrsConverterIntegration(unittest.TestCase):
         request = self.__read_request('v2/data/AnyCrsGeoJsonPolygon.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
-        try:
+        #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
-            api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
-            #  prepare round-trip
-            n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
-            api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
-            c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
-            ok = c.compare_feature_collections()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
+        api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        #  prepare round-trip
+        n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
+        api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
+        ok = c.compare_feature_collections()
+        self.assertTrue(ok, 'Actual response is different from expected response.')
+        #except ApiException as e:
+        #    self.fail(str(e))
 
     @staticmethod
     def __read_request(file_name):
@@ -367,6 +375,10 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
@@ -481,6 +493,10 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
+        urllib3.disable_warnings()
+
         cls.env = TestEnvironment()
         if not cls.env.is_ok():
             raise Exception('Test environment is not properly set up;  BASE_URL, ROOT_URL, MY_TENANT not set.')
@@ -517,7 +533,11 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
         except ApiException as e:
-            reason = json.loads(e.body)['reason']
+            VENDOR = os.getenv("VENDOR")
+            if VENDOR == "azure":
+                reason = e.reason
+            else:
+                reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue("Forbidden"==reason or "Unauthorized"==reason)
 

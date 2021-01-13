@@ -60,3 +60,7 @@ dist/
 */target
 target/
 .idea
+
+# Environment configuration
+*.env
+.envrc
