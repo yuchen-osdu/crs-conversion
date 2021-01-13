@@ -39,8 +39,8 @@ stages:
     parameters:
       mavenGoal: 'package'
       mavenPublishJUnitResults: true
-      serviceCoreMavenOptions: '-P crs-converter-core --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-      mavenOptions: '-P crs-converter-azure --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+      serviceCoreMavenOptions: '-pl crs-converter-core --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+      mavenOptions: '-pl provider/crs-converter-azure/crs-converter-aks --settings .mvn/community-maven.settings.xml -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
       copyFileContents: |
         pom.xml
         provider/crs-converter-azure/crs-converter-aks/maven/settings.xml
