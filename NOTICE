@@ -70,6 +70,7 @@ The following software have components provided under the terms of this license:
 - Jackson-datatype-jdk8 (from )
 - Jackson-module-Afterburner (from http://wiki.fasterxml.com/JacksonHome)
 - Jackson-module-JAXB-annotations (from http://wiki.fasterxml.com/JacksonJAXBAnnotations)
+- Jackson-module-parameter-names (from )
 - Jakarta Bean Validation API (from https://beanvalidation.org)
 - Java Native Access (from https://github.com/java-native-access/jna)
 - Java Native Access Platform (from https://github.com/java-native-access/jna)
