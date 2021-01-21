@@ -15,7 +15,7 @@
         <app.version>1</app.version>
         <app.id>crs-converter-ocp</app.id>
         <!--azure.version>2.3.2</azure.version-->
-        <os-core-lib-ibm.version>0.3.6-SNAPSHOT</os-core-lib-ibm.version>
+        <os-core-lib-ibm.version>0.3.8-SNAPSHOT</os-core-lib-ibm.version>
     </properties>
 
     <prerequisites>
@@ -72,7 +72,6 @@
                     </execution>
                 </executions>
 			</plugin>
-
         </plugins>
     </build>
 
