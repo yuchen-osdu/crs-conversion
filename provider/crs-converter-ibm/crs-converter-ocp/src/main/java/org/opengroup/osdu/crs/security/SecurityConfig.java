@@ -1,3 +1,6 @@
+/* Licensed Materials - Property of IBM              */
+/* (c) Copyright IBM Corp. 2020. All Rights Reserved.*/
+
 package org.opengroup.osdu.crs.security;
 
 import java.io.IOException;
@@ -52,17 +55,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Acce
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        
- http.csrf().disable()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
-        .and()
-        .authorizeRequests()
-        .antMatchers(AUTH_WHITELIST).permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
-        //.oauth2ResourceServer().jwt();      
-
-	 
+		 http.csrf().disable()
+		        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
+		        .and()
+		        .authorizeRequests()
+		        .antMatchers(AUTH_WHITELIST).permitAll()
+		        .anyRequest().authenticated()
+		        .and()
+		        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+		        //.oauth2ResourceServer().jwt();	 
     }
     
     public SecurityConfig(@Value("${ENTITLEMENT_URL}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
@@ -98,6 +99,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Acce
         out.print(body);
         out.flush();
     }
-
     
 }
