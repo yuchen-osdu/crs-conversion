@@ -1,4 +1,5 @@
-
+# Licensed Materials - Property of IBM
+# (c) Copyright IBM Corp. 2020. All Rights Reserved.
 import os
 from keycloak import KeycloakOpenID
 
