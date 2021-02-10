@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>org.opengroup.osdu.crs-converter-service</groupId>
         <artifactId>crs-converter-service</artifactId>
-        <version>1.0.0</version>
+        <version>0.6.0-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -23,7 +22,7 @@
     </prerequisites>
 
     <artifactId>crs-converter-ocp</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <name>crs-converter-ocp</name>
     <description>CRS converter service Openshift Container Platform deployment</description>
 
@@ -31,7 +30,7 @@
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
-            <version>1.0.0</version>
+            <version>0.6.0-SNAPSHOT</version>
         </dependency>
         
         <!--dependency>
