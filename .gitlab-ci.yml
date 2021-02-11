@@ -50,7 +50,7 @@ include:
     file: "cloud-providers/aws.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm.yml"
+    file: "cloud-providers/ibm-python-test.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     ref: "master"
