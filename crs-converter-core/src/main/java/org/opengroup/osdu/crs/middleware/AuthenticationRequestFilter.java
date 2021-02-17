@@ -62,13 +62,13 @@ public class AuthenticationRequestFilter extends OncePerRequestFilter {
         } catch (EntitlementsException e) {
             String message = String.format(String.format("User not authenticated. Response: %s", e.getHttpResponse()), e);
             logger.warning(message);
-            AppException unauthorized =  new AppException(e.getHttpResponse().getResponseCode(), "Error when authenticate", e.getMessage(), e);
+            AppException unauthorized =  new AppException(e.getHttpResponse().getResponseCode(), "Entitlement Error", e.getMessage(), e);
             handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
         }
         catch (NullPointerException e) { // Common library throws null pointer exception when auth permission is denied.
             String message = String.format("User not authenticated. Null pointer exception: %s", e.getMessage());
             logger.warning(message);
-            AppException unauthorized =  new AppException(HttpStatus.SC_UNAUTHORIZED, "Error when authenticate", e.getMessage(), e);
+            AppException unauthorized =  new AppException(HttpStatus.SC_UNAUTHORIZED, "Entitlement Error", e.getMessage(), e);
             handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
         }
     }
