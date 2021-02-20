@@ -539,7 +539,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             else:
                 reason = json.loads(e.body)['reason']
             self.assertTrue(403==e.status or 401==e.status)
-            self.assertTrue("Forbidden"==reason or "Unauthorized"==reason)
+            self.assertTrue("Forbidden"==reason or "Unauthorized"==reason or "Entitlement Error"==reason)
 
 
 if __name__ == '__main__':
