@@ -28,6 +28,11 @@ analyze:
     type: mvn
     target: provider/crs-converter-gcp/crs-converter-gke/pom.xml
     path: .
-  - name: crs-catalog-aws
+  - name: crs-converter-aws
     type: mvn
     target: provider/crs-converter-aws/pom.xml
+    path: .
+  - name: crs-converter-ocp
+    type: mvn
+    target: provider/crs-converter-ibm/crs-converter-ocp/pom.xml
+    path: .
