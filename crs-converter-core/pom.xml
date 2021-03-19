@@ -30,7 +30,6 @@
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>os-core-common</artifactId>
-      <version>0.0.20</version>
     </dependency>
 
     <!-- auth0 dependencies -->
