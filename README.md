@@ -14,6 +14,12 @@ See also the test's [README.md](testing/README.md)
 1. The project builds with [maven](https://maven.apache.org/). Make sure maven is installed locally.
 1. The project requires the [Lombok](https://projectlombok.org/) plug-in installed for your IDE.
 
+### Make the below change for a successful local build. Do not commit this change.
+- **Comment the following in "crs-converter-core/pom.xml"**
+```xml
+<!--    <localRepositoryPath>${basedir}/../../.m2/repository</localRepositoryPath>-->
+```
+
 ## Running CRS Conversion Service locally
 #### Build and run CRS Conversion Service locally using bash
 - Set the required environments described in [Release/deployment](##Release/deployment) section
