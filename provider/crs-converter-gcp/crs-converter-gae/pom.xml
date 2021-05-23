@@ -13,7 +13,6 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-gae</app.id>
-
         <appengine.app.version>1</appengine.app.version>
         <appengine.plugin.version>1.9.73</appengine.plugin.version>
         <appengine.maven.plugin.version>1.3.2</appengine.maven.plugin.version>
@@ -24,7 +23,6 @@
     </prerequisites>
 
     <artifactId>crs-converter-gae</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
     <name>crs-converter-gae</name>
     <description>CRS converter service Google App Engine deployment</description>
 
@@ -32,7 +30,7 @@
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
-            <version>0.9.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
