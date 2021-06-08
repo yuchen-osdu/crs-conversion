@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
+import org.opengroup.osdu.crs.middleware.AuthenticationService;
 import org.opengroup.osdu.crs.util.AppError;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -66,8 +65,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Acce
 		        //.oauth2ResourceServer().jwt();	 
     }
     
-    public SecurityConfig(@Value("${ENTITLEMENT_URL}") String entitlementsUrl, HandlerExceptionResolver handlerExceptionResolver) {
-        authFilter = new AuthenticationRequestFilter(entitlementsUrl, handlerExceptionResolver);
+    public SecurityConfig(AuthenticationService authenticationService) {
+        authFilter = new AuthenticationRequestFilter(authenticationService);
     }
     @Override
     public void configure(WebSecurity web) {

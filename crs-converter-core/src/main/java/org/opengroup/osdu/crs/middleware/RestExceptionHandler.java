@@ -1,8 +1,10 @@
 package org.opengroup.osdu.crs.middleware;
 
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.crs.api.exception.BadRequestException;
 import org.opengroup.osdu.crs.util.AppError;
 import org.opengroup.osdu.crs.util.AppException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +24,9 @@ import javax.validation.ValidationException;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @Autowired
+    private JaxRsDpsLog jaxRsDpsLog;
+
     @ExceptionHandler(value = { BadRequestException.class, IllegalArgumentException.class })
     public ResponseEntity<AppError> handleBadRequest(Exception  e) {
         AppError appError = AppError.builder()
@@ -29,7 +34,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .message("Bad request")
                 .reason("Error")
                 .build();
-
+        jaxRsDpsLog.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body(appError);
     }
 
@@ -39,7 +44,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
-
+        jaxRsDpsLog.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body(appError);
     }
 
@@ -52,7 +57,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .message("Resource not found.")
                 .reason("Resource not found.")
                 .build();
-
+        jaxRsDpsLog.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(appError);
     }
 
@@ -60,14 +65,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
                                                                   @NonNull HttpStatus status, @NonNull WebRequest request) {
-        return getBadInputResponse();
+        return getBadInputResponse(ex);
     }
 
     @NonNull
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(@NonNull HttpMessageNotReadableException ex, @NonNull HttpHeaders headers,
                                                                   @NonNull HttpStatus status, @NonNull WebRequest request) {
-        return getBadInputResponse();
+        return getBadInputResponse(ex);
     }
 
     @ExceptionHandler(value = HttpStatusCodeException.class)
@@ -88,17 +93,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         }
     }
 
-    private ResponseEntity<Object> getBadInputResponse() {
+    private ResponseEntity<Object> getBadInputResponse(Exception e) {
         String errorMessage = "bad input type or format, check the input type and format.";
         AppError appError = AppError.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(errorMessage)
                 .build();
-
+        jaxRsDpsLog.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body(appError);
     }
 
     private ResponseEntity<AppError> getResponse(AppException appException) {
+        if (appException.getCause() instanceof Exception) {
+            Exception original = (Exception) appException.getCause();
+            jaxRsDpsLog.error(original.getMessage(), original);
+        }
+        jaxRsDpsLog.error(appException.getError().getMessage(), appException);
         AppError appError = appException.getError();
         return ResponseEntity.status(appError.getCode()).contentType(MediaType.APPLICATION_JSON).body(appError);
     }

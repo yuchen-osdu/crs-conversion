@@ -1,18 +1,19 @@
 package org.opengroup.osdu.crs.api;
 
 import io.swagger.annotations.*;
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
 import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.util.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.logging.Logger;
 
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
@@ -20,7 +21,8 @@ import java.util.logging.Logger;
 @RequestMapping("/v2")
 public class CrsConverterApi {
 
-	private static final Logger logger = Logger.getLogger(CrsConverterApi.class.getName());
+	@Autowired
+	private JaxRsDpsLog logger;
 
 	private final ICRSConverter crsConverter;
 	private final ITrajectoryConverter crsTrajectoryConverter;

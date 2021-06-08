@@ -23,8 +23,8 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
+import org.opengroup.osdu.crs.middleware.AuthenticationService;
 import org.opengroup.osdu.crs.util.AppError;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -37,7 +37,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
+
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -65,9 +65,8 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter implements 
   };
 
   //AuthenticationRequestFilter is not a recognized bean, so construct it manually
-  public AuthSecurityConfig(@Value("${osdu.entitlement.url}") String entitlementsUrl,
-      HandlerExceptionResolver handlerExceptionResolver) {
-    authFilter = new AuthenticationRequestFilter(entitlementsUrl, handlerExceptionResolver);
+  public AuthSecurityConfig(AuthenticationService authenticationService) {
+    authFilter = new AuthenticationRequestFilter(authenticationService);
   }
 
   @Override
