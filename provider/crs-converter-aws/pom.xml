@@ -21,13 +21,11 @@
     <parent>
         <groupId>org.opengroup.osdu.crs-converter-service</groupId>
         <artifactId>crs-converter-service</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <version>0.10.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opengroup.osdu.crs-converter-service</groupId>
     <artifactId>crs-converter-aws</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>crs-converter-aws</name>
     <description>CRS Converter service on AWS</description>
@@ -35,12 +33,9 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aws</app.id>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <objectify.version>5.1.22</objectify.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -55,7 +50,7 @@
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
-            <version>0.9.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
