@@ -26,6 +26,8 @@ variables:
   OSDU_GCP_ENV_VARS: OSDU_ENTITLEMENT_URL=$OSDU_GCP_ENTITLEMENTS_URL,SIS_DATA=$OSDU_GCP_SIS_DATA
   OSDU_GCP_INT_TEST_TYPE: python
   OSDU_GCP_PYTHON_INT_TEST_SUBDIR:  testing/crs_converter_test_gcp
+  OSDU_GCP_HELM_PACKAGE_CHARTS: "devops/gcp/deploy devops/gcp/configmap"
+
   DATA_DIR: /tmp/CloudTestData
   DATA_PATTERN: Test*.0*.json
   REPORT_PATH: /tmp/CloudTestData/Report/SuiteReport.txt
@@ -55,6 +57,9 @@ include:
   - project: "osdu/platform/ci-cd-pipelines"
     ref: "master"
     file: "cloud-providers/osdu-gcp-cloudrun.yml"
+
+  - project: 'osdu/platform/ci-cd-pipelines'
+    file: 'publishing/pages.yml'
 
 osdu-gcp-test-python:
   variables:
