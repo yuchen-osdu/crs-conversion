@@ -1,0 +1,11 @@
+data:
+  log_level: "INFO"
+  entitlements_api: ""
+  sis_data: ""
+  audiences: ""
+  partition_api: ""
+
+
+conf:
+  configmap: "crs-conversion-config"
+  app_name: "crs-conversion"
