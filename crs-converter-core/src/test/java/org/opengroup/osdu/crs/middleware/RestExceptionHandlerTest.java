@@ -14,6 +14,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -59,6 +60,20 @@ public class RestExceptionHandlerTest {
         ValidationException exception = new ValidationException("Bad request");
 
         ResponseEntity<AppError> response = restExceptionHandler.handleValidationException(exception);
+
+        assertEquals(400, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        AppError body = response.getBody();
+        assertEquals(400, body.getCode());
+        assertEquals("Bad request", body.getMessage());
+        Mockito.verify(jaxRsDpsLog).error("Bad request", exception);
+    }
+
+    @Test
+    public void shouldReturnBadRequestOnHttpMessageConversionException() {
+        HttpMessageConversionException exception = new HttpMessageConversionException("Bad request");
+
+        ResponseEntity<AppError> response = restExceptionHandler.handleHttpMessageConversionException(exception);
 
         assertEquals(400, response.getStatusCodeValue());
         assertNotNull(response.getBody());
