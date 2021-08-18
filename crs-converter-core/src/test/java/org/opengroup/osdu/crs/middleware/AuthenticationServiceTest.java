@@ -97,7 +97,7 @@ public class AuthenticationServiceTest {
         boolean result = authenticationService.isAuthorized(httpServletRequest, httpServletResponse);
 
         Assert.assertTrue(result);
-        Mockito.verify(jaxRsDpsLog).info("User authenticated | User: email");
+        Mockito.verify(jaxRsDpsLog).debug("User authenticated | User: email");
         Mockito.verifyNoMoreInteractions(handlerExceptionResolver);
     }
 }
