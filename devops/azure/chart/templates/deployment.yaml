@@ -36,6 +36,10 @@ spec:
         app: {{ .Chart.Name }}
         appversion: {{ .Chart.Version }}
     spec:
+{{- if .Values.global.isAutoscalingEnabled }}
+      nodeSelector:
+        nodepool: {{ .Values.global.nodepool }} 
+{{- end }}      
       volumes:
         - name: azure-keyvault
           csi:
