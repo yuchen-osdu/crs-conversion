@@ -45,4 +45,7 @@ logging:
     enabled: true
   mdccontext:
     enabled: true
+  ignore:
+    servlet:
+      paths: /swagger-ui.html
 LOG_PREFIX: converter

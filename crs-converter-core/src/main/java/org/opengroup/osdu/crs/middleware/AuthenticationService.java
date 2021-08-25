@@ -57,7 +57,7 @@ public class AuthenticationService {
         IEntitlementsService service = entitlementsFactory.create(dpsHeaders);
         try {
             Groups groups = service.getGroups();
-            logger.info(String.format("User authenticated | User: %s", groups.getMemberEmail()));
+            logger.debug(String.format("User authenticated | User: %s", groups.getMemberEmail()));
             putAuthenticationIntoContext(groups);
             httpServletResponse.addHeader(DpsHeaders.CORRELATION_ID, dpsHeaders.getCorrelationId());
         } catch (EntitlementsException e) {

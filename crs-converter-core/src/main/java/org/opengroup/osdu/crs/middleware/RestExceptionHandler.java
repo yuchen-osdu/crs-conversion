@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = ValidationException.class)
     public ResponseEntity<AppError> handleValidationException(ValidationException e) {
+        AppError appError = AppError.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .build();
+        jaxRsDpsLog.error(e.getMessage(), e);
+        return ResponseEntity.badRequest().body(appError);
+    }
+
+    @ExceptionHandler(value = HttpMessageConversionException.class)
+    public ResponseEntity<AppError> handleHttpMessageConversionException(HttpMessageConversionException e){
         AppError appError = AppError.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message(e.getMessage())
