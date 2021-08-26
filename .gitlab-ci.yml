@@ -13,6 +13,8 @@ variables:
   AWS_SERVICE: crs-conversion
   AWS_ENVIRONMENT: dev
   AWS_INT_TEST_TYPE: python
+  AWS_DEPLOY_TARGET: EKS
+  AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
 
   IBM_BUILD_SUBDIR: provider/crs-converter-ibm/crs-converter-ocp
   IBM_INT_TEST_PY_SUBDIR: testing/crs_converter_test_ibm
