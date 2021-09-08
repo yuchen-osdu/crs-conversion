@@ -20,6 +20,9 @@ osdu.entitlement.url: ${ENTITLEMENT_URL}
 azure:
   cryptography:
     enabled: false
+  serviceBus:
+    manager:
+      enabled: false
   eventgrid:
     topic:
       enabled: false
