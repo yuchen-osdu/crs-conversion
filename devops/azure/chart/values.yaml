@@ -36,3 +36,10 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 istioDnsHost: ""
+
+env: demo
+
+featureFlag:
+  resourceLimits:
+    enabledEnvs:
+      - demo

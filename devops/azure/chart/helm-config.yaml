@@ -36,3 +36,9 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 istioDnsHost: #{ISTIO_DNS_HOST}#
+
+env: #{ENVIRONMENT_NAME}#
+featureFlag:
+  resourceLimits:
+    enabledEnvs:
+      - demo
