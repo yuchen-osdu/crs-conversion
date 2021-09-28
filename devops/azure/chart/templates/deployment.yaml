@@ -39,7 +39,7 @@ spec:
 {{- if .Values.global.isAutoscalingEnabled }}
       nodeSelector:
         nodepool: {{ .Values.global.nodepool }} 
-{{- end }}      
+{{- end }}
       volumes:
         - name: azure-keyvault
           csi:
@@ -58,6 +58,15 @@ spec:
             - name: http
               containerPort: {{ .Values.application.port }}
               protocol: TCP
+          {{- if has .Values.env .Values.featureFlag.resourceLimits.enabledEnvs }}
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /api/crs/converter/swagger-ui.html
