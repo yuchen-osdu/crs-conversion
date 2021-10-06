@@ -532,14 +532,15 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             # Convert a list of points
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
-        except ApiException as e:
+        except ApiException as e:   
             VENDOR = os.getenv("VENDOR")
             if VENDOR == "azure":
                 reason = e.reason
             else:
                 reason = json.loads(e.body)['reason']
+            
             self.assertTrue(403==e.status or 401==e.status)
-            self.assertTrue("Forbidden"==reason or "Unauthorized"==reason or "Entitlement Error"==reason)
+            self.assertTrue("Forbidden"==reason or "Unauthorized"==reason or "Entitlement Error"==reason or "Access denied"==reason)
 
 
 if __name__ == '__main__':
