@@ -14,6 +14,8 @@
 
 global:
   replicaCount: 1
+  maxReplicaCount: 1
+  minReplicaCount: 1
   nodepool: services
   isAutoscalingEnabled: false
 
@@ -42,4 +44,6 @@ env: demo
 featureFlag:
   resourceLimits:
     enabledEnvs:
-      - demo
+    - demo
+  hpa:
+    enabledEnvs: []
