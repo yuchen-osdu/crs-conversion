@@ -1,9 +1,13 @@
+# Default values for crs-conversion-config.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
 data:
   log_level: "INFO"
-  entitlements_api: ""
+  entitlements_api: "http://entitlements/api/entitlements/v2/"
   sis_data: ""
   audiences: ""
-  partition_api: ""
+  partition_api: "http://partition/api/partition/v1/"
 
 conf:
   configmap: "crs-conversion-config"

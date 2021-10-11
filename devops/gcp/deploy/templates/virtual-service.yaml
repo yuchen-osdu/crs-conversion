@@ -11,7 +11,7 @@ spec:
   http:
     - match:
         - uri:
-            prefix: "/api/crs"
+            prefix: "/api/crs/converter"
       route:
         - destination:
             port:
