@@ -11,4 +11,3 @@ data:
   SIS_DATA: "{{ .Values.data.sis_data }}"
   GOOGLE_AUDIENCES: "{{ .Values.data.audiences }}"
   PARTITION_API: "{{ .Values.data.partition_api }}"
-
