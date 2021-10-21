@@ -21,9 +21,10 @@ metadata:
     appversion: {{ .Chart.Version }}
     aadpodidbinding: osdu-identity
 spec:
-{{- if not .Values.autoscaling.enabled }}
+  {{- if has .Values.env .Values.featureFlag.hpa.enabledEnvs }}
+  {{- else }}
   replicas: {{ .Values.global.replicaCount }}
-{{- end }}
+  {{- end }}
   selector:
     matchLabels:
       aadpodidbinding: osdu-identity
