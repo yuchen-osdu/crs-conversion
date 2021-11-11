@@ -13,8 +13,8 @@ import org.opengroup.osdu.core.common.entitlements.IEntitlementsService;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.entitlements.EntitlementsException;
 import org.opengroup.osdu.core.common.model.entitlements.Groups;
+import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
-import org.opengroup.osdu.crs.util.AppException;
 import org.powermock.reflect.Whitebox;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
