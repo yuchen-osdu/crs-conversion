@@ -1,9 +1,9 @@
 package org.opengroup.osdu.crs.middleware;
 
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.core.common.model.http.AppError;
+import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.crs.api.exception.BadRequestException;
-import org.opengroup.osdu.crs.util.AppError;
-import org.opengroup.osdu.crs.util.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -10,9 +10,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
 import org.opengroup.osdu.crs.middleware.AuthenticationService;
-import org.opengroup.osdu.crs.util.AppError;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
