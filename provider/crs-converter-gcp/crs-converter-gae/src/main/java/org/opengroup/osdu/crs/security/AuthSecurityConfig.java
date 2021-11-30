@@ -58,7 +58,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter implements 
       "/swagger-resources/**",
       "/configuration/security",
       "/swagger-ui.html",
-      "/info",
+      "/v2/info",
       "/webjars/**",
       "/csrf",
       "/api/crs/converter/actuator",
