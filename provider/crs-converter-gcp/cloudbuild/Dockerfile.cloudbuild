@@ -17,6 +17,5 @@ COPY provider/crs-converter-${PROVIDER_NAME}/crs-converter-gke/target/crs-conver
 COPY apachesis_setup /crs-converter/apachesis_setup
 
 # Run the web service on container startup.
-#CMD java -Djava.security.egd=file:/dev/./urandom -Dserver.port=${PORT} -jar /crs-converter/crs-converter-${PROVIDER_NAME}.jar
-CMD java -Djava.security.egd=file:/dev/./urandom -jar /crs-converter/crs-converter-${PROVIDER_NAME}.jar
+CMD java -Djava.security.egd=file:/dev/./urandom -Dlog4j.formatMsgNoLookups=true -jar /crs-converter/crs-converter-${PROVIDER_NAME}.jar
 
