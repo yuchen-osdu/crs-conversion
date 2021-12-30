@@ -36,3 +36,4 @@ from .error_response import ErrorResponse
 from .point import Point
 from .trajectory_station_in import TrajectoryStationIn
 from .trajectory_station_out import TrajectoryStationOut
+from .version_info import VersionInfo
