@@ -85,15 +85,10 @@ You will need to have the following environment variables defined.
 | `AWS_COGNITO_USER_POOL_ID` | `us-east-1_xxxxxxxx` | User Pool Id for the reference cognito | no |
 | `AWS_COGNITO_CLIENT_ID` | `xxxxxxxxxxxx` | Client ID for the Auth Flow integrated with the Cognito User Pool | no |
 | `AWS_COGNITO_AUTH_FLOW` | `USER_PASSWORD_AUTH` | Auth flow used by reference cognito deployment | no |
-| `AWS_COGNITO_AUTH_PARAMS_USER` | `int-test-user@testing.com` | Int Test Username | no |
-| `AWS_COGNITO_AUTH_PARAMS_USER_NO_ACCESS` | `no-access-user@testing.com` | Int Test No Access Username | no |
-| `AWS_COGNITO_AUTH_PARAMS_PASSWORD` | `some-secure-password` | Int Test User/NoAccessUser Password | yes |
-| `HOST` | `http://localhost:8080` | The url where the CRS Converter API is hosted | no |  
-| `PRIVATE_TENANT1` | `opendes` | Data Partition Id used by int tests | no |
-| `PRIVATE_TENANT2` | `tenant2` | Data Partition Id used by int tests | no |
-| `SHARED_TENANT` | `common` | Shared Data Partition Id used by int tests | no |
-| `VENDOR` | `aws` | CSP running these tests | no |
-
+| `ADMIN_USER` | `int-test-user@testing.com` | Int Test Username | no |
+| `USER_NO_ACCESS` | `no-access-user@testing.com` | Int Test No Access Username | no |
+| `ADMIN_PASSWORD` | `some-secure-password` | Int Test User/NoAccessUser Password | yes |
+| `CRS_CONVERTER_HOST` | `localhost:8080` | The url where the CRS Converter API is hosted | no |
 
 **Creating a new user to use for integration tests**
  ```
