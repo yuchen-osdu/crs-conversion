@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <os-core-common.version>0.13.0-rc4</os-core-common.version>
         <snakeyaml.version>1.26</snakeyaml.version>
+        <springfox.version>3.0.0</springfox.version>
     </properties>
 
     <licenses>
@@ -126,6 +127,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
+        <!--Swagger-->
+        <dependencies>
+    		<dependency>
+      			<groupId>io.springfox</groupId>
+      			<artifactId>springfox-boot-starter</artifactId>
+      			<version>${springfox.version}</version>
+    		</dependency>
+    	</dependencies>
     <build>
         <pluginManagement>
             <plugins>

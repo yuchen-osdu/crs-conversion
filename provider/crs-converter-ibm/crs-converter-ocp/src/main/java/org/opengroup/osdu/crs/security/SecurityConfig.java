@@ -42,11 +42,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Acce
             "/index.html",
             "/_ah/*",
             "/v2/api-docs",
+            "/v3/api-docs",
             "/configuration/ui",
             "/swagger-resources/**",
             "/configuration/security",
             "/swagger",
             "/swagger-ui.html",
+            "/swagger-ui/**",
             "/info",
             "/webjars/**",
             "/csrf"

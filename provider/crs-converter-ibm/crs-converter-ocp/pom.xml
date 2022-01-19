@@ -13,7 +13,7 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-ocp</app.id>
-        <os-core-lib-ibm.version>0.13.0-rc5</os-core-lib-ibm.version>
+        <os-core-lib-ibm.version>0.13.0-rc6</os-core-lib-ibm.version>
     </properties>
 
     <prerequisites>
@@ -29,8 +29,28 @@
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>org.apache.tomcat.embed</groupId>
+            		<artifactId>tomcat-embed-core</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
-        
+        <dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>9.0.54</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+	 			</exclusions>
+		</dependency>
         <!--dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-active-directory-spring-boot-starter</artifactId>
