@@ -36,9 +36,11 @@ from .models.error_response import ErrorResponse
 from .models.point import Point
 from .models.trajectory_station_in import TrajectoryStationIn
 from .models.trajectory_station_out import TrajectoryStationOut
+from .models.version_info import VersionInfo
 
 # import apis into sdk package
 from .apis.crs_point_conversion_api import CRSPointConversionApi
+from .apis.info_api_api import InfoApiApi
 from .apis.trajectory_computation_and_conversion_api import TrajectoryComputationAndConversionApi
 
 # import ApiClient
