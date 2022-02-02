@@ -13,6 +13,7 @@
         <os-core-common.version>0.13.0-rc4</os-core-common.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <springfox.version>3.0.0</springfox.version>
+        <json-smart.version>2.4.7</json-smart.version>
     </properties>
 
     <licenses>
@@ -124,6 +125,11 @@
                 <version>${os-core-common.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>${json-smart.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

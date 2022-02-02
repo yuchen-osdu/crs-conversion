@@ -14,7 +14,6 @@
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
         <osdu.corelibazure.version>0.13.0-rc6</osdu.corelibazure.version>
-        <json-smart.version>2.4.6</json-smart.version>
     </properties>
 
     <prerequisites>
@@ -53,9 +52,8 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>${json-smart.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>azure-spring-boot-starter-active-directory</artifactId>
