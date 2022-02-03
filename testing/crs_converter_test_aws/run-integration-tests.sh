@@ -14,26 +14,46 @@
 
 #!/usr/bin/env bash
 
-# Install venv for python3
-which apt-get && sudo apt-get install -y python3 python3-pip python3-venv || echo "Not Ubuntu, skipping"
-which yum && sudo yum install -y python3 python3-pip python3-venv || echo "Not RHEL, skipping"
+if [[ "$OSTYPE" == "msys" ]]; then
+  python -m pip install --upgrade pip
+  python -m pip install --user virtualenv
+  python -m venv env
+  source env/Scripts/activate
+  python -m pip install --upgrade pip
+  python -m pip install -r requirements.txt
 
-python3 -m venv env
-# sed -i 's/$1/${1:-}/' env/bin/activate # Fix deactivation bug '$1 unbound variable'
-source env/bin/activate
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
+  # Run tests
+  echo ***RUNNING CRS Converter API TESTS***
+  python run_test_api.py
+  TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V2 TESTS***
 
-# Run tests
-echo ***RUNNING CRS Converter API TESTS***
-python3 run_test_api.py
-TEST_STATUS=$?
-echo ***FINISHED CRS Converter API V2 TESTS***
+  # python -m pip freeze > requirements.txt
+  python -m pip uninstall -r requirements.txt -y
 
+else
 
+  # Install venv for python3
+  which apt-get && sudo apt-get install -y python3 python3-pip python3-venv || echo "Not Ubuntu, skipping"
+  which yum && sudo yum install -y python3 python3-pip python3-venv || echo "Not RHEL, skipping"
 
-# python3 -m pip freeze > requirements.txt
-python3 -m pip uninstall -r requirements.txt -y
+  python3 -m venv env
+  # sed -i 's/$1/${1:-}/' env/bin/activate # Fix deactivation bug '$1 unbound variable'
+  source env/bin/activate
+  python3 -m pip install --upgrade pip
+  python3 -m pip install -r requirements.txt
+
+  # Run tests
+  echo ***RUNNING CRS Converter API TESTS***
+  python3 run_test_api.py
+  TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V2 TESTS***
+
+  # python3 -m pip freeze > requirements.txt
+  python3 -m pip uninstall -r requirements.txt -y
+
+fi
+
 deactivate
 rm -rf env/
 
