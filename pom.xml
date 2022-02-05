@@ -10,7 +10,7 @@
         <powermock.version>2.0.6</powermock.version>
         <docker.image.prefix>org.opengroup.osdu</docker.image.prefix>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <os-core-common.version>0.13.0-rc7</os-core-common.version>
+        <os-core-common.version>0.13.0</os-core-common.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <springfox.version>3.0.0</springfox.version>
         <json-smart.version>2.4.7</json-smart.version>
