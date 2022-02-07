@@ -70,7 +70,7 @@ spec:
           {{- end }}
           readinessProbe:
             httpGet:
-              path: /api/crs/converter/swagger-ui.html
+              path: /api/crs/converter/swagger-ui/
               port: {{ .Values.application.port }}
             initialDelaySeconds: 45
             timeoutSeconds: 15
