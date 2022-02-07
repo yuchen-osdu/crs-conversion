@@ -49,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Acce
             "/swagger",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/info",
+            "/v2/info",
             "/webjars/**",
             "/csrf"
     };
