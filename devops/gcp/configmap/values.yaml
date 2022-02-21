@@ -6,8 +6,6 @@ data:
   log_level: "INFO"
   entitlements_api: "http://entitlements/api/entitlements/v2/"
   sis_data: ""
-  audiences: ""
-  partition_api: "http://partition/api/partition/v1/"
 
 conf:
   configmap: "crs-conversion-config"
