@@ -54,3 +54,8 @@ logging:
     servlet:
       paths: /swagger-ui.html
 LOG_PREFIX: converter
+# Disable keyVault for actuator health check
+management:
+  health:
+    azure-key-vault:
+      enabled: false

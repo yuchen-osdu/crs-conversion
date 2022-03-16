@@ -89,13 +89,19 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /api/crs/converter/swagger-ui.html
-              port: 8080
+              path: /actuator/health
+              port: 8081
             initialDelaySeconds: 45
             timeoutSeconds: 15
             periodSeconds: 2
             successThreshold: 1
             failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 250
+            periodSeconds: 10
           volumeMounts:
             - name: azure-keyvault
               mountPath: "/mnt/azure-keyvault"
@@ -149,3 +155,5 @@ spec:
               value: osdu-db
             - name: service_domain_name
               value: contoso.com
+            - name: SPRING_CONFIG_NAME
+              value: "common,application"

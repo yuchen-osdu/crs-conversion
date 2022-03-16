@@ -70,13 +70,19 @@ spec:
           {{- end }}
           readinessProbe:
             httpGet:
-              path: /api/crs/converter/swagger-ui/
-              port: {{ .Values.application.port }}
+              path: /actuator/health
+              port: 8081
             initialDelaySeconds: 45
             timeoutSeconds: 15
             periodSeconds: 2
             successThreshold: 1
             failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 250
+            periodSeconds: 10
           volumeMounts:
             - name: azure-keyvault
               mountPath: "/mnt/azure-keyvault"
@@ -134,3 +140,5 @@ spec:
               value: contoso.com
             - name: SIS_DATA
               value: /mnt/crs_conversion/apachesis_setup/SIS_DATA
+            - name: SPRING_CONFIG_NAME
+              value: "common,application"
