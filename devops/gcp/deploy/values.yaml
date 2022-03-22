@@ -14,3 +14,4 @@ data:
 conf:
   configmap: "crs-conversion-config"
   app_name: "crs-conversion"
+  on_prem_enabled: false
