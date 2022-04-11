@@ -20,6 +20,10 @@ public class Config {
         return property;
     }
 
+    public static String getStorageURL() {
+        return getEnvironmentVariable("STORAGE_URL");
+    }
+
     static String getTrajectoryMethod() {
 	    return METHOD;
     }

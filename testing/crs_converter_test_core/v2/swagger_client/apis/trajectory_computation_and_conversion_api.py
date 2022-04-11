@@ -107,7 +107,7 @@ class TrajectoryComputationAndConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/convertTrajectory'.replace('{format}', 'json')
+        resource_path = '/v2/convertTrajectory'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}

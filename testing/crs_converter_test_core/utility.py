@@ -28,6 +28,10 @@ class TestEnvironment(object):
         self.data_pattern = constants.DATA_PATTERN
         self.report_path = constants.REPORT_PATH
         self.data_partition_id = constants.MY_TENANT
+        self.storage_url = constants.STORAGE_URL
+        self.my_replace_domain = constants.MY_REPLACE_DOMAIN
+        self.my_test_id = constants.MY_TEST_ID
+        self.my_legal_tag = constants.MY_LEGAL_TAG
 
     def is_ok(self):
         """Returns true if all expected environment variables are defined."""

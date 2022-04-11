@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class CrsConverterApiTests {
+public class CrsConverterApiV2Tests {
 
 	@Mock
 	PointConverter pointConverter;
@@ -30,7 +30,7 @@ public class CrsConverterApiTests {
 	CRSConverter crsConverter;
 
 	@InjectMocks
-    private CrsConverterApi crsConverterApi;
+    private CrsConverterApiV2 crsConverterApi;
 
     @Before
     public void setUp() {

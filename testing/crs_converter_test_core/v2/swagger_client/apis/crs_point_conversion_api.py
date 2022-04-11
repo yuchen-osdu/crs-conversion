@@ -107,7 +107,7 @@ class CRSPointConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/convertGeoJson'.replace('{format}', 'json')
+        resource_path = '/v2/convertGeoJson'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
@@ -215,7 +215,7 @@ class CRSPointConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/convert'.replace('{format}', 'json')
+        resource_path = '/v2/convert'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}

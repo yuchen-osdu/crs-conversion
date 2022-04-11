@@ -39,7 +39,11 @@ export AWS_COGNITO_AUTH_PARAMS_PASSWORD=$ADMIN_PASSWORD
 export AWS_COGNITO_AUTH_PARAMS_USER=$ADMIN_USER
 export AWS_COGNITO_AUTH_PARAMS_USER_NO_ACCESS=$USER_NO_ACCESS
 export VIRTUAL_SERVICE_HOST_NAME=$CRS_CONVERTER_HOST
-export MY_TENANT=opendes
+export MY_TENANT="osdu"
+export STORAGE_URL=$STORAGE_URL'records'
+export MY_REPLACE_DOMAIN="example.com"
+export MY_TEST_ID="12345678"
+export MY_LEGAL_TAG="osdu-public-usa-dataset"
 
 #### RUN INTEGRATION TEST #########################################################################
 
