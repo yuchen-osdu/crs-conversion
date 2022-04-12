@@ -31,9 +31,28 @@ def get_id_token():
             "USERNAME": os.environ['AWS_COGNITO_AUTH_PARAMS_USER'],
             "PASSWORD": os.environ['AWS_COGNITO_AUTH_PARAMS_PASSWORD']
         })
-
     return userAuth['AuthenticationResult']['AccessToken']
 
 def get_invalid_token():
     #generate a dummy jwt
     return jwt.encode({'some': 'payload'}, 'secret', algorithm='HS256').decode("utf-8")
+
+# hack not to print token
+def get_token():
+    region = os.getenv("AWS_COGNITO_REGION")
+    if region:
+        client = boto3.client('cognito-idp', region_name=region)
+    else:
+        client = boto3.client('cognito-idp', region_name=os.environ["AWS_REGION"])
+    userAuth = client.initiate_auth(
+        ClientId= os.environ['AWS_COGNITO_CLIENT_ID'],
+        # UserPoolId= os.environ['AWS_COGNITO_USER_POOL_ID'],
+        AuthFlow= os.environ['AWS_COGNITO_AUTH_FLOW'],
+        AuthParameters= {
+            "USERNAME": os.environ['AWS_COGNITO_AUTH_PARAMS_USER'],
+            "PASSWORD": os.environ['AWS_COGNITO_AUTH_PARAMS_PASSWORD']
+        })
+    print(userAuth['AuthenticationResult']['AccessToken'])
+
+if __name__ == '__main__':
+    get_token()

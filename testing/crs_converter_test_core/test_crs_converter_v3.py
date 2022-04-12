@@ -691,6 +691,7 @@ class TestRecords(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         mypath = os.path.join(dir_path, "v3/data/Storagerecords/")
         files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
+        print('Request URL for upsert records: ' + self.env.storage_url)
         for file_name in files:
             body_str = open(file_name, 'r').read()
             body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
@@ -708,6 +709,7 @@ class TestRecords(unittest.TestCase):
 
     def test_delete_records(self):
         """test delete records"""
+        print('Request URL for delete records: ' + self.env.storage_url)
         for id in self.recordIDs:
             try:
                 delete_url = self.env.storage_url+'/'+id
