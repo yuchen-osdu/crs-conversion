@@ -26,7 +26,7 @@ cd testing
 java -jar %UserProfile%\repositories\azure\swagger-codegen-cli-2.2.3.jar generate -i crs_converter_test_core\api_spec\crs_converter_openapi.json -l python -o crs_converter_test_core\v2
 ```
 
-## Sanity Test: ```test_crs_converter.py```
+## Sanity Test: ```test_crs_converter_v2.py```
 This test is intended as a simple sanity test. It is quick but doesn't challenge the conversion engine thoroughly
 
 The following parameters are expected as environment variables:
@@ -47,7 +47,7 @@ The following parameters are expected as environment variables:
 | DATA_PATTERN | Test*.0*.json |
 | REPORT_PATH | e.g.  ```E:\tmp\CloudTestData\Report\SuiteReport.txt``` |
 
-## Building/running ```test_crs_converter.py```
+## Building/running ```test_crs_converter_v2.py```
 Go to the provider folder:
 ```bash
 cd crs_converter_test_$PROVIDER_NAME/

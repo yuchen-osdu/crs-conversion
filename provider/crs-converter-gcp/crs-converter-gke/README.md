@@ -162,7 +162,7 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 
 Execute following command to build code and run all the integration tests:
 
-## Building/running ```test_crs_converter.py```
+## Building/running ```test_crs_converter_v2.py```
 Go to the provider folder:
 ```bash
 cd crs_converter_test_$PROVIDER_NAME/
