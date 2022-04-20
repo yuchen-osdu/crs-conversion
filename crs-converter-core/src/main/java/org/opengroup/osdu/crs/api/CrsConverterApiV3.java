@@ -51,7 +51,7 @@ public class CrsConverterApiV3 {
 		try {
 			temp = URLDecoder.decode(str, "UTF-8"); 
 		} catch (Exception e) {
-			return str; // return an empty, invalid
+			return ""; // return an empty, invalid
 		}
 		// persistableReference string starts with {....}
 	    if (temp.startsWith("{")){
