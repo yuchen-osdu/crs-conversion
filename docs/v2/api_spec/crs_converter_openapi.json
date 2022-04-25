@@ -31,7 +31,7 @@
     "https"
   ],
   "paths": {
-    "/convertTrajectory": {
+    "/v2/convertTrajectory": {
       "post": {
         "tags": [
           "Trajectory Computation and Conversion"
@@ -90,7 +90,7 @@
         ]
       }
     },
-    "/convert": {
+    "/v2/convert": {
       "post": {
         "tags": [
           "CRS Point Conversion"
@@ -150,7 +150,7 @@
         ]
       }
     },
-    "/convertGeoJson": {
+    "/v2/convertGeoJson": {
       "post": {
         "tags": [
           "CRS Point Conversion"

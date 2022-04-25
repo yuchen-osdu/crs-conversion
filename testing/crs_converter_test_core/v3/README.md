@@ -77,7 +77,7 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *CRSPointConversionApi* | [**convert_geo_json**](docs/CRSPointConversionApi.md#convert_geo_json) | **POST** /v3/convertGeoJson | Convert a GeoJSON or AnyCrsGeoJson structure
 *CRSPointConversionApi* | [**convert_point**](docs/CRSPointConversionApi.md#convert_point) | **POST** /v3/convert | Convert a list of points
-*InfoApiApi* | [**info_using_get**](docs/InfoApiApi.md#info_using_get) | **GET** /info | info
+*InfoApiApi* | [**info_using_get**](docs/InfoApiApi.md#info_using_get) | **GET** /v3/info | info
 *TrajectoryComputationAndConversionApi* | [**convert_trajectory**](docs/TrajectoryComputationAndConversionApi.md#convert_trajectory) | **POST** /v3/convertTrajectory | Convert trajectory stations
 
 

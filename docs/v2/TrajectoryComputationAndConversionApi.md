@@ -4,7 +4,7 @@ All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**convert_trajectory**](TrajectoryComputationAndConversionApi.md#convert_trajectory) | **POST** /convertTrajectory | Convert trajectory stations
+[**convert_trajectory**](TrajectoryComputationAndConversionApi.md#convert_trajectory) | **POST** /v2/convertTrajectory | Convert trajectory stations
 
 
 # **convert_trajectory**
@@ -16,7 +16,7 @@ Convert a list of trajectory stations, given the unit and spatial context and a 
 
 ### Example 
 ```python
-from __future__ import print_statement
+from __future__ import print_function
 import time
 import swagger_client
 from swagger_client.rest import ApiException

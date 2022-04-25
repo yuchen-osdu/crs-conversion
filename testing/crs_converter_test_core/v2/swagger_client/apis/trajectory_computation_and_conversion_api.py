@@ -107,10 +107,9 @@ class TrajectoryComputationAndConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/v2/convertTrajectory'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
         if 'data_partition_id' in params:
@@ -133,7 +132,7 @@ class TrajectoryComputationAndConversionApi(object):
         # Authentication setting
         auth_settings = ['Bearer']
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/v2/convertTrajectory', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,

@@ -209,7 +209,7 @@
         ]
       }
     },
-    "/info": {
+    "/v3/info": {
       "get": {
           "tags": [
               "Info Api"

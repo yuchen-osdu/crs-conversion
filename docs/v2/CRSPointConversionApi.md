@@ -4,8 +4,8 @@ All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**convert_geo_json**](CRSPointConversionApi.md#convert_geo_json) | **POST** /convertGeoJson | Convert a GeoJSON or AnyCrsGeoJson structure
-[**convert_point**](CRSPointConversionApi.md#convert_point) | **POST** /convert | Convert a list of points
+[**convert_geo_json**](CRSPointConversionApi.md#convert_geo_json) | **POST** /v2/convertGeoJson | Convert a GeoJSON or AnyCrsGeoJson structure
+[**convert_point**](CRSPointConversionApi.md#convert_point) | **POST** /v2/convert | Convert a list of points
 
 
 # **convert_geo_json**
@@ -17,7 +17,7 @@ Convert a GeoJSON or AnyCrsGeoJson structure to a specified target CRS. GeoJSON 
 
 ### Example 
 ```python
-from __future__ import print_statement
+from __future__ import print_function
 import time
 import swagger_client
 from swagger_client.rest import ApiException
@@ -72,7 +72,7 @@ Convert a list of points
 
 ### Example 
 ```python
-from __future__ import print_statement
+from __future__ import print_function
 import time
 import swagger_client
 from swagger_client.rest import ApiException
