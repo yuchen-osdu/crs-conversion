@@ -4,7 +4,7 @@ All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**info_using_get**](InfoApiApi.md#info_using_get) | **GET** /info | info
+[**info_using_get**](InfoApiApi.md#info_using_get) | **GET** /v3/info | info
 
 
 # **info_using_get**

@@ -107,10 +107,9 @@ class CRSPointConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/v2/convertGeoJson'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
         if 'data_partition_id' in params:
@@ -133,7 +132,7 @@ class CRSPointConversionApi(object):
         # Authentication setting
         auth_settings = ['Bearer']
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/v2/convertGeoJson', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -196,7 +195,7 @@ class CRSPointConversionApi(object):
                  returns the request thread.
         """
 
-        all_params = ['body', 'data_partition_id', '']
+        all_params = ['body', 'data_partition_id']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -215,10 +214,9 @@ class CRSPointConversionApi(object):
 
         collection_formats = {}
 
-        resource_path = '/v2/convert'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
         if 'data_partition_id' in params:
@@ -241,7 +239,7 @@ class CRSPointConversionApi(object):
         # Authentication setting
         auth_settings = ['Bearer']
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/v2/convert', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
