@@ -30,7 +30,7 @@ public class StorageClientFactory extends AbstractFactoryBean<IStorageFactory> {
 
 	private final HttpResponseBodyMapper bodyMapper;
 
-    @Value("${osdu.storage.url}")
+    @Value("${osdu.storage.url:NOT_FOUND}")
 	private String STORAGE_API;
 
 	@Override
