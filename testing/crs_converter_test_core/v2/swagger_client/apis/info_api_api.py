@@ -127,7 +127,7 @@ class InfoApiApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ["Bearer"]
 
         return self.api_client.call_api('/v2/info', 'GET',
                                         path_params,
