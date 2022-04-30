@@ -23,7 +23,7 @@ public class Config {
     public static String getStorageURL() {
         String property = getEnvironmentVariable("STORAGE_URL");
         if ((property == null) || (property.isEmpty()) ) {
-            return null;
+            return "NOT_FOUND";
         }
         return property;
     }
