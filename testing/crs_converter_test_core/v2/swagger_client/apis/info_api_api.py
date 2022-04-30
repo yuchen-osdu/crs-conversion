@@ -129,7 +129,7 @@ class InfoApiApi(object):
         # Authentication setting
         auth_settings = ["Bearer"]
 
-        return self.api_client.call_api('/v2/info', 'GET',
+        return self.api_client.call_api('/info', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,

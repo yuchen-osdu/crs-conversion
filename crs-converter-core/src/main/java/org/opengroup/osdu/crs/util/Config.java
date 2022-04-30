@@ -21,7 +21,11 @@ public class Config {
     }
 
     public static String getStorageURL() {
-        return getEnvironmentVariable("STORAGE_URL");
+        String property = getEnvironmentVariable("STORAGE_URL");
+        if ((property == null) || (property.isEmpty()) ) {
+            return null;
+        }
+        return property;
     }
 
     static String getTrajectoryMethod() {

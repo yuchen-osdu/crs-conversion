@@ -99,8 +99,6 @@ class ApiClient(object):
                    _return_http_data_only=None, collection_formats=None, _preload_content=True,
                    _request_timeout=None):
 
-        config = Configuration()
-
         # header parameters
         header_params = header_params or {}
         header_params.update(self.default_headers)
@@ -117,9 +115,8 @@ class ApiClient(object):
             path_params = self.parameters_to_tuples(path_params,
                                                     collection_formats)
             for k, v in path_params:
-                # specified safe chars, encode everything
                 resource_path = resource_path.replace(
-                    '{%s}' % k, quote(str(v), safe=config.safe_chars_for_path_param))
+                    '{%s}' % k, quote(str(v), safe=''))  # no safe chars, encode everything
 
         # query parameters
         if query_params:
@@ -143,6 +140,7 @@ class ApiClient(object):
 
         # request url
         url = self.host + resource_path
+        print('Request URL: ' + url)
 
         # perform request and return response
         response_data = self.request(method, url,
@@ -617,17 +615,16 @@ class ApiClient(object):
         :param klass: class literal.
         :return: model object.
         """
-        if not klass.swagger_types:
+        instance = klass()
+
+        if not instance.swagger_types:
             return data
 
-        kwargs = {}
-        for attr, attr_type in iteritems(klass.swagger_types):
+        for attr, attr_type in iteritems(instance.swagger_types):
             if data is not None \
-               and klass.attribute_map[attr] in data \
+               and instance.attribute_map[attr] in data \
                and isinstance(data, (list, dict)):
-                value = data[klass.attribute_map[attr]]
-                kwargs[attr] = self.__deserialize(value, attr_type)
-
-        instance = klass(**kwargs)     
+                value = data[instance.attribute_map[attr]]
+                setattr(instance, attr, self.__deserialize(value, attr_type))
 
         return instance
