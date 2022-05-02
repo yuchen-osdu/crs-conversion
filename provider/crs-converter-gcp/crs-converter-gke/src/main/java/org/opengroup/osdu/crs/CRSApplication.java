@@ -22,9 +22,11 @@ import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
+@ConfigurationPropertiesScan(basePackages = "org.opengroup")
+@SpringBootApplication(scanBasePackages = "org.opengroup")
 public class CRSApplication extends CRSApplicationBase {
 
 	public static void main(String[] args) {
