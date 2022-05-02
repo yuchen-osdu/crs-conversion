@@ -69,6 +69,10 @@ osdu-gcp-containerize-gitlab:
   variables:
     OSDU_GCP_SERVICE: crs-converter
 
+osdu-gcp-containerize-gcr:
+  variables:
+    OSDU_GCP_SERVICE: crs-converter
+
 osdu-gcp-test-python:
   variables:
     VIRTUAL_SERVICE_HOST_NAME: $OSDU_GCP_CRS_CONVERTER_HOSTNAME
