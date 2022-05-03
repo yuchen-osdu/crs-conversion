@@ -20,6 +20,14 @@ public class Config {
         return property;
     }
 
+    public static String getStorageURL() {
+        String property = getEnvironmentVariable("STORAGE_URL");
+        if ((property == null) || (property.isEmpty()) ) {
+            return "NOT_FOUND";
+        }
+        return property;
+    }
+
     static String getTrajectoryMethod() {
 	    return METHOD;
     }

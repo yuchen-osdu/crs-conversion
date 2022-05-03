@@ -24,9 +24,15 @@ if [[ "$OSTYPE" == "msys" ]]; then
 
   # Run tests
   echo ***RUNNING CRS Converter API TESTS***
-  python run_test_api.py
+  python run_test_api_v2.py
   TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V2 TESTS***
+
+  # Run tests
+  echo ***RUNNING CRS Converter API TESTS***
+  python run_test_api_v3.py
+  TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V3 TESTS***
 
   # python -m pip freeze > requirements.txt
   python -m pip uninstall -r requirements.txt -y
@@ -45,9 +51,37 @@ else
 
   # Run tests
   echo ***RUNNING CRS Converter API TESTS***
-  python3 run_test_api.py
+  python3 run_test_api_v2.py
   TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V2 TESTS***
+  svctoken=$(python3 jwt_client.py)
+  echo 'Register Legal tag before Integration Tests ...'
+  curl --location --request POST "$LEGAL_URL"'legaltags' \
+    --header 'accept: application/json' \
+    --header 'authorization: Bearer '"$svctoken" \
+    --header 'content-type: application/json' \
+    --header 'data-partition-id: osdu' \
+    --data '{
+          "name": "public-usa-dataset",
+          "description": "legal tag for CRS Conversion V3 Integration tests",
+          "properties": {
+              "countryOfOrigin":["US"],
+              "contractId":"A1234",
+              "expirationDate":"2099-01-25",
+              "dataType":"Public Domain Data", 
+              "originator":"MyCompany",
+              "securityClassification":"Public",
+              "exportClassification":"EAR99",
+              "personalData":"No Personal Data"
+          }
+    }'
+
+
+  # Run tests
+  echo ***RUNNING CRS Converter API V3 TESTS***
+  python3 run_test_api_v3.py
+  TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V3 TESTS***
 
   # python3 -m pip freeze > requirements.txt
   python3 -m pip uninstall -r requirements.txt -y

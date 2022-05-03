@@ -19,7 +19,7 @@ import javax.validation.Valid;
 @CrossOrigin
 @RestController
 @RequestMapping("/v2")
-public class CrsConverterApi {
+public class CrsConverterApiV2 {
 
 	@Autowired
 	private JaxRsDpsLog logger;
@@ -28,7 +28,7 @@ public class CrsConverterApi {
 	private final ITrajectoryConverter crsTrajectoryConverter;
 	private final IPointConverter pointConverter;
 
-	public CrsConverterApi(@NonNull ICRSConverter crsConverter,
+	public CrsConverterApiV2(@NonNull ICRSConverter crsConverter,
 				  @NonNull ITrajectoryConverter crsTrajectoryConverter,
 				  @NonNull IPointConverter pointConverter) {
 		this.crsConverter = crsConverter;

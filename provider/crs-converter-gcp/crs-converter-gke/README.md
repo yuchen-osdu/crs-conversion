@@ -52,7 +52,8 @@ In order to run the service locally or remotely, you will need to have the follo
  | `SERVER_SERVLET_CONTEXPATH` | `/api/crs/converter/v2` | CRS conversion service context path | no | - |
  | `osdu.entitlement.url` | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint | no | output of infrastructure deployment |
  | `SIS_DATA` | ex `E:\crs-converter\apachesis_setup\` | Apache SIS setup | no | [apachesis](../../../apachesis_setup/README.md) |
- 
+ | `osdu.storage.url` | ex `https://storage.com//api/storage/v2` | Storage service API endpoint | no | output of infrastructure deployment |
+
 ### Run Locally
 
 Check that maven is installed:
@@ -162,7 +163,7 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 
 Execute following command to build code and run all the integration tests:
 
-## Building/running ```test_crs_converter.py```
+## Building/running ```test_crs_converter_v2.py```
 Go to the provider folder:
 ```bash
 cd crs_converter_test_$PROVIDER_NAME/

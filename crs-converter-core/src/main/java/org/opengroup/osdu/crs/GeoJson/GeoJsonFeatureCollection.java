@@ -17,6 +17,12 @@ public class GeoJsonFeatureCollection extends GeoJsonBase {
     @JsonProperty("persistableReferenceCrs")
     private String persistableReferenceCrs;
 
+    @JsonProperty("CoordinateReferenceSystemID")
+    private String CoordinateReferenceSystemID;
+
+    @JsonProperty("VerticalUnitID")
+    private String VerticalUnitID;
+
     @JsonProperty("persistableReferenceUnitZ")
     private String persistableReferenceUnitZ;
 
