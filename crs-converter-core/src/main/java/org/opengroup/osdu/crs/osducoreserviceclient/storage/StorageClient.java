@@ -25,8 +25,8 @@ public class StorageClient implements IStorageClient{
             return upsertRecords;
         } catch (StorageException e) {
             String error = e.getHttpResponse().getBody();
-            throw new AppException(e.getHttpResponse().getResponseCode(), "Error saving record",
-                    "An unexpected error occurred when saving record: " + error, e);
+            throw new AppException(e.getHttpResponse().getResponseCode(), "Error getting record",
+                    "An unexpected error occurred when getting record: " + error, e);
         }
     }
 }
