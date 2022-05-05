@@ -2,8 +2,8 @@
   "CreateDate": "2017-08-08T09:39:27.3589238+00:00",
   "TestData": [
     {
-      "FromCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsConversionOnly{{TEST_ID}}",
-      "ToCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsConversionOnly{{TEST_ID}}",
+      "FromCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsConversionOnly{{TEST_ID}}:",
+      "ToCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsConversionOnly{{TEST_ID}}:",
       "FromInfo": "DGN_1995_UTM_Zone_48N [m]",
       "ToInfo": "GCS_DGN_1995 [dega]",
       "Info": "Late-bound CRS Conversions",
@@ -71,8 +71,8 @@
       ]
     },
     {
-       "FromCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsConversionOnly{{TEST_ID}}",
-      "ToCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsConversionOnly{{TEST_ID}}",
+       "FromCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsConversionOnly{{TEST_ID}}:",
+      "ToCrsPersistableReference": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsConversionOnly{{TEST_ID}}:",
       "FromInfo": "DGN_1995_UTM_Zone_48N [m]",
       "ToInfo": "GCS_DGN_1995 [dega]",
       "Info": "Late-bound CRS Conversions",

@@ -1,5 +1,5 @@
 {
-    "toCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsGeoJson{{TEST_ID}}",  "featureCollection": {
+    "toCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCrsGeoJson{{TEST_ID}}:",  "featureCollection": {
     "features": [
       {
         "geometry": {
@@ -74,7 +74,7 @@
       }
     ],
     "properties": null,
-    "CoordinateReferenceSystemID": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsGeoJson{{TEST_ID}}",
+    "CoordinateReferenceSystemID": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::fromCrsGeoJson{{TEST_ID}}:",
     "persistableReferenceUnitZ": null,
     "type": "AnyCrsFeatureCollection",
     "bbox": [
