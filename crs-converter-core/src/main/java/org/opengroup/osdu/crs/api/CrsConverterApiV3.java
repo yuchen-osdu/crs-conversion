@@ -45,23 +45,28 @@ public class CrsConverterApiV3 {
 		this.pointConverter = pointConverter;
 		this.recordCache = new RecordCache();
 	}
-
-	private String getPersistableReferenceFromID(String str){
+	// parameter str could be a persistableReference string or recordID. mustID means parameter str must be a recordID
+	private String getPersistableReferenceFromID(String str, boolean mustID){
 		String temp;
 		try {
 			temp = URLDecoder.decode(str, "UTF-8"); 
 		} catch (Exception e) {
-			return ""; // return an empty, invalid
+			return str; // try our best to return user input
 		}
 		// persistableReference string starts with {....}
-	    if (temp.startsWith("{")){
+	    if (temp.startsWith("{") && mustID == false){
 			return str;
 		}
+	
+		// set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
+		temp = str;	
 		// check the cache for recordID with its persistableReference string
         String pr = recordCache.get(temp);
         if (pr != null){
 			return pr; 
 		}
+		// temp should have record:version format. change last : to be / for storage API call
+		temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
 		Record record =  StorageClient.getRecord(temp);
         pr = record.getData().get("PersistableReference").toString();
 		if(pr != null){
@@ -79,8 +84,8 @@ public class CrsConverterApiV3 {
 			@ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
 			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
 	public ConvertPointsResponse convertPoint(@NonNull @Valid @RequestBody ConvertPointsRequest request) {
-		String fromCrs = getPersistableReferenceFromID(request.getFromCRS());
-		String toCrs = getPersistableReferenceFromID(request.getToCRS());
+		String fromCrs = getPersistableReferenceFromID(request.getFromCRS(), false);
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
 		double[] xyCoordinates = this.pointConverter.mergeXYCoordinates(request.getPoints());
 		double[] zCoordinates = this.pointConverter.mergeZCoordinates(request.getPoints());
 		ConvertPointsResponse response = this.crsConverter.convertPoint(fromCrs, toCrs, xyCoordinates,
@@ -98,20 +103,22 @@ public class CrsConverterApiV3 {
 			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
 	public ConvertGeoJsonResponse convertGeoJson(@NonNull @Valid @RequestBody ConvertGeoJsonRequest request) {
 		GeoJsonFeatureCollection features = request.getFeatureCollection();
-		String toCrs = getPersistableReferenceFromID(request.getToCRS());
-		String toUnitZ = getPersistableReferenceFromID(request.getToUnitZ());
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+		String toUnitZ = getPersistableReferenceFromID(request.getToUnitZ(), false);
 
 		// The CRS reference as persistableReference string. If populated, the CoordinateReferenceSystemID takes precedence
 		if( features.getCoordinateReferenceSystemID() != null){
-			String temp = getPersistableReferenceFromID(features.getCoordinateReferenceSystemID());
+			String temp = getPersistableReferenceFromID(features.getCoordinateReferenceSystemID(), true);
 			if(temp != null)
 				features.setPersistableReferenceCrs(temp);
+			features.setCoordinateReferenceSystemID(null);
 		}
 		// The VerticalUnitID definition overrides any self-contained definition in persistableReferenceUnitZ.
 		if( features.getVerticalUnitID() != null){
-			String temp = getPersistableReferenceFromID(features.getVerticalUnitID());
+			String temp = getPersistableReferenceFromID(features.getVerticalUnitID(), true);
 			if(temp != null)
 				features.setPersistableReferenceUnitZ(temp);
+			features.setVerticalUnitID(null);
 		}
 
 		ConvertGeoJsonResponse response = this.crsConverter.convertGeoJson(
@@ -133,9 +140,9 @@ public class CrsConverterApiV3 {
 		String message = String.format("Using trajectory: %s", "no");
 		logger.info(message);
 		DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
-		request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS()));
-		request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY()));
-		request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ()));
+		request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
+		request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
+		request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
 		ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectory(dpsHeaders, request);
 		return response;
 	}

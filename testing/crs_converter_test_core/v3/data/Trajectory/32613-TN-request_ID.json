@@ -1,8 +1,8 @@
 {
-  "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCRStrajectory{{TEST_ID}}",
+  "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCRStrajectory{{TEST_ID}}:",
   "azimuthReference": "TN",
-  "unitXY": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}",
-  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}",
+  "unitXY": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}:",
+  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}:",
   "referencePoint": {
     "x": 400000,
     "y": 6500000,

@@ -273,17 +273,17 @@
       "properties": {
         "trajectoryCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
           "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth."
         },
         "unitXY": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms",
+          "example": "osdu:reference-data--UnitOfMeasure:ms:",
           "description": "The horizontal unit of the dx, dy in the output trajectory stations."
         },
         "unitZ": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms",
+          "example": "osdu:reference-data--UnitOfMeasure:ms:",
           "description": "The vertical unit of the dz in the output trajectory stations."
         },
         "unitDls": {
@@ -300,7 +300,7 @@
         },
         "localCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
             "description": "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location."
         },
         "method": {
@@ -448,7 +448,7 @@
       "properties": {
         "trajectoryCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
           "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth. The property value could be a persistable reference string or a record ID"
         },
         "azimuthReference": {
@@ -458,12 +458,12 @@
         },
         "unitXY": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms",
+          "example": "osdu:reference-data--UnitOfMeasure:ms:",
           "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in persistable reference or a record ID, see example."
         },
         "unitZ": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms",
+          "example": "osdu:reference-data--UnitOfMeasure:ms:",
           "description": "The vertical unit of the dz in the input trajectory stations; the unit could be a persistable reference or a record ID"
         },
         "referencePoint": {
@@ -494,10 +494,10 @@
       },
       "description": "Input trajectory data structure; contains the context (crs, units, azimuth reference, method)",
       "example": {
-        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024",
+        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
         "azimuthReference": "TN",
-        "unitXY": "osdu:reference-data--UnitOfMeasure:ms",
-        "unitZ": "osdu:reference-data--UnitOfMeasure:ms",
+        "unitXY": "osdu:reference-data--UnitOfMeasure:ms:",
+        "unitZ": "osdu:reference-data--UnitOfMeasure:ms:",
         "referencePoint": {
           "x": 400000,
           "y": 6500000,
@@ -622,12 +622,12 @@
       "properties": {
         "fromCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024:",
           "description": "Source CRS as persistable reference string or a record ID"
         },
         "toCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024:",
           "description": "Target CRS as persistable reference string or a record ID"
         },
         "points": {
@@ -640,8 +640,8 @@
       },
       "description": "Request to convert a set of points from a source CRS to a target CRS.",
       "example": {
-        "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024",
-        "toCRS":"osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024",
+        "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024:",
+        "toCRS":"osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024:",
         "points": [
           {
             "x": -61.04340628871454,
@@ -675,8 +675,8 @@
         }
       },
       "example": {
-        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSGeojson23031024",
-        "toUnitZ": "osdu:reference-data--UnitOfMeasure:ms",
+        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSGeojson23031024:",
+        "toUnitZ": "osdu:reference-data--UnitOfMeasure:ms:",
         "featureCollection": {
           "features": [
             {
@@ -696,8 +696,8 @@
           ],
           "bbox": null,
           "properties": {},
-          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::persistGeojson23031024",
-          "VerticalUnitZ": "osdu:reference-data--UnitOfMeasure:ms",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::persistGeojson23031024:",
+          "VerticalUnitZ": "osdu:reference-data--UnitOfMeasure:ms:",
           "type": "AnyCrsFeatureCollection"
         }
       }
@@ -1139,7 +1139,7 @@
         },
         "CoordinateReferenceSystemID": {
           "type": "string",
-          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a CoordinateReferenceSystemID.",
+          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID.",
           "title": "Spatial Reference"
         },
         "VerticalUnitZ": {
