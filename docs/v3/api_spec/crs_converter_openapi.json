@@ -273,17 +273,17 @@
       "properties": {
         "trajectoryCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
           "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth."
         },
         "unitXY": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms:",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
           "description": "The horizontal unit of the dx, dy in the output trajectory stations."
         },
         "unitZ": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms:",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
           "description": "The vertical unit of the dz in the output trajectory stations."
         },
         "unitDls": {
@@ -300,7 +300,7 @@
         },
         "localCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
             "description": "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location."
         },
         "method": {
@@ -316,6 +316,225 @@
           }
         }
       },
+      "example": {
+          "trajectoryCRS": "{\"authCode\":{\"auth\":\"OSDU\",\"code\":\"23032023\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"23032\"},\"name\":\"ED_1950_UTM_Zone_32N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"ED_1950_UTM_Zone_32N\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",9.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",23032]]\"},\"name\":\"ED50 * EPSG-Nor N62 2001 / UTM zone 32N [23032,1612]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1612\"},\"name\":\"ED_1950_To_WGS_1984_23\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"ED_1950_To_WGS_1984_23\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-116.641],PARAMETER[\\\"Y_Axis_Translation\\\",-56.931],PARAMETER[\\\"Z_Axis_Translation\\\",-110.559],PARAMETER[\\\"X_Axis_Rotation\\\",0.893],PARAMETER[\\\"Y_Axis_Rotation\\\",0.921],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.917],PARAMETER[\\\"Scale_Difference\\\",-3.52],OPERATIONACCURACY[1.0],AUTHORITY[\\\"EPSG\\\",1612]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+          "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+          "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+          "unitDls": "{\"scaleOffset\":{\"scale\":5.81776417331443E-4,\"offset\":0.0},\"symbol\":\"deg/30m\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+          "stations": [
+              {
+                  "md": 1000.0,
+                  "inclination": 10.0,
+                  "azimuthTN": 100.0,
+                  "azimuthGN": 101.47040021177617,
+                  "dxTN": 0.0,
+                  "dyTN": 0.0,
+                  "point": {
+                      "x": 399999.9999999993,
+                      "y": 6499999.999999928,
+                      "z": 0.0
+                  },
+                  "wgs84Longitude": 7.276532126322325,
+                  "wgs84Latitude": 58.62690776508145,
+                  "dls": 0.0,
+                  "original": true,
+                  "dz": 0.0
+              },
+              {
+                  "md": 1100.0,
+                  "inclination": 353.0,
+                  "azimuthTN": 109.99999999999997,
+                  "azimuthGN": 111.47040021177618,
+                  "dxTN": 2.8452664243320682,
+                  "dyTN": 0.5806383130775794,
+                  "point": {
+                      "x": 400002.8584357548,
+                      "y": 6500000.5072952835,
+                      "z": -99.59397980386184
+                  },
+                  "wgs84Longitude": 7.276581101333077,
+                  "wgs84Latitude": 58.62691297828593,
+                  "dls": 5.081064425226088,
+                  "original": false,
+                  "dz": 99.59397980386184
+              },
+              {
+                  "md": 1200.0,
+                  "inclination": 336.0,
+                  "azimuthTN": 119.99999999999997,
+                  "azimuthGN": 121.47040021177617,
+                  "dxTN": -20.66869407530016,
+                  "dyTN": 12.92541709829575,
+                  "point": {
+                      "x": 399979.6754244676,
+                      "y": 6500013.447798917,
+                      "z": -195.61630358526304
+                  },
+                  "wgs84Longitude": 7.2761763531368535,
+                  "wgs84Latitude": 58.62702379932105,
+                  "dls": 5.144088046047178,
+                  "original": false,
+                  "dz": 195.61630358526304
+              },
+              {
+                  "md": 1300.0,
+                  "inclination": 319.0,
+                  "azimuthTN": 130.00000000000006,
+                  "azimuthGN": 131.47040021177617,
+                  "dxTN": -63.75564049687147,
+                  "dyTN": 44.432329909105846,
+                  "point": {
+                      "x": 399937.4228726906,
+                      "y": 6500046.0409315545,
+                      "z": -279.7047271436569
+                  },
+                  "wgs84Longitude": 7.275434680931274,
+                  "wgs84Latitude": 58.62730664194073,
+                  "dls": 5.333168826944044,
+                  "original": false,
+                  "dz": 279.7047271436569
+              },
+              {
+                  "md": 1400.0,
+                  "inclination": 302.0,
+                  "azimuthTN": 140.00000000000006,
+                  "azimuthGN": 141.47040021177614,
+                  "dxTN": -116.60408398178933,
+                  "dyTN": 98.47445610555741,
+                  "point": {
+                      "x": 399885.9928507756,
+                      "y": 6500101.406037619,
+                      "z": -344.5053333204153
+                  },
+                  "wgs84Longitude": 7.274524950723944,
+                  "wgs84Latitude": 58.62779178675019,
+                  "dls": 5.575480015849705,
+                  "original": false,
+                  "dz": 344.5053333204153
+              },
+              {
+                  "md": 1500.0,
+                  "inclination": 285.0,
+                  "azimuthTN": 150.00000000000003,
+                  "azimuthGN": 151.47040021177614,
+                  "dxTN": -168.49907521032137,
+                  "dyTN": 173.49232497733146,
+                  "point": {
+                      "x": 399836.0538118491,
+                      "y": 6500177.709724574,
+                      "z": -384.3190232562589
+                  },
+                  "wgs84Longitude": 7.273631584765621,
+                  "wgs84Latitude": 58.62846523614468,
+                  "dls": 5.786928178767722,
+                  "original": false,
+                  "dz": 384.3190232562589
+              },
+              {
+                  "md": 1600.0,
+                  "inclination": 267.99999999999994,
+                  "azimuthTN": 160.00000000000003,
+                  "azimuthGN": 161.47040021177614,
+                  "dxTN": -210.1477282077374,
+                  "dyTN": 263.1566507085972,
+                  "point": {
+                      "x": 399796.73064958124,
+                      "y": 6500268.388149488,
+                      "z": -395.62628994502586
+                  },
+                  "wgs84Longitude": 7.2729145459328075,
+                  "wgs84Latitude": 58.62927017527862,
+                  "dls": 5.901398645347646,
+                  "original": false,
+                  "dz": 395.62628994502586
+              },
+              {
+                  "md": 1700.0,
+                  "inclination": 250.99999999999997,
+                  "azimuthTN": 170.0,
+                  "azimuthGN": 171.4704002117761,
+                  "dxTN": -235.697816948047,
+                  "dyTN": 357.594854998789,
+                  "point": {
+                      "x": 399773.6187815813,
+                      "y": 6500363.424579929,
+                      "z": -377.4247248959122
+                  },
+                  "wgs84Longitude": 7.272474595087274,
+                  "wgs84Latitude": 58.630117979901705,
+                  "dls": 5.88555698125438,
+                  "original": false,
+                  "dz": 377.4247248959122
+              },
+              {
+                  "md": 1800.0,
+                  "inclination": 234.0,
+                  "azimuthTN": 180.0,
+                  "azimuthGN": 181.4704002117761,
+                  "dxTN": -243.98445247056594,
+                  "dyTN": 445.42222406983217,
+                  "point": {
+                      "x": 399767.5903271738,
+                      "y": 6500451.411306879,
+                      "z": -331.32728624995434
+                  },
+                  "wgs84Longitude": 7.2723318203672775,
+                  "wgs84Latitude": 58.630906447053526,
+                  "dls": 5.743921103190866,
+                  "original": false,
+                  "dz": 331.32728624995434
+              },
+              {
+                  "md": 1900.0,
+                  "inclination": 216.99999999999997,
+                  "azimuthTN": 190.0,
+                  "azimuthGN": 191.47040021177608,
+                  "dxTN": -238.71390243820557,
+                  "dyTN": 516.1148932887119,
+                  "point": {
+                      "x": 399774.6712747228,
+                      "y": 6500521.925916064,
+                      "z": -261.4046588313006
+                  },
+                  "wgs84Longitude": 7.272422453177677,
+                  "wgs84Latitude": 58.63154109671888,
+                  "dls": 5.518259092783264,
+                  "original": false,
+                  "dz": 261.4046588313006
+              },
+              {
+                  "md": 2000.0,
+                  "inclination": 200.0,
+                  "azimuthTN": 200.0,
+                  "azimuthGN": 201.4704002117762,
+                  "dxTN": -227.55187733776395,
+                  "dyTN": 562.1810883157433,
+                  "point": {
+                      "x": 399787.00835051807,
+                      "y": 6500567.67783067,
+                      "z": -173.79810638019308
+                  },
+                  "wgs84Longitude": 7.272614546963371,
+                  "wgs84Latitude": 58.63195466547982,
+                  "dls": 5.280737563732,
+                  "original": true,
+                  "dz": 173.79810638019308
+              }
+          ],
+          "localCRS": "{\"lateBoundCRS\":{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=7.27795820;Lat=58.62743374\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",7.277958201851517],PARAMETER[\\\"Latitude_Of_Origin\\\",58.62743374182612],UNIT[\\\"Meter\\\",1.0]]\"},\"name\":\"Azimuthal Equidistant - ED_1950_To_WGS_1984_23\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1612\"},\"name\":\"ED_1950_To_WGS_1984_23\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"ED_1950_To_WGS_1984_23\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-116.641],PARAMETER[\\\"Y_Axis_Translation\\\",-56.931],PARAMETER[\\\"Z_Axis_Translation\\\",-110.559],PARAMETER[\\\"X_Axis_Rotation\\\",0.893],PARAMETER[\\\"Y_Axis_Rotation\\\",0.921],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.917],PARAMETER[\\\"Scale_Difference\\\",-3.52],OPERATIONACCURACY[1.0],AUTHORITY[\\\"EPSG\\\",1612]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+          "method": "AzimuthalEquidistant",
+          "operationsApplied": [
+              "derived GN from TN azimuth by grid convergence 1.470400",
+              "added interpolated stations",
+              "computed deflections via minimum curvature method",
+              "computation method: AzimuthalEquidistant",
+              "conversion from 'Azimuthal Equidistant' to 'GCS_European_1950'",
+              "conversion from 'GCS_European_1950' to 'ED_1950_UTM_Zone_32N'",
+              "to WGS 84: conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 11 points converted",
+              "to WGS 84: transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 11 points successfully transformed"
+          ],
+          "inputKind": "MD_Incl_Azim"
+      },
       "description": "Trajectory response data structure; contains the context (crs, units)."
     },
     "Point": {
@@ -329,13 +548,13 @@
         "x": {
           "type": "number",
           "format": "double",
-          "example": -61.04340628871454,
+          "example": 484074.5862320617,
           "description": "x coordinate or longitude"
         },
         "y": {
           "type": "number",
           "format": "double",
-          "example": 10.673103179456877,
+          "example": 5499819.191561815,
           "description": "y coordinate or latitude"
         },
         "z": {
@@ -448,7 +667,7 @@
       "properties": {
         "trajectoryCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
           "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth. The property value could be a persistable reference string or a record ID"
         },
         "azimuthReference": {
@@ -458,12 +677,12 @@
         },
         "unitXY": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms:",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
           "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in persistable reference or a record ID, see example."
         },
         "unitZ": {
           "type": "string",
-          "example": "osdu:reference-data--UnitOfMeasure:ms:",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
           "description": "The vertical unit of the dz in the input trajectory stations; the unit could be a persistable reference or a record ID"
         },
         "referencePoint": {
@@ -494,10 +713,10 @@
       },
       "description": "Input trajectory data structure; contains the context (crs, units, azimuth reference, method)",
       "example": {
-        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRStrajectory23031024:",
+        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
         "azimuthReference": "TN",
-        "unitXY": "osdu:reference-data--UnitOfMeasure:ms:",
-        "unitZ": "osdu:reference-data--UnitOfMeasure:ms:",
+        "unitXY": "osdu:reference-data--UnitOfMeasure:m:",
+        "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
         "referencePoint": {
           "x": 400000,
           "y": 6500000,
@@ -507,34 +726,14 @@
         "interpolate": true,
         "inputStations": [
           {
-            "md": 0,
-            "inclination": 0,
-            "azimuth": 0
-          },
-          {
             "md": 1000,
-            "inclination": 0,
-            "azimuth": 0
+            "azimuth": 100,
+            "inclination": 10
           },
           {
             "md": 2000,
-            "inclination": 90,
-            "azimuth": 0
-          },
-          {
-            "md": 3000,
-            "inclination": 90,
-            "azimuth": 0
-          },
-          {
-            "md": 5000,
-            "inclination": 90,
-            "azimuth": 90
-          },
-          {
-            "md": 6000,
-            "inclination": 90,
-            "azimuth": 90
+            "azimuth": 200,
+            "inclination": 200
           }
         ],
         "method": "AzimuthalEquidistant"
@@ -551,19 +750,19 @@
         "md": {
           "type": "number",
           "format": "double",
-          "example": 2563.56,
+          "example": 1000,
           "description": "MD (measured depth) from vertical reference point in 'unitZ'."
         },
         "inclination": {
           "type": "number",
           "format": "double",
-          "example": 15,
+          "example": 10,
           "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal."
         },
         "azimuth": {
           "type": "number",
           "format": "double",
-          "example": 355,
+          "example": 100,
           "description": "Azimuth angle in degrees of arc, 0.0/360.0 is North; reference given by azimuthReference (TrueNorth or GridNorth)."
         },
         "dx": {
@@ -610,6 +809,21 @@
           }
         }
       },
+      "example": {
+        "successCount": 1,
+        "points": [
+            {
+                "x": 484074.5862320617,
+                "y": 5499819.191561815,
+                "z": 0.0
+            }
+        ],
+        "operationsApplied": [
+            "conversion from RD_New to GCS_Amersfoort; 1 points converted",
+            "transformation GCS_Amersfoort to GCS_WGS_1984 using Amersfoort_To_WGS_1984_2; 1 points successfully transformed",
+            "conversion from GCS_WGS_1984 to WGS_1984_UTM_Zone_32N; 1 points converted"
+        ]
+      },
       "description": "Response of a CRS conversion/transformation operation"
     },
     "ConvertPointsRequest": {
@@ -622,12 +836,12 @@
       "properties": {
         "fromCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024:",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672:",
           "description": "Source CRS as persistable reference string or a record ID"
         },
         "toCRS": {
           "type": "string",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024:",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
           "description": "Target CRS as persistable reference string or a record ID"
         },
         "points": {
@@ -640,13 +854,13 @@
       },
       "description": "Request to convert a set of points from a source CRS to a target CRS.",
       "example": {
-        "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::fromcrsConvert23031024:",
-        "toCRS":"osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSconvert23031024:",
+        "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672:",
+        "toCRS":"osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
         "points": [
           {
-            "x": -61.04340628871454,
-            "y": 10.673103179456877,
-            "z": 0
+            "x" : 400000,
+            "y" : 190000,
+            "z" : 0
           }
         ]
       }
@@ -675,8 +889,8 @@
         }
       },
       "example": {
-        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::toCRSGeojson23031024:",
-        "toUnitZ": "osdu:reference-data--UnitOfMeasure:ms:",
+        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+        "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
         "featureCollection": {
           "features": [
             {
@@ -696,8 +910,8 @@
           ],
           "bbox": null,
           "properties": {},
-          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundCRS::osdu::persistGeojson23031024:",
-          "VerticalUnitZ": "osdu:reference-data--UnitOfMeasure:ms:",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+          "VerticalUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
           "type": "AnyCrsFeatureCollection"
         }
       }
@@ -730,31 +944,28 @@
         "successCount": 1,
         "totalCount": 1,
         "featureCollection": {
-          "features": [
-            {
-              "geometry": {
-                "coordinates": [
-                  5.750000000484756,
-                  59.00000000018591,
-                  2
-                ],
-                "bbox": null,
-                "type": "Point"
-              },
-              "bbox": null,
-              "properties": {},
-              "type": "Feature"
-            }
-          ],
-          "bbox": null,
-          "properties": {},
-          "persistableReferenceCrs": null,
-          "type": "FeatureCollection"
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            5.750000001940743,
+                            58.999999999237616,
+                            6.561679790026246
+                        ]
+                    },
+                    "properties": {}
+                }
+            ],
+            "properties": {},
+            "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
         },
         "operationsApplied": [
-          "conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 1 points converted",
-          "transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 1 points successfully transformed",
-          "Z-axis unit conversion from ft to m"
+            "conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 1 points converted",
+            "transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 1 points successfully transformed",
+            "Z-axis unit conversion from m to m"
         ]
       }
     },
