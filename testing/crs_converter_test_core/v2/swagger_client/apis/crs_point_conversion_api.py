@@ -61,6 +61,7 @@ class CRSPointConversionApi(object):
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
+        print("ConvertGeo Callback Url:"+kwargs.get('callback'))
         if kwargs.get('callback'):
             return self.convert_geo_json_with_http_info(**kwargs)
         else:
@@ -132,7 +133,10 @@ class CRSPointConversionApi(object):
 
         # Authentication setting
         auth_settings = ['Bearer']
-
+        print("API Header Params Partition Id:"+header_params['data-partition-id'])
+        print("All Header Params:"+header_params)
+        print("API Body Params:"+body_params)
+        print("API callback:"+params.get('callback'))
         return self.api_client.call_api(resource_path, 'POST',
                                         path_params,
                                         query_params,
