@@ -5,7 +5,7 @@
 data:
   log_level: "INFO"
   entitlements_api: "http://entitlements/api/entitlements/v2/"
-  sis_data: ""
+  sis_data: "/crs-converter/apachesis_setup/SIS_DATA"
 
 conf:
   configmap: "crs-conversion-config"

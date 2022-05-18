@@ -42,7 +42,7 @@ variables:
     --set data.entitlements_api=$OSDU_GCP_AUTHORIZE_API 
     --set data.log_level=INFO
   OSDU_GCP_HELM_DEPLOYMENT_SERVICE_VARS: >
-    --set data.image=$CI_REGISTRY_IMAGE/osdu-gcp-crs-converter:$CI_COMMIT_SHORT_SHA 
+    --set data.image=$CI_REGISTRY_IMAGE/osdu-gcp-$OSDU_GCP_SERVICE:$CI_COMMIT_SHORT_SHA 
     --set data.serviceAccountName=crs-conversion-k8s 
     --set conf.app_name=$OSDU_GCP_SERVICE
   OSDU_GCP_HELM_PACKAGE_CHARTS: "devops/gcp/deploy devops/gcp/configmap"
@@ -80,11 +80,11 @@ include:
 
 osdu-gcp-containerize-gitlab:
   variables:
-    OSDU_GCP_SERVICE: crs-converter
+    BUILD_PATH: "provider/crs-converter-$OSDU_GCP_VENDOR/cloudbuild/Dockerfile.cloudbuild"
 
 osdu-gcp-containerize-gcr:
   variables:
-    OSDU_GCP_SERVICE: crs-converter
+    BUILD_PATH: "provider/crs-converter-$OSDU_GCP_VENDOR/cloudbuild/Dockerfile.cloudbuild"
 
 osdu-gcp-test-python:
   variables:
