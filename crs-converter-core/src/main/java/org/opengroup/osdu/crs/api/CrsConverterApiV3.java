@@ -14,6 +14,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
+import javax.validation.ValidationException;
 
 import javax.validation.Valid;
 
@@ -68,12 +69,15 @@ public class CrsConverterApiV3 {
 		// temp should have record:version format. change last : to be / for storage API call
 		temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
 		Record record =  StorageClient.getRecord(temp);
+		if (record == null)
+			throw new ValidationException(String.join(" ", "record not found:", temp));
         pr = record.getData().get("PersistableReference").toString();
 		if(pr != null){
 			recordCache.put(temp, pr);
 			return pr;
+		} else {
+			throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
 		}
-		return str;
     }
 
 	@PostMapping("/convert")
