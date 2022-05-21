@@ -147,6 +147,12 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 | `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
 | `GOOGLE_AUDIENCES` | ex `*****.apps.googleusercontent.com` | Client ID for getting access to cloud resources | yes | https://console.cloud.google.com/apis/credentials |
 
+This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_anthos).
+
+| name | value | description | sensitive? | source |
+| ---  | ---   | ---         | ---        | ---    |
+| `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
+
 ## Tests core (crs_converter_test_core/constants.py)
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |

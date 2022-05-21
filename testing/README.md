@@ -37,6 +37,11 @@ The following parameters are expected as environment variables:
 | INTEGRATION_TESTER | go to the google IAM & admin console, navigate to Service accounts to create a key and download the account info file. |
 | GOOGLE_AUDIENCES |  |
 
+## Anthos auth provider (crs_converter_test_anthos/jwt_client.py)
+| Variable | Contents |
+|----------|----------|
+| INTEGRATION_TESTER | go to the google IAM & admin console, navigate to Service accounts to create a key and download the account info file. |
+
 ## Tests core (crs_converter_test_core/constants.py)
 | Variable | Contents |
 |----------|----------|
