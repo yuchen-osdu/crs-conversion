@@ -46,7 +46,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
         'bbox': 'bbox',
         'persistable_reference_crs': 'persistableReferenceCrs',
         'coordinate_reference_system_id': 'CoordinateReferenceSystemID',
-        'vertical_unit_z': 'VerticalUnitZ',
+        'vertical_unit_id': 'VerticalUnitID',
         'persistable_reference_unit_z': 'persistableReferenceUnitZ'
     }
 
