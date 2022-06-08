@@ -911,7 +911,7 @@
           "bbox": null,
           "properties": {},
           "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
-          "VerticalUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+          "VerticalUnitID": "osdu:reference-data--UnitOfMeasure:m:",
           "type": "AnyCrsFeatureCollection"
         }
       }
@@ -1350,12 +1350,12 @@
         },
         "CoordinateReferenceSystemID": {
           "type": "string",
-          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID.",
+          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.",
           "title": "Spatial Reference"
         },
-        "VerticalUnitZ": {
+        "VerticalUnitID": {
           "type": "string",
-          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID.",
+          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.",
           "title": "Vertical Unit"
         },
         "persistableReferenceUnitZ": {
