@@ -16,59 +16,36 @@
 #  limitations under the License.
 #
 
-import sys
-
-
-def main(argv):
-    pass
-
-
-if __name__ == '__main__':
-    main(sys.argv)
-import http.client
-import time
-import google.auth.crypt
-import google.auth.jwt
-import urllib
-import json
-import base64
 import os
 
-def generate_jwt():
-    INTEGRATION_TESTER = str(os.getenv('INTEGRATION_TESTER'))
-    decoded_user_key = base64.b64decode(INTEGRATION_TESTER).decode("utf-8")
-    signer = google.auth.crypt.RSASigner.from_string(json.loads(decoded_user_key)['private_key'])
-    integration_test_service_account = json.loads(decoded_user_key)['client_email']
-    now = int(time.time())
+import requests
 
-    payload = {
-        'iat': now,
-        "exp": now + 3600,
-        'iss': integration_test_service_account,
-        "target_audience": str(os.getenv('GOOGLE_AUDIENCES')),
-        "aud": "https://www.googleapis.com/oauth2/v4/token"
-    }
-
-    jwt = google.auth.jwt.encode(signer, payload)
-
-    return jwt
+TEST_OPENID_PROVIDER_CLIENT_ID = os.environ["TEST_OPENID_PROVIDER_CLIENT_ID"]
+TEST_OPENID_PROVIDER_URL = os.environ["TEST_OPENID_PROVIDER_URL"]
+TEST_OPENID_PROVIDER_CLIENT_SECRET = os.environ["OSDU_GCP_OPENID_PROVIDER_CLIENT_SECRET"]
 
 
 def get_id_token():
-    try:
-        
-        params = urllib.parse.urlencode({
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion': generate_jwt()
-        })
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        conn = http.client.HTTPSConnection("www.googleapis.com")
-        conn.request("POST", "/oauth2/v4/token", params, headers)
-        res = json.loads(conn.getresponse().read().decode('utf-8'))
-        conn.close()
-        return res['id_token']
-    except (IOError, KeyError, ValueError) as e:
-        raise ValueError('Bearer token could not be obtained - missing service account file? ' + repr(e) + ' ' + str(e))
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    request_body = {
+        'grant_type': 'client_credentials',
+        'scope': "openid",
+        'client_id': TEST_OPENID_PROVIDER_CLIENT_ID,
+        'client_secret': TEST_OPENID_PROVIDER_CLIENT_SECRET
+    }
+
+
+    response = requests.post(
+        f"{TEST_OPENID_PROVIDER_URL}/protocol/openid-connect/token",
+        headers=headers,
+        data=request_body
+    )
+    response.raise_for_status()
+    id_token = response.json()["id_token"]
+    return id_token
+
 
 def get_invalid_token():
 
