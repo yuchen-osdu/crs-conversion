@@ -5,11 +5,10 @@ package org.opengroup.osdu.crs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.opengroup.osdu.core.common.logging.DefaultLogger;
-import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
-import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 
+import org.springframework.context.annotation.ComponentScan;
+
+@ComponentScan({"org.opengroup.osdu"})
 @SpringBootApplication
 public class CrsOcpApplication extends CRSApplicationBase {
 
@@ -17,8 +16,8 @@ public class CrsOcpApplication extends CRSApplicationBase {
 		SpringApplication.run(CrsOcpApplication.class, args);
 	}
 	
-	@Bean
-	public JaxRsDpsLog jaxRsDpsLog() {
-		return new JaxRsDpsLog(new DefaultLogger(), new DpsHeaders());
-	}
+	//@Bean
+//	public JaxRsDpsLog jaxRsDpsLog() {
+//		return new JaxRsDpsLog(new DefaultLogger(), new DpsHeaders());
+//	}
 }
