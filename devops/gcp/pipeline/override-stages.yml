@@ -3,9 +3,6 @@ variables:
   OSDU_GCP_VENDOR: gcp
   OSDU_GCP_INT_TEST_TYPE: python
   OSDU_GCP_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_gcp
-  OSDU_GCP_HELM_DEPLOYMENT_DIR: "devops/gcp/deploy"
-  OSDU_GCP_HELM_CONFIG_DIR: "devops/gcp/configmap"
-  OSDU_GCP_HELM_NAMESPACE: default
   OSDU_GCP_HELM_CONFIG_SERVICE: crs-conversion-config
   OSDU_GCP_HELM_DEPLOYMENT_SERVICE: crs-conversion-deploy
   OSDU_GCP_HELM_CONFIG_SERVICE_VARS: >
@@ -24,7 +21,6 @@ variables:
     --set data.image=$CI_REGISTRY_IMAGE/osdu-gcp-$OSDU_GCP_SERVICE:$CI_COMMIT_SHORT_SHA 
     --set data.serviceAccountName=crs-conversion-k8s 
     --set conf.app_name=$OSDU_GCP_SERVICE
-  OSDU_GCP_HELM_PACKAGE_CHARTS: "devops/gcp/deploy devops/gcp/configmap"
 
 osdu-gcp-containerize-gitlab:
   variables:
