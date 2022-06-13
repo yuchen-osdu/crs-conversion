@@ -49,7 +49,7 @@ include:
     file: "cloud-providers/ibm-python-test.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/osdu-gcp-gke.yml"
+    file: "cloud-providers/osdu-gcp-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/pages.yml"
