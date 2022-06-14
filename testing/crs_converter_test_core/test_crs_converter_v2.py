@@ -338,29 +338,17 @@ class TestCrsConverterIntegration(unittest.TestCase):
         #try:
             # Convert a GeoJSON or AnyCrsGeoJson structure
 
-        print('SIS_DATA environment value'+os.environ['SIS_DATA'])
-        #try:
-        # Convert a GeoJSON or AnyCrsGeoJson structure
-        try:
-            print('API-Body-Request:\n%s' % request)
-            print('data_partition_header:\n%s' % data_partition_header)
-            api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
-            #  prepare round-trip
-            n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
-            print('N-BodyRequest:\n%s' % n_request)
-            print('data_partition_header:\n%s' % data_partition_header)
-            api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
-            c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
-            ok = c.compare_feature_collections()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            print('Exception when calling ConvertGeo Api: '+e)
-            logging.info('Exception when calling ConvertGeo Api: '+e)
-            self.fail(str(e))
+        api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        #  prepare round-trip
+        n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
+        api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
+        self.assertIsNotNone(api_response)
+        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
+        ok = c.compare_feature_collections()
+        self.assertTrue(ok, 'Actual response is different from expected response.')
 
         #except ApiException as e:
         #    self.fail(str(e))
