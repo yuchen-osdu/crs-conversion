@@ -3,16 +3,16 @@
 # Declare variables to be passed into your templates.
 
 data:
-  requests_cpu: "0.1"
-  requests_memory: "256M"
-  limits_cpu: "1"
-  limits_memory: "1G"
-  serviceAccountName: ""
+  requestsCpu: "0.1"
+  requestsMemory: "256M"
+  limitsCpu: "1"
+  limitsMemory: "1G"
+  serviceAccountName: "crs-conversion"
   imagePullPolicy: "IfNotPresent"
   image: ""
 
 conf:
   configmap: "crs-conversion-config"
-  app_name: "crs-conversion"
-  on_prem_enabled: false
+  appName: "crs-conversion"
+  onPremEnabled: false
   domain: ""
