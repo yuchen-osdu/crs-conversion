@@ -2,10 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: "{{ .Values.conf.app_name }}"
+    app: "{{ .Values.conf.appName }}"
   name: "{{ .Values.conf.configmap }}"
   namespace: "{{ .Release.Namespace }}"
 data:
-  LOG_LEVEL: "{{ .Values.data.log_level }}"
-  OSDU_ENTITLEMENT_URL: "{{ .Values.data.entitlements_api }}"
-  SIS_DATA: "{{ .Values.data.sis_data }}"
+  LOG_LEVEL: "{{ .Values.data.logLevel }}"
+  SIS_DATA: "{{ .Values.data.sisData }}"
+  ENTITLEMENTS_HOST: "{{ .Values.data.entitlementsHost }}"
+  OSDU_STORAGE_URL: "{{ .Values.data.storageHost }}"

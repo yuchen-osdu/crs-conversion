@@ -3,10 +3,11 @@
 # Declare variables to be passed into your templates.
 
 data:
-  log_level: "INFO"
-  entitlements_api: "http://entitlements/api/entitlements/v2/"
-  sis_data: "/crs-converter/apachesis_setup/SIS_DATA"
+  logLevel: "INFO"
+  sisData: "/crs-converter/apachesis_setup/SIS_DATA"
+  storageHost: "http://storage"
+  entitlementsHost: "http://entitlements"
 
 conf:
   configmap: "crs-conversion-config"
-  app_name: "crs-conversion"
+  appName: "crs-conversion"
