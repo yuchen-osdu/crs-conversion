@@ -47,17 +47,6 @@
             <url>https://maven.geotoolkit.org</url>
         </repository>
         <repository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshots</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        <repository>
             <id>${repo.releases.id}</id>
             <url>${repo.releases.url}</url>
         </repository>
