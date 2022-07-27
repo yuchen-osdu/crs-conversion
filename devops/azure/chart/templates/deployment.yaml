@@ -55,6 +55,10 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ .Chart.Name }}-{{ .Values.image.branch }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep","90"]
           ports:
             - name: http
               containerPort: {{ .Values.application.port }}
@@ -144,3 +148,4 @@ spec:
               value: /mnt/crs_conversion/apachesis_setup/SIS_DATA
             - name: SPRING_CONFIG_NAME
               value: "common,application"
+      terminationGracePeriodSeconds: 101
