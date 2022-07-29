@@ -16,6 +16,7 @@
         <osdu.corelibazure.version>0.15.2</osdu.corelibazure.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
+        <spring-webmvc.version>5.3.22</spring-webmvc.version>
     </properties>
 
     <prerequisites>
@@ -96,6 +97,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring-webmvc.version}</version>
         </dependency>
 
         <dependency>
