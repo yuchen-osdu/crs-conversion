@@ -27,7 +27,7 @@
 
 	<groupId>org.opengroup.osdu.crs-converter-service</groupId>
 	<artifactId>crs-converter-service</artifactId>
-	<version>0.16.0-SNAPSHOT</version>
+	<version>0.17.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>crs-converter-service</name>
 	<description>crs-converter service</description>
@@ -45,17 +45,6 @@
             <id>geotoolkit.org</id>
             <name>Geotoolkit.org repository</name>
             <url>https://maven.geotoolkit.org</url>
-        </repository>
-        <repository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshots</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
         </repository>
         <repository>
             <id>${repo.releases.id}</id>
