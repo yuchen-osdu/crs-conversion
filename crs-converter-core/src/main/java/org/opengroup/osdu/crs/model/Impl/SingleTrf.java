@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.sis.io.wkt.WKTFormat;
 import org.apache.sis.referencing.CRS;
 import org.apache.sis.referencing.crs.AbstractCRS;
 import org.apache.sis.referencing.cs.AxesConvention;
@@ -25,6 +26,7 @@ import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
 import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCode;
 import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCrs;
+import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromWkt;
 import org.opengroup.osdu.crs.sis.wkt.IWktAttribute;
 import org.opengroup.osdu.crs.sis.wkt.WktParser;
 import org.opengroup.osdu.crs.sis.wkt.WktSection;
@@ -70,7 +72,7 @@ public class SingleTrf implements ISingleTrf {
         this.engineVersion = parsedItem.getEngineVersion();
         loadImplementation();
     }
-    
+
     private boolean is3dConversionDisable() {
         String env = System.getenv("DISABLE_3D_CONVERSIONS");
         if (env != null && !env.isEmpty()) {
@@ -114,8 +116,8 @@ public class SingleTrf implements ISingleTrf {
     }
 
     private ISisMathTransform createTransformOperation(ILateBoundCrs lateBoundCrs) throws Exception {
-        if (authorityCode == null) {
-            return createBestTransformationWithoutCode(lateBoundCrs);
+        if (!AuthorityCodeUtils.isEpsgCode(authorityCode)) {
+            return createTransformFromWKT();
         }
         try {
             CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
@@ -123,8 +125,15 @@ public class SingleTrf implements ISingleTrf {
             boolean supports3DPointConversion = supports3DPointConversion(operation);
             return new SisMathTransformFromCode(operation, supports3DPointConversion);
         } catch (NoSuchAuthorityCodeException e) {
-            return createBestTransformationWithoutCode(lateBoundCrs);
+            return createTransformFromWKT();
         }
+    }
+
+    private ISisMathTransform createTransformFromWKT() throws Exception {
+        WKTFormat format = new WKTFormat(null, null);
+        CoordinateOperation operation = (CoordinateOperation) format.parseObject(wellKnownText);
+        boolean supports3DPointConversion = supports3DPointConversion(operation);
+        return new SisMathTransformFromWkt(operation, supports3DPointConversion);
     }
 
     private boolean supports3DPointConversion(CoordinateOperation operation) {
