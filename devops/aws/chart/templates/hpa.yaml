@@ -1,0 +1,4 @@
+{{- template "common.hpa" (list . "os-crs-conversion.hpa") -}}
+{{- define "os-crs-conversion.hpa" -}}
+## Define overrides for the service HPA resource here
+{{- end -}}

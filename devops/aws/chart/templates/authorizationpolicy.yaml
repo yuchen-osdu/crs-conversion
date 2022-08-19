@@ -1,0 +1,5 @@
+{{- template "common.authzpolicy" (list . "os-crs-conversion.authzpolicy") -}}
+{{- define "os-crs-conversion.authzpolicy" -}}
+## Define overrides for the service authorization policy resource here
+{{- end -}}
+

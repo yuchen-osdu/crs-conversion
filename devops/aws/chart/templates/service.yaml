@@ -1,0 +1,4 @@
+{{- template "common.service" (list . "os-crs-conversion.service") -}}
+{{- define "os-crs-conversion.service" -}}
+## Define overrides for the service resource here
+{{- end -}}
