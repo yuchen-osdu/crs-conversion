@@ -18,7 +18,7 @@
   ],
   "tags": [
     {
-      "name": "CRS Point Conversion"
+      "name": "CRS Conversion"
     },
     {
       "name": "Info Api"
@@ -93,7 +93,7 @@
     "/v3/convert": {
       "post": {
         "tags": [
-          "CRS Point Conversion"
+          "CRS Conversion"
         ],
         "summary": "Convert a list of points",
         "description": "Convert a list of points",
@@ -153,7 +153,7 @@
     "/v3/convertGeoJson": {
       "post": {
         "tags": [
-          "CRS Point Conversion"
+          "CRS Conversion"
         ],
         "summary": "Convert a GeoJSON or AnyCrsGeoJson structure",
         "description": "Convert a GeoJSON or AnyCrsGeoJson structure to a specified target CRS. GeoJSON is declared - by definition - to be in the context of WGS 84.",
@@ -892,27 +892,31 @@
         "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
         "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
         "featureCollection": {
+          "type": "AnyCrsFeatureCollection",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
+          "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
+          "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
           "features": [
             {
-              "geometry": {
-                "coordinates": [
-                  313405.9477893702,
-                  6544797.620047403,
-                  6.561679790026246
-                ],
-                "bbox": null,
-                "type": "AnyCrsPoint"
-              },
-              "bbox": null,
+              "type": "AnyCrsFeature",
               "properties": {},
-              "type": "AnyCrsFeature"
+              "geometry": {
+                "type": "AnyCrsPolygon",
+                "coordinates": [
+                  [
+                  [697339.525, 7239989.403, 0],
+                  [697339.525, 7239989.500, 0],
+                  [697339.525, 7239989.600, 0],
+                  [697339.525, 7239989.403, 0]
+                  ]
+                ],
+                "bbox": null
+              },
+              "bbox": null
             }
           ],
           "bbox": null,
-          "properties": {},
-          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
-          "VerticalUnitID": "osdu:reference-data--UnitOfMeasure:m:",
-          "type": "AnyCrsFeatureCollection"
+          "properties": {}
         }
       }
     },
@@ -941,19 +945,38 @@
         }
       },
       "example": {
-        "successCount": 1,
-        "totalCount": 1,
+        "successCount": 4,
+        "totalCount": 4,
         "featureCollection": {
             "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
                     "geometry": {
-                        "type": "Point",
+                        "type": "Polygon",
                         "coordinates": [
-                            5.750000001940743,
-                            58.999999999237616,
-                            6.561679790026246
+                            [
+                                [
+                                    -43.04597676303939,
+                                    -24.94299718370678,
+                                    0.0
+                                ],
+                                [
+                                    -43.04597677685517,
+                                    -24.942996308196268,
+                                    0.0
+                                ],
+                                [
+                                    -43.04597679109822,
+                                    -24.942995405608062,
+                                    0.0
+                                ],
+                                [
+                                    -43.04597676303939,
+                                    -24.94299718370678,
+                                    0.0
+                                ]
+                            ]
                         ]
                     },
                     "properties": {}
@@ -963,9 +986,9 @@
             "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
         },
         "operationsApplied": [
-            "conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 1 points converted",
-            "transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 1 points successfully transformed",
-            "Z-axis unit conversion from m to m"
+            "conversion from SAD_1969_UTM_Zone_23S to GCS_South_American_1969; 4 points converted",
+            "transformation GCS_South_American_1969 to GCS_WGS_1984 using SAD_1969_To_WGS_1984_4; 4 points successfully transformed",
+            "No unit conversion for Z-axis"
         ]
       }
     },
