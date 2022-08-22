@@ -1,0 +1,4 @@
+{{- template "common.virtualservice" (list . "os-crs-conversion.virtualservice") -}}
+{{- define "os-crs-conversion.virtualservice" -}}
+## Define overrides for the service's virtual service resource here
+{{- end -}}
