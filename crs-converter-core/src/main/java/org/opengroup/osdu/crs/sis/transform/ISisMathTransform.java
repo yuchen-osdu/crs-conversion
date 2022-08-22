@@ -6,6 +6,7 @@ public interface ISisMathTransform {
 
     public enum TransformDerivedType {
         DERIVED_FROM_CODE,
+        DERIVED_FROM_WKT,
         DERIVED_FROM_CRS
     }
 
