@@ -23,15 +23,15 @@ if [[ "$OSTYPE" == "msys" ]]; then
   python -m pip install -r requirements.txt
 
   # Run tests
-  echo ***RUNNING CRS Converter API TESTS***
+  echo ***RUNNING CRS Converter API V2 TESTS***
   python run_test_api_v2.py
-  TEST_STATUS=$?
+  V2_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V2 TESTS***
 
   # Run tests
-  echo ***RUNNING CRS Converter API TESTS***
+  echo ***RUNNING CRS Converter API V3 TESTS***
   python run_test_api_v3.py
-  TEST_STATUS=$?
+  V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
   # python -m pip freeze > requirements.txt
@@ -50,9 +50,9 @@ else
   python3 -m pip install -r requirements.txt
 
   # Run tests
-  echo ***RUNNING CRS Converter API TESTS***
+  echo ***RUNNING CRS Converter API V2 TESTS***
   python3 run_test_api_v2.py
-  TEST_STATUS=$?
+  V2_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V2 TESTS***
   svctoken=$(python3 jwt_client.py)
   echo 'Register Legal tag before Integration Tests ...'
@@ -80,7 +80,7 @@ else
   # Run tests
   echo ***RUNNING CRS Converter API V3 TESTS***
   python3 run_test_api_v3.py
-  TEST_STATUS=$?
+  V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
   # python3 -m pip freeze > requirements.txt
@@ -91,7 +91,11 @@ fi
 deactivate
 rm -rf env/
 
-if [ $TEST_STATUS -ne 0 ]
+echo ***TEST RESULTS***
+echo $V2_TEST_STATUS
+echo $V3_TEST_STATUS
+
+if [ $V2_TEST_STATUS -ne 0 ] || [ $V3_TEST_STATUS -ne 0 ]
 then
     exit 1
 fi
