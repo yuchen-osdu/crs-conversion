@@ -1,8 +1,11 @@
 package org.opengroup.osdu.crs.model.Impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.common.collect.Multimaps;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -30,6 +33,7 @@ import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromWkt;
 import org.opengroup.osdu.crs.sis.wkt.IWktAttribute;
 import org.opengroup.osdu.crs.sis.wkt.WktParser;
 import org.opengroup.osdu.crs.sis.wkt.WktSection;
+import org.opengroup.osdu.crs.sis.wkt.WktStringAttribute;
 
 @Data
 public class SingleTrf implements ISingleTrf {
@@ -131,10 +135,83 @@ public class SingleTrf implements ISingleTrf {
 
     private ISisMathTransform createTransformFromWKT() throws Exception {
         WKTFormat format = new WKTFormat(null, null);
-        CoordinateOperation operation = (CoordinateOperation) format.parseObject(wellKnownText);
+        WktParser parser = new WktParser();
+        String correctedWellKnownText = correctFileParametersIfNeeded();
+        CoordinateOperation operation = (CoordinateOperation) format.parseObject(correctedWellKnownText);
         boolean supports3DPointConversion = supports3DPointConversion(operation);
         return new SisMathTransformFromWkt(operation, supports3DPointConversion);
     }
+
+    //correct wkts that have file parameters specified
+    private String correctFileParametersIfNeeded() {
+        try {
+            WktParser parser = new WktParser();
+            WktSection rootSection = parser.parseWkt(wellKnownText);
+            WktSection methodSection = rootSection.getSubsection("METHOD");
+            if (methodSection == null) {
+                return wellKnownText;
+            }
+            List<IWktAttribute> methodAttributes = methodSection.getAttributes();
+            if (methodAttributes == null || methodAttributes.size() != 1) {
+                return wellKnownText;
+            }
+            String methodNameFromWKT = (String) methodAttributes.get(0).getValue();
+            methodNameFromWKT = methodNameFromWKT.replace("\"", "");
+            if (!methodNameFromWKT.equals("NADCON") && !methodNameFromWKT.equals("NTv2")) {
+                return wellKnownText;
+            }
+            List<WktSection> subSections = rootSection.getSubSections();
+            for (int i = 0; i < subSections.size(); i++) {
+                WktSection currentSubSection = subSections.get(i);
+                if (!currentSubSection.getType().equals("PARAMETER")) {
+                    continue;
+                }
+                List<IWktAttribute> existingAttributes = currentSubSection.getAttributes();
+                if (existingAttributes.size() != 2) {
+                    continue;
+                }
+                String parameterName = (String) existingAttributes.get(0).getValue();
+                parameterName = parameterName.replace("\"", "");
+                if (!parameterName.startsWith("Dataset_")) {
+                    continue;
+                }
+                String fileName = getFileNameFromParameter(parameterName);
+                rootSection.remove(i);
+                if (methodNameFromWKT.equals("NTv2")) {
+                    List<IWktAttribute> fileParameterAttributes = new ArrayList<>();
+                    fileParameterAttributes.add(new WktStringAttribute("\"Latitude and longitude difference file\""));
+                    fileParameterAttributes.add(new WktStringAttribute("\"" + fileName + ".gsb\""));
+                    rootSection.add(i, new WktSection("PARAMETER", fileParameterAttributes, new ArrayList<>()));
+                } else {
+                    List<IWktAttribute> latitudeFileParameterAttributes = new ArrayList<>();
+                    latitudeFileParameterAttributes.add(new WktStringAttribute("\"Latitude difference file\""));
+                    latitudeFileParameterAttributes.add(new WktStringAttribute("\"" + fileName + ".las\""));
+                    rootSection.add(i, new WktSection("PARAMETER", latitudeFileParameterAttributes, new ArrayList<>()));
+
+                    List<IWktAttribute> longitudeFileParameterAttributes = new ArrayList<>();
+                    longitudeFileParameterAttributes.add(new WktStringAttribute("\"Longitude difference file\""));
+                    longitudeFileParameterAttributes.add(new WktStringAttribute("\"" + fileName + ".los\""));
+                    rootSection.add(i, new WktSection("PARAMETER", longitudeFileParameterAttributes, new ArrayList<>()));
+                }
+                //there should be only one file parameter specified
+                return  rootSection.toWktString();
+            }
+            return wellKnownText;
+        } catch(Exception ex) {
+            LOGGER.log(Level.INFO, "Unable to correct file parameters", ex);
+            return wellKnownText;
+        }
+    }
+
+    private String getFileNameFromParameter(String parameterName) {
+        int indexOfDirDivider = parameterName.lastIndexOf("/");
+        if (indexOfDirDivider > -1) {
+            return parameterName.substring(indexOfDirDivider + 1);
+        }
+        int indexOfDivider = parameterName.indexOf("_");
+        return parameterName.substring(indexOfDivider + 1);
+    }
+
 
     private boolean supports3DPointConversion(CoordinateOperation operation) {
         if (is3dConversionDisable()) {

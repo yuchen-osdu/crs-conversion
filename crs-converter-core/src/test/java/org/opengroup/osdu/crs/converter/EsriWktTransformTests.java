@@ -1,6 +1,8 @@
 package org.opengroup.osdu.crs.converter;
 
+import org.apache.sis.io.wkt.WKTFormat;
 import org.junit.Test;
+import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengroup.osdu.crs.model.ConvertPointsResponse;
 import org.opengroup.osdu.crs.util.ConstantsTests;
 
@@ -244,6 +246,48 @@ public class EsriWktTransformTests {
         };
         double[] expectedXYCoordinates = new double[]{
                 -39.99880571, -20.00170960, -39.99880571, -20.00170960
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+        CRSConverter converter = new CRSConverter();
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+        assertEquals((Integer) (expectedXYCoordinates.length / 2), result.getSuccessCount());
+        for (int i = 0; i < xyCoordinates.length; i++) {
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_A);
+            assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_A);
+        }
+    }
+
+    @Test
+    public void testNTv2Wkt() throws Exception {
+        String fromCRS = "{\"authCode\":{\"auth\":\"SHELL\",\"code\":\"50028033\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"SHELL\",\"code\":\"50028\"},\"name\":\"NAD27_Central_Canada_Albers_Equal_Area\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"NAD27_Central_Canada_Albers_Equal_Area\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698213901]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Albers\\\"],PARAMETER[\\\"False_Easting\\\",1000000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-112.5],PARAMETER[\\\"Standard_Parallel_1\\\",58.0],PARAMETER[\\\"Standard_Parallel_2\\\",50.0],PARAMETER[\\\"Latitude_Of_Origin\\\",45.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"SHELL\\\",\\\"50028\\\"]]\"},\"name\":\"NAD27 * EPSG-Can / Central Canada Albers Equal Area [50028,1693]\",\"singleCT\":{\"authCode\":{\"auth\":\"SHELL\",\"code\":\"1693\"},\"name\":\"NAD_1927_To_WGS_1984_33\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_33\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NTv2\\\"],PARAMETER[\\\"Dataset_canada/Ntv2_0\\\",0.0],AUTHORITY[\\\"EPSG\\\",1693]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+        double[] zCoordinates = new double[]{0, 0};
+        double[] xyCoordinates = new double[] {2586342.78, 807360.75, 2586342.78, 807360.75};
+        double[] expectedXYCoordinates = new double[]{
+                -90.00000000212174, 49.99999997778123, -90.00000000212174, 49.99999997778123
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+        CRSConverter converter = new CRSConverter();
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+        assertEquals((Integer) (expectedXYCoordinates.length / 2), result.getSuccessCount());
+        for (int i = 0; i < xyCoordinates.length; i++) {
+            assertEquals(expectedXYCoordinates[i], xyCoordinates[i], DELTA_L);
+            assertEquals(expectedZCoordinates[i % 2], zCoordinates[i % 2], DELTA_L);
+        }
+    }
+
+    @Test
+    public void testNADCONWkt() throws Exception {
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"26782079\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"26782\"},\"name\":\"NAD_1927_StatePlane_Louisiana_South_FIPS_1702\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"NAD_1927_StatePlane_Louisiana_South_FIPS_1702\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Lambert_Conformal_Conic\\\"],PARAMETER[\\\"False_Easting\\\",2000000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-91.3333333333333],PARAMETER[\\\"Standard_Parallel_1\\\",29.3],PARAMETER[\\\"Standard_Parallel_2\\\",30.7],PARAMETER[\\\"Latitude_Of_Origin\\\",28.6666666666667],UNIT[\\\"Foot_US\\\",0.304800609601219],AUTHORITY[\\\"EPSG\\\",26782]]\"},\"name\":\"NAD27 * OGP-Usa Conus / Louisiana South [26782,15851]\",\"singleCT\":{\"authCode\":{\"auth\":\"TEST\",\"code\":\"15851\"},\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],AUTHORITY[\\\"EPSG\\\",15851]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}";
+        double[] zCoordinates = new double[]{0, 0};
+        double[] xyCoordinates = new double[] {-100, 30, -100, 30};
+        double[] expectedXYCoordinates = new double[]{
+                -740612.4032902368, 588467.2129525244, -740612.4032902368, 588467.2129525244
         };
         double[] expectedZCoordinates = new double[]{
                 0, 0
