@@ -33,9 +33,18 @@ public class WktSection implements IWktElement {
         }
     }
 
+    public void add(int index, WktSection newSection) {
+        this.subSections.add(index, newSection);
+    }
+
+    public void remove(int index) {
+        this.subSections.remove(index);
+    }
+
     public List<IWktAttribute> getAttributes() {
         return attributes;
     }
+
 
     public List<WktSection> getSubSections() {
         return subSections;
