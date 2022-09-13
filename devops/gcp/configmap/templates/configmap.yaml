@@ -9,4 +9,4 @@ data:
   LOG_LEVEL: "{{ .Values.data.logLevel }}"
   SIS_DATA: "{{ .Values.data.sisData }}"
   ENTITLEMENTS_HOST: "{{ .Values.data.entitlementsHost }}"
-  OSDU_STORAGE_URL: "{{ .Values.data.storageHost }}"
+  STORAGE_HOST: "{{ .Values.data.storageHost }}"
