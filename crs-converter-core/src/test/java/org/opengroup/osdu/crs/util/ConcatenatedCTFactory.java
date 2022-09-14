@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialReference;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class ConcatenatedCTFactory {
 
@@ -84,9 +82,5 @@ public class ConcatenatedCTFactory {
         ebCrs.setLateBoundCrs(lbCrs);
         ebCrs.setAuthorityCode(new AuthorityCode("Test", String.format("%d", 900000 + sourceMeridian * 10 + targetMeridian)));
         return (IEarlyBoundCrs) parseSpatialReference(ebCrs.toJsonString());
-    }
-
-    @Test
-    public void testFactory() {
     }
 }

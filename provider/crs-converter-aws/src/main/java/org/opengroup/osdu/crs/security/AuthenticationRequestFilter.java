@@ -27,17 +27,13 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,7 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class AuthenticationRequestFilter extends OncePerRequestFilter {
 
-    private static Logger logger = Logger.getLogger(AuthenticationRequestFilter.class.getName());
+    private static Logger filterLogger = Logger.getLogger(AuthenticationRequestFilter.class.getName());
 
     private final String entitlementsUrl;
     private final HandlerExceptionResolver handlerExceptionResolver;
@@ -74,18 +70,18 @@ public class AuthenticationRequestFilter extends OncePerRequestFilter {
         try {
             Groups groups = service.getGroups();
             String message = String.format("User authenticated | User: %s", groups.getMemberEmail());
-            logger.info(message);
+            filterLogger.info(message);
             putAuthenticationIntoContext(groups);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (EntitlementsException e) {
             String message = String.format(String.format("User not authenticated. Response: %s", e.getHttpResponse()), e);
-            logger.warning(message);
+            filterLogger.warning(message);
             AppException unauthorized =  AppException.createUnauthorized("Error: " + e.getMessage());
             handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
         }
         catch (NullPointerException e) { // Common library throws null pointer exception when auth permission is denied.
             String message = String.format("User not authenticated. Null pointer exception: %s", e.getMessage());
-            logger.warning(message);
+            filterLogger.warning(message);
             AppException unauthorized = AppException.createUnauthorized("Error: " + e.getMessage());
             handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
         }
