@@ -1,6 +1,6 @@
 # Service Config
 image: __CONTAINER__
-imagePullPolicy: IfNotPresent
+imagePullPolicy: Always
 service:
   type: ClusterIP
   port: 8080
@@ -33,7 +33,8 @@ environmentVariables:
     value: "http://os-entitlements:8080"
   - name: STORAGE_BASE_URL
     value: "http://os-storage:8080"
-podAnnotations: {}
+podAnnotations: 
+  seccomp.security.alpha.kubernetes.io/pod: "runtime/default"
 
 # Resource Config
 replicaCount: 1
@@ -51,7 +52,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Security Config
-serviceAccountRole: arn:aws:iam::{{ .Values.global.accountID }}:role/{{ .Values.global.resourcePrefix }}-{{ include "common.name" . }}
+serviceAccountRole: arn:aws:iam::{{ .Values.global.accountID }}:role/osdu-{{ .Values.global.resourcePrefix }}-{{ .Values.global.region }}-{{ include "common.name" . }}
 cors:
   maxAge: "60m"
   allowCredentials: true
@@ -63,13 +64,14 @@ cors:
     - Data-Partition-Id
     - Correlation-Id
     - Content-Type
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext: 
+  runAsUser: 10001
+  runAsNonRoot: true
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
 allowedPrincipals:
   - cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account
   - cluster.local/ns/{{ .Release.Namespace }}/sa/os-storage
