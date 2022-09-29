@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 data:
-  logLevel: "INFO"
+  logLevel: "ERROR"
   sisData: "/crs-converter/apachesis_setup/SIS_DATA"
   storageHost: "http://storage"
   entitlementsHost: "http://entitlements"
