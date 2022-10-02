@@ -133,13 +133,14 @@ The following software have components provided under the terms of this license:
 - Jackson datatype: jdk8 (from https://repo1.maven.org/maven2/com/fasterxml/jackson/datatype/jackson-datatype-jdk8)
 - Jackson module: Afterburner (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-modules-base)
 - Jackson module: JAXB Annotations (from http://github.com/FasterXML/jackson-module-jaxb-annotations, http://wiki.fasterxml.com/JacksonJAXBAnnotations, https://github.com/FasterXML/jackson-modules-base)
-- Jackson-annotations (from http://github.com/FasterXML/jackson, http://wiki.fasterxml.com/JacksonHome)
+- Jackson-annotations (from http://github.com/FasterXML/jackson, http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson)
 - Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 - Jackson-dataformat-XML (from http://wiki.fasterxml.com/JacksonExtensionXmlDataBinding, https://github.com/FasterXML/jackson-dataformat-xml)
 - Jackson-dataformat-YAML (from http://wiki.fasterxml.com/JacksonExtensionYAML, https://github.com/FasterXML/jackson, https://github.com/FasterXML/jackson-dataformats-text)
 - Jackson-module-parameter-names (from https://repo1.maven.org/maven2/com/fasterxml/jackson/module/jackson-module-parameter-names)
 - Jakarta Bean Validation API (from https://beanvalidation.org)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - Java Native Access (from https://github.com/java-native-access/jna, https://github.com/twall/jna, https://repo1.maven.org/maven2/net/java/dev/jna/jna)
 - Java Native Access Platform (from https://github.com/java-native-access/jna)
 - Java UUID Generator (from http://wiki.fasterxml.com/JugHome)
@@ -155,6 +156,8 @@ The following software have components provided under the terms of this license:
 - KeePassJava2 :: Simple (from https://repo1.maven.org/maven2/org/linguafranca/pwdb/KeePassJava2-simple)
 - Kotlin Stdlib (from https://kotlinlang.org/, https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib)
 - Kotlin Stdlib Common (from https://kotlinlang.org/)
+- Kotlin Stdlib Jdk7 (from https://kotlinlang.org/)
+- Kotlin Stdlib Jdk8 (from https://kotlinlang.org/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
 - Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
@@ -253,6 +256,7 @@ The following software have components provided under the terms of this license:
 - Spring Web (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-web)
 - Spring Web MVC (from https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-webmvc)
 - Spring WebFlux (from https://github.com/spring-projects/spring-framework)
+- Swagger UI (from http://webjars.org)
 - Vavr (from http://vavr.io, https://www.vavr.io)
 - Vavr Match (from http://vavr.io)
 - Woodstox (from https://github.com/FasterXML/woodstox)
@@ -274,7 +278,7 @@ The following software have components provided under the terms of this license:
 - io.grpc:grpc-protobuf-lite (from https://github.com/grpc/grpc-java)
 - io.grpc:grpc-stub (from https://github.com/grpc/grpc-java)
 - ion-java (from https://github.com/amzn/ion-java/, https://github.com/amznlabs/ion-java/)
-- jackson-databind (from http://github.com/FasterXML/jackson, http://wiki.fasterxml.com/JacksonHome)
+- jackson-databind (from http://github.com/FasterXML/jackson, http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson)
 - java-cloudant (from https://cloudant.com)
 - javatuples (from http://www.javatuples.org)
 - javax.annotation-api (from http://jcp.org/en/jsr/detail?id=250)
@@ -299,8 +303,12 @@ The following software have components provided under the terms of this license:
 - proto-google-common-protos (from https://github.com/googleapis/api-client-staging, https://github.com/googleapis/googleapis, https://github.com/googleapis/java-iam/proto-google-common-protos)
 - proto-google-iam-v1 (from https://github.com/googleapis/googleapis, https://github.com/googleapis/java-iam/proto-google-iam-v1)
 - resilience4j (from https://github.com/resilience4j/resilience4j, https://resilience4j.readme.io, ttps://resilience4j.readme.io)
+- spring-security-crypto (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - spring-security-oauth2-client (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - spring-security-oauth2-core (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
+- springdoc-openapi-common (from https://repo1.maven.org/maven2/org/springdoc/springdoc-openapi-common)
+- springdoc-openapi-ui (from https://repo1.maven.org/maven2/org/springdoc/springdoc-openapi-ui)
+- springdoc-openapi-webmvc-core (from https://repo1.maven.org/maven2/org/springdoc/springdoc-openapi-webmvc-core)
 - springfox-bean-validators (from https://github.com/springfox/springfox)
 - springfox-boot-starter (from https://github.com/springfox/springfox)
 - springfox-core (from https://github.com/springfox/springfox)
@@ -315,11 +323,12 @@ The following software have components provided under the terms of this license:
 - springfox-swagger-ui (from https://github.com/springfox/springfox)
 - springfox-swagger2 (from https://github.com/springfox/springfox)
 - swagger-annotations (from https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-annotations, https://repo1.maven.org/maven2/io/swagger/swagger-annotations)
-- swagger-core (from https://repo1.maven.org/maven2/io/swagger/swagger-core)
+- swagger-core (from https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-core, https://repo1.maven.org/maven2/io/swagger/swagger-core)
 - swagger-jaxrs (from https://repo1.maven.org/maven2/io/swagger/swagger-jaxrs)
 - swagger-models (from https://repo1.maven.org/maven2/io/swagger/core/v3/swagger-models, https://repo1.maven.org/maven2/io/swagger/swagger-models)
 - tomcat-annotations-api (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - tomcat-embed-core (from http://tomcat.apache.org/)
+- tomcat-embed-el (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - tomcat-embed-websocket (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 
 ========================================================================
@@ -418,6 +427,7 @@ The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- Hibernate Validator (from https://repo1.maven.org/maven2/org/hibernate/hibernate-validator, https://repo1.maven.org/maven2/org/hibernate/validator/hibernate-validator)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Netty/Common (from https://repo1.maven.org/maven2/io/netty/netty-common)
 - RabbitMQ Java Client (from http://www.rabbitmq.com, https://www.rabbitmq.com)
@@ -429,6 +439,8 @@ CDDL-1.0
 The following software have components provided under the terms of this license:
 
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
+- Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - javax.annotation-api (from http://jcp.org/en/jsr/detail?id=250)
 
@@ -437,6 +449,7 @@ CDDL-1.1
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - javax.annotation-api (from http://jcp.org/en/jsr/detail?id=250)
 - tomcat-embed-core (from http://tomcat.apache.org/)
@@ -500,6 +513,7 @@ The following software have components provided under the terms of this license:
 
 - Expression Language 3.0 (from http://el-spec.java.net, http://uel.java.net, https://projects.eclipse.org/projects/ee4j.el)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - RabbitMQ Java Client (from http://www.rabbitmq.com, https://www.rabbitmq.com)
 - javax.annotation-api (from http://jcp.org/en/jsr/detail?id=250)
@@ -523,6 +537,7 @@ The following software have components provided under the terms of this license:
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 - Jakarta Bean Validation API (from https://beanvalidation.org)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - javax.annotation-api (from http://jcp.org/en/jsr/detail?id=250)
 - tomcat-embed-core (from http://tomcat.apache.org/)
@@ -534,6 +549,7 @@ The following software have components provided under the terms of this license:
 
 - Expression Language 3.0 (from http://el-spec.java.net, http://uel.java.net, https://projects.eclipse.org/projects/ee4j.el)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+- Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - Project Lombok (from http://projectlombok.org, https://projectlombok.org)
 
 ========================================================================
@@ -543,6 +559,7 @@ The following software have components provided under the terms of this license:
 
 - Java Native Access Platform (from https://github.com/java-native-access/jna)
 - Spring Security - Core (from http://spring.io/spring-security, https://repo1.maven.org/maven2/org/springframework/security/spring-security-core, https://spring.io/projects/spring-security, https://spring.io/spring-security)
+- spring-security-crypto (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 
 ========================================================================
 ImageMagick
@@ -594,8 +611,11 @@ The following software have components provided under the terms of this license:
 ========================================================================
 LGPL-3.0-only
 ========================================================================
+The following software have components provided under the terms of this license:
+
 - Apache Log4j API (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api)
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
+- Logback Classic Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-classic)
 
 ========================================================================
 MIT
@@ -612,6 +632,7 @@ The following software have components provided under the terms of this license:
 - Azure Java Client Runtime for ARM (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Spring Boot AutoConfigure (from https://github.com/Azure/azure-sdk-for-java, https://github.com/Microsoft/azure-spring-boot)
+- Azure Spring Boot Starter for Azure AD Spring Security Integration (from https://github.com/Azure/azure-sdk-for-java)
 - Bouncy Castle Provider (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/java.html)
 - Checker Qual (from https://checkerframework.org)
 - ClassGraph (from https://github.com/classgraph/classgraph)
@@ -656,6 +677,7 @@ The following software have components provided under the terms of this license:
 - msal4j (from https://github.com/AzureAD/microsoft-authentication-library-for-java)
 - msal4j-persistence-extension (from https://github.com/AzureAD/microsoft-authentication-extensions-for-java)
 - qpid-proton-j-extensions (from https://github.com/Azure/qpid-proton-j-extensions)
+- webjars-locator-core (from http://webjars.org)
 
 ========================================================================
 MPL-1.1
@@ -663,6 +685,7 @@ MPL-1.1
 The following software have components provided under the terms of this license:
 
 - Javassist (from http://www.javassist.org/)
+- RabbitMQ Java Client (from http://www.rabbitmq.com, https://www.rabbitmq.com)
 
 ========================================================================
 MPL-2.0
@@ -713,6 +736,7 @@ The following software have components provided under the terms of this license:
 - Bouncy Castle Provider (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/java.html)
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- JBoss Logging 3 (from http://www.jboss.org)
 - Joda-Time (from http://joda-time.sourceforge.net, http://www.joda.org/joda-time/, https://www.joda.org/joda-time/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Microsoft Application Insights Java SDK Core (from https://github.com/Microsoft/ApplicationInsights-Java)
@@ -731,6 +755,8 @@ The following software have components provided under the terms of this license:
 ========================================================================
 unknown
 ========================================================================
+The following software have components provided under the terms of this license:
+
 - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/java.html)
 - Bouncy Castle Provider (from http://www.bouncycastle.org/java.html, https://www.bouncycastle.org/java.html)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
