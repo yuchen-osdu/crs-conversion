@@ -6,6 +6,7 @@ import math
 import json
 from os import listdir
 from os.path import isfile, join
+from time import sleep
 
 import urllib3
 urllib3.disable_warnings()
@@ -242,6 +243,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = CRSPointConversionApi(client)
+        cls.test_records = TestRecords()
+        cls.test_records.setup()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.test_records.teardown()
 
     @unittest.SkipTest
     def test_transformation_with_partial_failure(self):
@@ -459,6 +466,12 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = TrajectoryComputationAndConversionApi(client)
+        cls.test_records = TestRecords()
+        cls.test_records.setup()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.test_records.teardown()
 
     @staticmethod
     def __read_request(file_name):
@@ -662,14 +675,13 @@ class TestRecords(unittest.TestCase):
     DOMAIN_TO_REPLACE = '{{DOMAIN}}'
     TAG_TO_REPLACE = '{{LEGAL_TAG}}'
     TEST_ID_REPLACE = '{{TEST_ID}}' 
-    @classmethod
-    def setUpClass(cls):
+    def setup(self):
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
         urllib3.disable_warnings()
 
-        cls.env = TestEnvironment()
-        if not cls.env.is_ok():
+        self.env = TestEnvironment()
+        if not self.env.is_ok():
             raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
         # Configure API key authorization: api_key
         configuration = Configuration()
@@ -678,15 +690,19 @@ class TestRecords(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        cls.header = {}
-        cls.client = ApiClient(host=cls.env.storage_url)
-        cls.header['data-partition-id']=cls.env.data_partition_id
-        cls.header['Content-Type']='application/json'
-        cls.header['Authorization']='Bearer ' + bearer
-        cls.client.user_agent = 'IntegrationTest'
-        cls.recordIDs = []
+        self.header = {}
+        self.client = ApiClient(host=self.env.storage_url)
+        self.header['data-partition-id']=self.env.data_partition_id
+        self.header['Content-Type']='application/json'
+        self.header['Authorization']='Bearer ' + bearer
+        self.client.user_agent = 'IntegrationTest'
+        self.recordIDs = []
+        self.put_records()
 
-    def test_put_records(self):
+    def teardown(self):
+        self.delete_records()
+
+    def put_records(self):
         """test put records"""
         dir_path = os.path.dirname(__file__)
         mypath = os.path.join(dir_path, "v3/data/Storagerecords/")
@@ -706,8 +722,9 @@ class TestRecords(unittest.TestCase):
                 self.assertIsNotNone(api_response)
             except ApiException as e:
                 self.fail(str(e))
+        sleep(30) # Wait for the records to become searchable
 
-    def test_delete_records(self):
+    def delete_records(self):
         """test delete records"""
         print('Request URL for delete records: ' + self.env.storage_url)
         for id in self.recordIDs:
@@ -728,11 +745,9 @@ def suite():
     suite.addTest(TestTrajectoryConverterIntegration('test_32631_LMP_trajectory'))
     suite.addTest(TestUnAuthorizedCrsConverterIntegration('test_transformation_with_unAuthorized_token'))
     suite.addTest(TestInfo('test_info_using_get'))
-    suite.addTest(TestRecords('test_put_records'))
     suite.addTest(TestCrsConverterIntegration('test_conversion_only_ID'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json_ID'))
     suite.addTest(TestTrajectoryConverterIntegration('test_32613_TN_trajectory_ID'))
-    suite.addTest(TestRecords('test_delete_records'))
     return suite
 
 if __name__ == '__main__':
