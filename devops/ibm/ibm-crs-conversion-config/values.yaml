@@ -1,0 +1,17 @@
+data:
+# common
+  javaAppJar: "/deployments/*-spring-boot.jar"
+  serverPort: 8080
+  contextPath: "/api/crs/converter"
+  
+# log
+  logPrefix: schema
+  loggingLevelOsdu: debug
+  loggingLevelSpring: debug
+
+# ibm 
+  beanDefOverriding: true
+  healthCheckUri: "/api/crs/converter/v2/info"
+ 
+conf:
+  configmap: "crs-conversion-config"
