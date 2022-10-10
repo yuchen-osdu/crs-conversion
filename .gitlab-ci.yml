@@ -22,6 +22,8 @@ variables:
   IBM_BUILD_SUBDIR: provider/crs-converter-ibm/crs-converter-ocp
   IBM_INT_TEST_PY_SUBDIR: testing/crs_converter_test_ibm
   IBM_INT_TEST_PY_FILE: run_test.py
+  IBM_HELM_CONFIG_PATH: devops/ibm/ibm-crs-conversion-config
+  IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-crs-conversion-deploy
 
 include:
   - project: "osdu/platform/ci-cd-pipelines"
