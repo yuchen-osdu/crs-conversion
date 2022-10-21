@@ -64,7 +64,7 @@ public class AbstractBinGrid {
 	private AbstractCoordinates[] aBCDBinGridLocalCoordinates;
 	 
 	@JsonProperty("ABCDBinGridSpatialLocation")
-	private AbstractSpatialLocation aBCDBinGridSpatialLocation;
+	 private AbstractSpatialLocation aBCDBinGridSpatialLocation;
 
 	
 
