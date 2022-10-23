@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class InnerBinGridJsonCoordinates {
+public class InnerBinGridCoordinates {
 	
 	@JsonProperty("x")
 	private Double x;

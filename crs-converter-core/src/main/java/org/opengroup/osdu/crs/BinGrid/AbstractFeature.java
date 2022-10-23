@@ -16,6 +16,7 @@ public class AbstractFeature extends BinGridJsonBase{
 	
 	@JsonProperty("geometry")
     private BinGridJsonBase geometry;
+	
 
 	
 	@Override

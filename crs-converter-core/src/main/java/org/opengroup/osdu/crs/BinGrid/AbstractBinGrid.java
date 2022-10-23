@@ -61,8 +61,8 @@ public class AbstractBinGrid {
 	private Double p6BinNodeIncrementOnJaxis;
 
 	@JsonProperty("ABCDBinGridLocalCoordinates")
-	private List<AbstractCoordinates> aBCDBinGridLocalCoordinates;
-
+	private List <AbstractCoordinates> aBCDBinGridLocalCoordinates;
+	 
 	@JsonProperty("ABCDBinGridSpatialLocation")
 	private AbstractSpatialLocation aBCDBinGridSpatialLocation;
 
