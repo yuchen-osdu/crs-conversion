@@ -1,5 +1,7 @@
 package org.opengroup.osdu.crs.BinGrid;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -8,7 +10,7 @@ import lombok.Data;
 public class AbstractAnyCrsFeatureCollection {
 
 	@JsonProperty("features")
-	private AbstractFeature[] features;
+	private List<AbstractFeature> features;
 
 	@JsonProperty("persistableReferenceCrs")
 	private String persistableReferenceCrs;

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import javax.validation.ValidationException;
 
@@ -148,6 +149,25 @@ public class CrsConverterApiV3 {
 		request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
 		request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
 		ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectory(dpsHeaders, request);
+		return response;
+	}
+	
+	@PostMapping("/convertBinGrid")
+	@ApiOperation(value = Constants.SWAGGER_BIN_GRID_CONVERT_TITLE, notes = Constants.SWAGGER_BIN_GRID_CONVERT_NOTES, tags = {
+			Constants.SWAGGER_TAG_TRJ_CONVERSION })
+	@ApiResponses({
+			@ApiResponse(code = 200, message = Constants.SWAGGER_BIN_GRID_CONVERSION_RESPONSE, response = ConvertTrajectoryResponse.class),
+			@ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
+			@ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
+			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class) })
+	public ConvertBinGridResponse convertBinGrid(
+			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
+
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+
+		AbstractBinGrid inBinGrid = request.getInBinGrid();
+
+		ConvertBinGridResponse response = this.crsConverter.convertBinGrid(toCrs, inBinGrid);
 		return response;
 	}
 }
