@@ -189,15 +189,15 @@ public class CRSConverter implements ICRSConverter {
 				outBinGrid = binGridComputation(toCrs, inBinGrid, outBinGrid);
 			} else {
 				if (type.equals(CRS_TYPE_PROJECTED))
-					logger.info("input type is projected but BaseCRS is not WGS 84");
+					logger.info("Input CRS type is projected but BaseCRS is not WGS 84");
 				else
 					logger.info(
-							"Unexpected. CRS type is BoundProjected but base CRS is WGS 84 which should be of type projected in OSDU");
+							"Unexpected. CRS type is BoundProjected but BaseCRS is WGS 84 which should be of type projected in OSDU");
 			}
 
 		} else {
 
-			logger.info("not a 4Corner");
+			logger.info("BinGrid method is not a 4Corner type");
 		}
 
 		return outBinGrid;
@@ -213,7 +213,7 @@ public class CRSConverter implements ICRSConverter {
 		spatialcoordinates.getAsingestedcoordinates().getFeatures().stream().forEach(features -> {
 			int size = features.getGeometry().getCoordinates().getAbstractCoordinates().size();
 			if (size != 4)
-				logger.info("invalid size for spatial coordinates");
+				logger.info("Invalid size for spatial coordinates in the input request");
 			else {
 				features.getGeometry().getCoordinates().getAbstractCoordinates().stream().forEach(splCoordinates -> {
 					double xCoordinate = splCoordinates.getX();
@@ -233,7 +233,7 @@ public class CRSConverter implements ICRSConverter {
 					} else if (StringUtil.isNullOrEmpty(persistableReference)) {
 						value = persistableReference;
 					} else {
-						logger.info("crsif and PR not given");
+						logger.info("CRS Id and Persistence Reference not present in the input request");
 					}
 					ConvertPointsResponse internal_response = convertPoint(value, toCrs, xys, zs);
 
@@ -517,7 +517,7 @@ public class CRSConverter implements ICRSConverter {
 	}
 
 	private boolean validateLocalCoordinates(List<AbstractCoordinates> points) {
-		logger.info("Validating BinGrid request");
+		logger.info("Validating BinGrid input request");
 		if (points != null) {
 			if (points.size() != 4)
 				return false;
@@ -544,7 +544,7 @@ public class CRSConverter implements ICRSConverter {
 				logger.info("Third point is not Tmax and Bmin");
 				return false;
 			}
-			logger.info("BinGrid request is valid");
+			logger.info("BinGrid input request is valid");
 		} else
 			return false;
 		return true;
