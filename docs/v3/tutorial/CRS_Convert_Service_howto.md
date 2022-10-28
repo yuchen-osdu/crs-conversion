@@ -42,18 +42,20 @@ application developers accomplish typical tasks using the "`CRS Convert`" endpoi
     describing common tasks with examples how to accomplish them (and
     background not easily described in swagger documentation or postman
     collections).
-
 -   The [Apache SIS - The Apache SIS™ library](https://sis.apache.org/) is
     used in OSDU as public domain geodetic engine. The correctness of this
     engine has been assessed by OSDU Geomatics Integration workstream using
     the GIGS framework (to link to report).
+-   CRS definitions are centrally managed as reference data. The CRS record-id is critical.
 
 
 # 2. CRS Convert Overview
 
-Applications build on top of OSDU require coordinates to be converted from
+Applications built on top of OSDU require coordinates to be converted from
 one CRS to another, e.g., for normalization to a global CRS (WGS 84),
 or for delivery in a common CRS to work in a project.
+
+The CRS Convert service enables such conversions (/transformations) of coordinates.
 
 The endpoints for CRS Convert v3 are fully specified via the [Swagger documentation](https://community.opengroup.org/osdu/platform/system/reference/crs-conversion-service/-/blob/master/docs/v3/api_spec/crs_converter_openapi.json). Its endpoints are:
 
@@ -73,7 +75,7 @@ The endpoints for CRS Convert v3 are fully specified via the [Swagger documentat
 <tbody>
 <tr class="odd">
 <td>GET</td>
-<td>/info</td>
+<td><strong>/info</strong></td>
 <td>Checks if service is running</td>
 </tr>
 <tr class="even">
@@ -104,28 +106,24 @@ observables.</td>
 </tbody>
 </table>
 
-The CRS Convert service provides spatial reference conversions for coordinates.
-Coordinates are represented by an array of 3D points.
-```
-  "points": [
-    {
-      "x": -61.04340628871454,
-      "y": 10.673103179456877,
-      "z": 0
-    },
-    {
-      "x": -62.28871454043406,
-      "y": 11.794568776731031,
-      "z": 0
-    }
-  ]
-```
+2D and 3D locations are expressed using coordinates that are (required to be) associated with a CRS.
+* [Chapter 4 of the Guide](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Guides/Chapters/04-FrameOfReference.md) 
+explains how the CRS is stored in OSDU.
+* [AbstractSpatialLocation](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractSpatialLocation.1.1.0.json) holds the coordinates of points and geometries such as Points, Lines and Polygons.
+* [AbstractFeatureCollection](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractFeatureCollection.1.0.0.json) 
+and [AnyCrsFeatureCollection](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractAnyCrsFeatureCollection.1.1.0.json)
+hold the coordinates in a GeoJson (like) structures for WGS 84 (lat,lon) and arbitrary CRS.
+
+
+## Axes (order) definition
+
+The API assumes "XYZ" order, positive east, north, up.
+
 The context, i.e., the measurement and unit associated with the axes,
 is given by the CRS definitions. In most of the cases, the CRS definition
 is 2D. In both the geographic and projected CRS types, the Z-axis is passed through unchanged, and its unit is
 only known to the client.
 
-## Axis Definitions
 
 Axis|CRS type|Measurement|Unit|Sign and Directions
 ----|--------|-----------|----|---------------
@@ -191,9 +189,9 @@ coordinates in the base geographic CRS of a projected CRS.*
 
 
 
-- Actually, for Apache SIS the situation is slightly more subtle. The
+- Actually, the situation is slightly more subtle for Apache SIS. The
   OSDU api/SIS engine does not blindly interpret the provided explicit
-  definition:
+  definition, but attempts to match the EPSG code with its internal library:
 
   - First the authCode is extracted for the lateBoundCRS and singleCT.
     In the above BoundCRS example these are:
@@ -218,7 +216,7 @@ coordinates in the base geographic CRS of a projected CRS.*
 
 ### **4.1.1 Known issues**
 
-- An issue was identified in M3.R12; namely all CTs in the OSDU
+- An issue was identified in M3.R12 (2022.1); namely all CTs in the OSDU
   reference data for BoundCRSs must be defined “to WGS 84” (as opposed
   to “from WGS 84”). This is theoretically not guaranteed in the EPSG
   Dataset which is the basis for OSDU. However, in practice the potential impact is small because
@@ -3193,9 +3191,13 @@ interpolation interval as value.
   based and not in a relation database).
 
 
-# 7. QC and Convert Bin Grid
+# 7. QC and convert Bin Grid
 
-## Checking and converting a Bin Grid
+## 7.1 Context
+
+A Bin Grid describe the
+“real world” (Easting, Northing) of bin grid centers at (inline,
+crossline) local coordinates.
 
 - **The math and background are defined in See docx and xlsx in folder
   with file (to upload to OSDU tutorial), possible pptx.**
@@ -3204,13 +3206,12 @@ interpolation interval as value.
 
 - **A picture should go here showing ABCD definition**
 
-### Description of CRS Convert POST v3/convertBinGrid
+### 7.2 Description of CRS Convert POST v3/convertBinGrid
 
 The CRS Convert service POST v3/convertBinGrid endpoint is an OSDU
 platform standard method for QC and conversion of Bin Grids, associated
-in particular with ingested seismic volumes. A Bin Grid describe the
-“real world” (Easting, Northing) of bin grid centers at (inline,
-crossline) local coordinates. This endpoint takes an AbstractBinGrid as
+in particular with ingested seismic volumes. 
+This endpoint takes an AbstractBinGrid as
 input and “enriches” it by returning computed properties on output:
 
 - Optionally, convert the Bin Grid to a new CRS and “square it up” (if
@@ -3231,7 +3232,7 @@ input and “enriches” it by returning computed properties on output:
   to be stored as the SeismicBinGrid SpatialArea, and picked up by the
   Geospatial Consumption Zone transformer.
 
-### Request Body
+### 7.2.1 Request Body
 
 The input and output of this method use the
 [AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
@@ -3280,7 +3281,9 @@ AbstractCoordinates is deprecated. Instead the AnyCrsFeatureCollection
 GeoJson construct properties should be used as show below.
 
 Example for ABCDBinGridSpatialLocation containing the local and global
-coordinates on input (NOTE: this is exaggerated, not realistic example).
+coordinates on input (this is not a realistic example).
+
+<details><summary>Click to expand</summary>
 
 ```json
     "ABCDBinGridSpatialLocation": {
@@ -3290,12 +3293,11 @@ coordinates on input (NOTE: this is exaggerated, not realistic example).
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "A",
                   "InlineNo": "1",
                   "CrosslineNo": "1000"
-                }
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3309,12 +3311,11 @@ coordinates on input (NOTE: this is exaggerated, not realistic example).
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "B",
                   "InlineNo": "1",
                   "CrosslineNo": "2000"
-                }
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3328,12 +3329,11 @@ coordinates on input (NOTE: this is exaggerated, not realistic example).
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "C",
                   "InlineNo": "101",
                   "CrosslineNo": "1000"
-                }
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3347,12 +3347,11 @@ coordinates on input (NOTE: this is exaggerated, not realistic example).
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "D",
                   "InlineNo": "101",
                   "CrosslineNo": "2000"
-                }
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3366,8 +3365,10 @@ coordinates on input (NOTE: this is exaggerated, not realistic example).
   }
 ```
 
+</details>
 
-**Response Body**
+
+### 7.2.2 Response Body
 
 The response is a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, 
 and an output BinGrid which is enriched with derived information 
@@ -3440,6 +3441,8 @@ a conversion was requested using the optional "toCrs" parameter.
 Example for global coordinates on output, only showing the relevant
 geometry properties (the converted and “squared up” x,y coordinates):
 
+<details><summary>Click to expand</summary>
+
 ```json
 // these are the output, sqaured up 4 corners in order ABCD
 
@@ -3450,13 +3453,12 @@ geometry properties (the converted and “squared up” x,y coordinates):
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "A",
                   "InlineNo": "1",
                   "CrosslineNo": "1000"
-                }
-            },
+              }
+          },
           "geometry": {
             "type": "AnyCrsMultiPoint"
             "coordinates": [  
@@ -3469,13 +3471,11 @@ geometry properties (the converted and “squared up” x,y coordinates):
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "B",
                   "InlineNo": "1",
                   "CrosslineNo": "2000"
-                }
-              
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3489,12 +3489,11 @@ geometry properties (the converted and “squared up” x,y coordinates):
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties":
-                {
+              "PointProperties": {
                   "Label": "C",
                   "InlineNo": "101",
                   "CrosslineNo": "1000"
-                }
+              }
           },
           "geometry": {
             "type": "AnyCrsMultiPoint"
@@ -3508,12 +3507,11 @@ geometry properties (the converted and “squared up” x,y coordinates):
           "type": "AnyCrsFeature"
           "properties": {
               "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": 
-                {
+              "PointProperties": {
                   "Label": "D",
                   "InlineNo": "101",
                   "CrosslineNo": "2000"
-                }
+              }
               
             },
           "geometry": {
@@ -3526,12 +3524,13 @@ geometry properties (the converted and “squared up” x,y coordinates):
         }
      ]
   }
-...
 ```
 
+</details>
 
 
-### Input and output AbstractBinGrid properties
+
+### 7.2.3 Input and output AbstractBinGrid properties
 
 Properties of
 [AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
@@ -3739,7 +3738,7 @@ to 1</p>
 </tbody>
 </table>
 
-### Exception handling / Error codes
+### 7.3 Exception handling / Error codes
 
 Error checking is performed with following exception handling and
 response messages when parsing the input:
@@ -3829,9 +3828,9 @@ convertGeoJson is that is used)</p>
 </tbody>
 </table>
 
-### 
 
-### How to use CRS Convert method POST v3/convertBinGrid?
+
+### 7.4 How to use CRS Convert method POST v3/convertBinGrid?
 
 - When ingesting a SEGY seismic volume an AbstractBinGrid should be
   created, that is referenced through SeismicBinGrid. The envisioned
@@ -3856,7 +3855,7 @@ convertGeoJson is that is used)</p>
   lineage as child of the original geometry. Applications can then
   search for such child with the desired CRS record-id.
 
-### Examples
+### 7.5 Examples
 
 Example 1:
 
@@ -3882,36 +3881,32 @@ Example 2:
 
 ## Seismic Bin Grid Spatial Area
 
-The spatial area of the SeismicBinGrid should be written as a closed
-(AnyCrs) Polygon with 5 nodes, representing the outer edges of the bin
-grid. These are written counterclockwise. The points written in the
-AbstractBinGrid corner points can be used as follows:
+The spatial area of the SeismicBinGrid should be written as an
+(AnyCrs) Polygon with 5 nodes (the last node is a copy of the first point to close the polygon), representing the outer edges of the bin
+grid. 
+The outer rim is written counterclockwise, per the OGC/GeoJSON convention followed by OSDU.
+The four corner points defined in the AbstractBinGrid corner points are used as follows to create the SpatialArea:
 
 1.  Retrieve the 4 corner points from
-    AbstractBinGrid.ABCDBinGridSpatialLocation.AsIngestedCoordinates
+    `AbstractBinGrid.ABCDBinGridSpatialLocation.AsIngestedCoordinates`
 
 2.  Identify the “A”, “B”, “C”, and “D” points from the
-    ABCDBinGridSpatialLocation.AsIngestedCoordinates, by finding the
+    `ABCDBinGridSpatialLocation.AsIngestedCoordinates`, by finding the
     (minI,minJ), (minI,maxJ), (maxI,minJ), and (maxI,maxJ),
     respectively.
 
-    1.  (where minI is the minimum Inline and minJ is the minimum
-        crossline)
+    * _(where minI is the minimum Inline and minJ is the minimum crossline)_
 
-3.  Order the points for the polygon as A,B,D,C,A.
-
-    1.  Test if this is a clockwise or counterclockwise simple convex
-        polygon: If Det(B) = (Xb-Xa)(Yd-Ya) - (Xd-Xa)(Yb-Ya) is positive
-        then this simple polygon is counterclockwise.
-
-    2.  (where Xb is the Easting global coordinates for the B point,
-        etc.)
+3.  Order the points for the polygon as A,B,D,C,A. 
+    Test if this is a clockwise or counterclockwise simple convex polygon:
+    * If Det(B) = (Xb-Xa)(Yd-Ya) - (Xd-Xa)(Yb-Ya) is positive then this simple polygon is counterclockwise.
+    * _(where Xb is the Easting global coordinates for the B point, etc.)_
 
 4.  If A,B,D,C,A is clockwise then reorder the nodes as A,C,D,B,A.
 
 5.  Output the AnyCrsPolygon
 
-The convertBinGrid endpoint outputs these schema fragments for
+The **convertBinGrid** endpoint outputs these schema fragments for
 convenience so that they can be written to the SeismicBinGrid during
 ingest.
 
@@ -3919,10 +3914,11 @@ ingest.
 first point), an outer rim, meaning re-ordered to be drawable in
 counter-clockwise point order.
 
-SeismicBinGrid.
+
 
 ```json
-"SpatialArea": {
+SeismicBinGrid.
+  "SpatialArea": {
     "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
     "features": [
         {
@@ -3955,7 +3951,6 @@ SeismicBinGrid.
       }
    ]
 ```
-
 
 and similar for Wgs84Coordinates (lat,lon). – example to be added.
 
