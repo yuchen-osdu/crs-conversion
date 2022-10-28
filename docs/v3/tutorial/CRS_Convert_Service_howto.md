@@ -2,52 +2,39 @@
 
 *The OSDU has two CRS helper services: "`CRS Convert`" and "`CRS Catalog`".
 This tutorial provides examples and background to help
-application developers accomplish typical tasks.*
+application developers accomplish typical tasks using the "`CRS Convert`" endpoints.
+
 
 **Revision Log**
 
 | **Version** | **Reason for change** | **Author** | **Date**   |
 |-------------|-----------------------|------------|------------|
-| 1.0         | Initial version for Convert v3      | Geomatics Integration  | 2022-06-15 |
-|             |                       |            |            |
+| 1.0         | Initial version for Convert v3     | Geomatics Integration  | 2022-06-15 |
+| 1.1         | Added convertBinGrid               |                        | 2022-10-27 |
+
 
 **Table of Contents**
 
-- [1. Introduction](#1-introduction)
+* [1. Introduction](#1-introduction)  
+* [2. CRS Convert Overview](#2-crs-convert-overview)  
+* [3. Check if the service is running](#3-check-if-the-service-is-running)  
+* [4. Performing coordinate operations](#4-performing-coordinate-operations)  
+  * [4.1 Context](#41-context)  
+    * [4.1.1 Known issues](#411-known-issues)  
+  * [4.2 Converting a list of points from one CRS to another](42-converting-a-list-of-points-from-one-crs-to-another)  
+    * [4.2.1 Simple example with POST /convert](#421-simple-example-with-post-convert)  
+    * [4.2.2 Simple example with POST /convertGeoJson](#422-simple-example-with-post-convertgeojson)  
+    * [4.2.3 Correctness and performance tests](#423-correctness-and-performance-tests)  
+* [5. Computing a wellbore trajectory from directional survey data](#5-computing-a-wellbore-trajectory-from-directional-survey-data)  
+  * [5.1 Basic example](#51-basic-example)  
+  * [5.2 Realistic example](#52-realistic-example)  
+    * [5.2.1 Python script to help generate the Request for test data](#521-python-script-to-help-generate-the-request-for-test-data)  
+    * [5.2.2 Correctness and performance](#522-correctness-and-performance)  
+  * [5.3 “Unscaling” the calculated wellbore path](#53-unscaling-the-calculated-wellbore-path)  
+  * [5.4 A trick to get scale and convergence at any location](#54-a-trick-to-get-scale-and-convergence-at-any-location)  
+* [6. Wellbore interpolation on MD](#6-wellbore-interpolation-on-md)  
+* [7. QC and Convert Bin Grid](#7-qc-and-convert-bin-grid)
 
-- [2. CRS Convert Overview](#2-crs-convert-overview)
-
-- [3. Check if the service is running](#3-check-if-the-service-is-running)
-
-- [4. Performing coordinate operations](#4-performing-coordinate-operations)
-
-  - [4.1 Context](#41-context)
-
-    - [4.1.1 Known issues](#411-known-issues)
-
-  - [4.2 Converting a list of points from one CRS to another](42-converting-a-list-of-points-from-one-crs-to-another)
-
-    - [4.2.1 Simple example with POST /convert](#421-simple-example-with-post-convert)
-
-    - [4.2.2 Simple example with POST /convertGeoJson](#422-simple-example-with-post-convertgeojson)
-
-    - [4.2.3 Correctness and performance tests](#423-correctness-and-performance-tests)
-
-- [5. Computing a wellbore trajectory from directional survey data](#5-computing-a-wellbore-trajectory-from-directional-survey-data)
-
-  - [5.1 Basic example](#51-basic-example)
-
-  - [5.2 Realistic example](#52-realistic-example)
-
-    - [5.2.1 Python script to help generate the Request for test data](#521-python-script-to-help-generate-the-request-for-test-data)
-
-    - [5.2.2 Correctness and performance](#522-correctness-and-performance)
-
-  - [5.3 “Unscaling” the calculated wellbore path](#53-unscaling-the-calculated-wellbore-path)
-
-  - [5.4 A trick to get scale and convergence at any location](#54-a-trick-to-get-scale-and-convergence-at-any-location)
-
-- [6. Wellbore interpolation on MD](#6-wellbore-interpolation-on-md)
 
 # 1. Introduction
 
@@ -106,7 +93,12 @@ AbstractSpatialLocation.</p></td>
 <tr class="even">
 <td>POST</td>
 <td><strong>/convertTrajectory</strong></td>
-<td>Compute the wellbore trajectory based on directional survey
+<td>Compute the wellbore trajectory based on directional survey observables.</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><strong>/convertBinGrid</strong></td>
+<td>Convert a bin grid to a new CRS, square it up, and provide a measure of the non-orthogonality.
 observables.</td>
 </tr>
 </tbody>
@@ -335,8 +327,8 @@ A simple example to convert a single point is provided below. The input is an ar
 
 ```json
 {
-  "fromCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672",
-  "toCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632",
+  "fromCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672:",
+  "toCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
   "points" : [ {
     "x" : 400000,
     "y" : 190000,
@@ -524,7 +516,7 @@ used in OSDU to store locations.
 
 ```json
 {
-  "toCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632",
+  "toCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
   "toUnitZ": "{{NAMESPACE}}:reference-data--UnitOfMeasure:m",
   "featureCollection": {
     "features": [
@@ -545,7 +537,7 @@ used in OSDU to store locations.
     ],
     "bbox": null,
     "properties": {},
-    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612",
+    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
     "VerticalUnitID": "{{NAMESPACE}}:reference-data--UnitOfMeasure:ft",
     "type": "AnyCrsFeatureCollection"
   }
@@ -802,8 +794,6 @@ for readability. A record id can be used for CRS and for UOM.
 
 A realistic example is shown below for a directional survey with 86
 survey stations down the wellbore.
-
-<img src="media/image2.tmp" style="width:0.16667in;height:0.16667in" />
 
 <details><summary>Click to expand Request body (86 survey stations)</summary>
 
@@ -3107,7 +3097,7 @@ the BHL of the wellbore then the following can be done:
       "inclination": 90
     }
   ],
-  "trajectoryCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32066_EPSG::15851",
+  "trajectoryCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32066_EPSG::15851:",
   "inputKind": "MD_Incl_Azim",
   "unitXY": "osdu:reference-data--UnitOfMeasure:m",
   "method": "AzimuthalEquidistant"
@@ -3183,6 +3173,7 @@ the BHL of the wellbore then the following can be done:
 - Issue: what is record id for ftUS and does it guarantee to return ft
   if “ft” is used or ft[US] or ft[GC] ? (“ft%5BUS%5D” in url encoding)
 
+
 # 6. Wellbore interpolation on MD
 
 Interpolation on MD is not currently possible and identified as a gap in
@@ -3194,8 +3185,778 @@ stations is more than 1000 (z-units). It may be the easiest to extent the
 request to include interpolation points, as well as to prescribe an
 interpolation interval as value.
 
-- Issue: Enhancement request: change interpolation to a regular interval that can be specified as a number value (e.g., "1.0" to interpolate every 1 z-unit).
+- Issue: Enhancement request: change interpolation to a regular interval that can be specified as a number value 
+  (e.g., "1.0" to interpolate every 1 z-unit).
 - Issue: New feature: add option to convertTrajectory to interpolate at given input MD values.
 - Issue: Enhancement suggested: improve request body to use a record id for the
   wellbore (that seems more tricky since the survey data are stored file
   based and not in a relation database).
+
+
+# 7. QC and Convert Bin Grid
+
+## Checking and converting a Bin Grid
+
+- **The math and background are defined in See docx and xlsx in folder
+  with file (to upload to OSDU tutorial), possible pptx.**
+
+- **\[add links to files on BinGrid, link to file on Dir Survey?\]**
+
+- **A picture should go here showing ABCD definition**
+
+### Description of CRS Convert POST v3/convertBinGrid
+
+The CRS Convert service POST v3/convertBinGrid endpoint is an OSDU
+platform standard method for QC and conversion of Bin Grids, associated
+in particular with ingested seismic volumes. A Bin Grid describe the
+“real world” (Easting, Northing) of bin grid centers at (inline,
+crossline) local coordinates. This endpoint takes an AbstractBinGrid as
+input and “enriches” it by returning computed properties on output:
+
+- Optionally, convert the Bin Grid to a new CRS and “square it up” (if
+  target CRS is same as original CRS then conversion is omitted, and the
+  squareness test is done in the original CRS).
+- A QC check of the “squareness” of the input Bin Grid defined using 4
+  corner points, expressed in easily human interpretable metric (partial
+  bins).
+- The derived P6 parameters (calculated from the input 4 corners
+  coordinates).
+- Sorts the 4 corners in order ABCD on output, in order (inl, xln) =
+  (min, min), (min, max), (max, min), (max, max), for both the
+  ABCDBinGridLocalCoordinates and ABCDBinGridSpatialLocation
+  AnyCrsMultiPoint.
+- Computes the WGS 84 (lat,lon) coordinates at the corners.
+- Additionally, output an AnyCrsFeatureCollection and a
+  FeatureCollection schema fragment that maps the BinGrid as a Polygon,
+  to be stored as the SeismicBinGrid SpatialArea, and picked up by the
+  Geospatial Consumption Zone transformer.
+
+### Request Body
+
+The input and output of this method use the
+[AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
+definition. On input a minimum required properties can be given, which
+are enriched on output as indicated.
+
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 16%" />
+<col style="width: 70%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Parameter name</strong></th>
+<th><strong>Data type</strong></th>
+<th><strong>Description</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inBinGrid</td>
+<td>AbstractBinGrid (1.0.0)</td>
+<td>Mandatory. See table below for required properties on input and
+expected structure of the AsIngestedCoordinates array.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>toCrs</td>
+<td>string (record-id)</td>
+<td><p>Optional. If omitted, then no conversion is performed and only
+the P6 parameters are computed and the check for “squareness” that
+indicates non-orthogonality, as well as the WGS 84 cordinates.</p>
+<p>Record-id of the desired output CRS of bin grid to convert to,
+e.g.,</p>
+<p>"{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:".</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+**NOTE**: The usage of ABCDBinGridLocalCoordinates and
+AbstractCoordinates is deprecated. Instead the AnyCrsFeatureCollection
+GeoJson construct properties should be used as show below.
+
+Example for ABCDBinGridSpatialLocation containing the local and global
+coordinates on input (NOTE: this is exaggerated, not realistic example).
+
+```json
+    "ABCDBinGridSpatialLocation": {
+      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+      "features": [
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "A",
+                  "InlineNo": "1",
+                  "CrosslineNo": "1000"
+                }
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              500000.0,
+              3000000.0
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "B",
+                  "InlineNo": "1",
+                  "CrosslineNo": "2000"
+                }
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              500000.0,
+              3100000.0
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "C",
+                  "InlineNo": "101",
+                  "CrosslineNo": "1000"
+                }
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              600000.0,
+              3000000.0
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "D",
+                  "InlineNo": "101",
+                  "CrosslineNo": "2000"
+                }
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              600000.0,
+              3100000.0
+            ]
+          }
+        }
+     ]
+  }
+```
+
+
+**Response Body**
+
+The response is a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, 
+and an output BinGrid which is enriched with derived information 
+(augmented with the derived P6 parameters filled out, 
+and optionally (if a toCrs was given in the request) converted
+global coordinates that are “squared up” in the new geometry (which can
+be used in applications that require a square grid in a project CRS
+geometry; if the “squaring error” is small enough).
+
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Parameter name</strong></th>
+<th><strong>Data type</strong></th>
+<th><strong>Description</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>outBinGrid</strong></td>
+<td>AbstractBinGrid</td>
+<td>See table below for required properties. The main properties are
+those that hold the (inline, crossline) coordinates at the four ABCD
+corners (in that order), and those that hold the global (Easting,
+Northing) coordinates.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><strong>maxMislocation[].dI</strong></p>
+<p><strong>maxMislocation[].dJ</strong></p></td>
+<td><p>Float</p>
+<p>Float</p></td>
+<td>Max mis-location (dI, dJ) expressed in fractional bins at increment
+1 in direction of the inline and crossline, respectively. This should be
+compared to the real spacing (in bins) of the volume loaded. For
+example, if the volume uses incr=2 then an error of 1 bin is only half
+an increment "real" bin. For interpretation, normally acceptable would
+be 1 real (incremented) bin mis-placement. Moreover, since the
+mis-location is zero in the middle and the maximum at the corners of the
+grid, the strict criteria of 1 bin could be relaxed slightly.</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><strong>BinGridPolygon,</strong></p>
+<p>BinGridPolygon</p></td>
+<td><p>AnyCrsPolygon</p>
+<p>WGS84</p></td>
+<td>Outer rim TBD</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+outBinGrid properties are populated as shown below, depending on whether
+a conversion was requested using the optional "toCrs" parameter.
+
+Example for global coordinates on output, only showing the relevant
+geometry properties (the converted and “squared up” x,y coordinates):
+
+```json
+// these are the output, sqaured up 4 corners in order ABCD
+
+    "ABCDBinGridSpatialLocation": {
+      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+      "features": [
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "A",
+                  "InlineNo": "1",
+                  "CrosslineNo": "1000"
+                }
+            },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              3593536.4609,
+              9888463.8749
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "B",
+                  "InlineNo": "1",
+                  "CrosslineNo": "2000"
+                }
+              
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              3577506.2747,
+              10217819.3106
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties":
+                {
+                  "Label": "C",
+                  "InlineNo": "101",
+                  "CrosslineNo": "1000"
+                }
+          },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              3922894.4303,
+              9904494.1844
+            ]
+          }
+        },
+        {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
+              "PointProperties": 
+                {
+                  "Label": "D",
+                  "InlineNo": "101",
+                  "CrosslineNo": "2000"
+                }
+              
+            },
+          "geometry": {
+            "type": "AnyCrsMultiPoint"
+            "coordinates": [  
+              3906864.2441,
+              10233849.6201
+            ]
+          }
+        }
+     ]
+  }
+...
+```
+
+
+
+### Input and output AbstractBinGrid properties
+
+Properties of
+[AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
+on input and output are summarized in the following table.
+
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 32%" />
+<col style="width: 26%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>AbstractBinGrid property</strong></th>
+<th><strong>On input</strong></th>
+<th><strong>On output if toCRS is not given</strong></th>
+<th><strong>On output if toCRS *is* given</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BinGridName</td>
+<td>ignored</td>
+<td>copy of input (leave blank if empty on input)</td>
+<td>if present on input then append “-reprojected” on output</td>
+</tr>
+<tr class="even">
+<td>BinGridTypeID</td>
+<td>ignored</td>
+<td>copy of input (leave blank if empty on input)</td>
+<td>- same</td>
+</tr>
+<tr class="odd">
+<td>SourceBinGridID</td>
+<td>ignored</td>
+<td>copy of input</td>
+<td>- same</td>
+</tr>
+<tr class="even">
+<td>SourceBinGridAppID</td>
+<td>ignored</td>
+<td>copy of input</td>
+<td>- same</td>
+</tr>
+<tr class="odd">
+<td>CoveragePercent</td>
+<td>ignored</td>
+<td>copy of input</td>
+<td>- same</td>
+</tr>
+<tr class="even">
+<td>BinGridDefinitionMethodTypeID</td>
+<td>ignored</td>
+<td>copy of input</td>
+<td>“4Corners” (should be “4Corner” on input but ignore (do not error
+check)</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><strong>ABCDBinGridSpatialLocation</strong></p>
+<p><em><strong>.AsIngestedCoordinates</strong></em></p>
+<p>.CoordinateReferenceSystemID</p>
+<p>.persistableReferenceCrs</p>
+<p>.features[1:4].geometry.type</p>
+<p>.features[1:4].geometry.coordinates[]</p>
+<p><em><strong>.Wgs84Coordinates</strong></em></p>
+<p>.features[1:4].geometry.type</p>
+<p>.features[1:4].geometry.coordinates[]</p>
+<p>.SpatialLocationCoordinatesDate</p>
+<p>.QualitativeSpatialAccuracyTypeID</p>
+<p>.QuantitativeAccuracyBandID</p>
+<p>.CoordinateQualityCheckPerformedBy</p>
+<p>.CoordinateQualityCheckDateTime</p>
+<p>.CoordinateQualityCheckRemarks[]</p>
+<p>.AppliedOperations[]</p>
+<p>.SpatialParameterTypeID</p>
+<p>.SpatialGeometryTypeID</p></td>
+<td><p>Required (type AbstractSpatialLocation:1.1.0)</p>
+<p>Required (type AbstractAnyCrsFeatureCollection:1.1.0)</p>
+<p>Required CRS of given features[]/geometry.coordinates[]</p>
+<p>Ignored (use above CRS record-id)</p>
+<p>Ignored (set to “AnyCrsPoint” on output)</p>
+<p>Required corner coordinates (4)</p>
+<p>Ignored on input (compute on output)</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p></td>
+<td><p>See example below.</p>
+<p>n/a (fill)</p>
+<p>- copy of input</p>
+<p>- copy of input (if given)</p>
+<p>- “<strong>AnyCrsPoint</strong>”</p>
+<p>- “Squared up” global coordinates.</p>
+<p>(type AbstractFeatureCollection:1.1.0)</p>
+<p>- “<strong>AnyCrsMultiPoint</strong>”</p>
+<p>- “Squared up” coordinates transformed to WGS 84.</p>
+<p>- copy of input (if given)</p>
+<p>- copy of input (if given)</p>
+<p>- copy of input (if given)</p>
+<p>- “CRS convert API convertBinGrid”</p>
+<p>- `now()`</p>
+<p>- append “Max. squaring error: dI=0.0, dJ=0.4 bin"</p>
+<p>- append “squareness tested: dI=x.x, dJ=x.x”</p>
+<p>- copy of input (if given)</p>
+<p>- copy of input (if given)</p></td>
+<td><p>See example below.</p>
+<p>(fill)</p>
+<p>- the “toCRS” record-id</p>
+<p>- (populate with looked up PR)</p>
+<p>- same</p>
+<p>- Converted and “squared up” global coordinates.</p>
+<p>(fill)</p>
+<p>- same</p>
+<p>- same</p>
+<p>- null out</p>
+<p>- null out</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- append “converted from &lt;origCRS&gt; to &lt;toCRS&gt;; squared
+up: dI=x.x, dJ=x.x (bin)”</p>
+<p>- same</p>
+<p>- same</p></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p>P6TransformationMethod</p>
+<p>P6BinGridOriginI</p>
+<p>P6BinGridOriginJ</p>
+<p>P6BinGridOriginEasting</p>
+<p>P6BinGridOriginNorthing</p>
+<p>P6ScaleFactorOfBinGrid</p>
+<p>P6BinWidthOnIaxis</p>
+<p>P6BinWidthOnJaxis</p>
+<p>P6MapGridBearingOfBinGridJaxis</p>
+<p>P6BinNodeIncrementOnIaxis</p>
+<p>P6BinNodeIncrementOnJaxis</p></td>
+<td><p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p>
+<p>Ignored on input</p></td>
+<td><p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- populate with derived value on output</p>
+<p>- <strong>copy on output</strong>. If not present on input, then set
+to 1</p>
+<p>- <strong>copy on output</strong>. If not present, then set to
+1</p></td>
+<td><p>- same. 9666 for right-handed grids, 1049 for left-handed.</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p>
+<p>- same</p></td>
+</tr>
+</tbody>
+</table>
+
+### Exception handling / Error codes
+
+Error checking is performed with following exception handling and
+response messages when parsing the input:
+
+1.  Local ABCDBinGridLocalCoordinates
+
+    1.  Four points are given for local coordinates as Properties (as
+        specified above with AbstractGeoJson.BinLabel)
+
+    2.  Order ABCD is sortable as (inline,crossline) = (I,J) =
+        (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ), i.e., check
+        that the numbers with same symbols are the same and minI\<maxI
+        and minJ\<maxJ.
+
+2.  Global ABCDBinGridSpatialLocation
+
+    1.  Four points are given for geometry.
+
+        1.  local coordinates as Properties (as specified above with
+            AbstractGeoJson.BinLabel)
+
+    2.  CRS record-id is given. Limit this to a record-id (in principle
+        this could be overloaded to allow a PersistableReference just
+        like /convert).
+
+3.  Optional toCRS
+
+    1.  If given, then it should be a CRS record-id and be of kind
+        Projected or BoundProjected. See Note below.
+
+ 
+
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 32%" />
+<col style="width: 53%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>HTTP Status code</strong></th>
+<th><strong>Reason</strong></th>
+<th><strong>Message</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>200</td>
+<td>Success</td>
+<td>“Success”</td>
+</tr>
+<tr class="even">
+<td>400</td>
+<td>Invalid Request URI or Header, or unsupported parameter</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>401</td>
+<td>Unauthorized</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>403</td>
+<td>Forbidden</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>404</td>
+<td>The specified resource was not found</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>500</td>
+<td>Unexpected error occurred</td>
+<td><p>Depending on caught error, something like:</p>
+<p>“inBinGrid does not contain 4 local coordinates”</p>
+<p>“inBinGrid order of ABCD 4 local coordinates is not (inl,xln):
+(min,min), (min,max), (max,min), (max,max)”</p>
+<p>“inBinGrid does not contain 4 global coordinates”</p>
+<p>“inBinGrid does not contain CRS record-id for global coordinates”</p>
+<p>“toCrs is not a valid record id” (e.g., add “data.kind is not
+Projected” or something like that)</p>
+<p>(pass on error message returned by POST convert or POST
+convertGeoJson is that is used)</p>
+<p>“unknown error”</p></td>
+</tr>
+</tbody>
+</table>
+
+### 
+
+### How to use CRS Convert method POST v3/convertBinGrid?
+
+- When ingesting a SEGY seismic volume an AbstractBinGrid should be
+  created, that is referenced through SeismicBinGrid. The envisioned
+  method to create this is to take an AbstractBinGrid and set the CRS
+  record-id and 4 corner coordinates of the SEGY (and
+  P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis), followed by
+  calling this endpoint without the optional toCrs parameter to fill out
+  the P6 parameters and Wgs84 coordinates and get the dI,dJ QC metric
+  for squareness. Then check the squareness, and ingest the data into
+  OSDU platform if it passes. That enables a systematic checking of
+  ingested seismic volumes. The increments of the SeismicTraceData
+  referencing a bin grid are supposed to kept with the data, overwriting
+  the BinGrid values, such that an efficient loading and referencing the
+  same bin grid for data output at different increments is enabled.
+
+- OSDU should store only the original SEGY data, and only the original
+  bin grid in the original CRS. Applications that require a conversion
+  to a (different) project CRS can call this endpoint and check that the
+  approximation error (“squaring error”) is small enough to merge with
+  other project data. However, it is also possible to use the toCrs
+  parameter in a second call, and store the converted BinGrid in a
+  lineage as child of the original geometry. Applications can then
+  search for such child with the desired CRS record-id.
+
+### Examples
+
+Example 1:
+
+- SourceCRS: WGS 84 / UTM zone 15N (EPSG::32615) - Not Bound (already
+  WGS 84 based):
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615
+
+- toCrs = NULL
+
+*(put example here in expandable code widget)*
+
+Example 2:
+
+- SourceCRS: NAD83 / UTM zone 15N (EPSG::26915) - Bound with CT “NAD83
+  to WGS 84 (1)”, EPSG::1188:
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::26915_EPSG::1188
+
+- TargetCRS: NAD27 / BLM 14N (ftUS) (EPSG::32064) - Bound with CT “NAD27
+  to WGS 84 (79)”, EPSG::15851:
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32615_EPSG::15851
+
+*(put example here in expandable code widget)*
+
+## Seismic Bin Grid Spatial Area
+
+The spatial area of the SeismicBinGrid should be written as a closed
+(AnyCrs) Polygon with 5 nodes, representing the outer edges of the bin
+grid. These are written counterclockwise. The points written in the
+AbstractBinGrid corner points can be used as follows:
+
+1.  Retrieve the 4 corner points from
+    AbstractBinGrid.ABCDBinGridSpatialLocation.AsIngestedCoordinates
+
+2.  Identify the “A”, “B”, “C”, and “D” points from the
+    ABCDBinGridSpatialLocation.AsIngestedCoordinates, by finding the
+    (minI,minJ), (minI,maxJ), (maxI,minJ), and (maxI,maxJ),
+    respectively.
+
+    1.  (where minI is the minimum Inline and minJ is the minimum
+        crossline)
+
+3.  Order the points for the polygon as A,B,D,C,A.
+
+    1.  Test if this is a clockwise or counterclockwise simple convex
+        polygon: If Det(B) = (Xb-Xa)(Yd-Ya) - (Xd-Xa)(Yb-Ya) is positive
+        then this simple polygon is counterclockwise.
+
+    2.  (where Xb is the Easting global coordinates for the B point,
+        etc.)
+
+4.  If A,B,D,C,A is clockwise then reorder the nodes as A,C,D,B,A.
+
+5.  Output the AnyCrsPolygon
+
+The convertBinGrid endpoint outputs these schema fragments for
+convenience so that they can be written to the SeismicBinGrid during
+ingest.
+
+// this is the closed polygon, using 5 points (last point is copy of
+first point), an outer rim, meaning re-ordered to be drawable in
+counter-clockwise point order.
+
+SeismicBinGrid.
+
+```json
+"SpatialArea": {
+    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+    "features": [
+        {
+        "type": "AnyCrsFeature"
+        "properties": {
+            "Label": "SeismicBinGrid outer rim"
+        },
+        "geometry": {
+          "type": "AnyCrsPolygon"
+          "coordinates": [  
+            [
+              [3593536.4609,
+               9888463.8749
+              ],
+              [3577506.2747,
+               10217819.3106
+              ],
+              [3922894.4303,
+               9904494.1844
+              ],
+              [3906864.2441,
+               10233849.6201
+              ],
+              [3593536.4609,
+               9888463.8749
+              ]
+            ]
+          ]
+        }      
+      }
+   ]
+```
+
+
+and similar for Wgs84Coordinates (lat,lon). – example to be added.
+
+
