@@ -127,8 +127,8 @@ only known to the client.
 
 Axis|CRS type|Measurement|Unit|Sign and Directions
 ----|--------|-----------|----|---------------
-x| Geographic CRS| longitude ```Plane_Angle``` |from CRS| positive values ```E```, negative values ```W``` hemisphere
-y| Geographic CRS| latitude  ```Plane_Angle``` |from CRS| positive values ```N```, negative values ```S``` hemisphere
+x| Geographic 2D CRS| (geodetic) longitude ```Plane_Angle``` |from CRS| positive values ```E```, negative values ```W``` hemisphere
+y| Geographic 2D CRS| (geodetic) latitude  ```Plane_Angle``` |from CRS| positive values ```N```, negative values ```S``` hemisphere
 z| Vertical CRS| ```Length``` |pass-through | typically elevation relative to an implicit Mean Sea Level surface
 x| Projected CRS| ```Length``` |from CRS| direction given by the CRS, normally easting
 y| Projected CRS| ```Length``` |from CRS| direction given by the CRS, normally northing
@@ -644,8 +644,13 @@ standard calculation algorithms are implemented, LMP (Lee’s Modified
 Proposal) and GNL with scale factor correction (called
 "AzimuthalEquidistant" in the API).
 
-- These methods are described in [IOGP Guidance Note 373-07, Part 2](https://epsg.org). 
+- These methods are described in [IOGP Guidance Note 373-07, Part 2](https://epsg.org).
   Both methods require minimum curvature calculated offsets as input.
+
+- A calculation spreadsheet and description of the minimum curvature math are at
+- [OSDU_wellbore_trajectory_calculations.docx](OSDU_wellbore_trajectory_calculations.docx), and 
+- [OSDU_wellbore_trajectory_calculations.xlsx](OSDU_wellbore_trajectory_calculations.xlsx).
+
 
 ## 5.1 Basic example
 
@@ -3197,14 +3202,24 @@ interpolation interval as value.
 
 A Bin Grid describe the
 “real world” (Easting, Northing) of bin grid centers at (inline,
-crossline) local coordinates.
+crossline) local coordinates.  The math and background are defined in 
+- [SDU geometric aspects of bin grids.docx](SDU geometric aspects of bin grids.docx), and 
+- [SDU geometric aspects of bin grids.xlsx](SDU geometric aspects of bin grids.xlsx).
 
-- **The math and background are defined in See docx and xlsx in folder
-  with file (to upload to OSDU tutorial), possible pptx.**
+Figure 1 shows the four-point bin grid definition using the projected and bin grid local coordinates at 4 corner tie points. 
+The main advantage of the 4 Corner definition is that it is very straightforward and unlikely to be misinterpreted.
+The disadvantage is that one cannot calculate with the given definition, and must derive the P6 parameters. The derived (calculated) spacings may not be exactly an integer or multiple of 6.25 m.
 
-- **add links to files on BinGrid, link to file on Dir Survey?**
+In this definition:
+* Point A is the point with minimum inline and crossline. 
+* Line A->B is a constant inline (increasing crossline coordinates).
+* Line A->C is a constant crossline (increasing inline coordinates). 
+* Point D complements a rectangle. Point D is redundant and used for QC. It would be trivial to extend the SDU format to include a three-point definition method by omitting the D point, but this is not recommended because the D point facilitates QC and spatializing the grids.
 
-- **A picture should go here showing ABCD definition**
+
+![Figure 1: Bin Grid terminology.](ABCDBinGrid.jpg 'Figure 1: Bin Grid terminology.')
+
+
 
 ### 7.2 Description of CRS Convert POST v3/convertBinGrid
 
@@ -3991,5 +4006,9 @@ SeismicBinGrid.Wgs84Coordinates.
 ```
 
 </details>
+
+
+
+**FOLLOWING NEEDS TO BE aligned**
 
 See also [Volve example](https://community.opengroup.org/osdu/platform/data-flow/data-loading/open-test-data/-/blob/master/rc--3.0.0/4-instances/Volve/work-products/seismics/load_seismic_bingrid_ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534.json).
