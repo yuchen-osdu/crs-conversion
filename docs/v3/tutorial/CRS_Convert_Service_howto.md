@@ -3202,7 +3202,7 @@ crossline) local coordinates.
 - **The math and background are defined in See docx and xlsx in folder
   with file (to upload to OSDU tutorial), possible pptx.**
 
-- **\[add links to files on BinGrid, link to file on Dir Survey?\]**
+- **add links to files on BinGrid, link to file on Dir Survey?**
 
 - **A picture should go here showing ABCD definition**
 
@@ -3277,11 +3277,11 @@ e.g.,</p>
 </table>
 
 **NOTE**: The usage of ABCDBinGridLocalCoordinates and
-AbstractCoordinates is deprecated. Instead the AnyCrsFeatureCollection
+AbstractCoordinates is **deprecated**. Instead the AnyCrsFeatureCollection
 GeoJson construct properties should be used as show below.
 
-Example for ABCDBinGridSpatialLocation containing the local and global
-coordinates on input (this is not a realistic example).
+Example showing ABCDBinGridSpatialLocation containing the local and global
+coordinates on input (this is not a numerically realistic example).
 
 <details><summary>Click to expand</summary>
 
@@ -3300,7 +3300,7 @@ coordinates on input (this is not a realistic example).
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               500000.0,
               3000000.0
@@ -3318,7 +3318,7 @@ coordinates on input (this is not a realistic example).
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               500000.0,
               3100000.0
@@ -3336,7 +3336,7 @@ coordinates on input (this is not a realistic example).
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               600000.0,
               3000000.0
@@ -3354,7 +3354,7 @@ coordinates on input (this is not a realistic example).
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               600000.0,
               3100000.0
@@ -3460,7 +3460,7 @@ geometry properties (the converted and “squared up” x,y coordinates):
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               3593536.4609,
               9888463.8749
@@ -3478,7 +3478,7 @@ geometry properties (the converted and “squared up” x,y coordinates):
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               3577506.2747,
               10217819.3106
@@ -3496,7 +3496,7 @@ geometry properties (the converted and “squared up” x,y coordinates):
               }
           },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               3922894.4303,
               9904494.1844
@@ -3515,7 +3515,7 @@ geometry properties (the converted and “squared up” x,y coordinates):
               
             },
           "geometry": {
-            "type": "AnyCrsMultiPoint"
+            "type": "AnyCrsPoint"
             "coordinates": [  
               3906864.2441,
               10233849.6201
@@ -3838,7 +3838,7 @@ convertGeoJson is that is used)</p>
   record-id and 4 corner coordinates of the SEGY (and
   P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis), followed by
   calling this endpoint without the optional toCrs parameter to fill out
-  the P6 parameters and Wgs84 coordinates and get the dI,dJ QC metric
+  the P6 parameters and Wgs84 coordinates and get the (dI,dJ) QC metric
   for squareness. Then check the squareness, and ingest the data into
   OSDU platform if it passes. That enables a systematic checking of
   ingested seismic volumes. The increments of the SeismicTraceData
@@ -3859,8 +3859,7 @@ convertGeoJson is that is used)</p>
 
 Example 1:
 
-- SourceCRS: WGS 84 / UTM zone 15N (EPSG::32615) - Not Bound (already
-  WGS 84 based):
+- SourceCRS: WGS 84 / UTM zone 15N (EPSG::32615) - Not Bound (already WGS 84 based):
   {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615
 
 - toCrs = NULL
@@ -3917,14 +3916,14 @@ counter-clockwise point order.
 
 
 ```json
-SeismicBinGrid.
+SeismicBinGrid.AsIngestedCoordinates
   "SpatialArea": {
     "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
     "features": [
         {
         "type": "AnyCrsFeature"
         "properties": {
-            "Label": "SeismicBinGrid outer rim"
+            "Label": "SeismicBinGrid NAME outer rim"
         },
         "geometry": {
           "type": "AnyCrsPolygon"
@@ -3952,6 +3951,45 @@ SeismicBinGrid.
    ]
 ```
 
-and similar for Wgs84Coordinates (lat,lon). – example to be added.
 
 
+<details><summary>And similar for Wgs84Coordinates (lat,lon) as GeoJSON (click to expand)</summary>
+
+```json
+SeismicBinGrid.Wgs84Coordinates.
+  "SpatialArea": {
+    "features": [
+        {
+        "type": "Feature"
+        "properties": {
+            "Label": "SeismicBinGrid NAME outer rim"
+        },
+        "geometry": {
+          "type": "Polygon"
+          "coordinates": [  
+            [
+              [lon,
+               lat
+              ],
+              [lon,
+               lat
+              ],
+              [lon,
+               lat
+              ],
+              [lon,
+               lat
+              ],
+              [lon1,
+               lat1
+              ]
+            ]
+          ]
+        }      
+      }
+   ]
+```
+
+</details>
+
+See also [Volve example](https://community.opengroup.org/osdu/platform/data-flow/data-loading/open-test-data/-/blob/master/rc--3.0.0/4-instances/Volve/work-products/seismics/load_seismic_bingrid_ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534.json).
