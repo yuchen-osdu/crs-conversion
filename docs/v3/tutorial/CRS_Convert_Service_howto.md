@@ -3232,18 +3232,15 @@ input and “enriches” it by returning computed properties on output:
 - Optionally, convert the Bin Grid to a new CRS and “square it up” (if
   target CRS is same as original CRS then conversion is omitted, and the
   squareness test is done in the original CRS).
-- A QC check of the “squareness” of the input Bin Grid defined using 4
-  corner points, expressed in easily human interpretable metric (partial
-  bins).
 - The derived P6 parameters (calculated from the input 4 corners
   coordinates).
-- Sorts the 4 corners in order ABCD on output, in order (inl, xln) =
-  (min, min), (min, max), (max, min), (max, max), for both the
-  ABCDBinGridLocalCoordinates and ABCDBinGridSpatialLocation
-  AnyCrsMultiPoint.
+- Sorts the 4 corners in order ABCD on output. This order is (inl, xln) =
+  (min, min), (min, max), (max, min), (max, max), for the ABCDBinGridSpatialLocation Points.
 - Computes the WGS 84 (lat,lon) coordinates at the corners.
-- Additionally, output an AnyCrsFeatureCollection and a
-  FeatureCollection schema fragment that maps the BinGrid as a Polygon,
+- Output a QC check of the “squareness” of the input Bin Grid defined using 4
+  corner points, expressed in easily human interpretable metric (partial
+  bins).
+- Additionally, output an AbstractSpatialLocation that maps the BinGrid as a Polygon,
   to be stored as the SeismicBinGrid SpatialArea, and picked up by the
   Geospatial Consumption Zone transformer.
 
@@ -3291,9 +3288,9 @@ e.g.,</p>
 </tbody>
 </table>
 
-**NOTE**: The usage of ABCDBinGridLocalCoordinates and
+**NOTE**: Usage of ABCDBinGridLocalCoordinates and
 AbstractCoordinates is **deprecated**. Instead the AnyCrsFeatureCollection
-GeoJson construct properties should be used as show below.
+GeoJson construct with Feature properties should be used as show below (InlineNo, CrosslineNo).
 
 Example showing ABCDBinGridSpatialLocation containing the local and global
 coordinates on input (this is not a numerically realistic example).
@@ -3440,11 +3437,9 @@ grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 <td></td>
 </tr>
 <tr class="even">
-<td><p><strong>BinGridPolygon,</strong></p>
-<p>BinGridPolygon</p></td>
-<td><p>AnyCrsPolygon</p>
-<p>WGS84</p></td>
-<td>Outer rim TBD</td>
+<td><strong>outBinGridPolygon</strong></td>
+<td>AbstractSpatialLocation</td>
+<td>Outer rim, counterclockwise, as AnyCrsFeatureCollection and FeatureCollection in WGS 84 (GeoJson).</td>
 <td></td>
 </tr>
 </tbody>
@@ -3453,7 +3448,7 @@ grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 outBinGrid properties are populated as shown below, depending on whether
 a conversion was requested using the optional "toCrs" parameter.
 
-Example for global coordinates on output, only showing the relevant
+Example for global coordinates on output, showing the relevant
 geometry properties (the converted and “squared up” x,y coordinates):
 
 <details><summary>Click to expand</summary>
@@ -3928,81 +3923,87 @@ ingest.
 first point), an outer rim, meaning re-ordered to be drawable in
 counter-clockwise point order.
 
-
-
-```json
-SeismicBinGrid.AsIngestedCoordinates
-  "SpatialArea": {
-    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
-    "features": [
-        {
-        "type": "AnyCrsFeature"
-        "properties": {
-            "Label": "SeismicBinGrid NAME outer rim"
-        },
-        "geometry": {
-          "type": "AnyCrsPolygon"
-          "coordinates": [  
-            [
-              [3593536.4609,
-               9888463.8749
-              ],
-              [3577506.2747,
-               10217819.3106
-              ],
-              [3922894.4303,
-               9904494.1844
-              ],
-              [3906864.2441,
-               10233849.6201
-              ],
-              [3593536.4609,
-               9888463.8749
-              ]
-            ]
-          ]
-        }      
-      }
-   ]
-```
-
-
-
-<details><summary>And similar for Wgs84Coordinates (lat,lon) as GeoJSON (click to expand)</summary>
+<details><summary>SeismicBinGrid Spatial Area (click to expand)</summary>
 
 ```json
-SeismicBinGrid.Wgs84Coordinates.
   "SpatialArea": {
-    "features": [
-        {
-        "type": "Feature"
-        "properties": {
-            "Label": "SeismicBinGrid NAME outer rim"
-        },
-        "geometry": {
-          "type": "Polygon"
-          "coordinates": [  
-            [
-              [lon,
-               lat
-              ],
-              [lon,
-               lat
-              ],
-              [lon,
-               lat
-              ],
-              [lon,
-               lat
-              ],
-              [lon1,
-               lat1
+    "AsIngestedCoordinates": {
+      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+      "features": [
+          {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Label": "SeismicBinGrid NAME outer rim"
+          },
+          "geometry": {
+            "type": "AnyCrsPolygon"
+            "coordinates": [  
+              [
+                [3593536.4609,
+                 9888463.8749
+                ],
+                [3577506.2747,
+                 10217819.3106
+                ],
+                [3922894.4303,
+                 9904494.1844
+                ],
+                [3906864.2441,
+                 10233849.6201
+                ],
+                [3593536.4609,
+                 9888463.8749
+                ]
               ]
             ]
-          ]
-        }      
-      }
-   ]
+          }      
+        }
+      ]
+    },
+    "Wgs84Coordinates": {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "properties": {
+                      "Label": "SeismicBinGrid NAME outer rim"
+                  },
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                      [
+                        [
+                          1.9496875,
+                          58.4141503
+                        ],
+                        [
+                          1.9683358,
+                          58.4561357
+                        ],
+                        [
+                          1.8422867,
+                          58.4714655
+                        ],
+                        [
+                          1.8237808,
+                          58.4294624
+                        ],
+                        [
+                          1.9496875,
+                          58.4141503
+                        ]
+                      ]
+                    ]
+                  }
+                }
+             ]
+    }
+    "AppliedOperations": [
+              "AsIngestedCoordinates converted to Wgs84Coordinates: Input CRS EPSG 23031 (ED50 / UTM zone 31N) to Target CRS EPSG 4326 (WGS84) using CT EPSG 1613 (ED50 to WGS 84 (24) - Norway - offshore south of 62°N - North Sea.)"
+    ],
+    ?? "SpatialParameterTypeID": "osdu:reference-data--SpatialParameterType:Outline:",
+    ?? "SpatialGeometryTypeID": "osdu:reference-data--SpatialGeometryType:Polygon:"
+  }
 ```
 
 </details>
