@@ -3294,89 +3294,106 @@ e.g.,</p>
 AbstractCoordinates is **deprecated**. Instead the AnyCrsFeatureCollection
 GeoJson construct with Feature properties should be used as show below (`Inline`, `Crossline`).
 
-Example showing ABCDBinGridSpatialLocation containing the local and global
-coordinates on input (this is not a numerically realistic example).
+Click on expand to show an example ABCDBinGridSpatialLocation containing the local and global
+coordinates on input. 
+This is not a numerically realistic example.
+It is using Coordinate Reference System "NAD83 / UTM zone 15N", CRS code EPSG::26915, 
+bound with Coordinate Transformation "NAD83 to WGS 84 (1)", CT code EPSG::1188.
 
 <details><summary>Click to expand</summary>
 
 ```json
+{
+    "BinGridName": "ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534",
     "ABCDBinGridSpatialLocation": {
-      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
-      "features": [
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "A",
-                  "Inline": 1,
-                  "Crossline": 1000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              500000.0,
-              3000000.0
+        "AsIngestedCoordinates": {
+            "type": "AnyCrsFeatureCollection",
+            "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::26915_EPSG::1188:",
+            "features": [
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            500000.0,
+                            3000000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            500000.0,
+                            3100000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            600000.0,
+                            3000000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            600000.0,
+                            3100000.0
+                        ]
+                    }
+                }
             ]
-          }
-        },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "B",
-                  "Inline": 1,
-                  "Crossline": 2000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              500000.0,
-              3100000.0
-            ]
-          }
-        },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "C",
-                  "Inline": 101,
-                  "Crossline": 1000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              600000.0,
-              3000000.0
-            ]
-          }
-        },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "D",
-                  "Inline": 101,
-                  "Crossline": 2000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              600000.0,
-              3100000.0
-            ]
-          }
         }
-     ]
-  }
+    }
+}
 ```
 
 </details>
@@ -3440,93 +3457,202 @@ grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 a conversion was requested using the optional "toCrs" parameter.
 
 Click on "expand" to show the example for global coordinates on output, showing the relevant
-geometry properties (the converted and “squared up” x,y coordinates):
+geometry properties (the converted and “squared up” x,y coordinates).
+These are the output, "squared up" 4 corners in order A, B, C, D as defined above.
+Additionally the Wgs84Coordinates are populated, as well as the various calculated P6 parameters.
 
-<details><summary>Click to expand Example</summary>
+<details><summary>Click to expand Output Example (no realistic values)</summary>
 
 ```json
-// these are the output, sqaured up 4 corners in order ABCD
-
+{
     "ABCDBinGridSpatialLocation": {
-      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
-      "features": [
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "A",
-                  "Inline": 1,
-                  "Crossline": 1000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              3593536.4609,
-              9888463.8749
+        "AsIngestedCoordinates": {
+            "type": "AnyCrsFeatureCollection",
+            "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+            "features": [
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3593536.4609,
+                            9888463.8749
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3577506.2747,
+                            10217819.3106
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3922894.4303,
+                            9904494.1844
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3906864.2441,
+                            10233849.6201
+                        ]
+                    }
+                }
             ]
-          }
         },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "B",
-                  "Inline": 1,
-                  "Crossline": 2000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              3577506.2747,
-              10217819.3106
+        "Wgs84Coordinates": {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.9496875,
+                            58.4141503
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.9683358,
+                            58.4561357
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.8237808,
+                            58.4294624
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.8422867,
+                            58.4714655
+                        ]
+                    }
+                }
             ]
-          }
         },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "C",
-                  "Inline": 101,
-                  "Crossline": 1000
-              } ]
-          },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              3922894.4303,
-              9904494.1844
-            ]
-          }
-        },
-        {
-          "type": "AnyCrsFeature"
-          "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
-              "PointProperties": [ {
-                  "Label": "D",
-                  "Inline": 101,
-                  "Crossline": 2000
-              } ]
-              
-            },
-          "geometry": {
-            "type": "AnyCrsPoint"
-            "coordinates": [  
-              3906864.2441,
-              10233849.6201
-            ]
-          }
-        }
-     ]
-  }
+        "AppliedOperations": [
+            "AsIngestedCoordinates converted to Wgs84Coordinates: Input CRS EPSG 23031 (ED50 / UTM zone 31N) to Target CRS EPSG 4326 (WGS84) using CT EPSG 1613 (ED50 to WGS 84 (24) - Norway - offshore south of 62°N - North Sea.)"
+        ]
+    },
+    "P6TransformationMethod": 9666,
+    "P6BinGridOriginI": 9985.0,
+    "P6BinGridOriginJ": 1932.0,
+    "P6BinGridOriginEasting": 3593536.4609,
+    "P6BinGridOriginNorthing": 9888463.8749,
+    "P6BinWidthOnIaxis": 25.0,
+    "P6BinWidthOnJaxis": 25.0,
+    "P6MapGridBearingOfBinGridJaxis": 284.12345,
+    "P6BinNodeIncrementOnIaxis": 1,
+    "P6BinNodeIncrementOnJaxis": 1
+} 
 ```
-
 </details>
 
 
@@ -3586,9 +3712,8 @@ on input and output are summarized in the following table.
 <tr class="even">
 <td>BinGridDefinitionMethodTypeID</td>
 <td>ignored</td>
-<td>copy of input</td>
-<td>“4Corners” (should be “4Corner” on input but ignore (do not error
-check)</td>
+<td>“4Corner”</td>
+<td>“4Corner”</td>
 </tr>
 <tr class="odd">
 <td></td>
@@ -3744,8 +3869,8 @@ to 1</p>
 Error checking is performed with following exception handling and
 response messages when parsing the input:
 
-1.  Check ABCDBinGridSpatialLocation
-    1.  CRS record-id is given and exists.
+1.  Checks for ABCDBinGridSpatialLocation
+    1.  Check that a `CRS record-id` is given and exists.
         * Note: BinGrids should use type BoundProjected or Projected (if based on WGS 84).
     2.  Four points are given.  
     3.  Using PropertiesBinGridCorners to give local coordinates.  
@@ -3754,28 +3879,32 @@ response messages when parsing the input:
         (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ).  
         Check that the numbers with same symbols are the same and 
         minI \< maxI and minJ \< maxJ.
-
+2.  If toCrs is given
+    1. Check that the given `CRS record-id` exists.
 
 
 ### 7.4 How to use CRS Convert method POST v3/convertBinGrid?
 
 - When storing a seismic volume file (e.g., a SEGY file) into OSDU, then a `SeismicTraceData WPC` is created
   which references a `SeismicBinGrid`, which references an `AbstractBinGrid`.
-  The method to create this is to take an AbstractBinGrid and set the 
-  `CRS record-id` and 4 corner coordinates of the SEGY (and
-  P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis), followed by
-  calling this endpoint without the optional toCrs parameter to fill out
-  the `P6 parameters` and Wgs84 coordinates and get the (`dI`,`dJ`) QC metric
-  for squareness. 
-  
-  Then check the squareness, and ingest the data into
-  OSDU platform if it passes. That enables a systematic checking of
-  ingested seismic volumes. The increments of the `SeismicTraceData`
-  referencing a bin grid are supposed to kept with the data, overwriting
-  the BinGrid values, such that an efficient loading and referencing the
-  same bin grid for data output at different increments is enabled.
-  
-- There could be another seismic volume on the same AbstractBinGrid, but using a different inline, crossline range. 
+  -  Create a basic AbstractBinGrid and set the 
+     `CRS record-id` and 4 corner coordinates in its ABCDBinGridSpatialLocation.
+  -  Call this endpoint without the optional toCrs parameter to fill out
+     the `P6 parameters` and Wgs84 coordinates and to get the (`dI`,`dJ`) QC metric
+     for squareness.   
+  -  Check the squareness, and ingest the data into OSDU platform if it passes. That enables a systematic checking of
+     ingested seismic volumes, and avoid loading wrong data to the platform. 
+
+- The increments of the `SeismicTraceData`
+  referencing a bin grid are supposed to be kept with the data, overwriting
+  the SeismicBinGrid values, such that an efficient loading and referencing the
+  same bin grid for data output at different increments (spacings) is enabled.
+  However, a company can elect to create multiple Bin Grids and use the 
+  P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis.  
+- Similarly, there could be multiple seismic volumes on the same AbstractBinGrid, 
+  but using a different inline, crossline range as stored with the `SeismicTraceData`. 
+  These min/max inline/crossline ranges are supposed to be kept with the data, but 
+  a company could elect to create a seismicBinGrid for each dataset.
 
 - OSDU should store only the original SEGY data, and only the original
   bin grid in the original CRS. Applications that require a conversion
