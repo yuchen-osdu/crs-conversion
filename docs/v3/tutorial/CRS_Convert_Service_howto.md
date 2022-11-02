@@ -3206,7 +3206,7 @@ crossline) local coordinates.  The math and background are defined in
 - [SDU geometric aspects of bin grids.docx](SDU geometric aspects of bin grids.docx), and 
 - [SDU geometric aspects of bin grids.xlsx](SDU geometric aspects of bin grids.xlsx).
 
-Figure 1 shows the four-point bin grid definition using the projected and bin grid local coordinates at 4 corner tie points. 
+The figure below shows the four-point bin grid definition using the projected and bin grid local coordinates at 4 corner tie points. 
 The main advantage of the 4 Corner definition is that it is very straightforward and unlikely to be misinterpreted.
 The disadvantage is that one cannot calculate with the given definition, and must derive the P6 parameters. The derived (calculated) spacings may not be exactly an integer or multiple of 6.25 m.
 
@@ -3214,7 +3214,7 @@ In this definition:
 * Point A is the point with minimum inline and crossline. 
 * Line A->B is a constant inline (increasing crossline coordinates).
 * Line A->C is a constant crossline (increasing inline coordinates). 
-* Point D complements a rectangle. Point D is redundant and used for QC. It would be trivial to extend the SDU format to include a three-point definition method by omitting the D point, but this is not recommended because the D point facilitates QC and spatializing the grids.
+* Point D complements a rectangle (in the (inline,crossline) space and in the (Easting,Northing) space). Point D is redundant and used for QC. It would be trivial to extend the SDU format to include a three-point definition method by omitting the D point, but this is not recommended because the D point facilitates QC and spatializing the grids.
 
 
 ![Figure 1: Bin Grid terminology.](ABCDBinGrid.jpg 'Figure 1: Bin Grid terminology.')
@@ -3290,7 +3290,7 @@ e.g.,</p>
 
 **NOTE**: Usage of ABCDBinGridLocalCoordinates and
 AbstractCoordinates is **deprecated**. Instead the AnyCrsFeatureCollection
-GeoJson construct with Feature properties should be used as show below (InlineNo, CrosslineNo).
+GeoJson construct with Feature properties should be used as show below (`Inline`, `Crossline`).
 
 Example showing ABCDBinGridSpatialLocation containing the local and global
 coordinates on input (this is not a numerically realistic example).
@@ -3304,12 +3304,12 @@ coordinates on input (this is not a numerically realistic example).
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "A",
-                  "InlineNo": "1",
-                  "CrosslineNo": "1000"
-              }
+                  "Inline": 1,
+                  "Crossline": 1000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3322,12 +3322,12 @@ coordinates on input (this is not a numerically realistic example).
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "B",
-                  "InlineNo": "1",
-                  "CrosslineNo": "2000"
-              }
+                  "Inline": 1,
+                  "Crossline": 2000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3340,12 +3340,12 @@ coordinates on input (this is not a numerically realistic example).
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "C",
-                  "InlineNo": "101",
-                  "CrosslineNo": "1000"
-              }
+                  "Inline": 101,
+                  "Crossline": 1000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3358,12 +3358,12 @@ coordinates on input (this is not a numerically realistic example).
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "D",
-                  "InlineNo": "101",
-                  "CrosslineNo": "2000"
-              }
+                  "Inline": 101,
+                  "Crossline": 2000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3462,12 +3462,12 @@ geometry properties (the converted and “squared up” x,y coordinates):
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "A",
-                  "InlineNo": "1",
-                  "CrosslineNo": "1000"
-              }
+                  "Inline": 1,
+                  "Crossline": 1000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3480,12 +3480,12 @@ geometry properties (the converted and “squared up” x,y coordinates):
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "B",
-                  "InlineNo": "1",
-                  "CrosslineNo": "2000"
-              }
+                  "Inline": 1,
+                  "Crossline": 2000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3498,12 +3498,12 @@ geometry properties (the converted and “squared up” x,y coordinates):
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "C",
-                  "InlineNo": "101",
-                  "CrosslineNo": "1000"
-              }
+                  "Inline": 101,
+                  "Crossline": 1000
+              } ]
           },
           "geometry": {
             "type": "AnyCrsPoint"
@@ -3516,12 +3516,12 @@ geometry properties (the converted and “squared up” x,y coordinates):
         {
           "type": "AnyCrsFeature"
           "properties": {
-              "Kind": "osdu:wks:AbstractGeoJson.BinLabel:1.0.0",
-              "PointProperties": {
+              "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+              "PointProperties": [ {
                   "Label": "D",
-                  "InlineNo": "101",
-                  "CrosslineNo": "2000"
-              }
+                  "Inline": 101,
+                  "Crossline": 2000
+              } ]
               
             },
           "geometry": {
@@ -4001,8 +4001,8 @@ counter-clockwise point order.
     "AppliedOperations": [
               "AsIngestedCoordinates converted to Wgs84Coordinates: Input CRS EPSG 23031 (ED50 / UTM zone 31N) to Target CRS EPSG 4326 (WGS84) using CT EPSG 1613 (ED50 to WGS 84 (24) - Norway - offshore south of 62°N - North Sea.)"
     ],
-    ?? "SpatialParameterTypeID": "osdu:reference-data--SpatialParameterType:Outline:",
-    ?? "SpatialGeometryTypeID": "osdu:reference-data--SpatialGeometryType:Polygon:"
+    "SpatialParameterTypeID": "osdu:reference-data--SpatialParameterType:Outline:",
+    "SpatialGeometryTypeID": "osdu:reference-data--SpatialGeometryType:Polygon:"
   }
 ```
 
@@ -4010,6 +4010,6 @@ counter-clockwise point order.
 
 
 
-**FOLLOWING NEEDS TO BE aligned**
+**FOLLOWING VOLVE EXAMPLE NEEDS TO BE aligned**
 
 See also [Volve example](https://community.opengroup.org/osdu/platform/data-flow/data-loading/open-test-data/-/blob/master/rc--3.0.0/4-instances/Volve/work-products/seismics/load_seismic_bingrid_ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534.json).
