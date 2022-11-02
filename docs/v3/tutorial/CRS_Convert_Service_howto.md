@@ -3661,7 +3661,7 @@ check)</td>
 <p>- “<strong>AnyCrsPoint</strong>”</p>
 <p>- “Squared up” global coordinates.</p>
 <p>(type AbstractFeatureCollection:1.1.0)</p>
-<p>- “<strong>AnyCrsMultiPoint</strong>”</p>
+<p>- “<strong>Point</strong>”</p>
 <p>- “Squared up” coordinates transformed to WGS 84.</p>
 <p>- copy of input (if given)</p>
 <p>- copy of input (if given)</p>
@@ -3753,17 +3753,17 @@ to 1</p>
 Error checking is performed with following exception handling and
 response messages when parsing the input:
 
-1.  Local ABCDBinGridLocalCoordinates
+1.  Check Local Coordinates in ABCDBinGridSpatialLocation
 
     1.  Four points are given for local coordinates as Properties (as
-        specified above with AbstractGeoJson.BinLabel)
+        specified above with AbstractGeoJson.BinLabel).  Note: ABCDBinGridLocalCoordinates is deprecated.
 
     2.  Order ABCD is sortable as (inline,crossline) = (I,J) =
         (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ), i.e., check
         that the numbers with same symbols are the same and minI\<maxI
         and minJ\<maxJ.
 
-2.  Global ABCDBinGridSpatialLocation
+2.  Check global coordinates in ABCDBinGridSpatialLocation
 
     1.  Four points are given for geometry.
 
