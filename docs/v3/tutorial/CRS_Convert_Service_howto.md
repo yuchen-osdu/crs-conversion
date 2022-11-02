@@ -3435,24 +3435,11 @@ grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 </tbody>
 </table>
 
-~~<tr class="odd">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>outBinGridPolygon</strong></td>
-<td>AbstractSpatialLocation</td>
-<td>Outer rim, counterclockwise, as AnyCrsFeatureCollection and FeatureCollection in WGS 84 (GeoJson).</td>
-<td></td>
-</tr>~~
 
-
-outBinGrid properties are populated as shown below, depending on whether
+`outBinGrid` properties are populated as shown below, depending on whether
 a conversion was requested using the optional "toCrs" parameter.
 
-Click on "expand" to show an example for global coordinates on output, showing the relevant
+Click on "expand" to show the example for global coordinates on output, showing the relevant
 geometry properties (the converted and “squared up” x,y coordinates):
 
 <details><summary>Click to expand Example</summary>
@@ -3757,21 +3744,16 @@ to 1</p>
 Error checking is performed with following exception handling and
 response messages when parsing the input:
 
-1.  Check Local Coordinates in ABCDBinGridSpatialLocation
-    1.  Four points are given for local coordinates as Properties (as
-        specified above with AbstractGeoJson.BinLabel).  Note: ABCDBinGridLocalCoordinates is deprecated.
-    2.  Order ABCD is sortable as (inline,crossline) = (I,J) =
-        (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ), i.e., check
-        that the numbers with same symbols are the same and minI\<maxI
-        and minJ\<maxJ.
-
-2.  Check global coordinates in ABCDBinGridSpatialLocation
-    1.  Four points are given for geometry.
-        1.  local coordinates as Properties (as specified above with
-            AbstractGeoJson.BinLabel)
-    2.  CRS record-id is given. Limit this to a record-id (in principle
-        this could be overloaded to allow a PersistableReference just
-        like /convert).
+1.  Check ABCDBinGridSpatialLocation
+    1.  CRS record-id is given and exists.
+        * Note: BinGrids should use type BoundProjected or Projected (if based on WGS 84).
+    2.  Four points are given.  
+    3.  Using PropertiesBinGridCorners to give local coordinates.  
+        * Note: Usage of ABCDBinGridLocalCoordinates is deprecated.
+    4.  Local coordinates are sortable as A,B,C,D, i.e., in order (inline,crossline) = (I,J) =
+        (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ).  
+        Check that the numbers with same symbols are the same and 
+        minI \< maxI and minJ \< maxJ.
 
 
 
@@ -3799,7 +3781,8 @@ response messages when parsing the input:
   bin grid in the original CRS. Applications that require a conversion
   to a (different) project CRS can call this endpoint and check that the
   approximation error (“squaring error”) is small enough to merge with
-  other project data. However, it is also possible to use the toCrs
+  other project data. 
+  However, it is also possible to use the toCrs
   parameter in a second call, and store the converted BinGrid in a
   lineage as child of the original geometry. Applications can then
   search for such child with the desired `CRS record-id`.
@@ -3854,10 +3837,7 @@ The four corner points defined in the AbstractBinGrid corner points are used as 
 
 5.  Output the AnyCrsPolygon
 
-~~The **convertBinGrid** endpoint outputs these schema fragments for
-convenience so that they can be written to the SeismicBinGrid during ingest.~~
-
-The following is the closed polygon, using 5 points (last point is copy of
+The following example shows the closed polygon, using 5 points (last point is copy of
 first point), an outer rim, meaning re-ordered to be drawable in
 counter-clockwise point order.
 Technically the edges might have to be densified for correct mapping the locations drawn in WGS 84 / Web Mercator.
