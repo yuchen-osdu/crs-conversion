@@ -3202,13 +3202,15 @@ interpolation interval as value.
 
 A Bin Grid describe the
 “real world” (Easting, Northing) of bin grid centers at (inline,
-crossline) local coordinates.  The math and background are defined in 
-- [SDU geometric aspects of bin grids.docx](SDU geometric aspects of bin grids.docx), and 
-- [SDU geometric aspects of bin grids.xlsx](SDU geometric aspects of bin grids.xlsx).
+crossline) local coordinates.  The math formulas are defined in 
+- [SDU geometric aspects of bin grids.docx](SDU_geometric_aspects_of_bin_grids.docx), and 
+- [SDU geometric aspects of bin grids.xlsx](SDU_geometric_aspects_of_bin_grids.xlsx).
 
 The figure below shows the four-point bin grid definition using the projected and bin grid local coordinates at 4 corner tie points. 
 The main advantage of the 4 Corner definition is that it is very straightforward and unlikely to be misinterpreted.
-The disadvantage is that one cannot calculate with the given definition, and must derive the P6 parameters. The derived (calculated) spacings may not be exactly an integer or multiple of 6.25 m.
+The disadvantage is that one cannot calculate with the corners, and must derive the P6 parameters. The derived (calculated) spacings may not be exactly an integer or multiple of 6.25 m.
+
+The formulas to compute (inline,crossline) at a given (Easting, Northing) with the P6 parameters are described in section 4 and 5 in the above referenced document.
 
 In this definition:
 * Point A is the point with minimum inline and crossline. 
@@ -3430,7 +3432,10 @@ mis-location is zero in the middle and the maximum at the corners of the
 grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 <td></td>
 </tr>
-<tr class="odd">
+</tbody>
+</table>
+
+~~<tr class="odd">
 <td></td>
 <td></td>
 <td></td>
@@ -3441,17 +3446,16 @@ grid, the strict criteria of 1 bin could be relaxed slightly.</td>
 <td>AbstractSpatialLocation</td>
 <td>Outer rim, counterclockwise, as AnyCrsFeatureCollection and FeatureCollection in WGS 84 (GeoJson).</td>
 <td></td>
-</tr>
-</tbody>
-</table>
+</tr>~~
+
 
 outBinGrid properties are populated as shown below, depending on whether
 a conversion was requested using the optional "toCrs" parameter.
 
-Example for global coordinates on output, showing the relevant
+Click on "expand" to show an example for global coordinates on output, showing the relevant
 geometry properties (the converted and “squared up” x,y coordinates):
 
-<details><summary>Click to expand</summary>
+<details><summary>Click to expand Example</summary>
 
 ```json
 // these are the output, sqaured up 4 corners in order ABCD
@@ -3754,107 +3758,42 @@ Error checking is performed with following exception handling and
 response messages when parsing the input:
 
 1.  Check Local Coordinates in ABCDBinGridSpatialLocation
-
     1.  Four points are given for local coordinates as Properties (as
         specified above with AbstractGeoJson.BinLabel).  Note: ABCDBinGridLocalCoordinates is deprecated.
-
     2.  Order ABCD is sortable as (inline,crossline) = (I,J) =
         (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ), i.e., check
         that the numbers with same symbols are the same and minI\<maxI
         and minJ\<maxJ.
 
 2.  Check global coordinates in ABCDBinGridSpatialLocation
-
     1.  Four points are given for geometry.
-
         1.  local coordinates as Properties (as specified above with
             AbstractGeoJson.BinLabel)
-
     2.  CRS record-id is given. Limit this to a record-id (in principle
         this could be overloaded to allow a PersistableReference just
         like /convert).
-
-3.  Optional toCRS
-
-    1.  If given, then it should be a CRS record-id and be of kind
-        Projected or BoundProjected. See Note below.
-
- 
-
-<table>
-<colgroup>
-<col style="width: 13%" />
-<col style="width: 32%" />
-<col style="width: 53%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th><strong>HTTP Status code</strong></th>
-<th><strong>Reason</strong></th>
-<th><strong>Message</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>200</td>
-<td>Success</td>
-<td>“Success”</td>
-</tr>
-<tr class="even">
-<td>400</td>
-<td>Invalid Request URI or Header, or unsupported parameter</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>401</td>
-<td>Unauthorized</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>403</td>
-<td>Forbidden</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>404</td>
-<td>The specified resource was not found</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>500</td>
-<td>Unexpected error occurred</td>
-<td><p>Depending on caught error, something like:</p>
-<p>“inBinGrid does not contain 4 local coordinates”</p>
-<p>“inBinGrid order of ABCD 4 local coordinates is not (inl,xln):
-(min,min), (min,max), (max,min), (max,max)”</p>
-<p>“inBinGrid does not contain 4 global coordinates”</p>
-<p>“inBinGrid does not contain CRS record-id for global coordinates”</p>
-<p>“toCrs is not a valid record id” (e.g., add “data.kind is not
-Projected” or something like that)</p>
-<p>(pass on error message returned by POST convert or POST
-convertGeoJson is that is used)</p>
-<p>“unknown error”</p></td>
-</tr>
-</tbody>
-</table>
 
 
 
 ### 7.4 How to use CRS Convert method POST v3/convertBinGrid?
 
-- When ingesting a SEGY seismic volume an AbstractBinGrid should be
-  created, that is referenced through SeismicBinGrid. The envisioned
-  method to create this is to take an AbstractBinGrid and set the CRS
-  record-id and 4 corner coordinates of the SEGY (and
+- When storing a seismic volume file (e.g., a SEGY file) into OSDU, then a `SeismicTraceData WPC` is created
+  which references a `SeismicBinGrid`, which references an `AbstractBinGrid`.
+  The method to create this is to take an AbstractBinGrid and set the 
+  `CRS record-id` and 4 corner coordinates of the SEGY (and
   P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis), followed by
   calling this endpoint without the optional toCrs parameter to fill out
-  the P6 parameters and Wgs84 coordinates and get the (dI,dJ) QC metric
-  for squareness. Then check the squareness, and ingest the data into
+  the `P6 parameters` and Wgs84 coordinates and get the (`dI`,`dJ`) QC metric
+  for squareness. 
+  
+  Then check the squareness, and ingest the data into
   OSDU platform if it passes. That enables a systematic checking of
-  ingested seismic volumes. The increments of the SeismicTraceData
+  ingested seismic volumes. The increments of the `SeismicTraceData`
   referencing a bin grid are supposed to kept with the data, overwriting
   the BinGrid values, such that an efficient loading and referencing the
   same bin grid for data output at different increments is enabled.
+  
+- There could be another seismic volume on the same AbstractBinGrid, but using a different inline, crossline range. 
 
 - OSDU should store only the original SEGY data, and only the original
   bin grid in the original CRS. Applications that require a conversion
@@ -3863,7 +3802,7 @@ convertGeoJson is that is used)</p>
   other project data. However, it is also possible to use the toCrs
   parameter in a second call, and store the converted BinGrid in a
   lineage as child of the original geometry. Applications can then
-  search for such child with the desired CRS record-id.
+  search for such child with the desired `CRS record-id`.
 
 ### 7.5 Examples
 
@@ -3915,13 +3854,14 @@ The four corner points defined in the AbstractBinGrid corner points are used as 
 
 5.  Output the AnyCrsPolygon
 
-The **convertBinGrid** endpoint outputs these schema fragments for
-convenience so that they can be written to the SeismicBinGrid during
-ingest.
+~~The **convertBinGrid** endpoint outputs these schema fragments for
+convenience so that they can be written to the SeismicBinGrid during ingest.~~
 
-// this is the closed polygon, using 5 points (last point is copy of
+The following is the closed polygon, using 5 points (last point is copy of
 first point), an outer rim, meaning re-ordered to be drawable in
 counter-clockwise point order.
+Technically the edges might have to be densified for correct mapping the locations drawn in WGS 84 / Web Mercator.
+However, this is not considered necessary because that representation is only for search and discovery.
 
 <details><summary>SeismicBinGrid Spatial Area (click to expand)</summary>
 
