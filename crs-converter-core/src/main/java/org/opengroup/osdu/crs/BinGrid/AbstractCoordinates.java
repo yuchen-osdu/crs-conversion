@@ -13,9 +13,4 @@ public class AbstractCoordinates {
 	@JsonProperty("Y")
 	private Double y;
 	
-	@Override
-	public String toString() {
-		return "AbstractCoordinates [x=" + x + ", y=" + y + "]";
-	}
-	
 }

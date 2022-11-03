@@ -16,12 +16,4 @@ public class InnerBinGridCoordinates {
 	@JsonProperty("z")
 	private Double z;
 	
-
-
-
-	@Override
-	public String toString() {
-		return "InnerBinGridJsonCoordinates [x=" + x + ", y=" + y + ", z=" + z + "]";
-	}
-
 }

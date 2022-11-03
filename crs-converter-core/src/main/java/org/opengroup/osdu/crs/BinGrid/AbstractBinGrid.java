@@ -1,7 +1,5 @@
 package org.opengroup.osdu.crs.BinGrid;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -59,9 +57,6 @@ public class AbstractBinGrid {
 
 	@JsonProperty("P6BinNodeIncrementOnJaxis")
 	private Double p6BinNodeIncrementOnJaxis;
-
-	@JsonProperty("ABCDBinGridLocalCoordinates")
-	private List <AbstractCoordinates> aBCDBinGridLocalCoordinates;
 	 
 	@JsonProperty("ABCDBinGridSpatialLocation")
 	private AbstractSpatialLocation aBCDBinGridSpatialLocation;

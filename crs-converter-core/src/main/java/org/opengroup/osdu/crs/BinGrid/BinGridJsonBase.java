@@ -20,12 +20,5 @@ public class BinGridJsonBase {
     BinGridJsonBase(String type) {
         this.type = type;      
     }
-
-
-
-	@Override
-	public String toString() {
-		return "BinGridJsonBase [type=" + type + ", coordinates=" + coordinates + "]";
-	}
-	
+   	
 }

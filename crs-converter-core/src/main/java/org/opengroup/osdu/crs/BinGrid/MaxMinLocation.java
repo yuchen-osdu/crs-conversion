@@ -1,16 +1,15 @@
 package org.opengroup.osdu.crs.BinGrid;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
 public class MaxMinLocation {
-		
-	private Double dI;
-	private Double dJ;
 	
-	@Override
-	public String toString() {
-		return "MaxMinLocation [dI=" + dI + ", dJ=" + dJ + "]";
-	}
+	@JsonProperty("dI")	
+	private Double dI;
+	@JsonProperty("dJ")	
+	private Double dJ;	
 	
 }
