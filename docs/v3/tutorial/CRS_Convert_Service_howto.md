@@ -3663,206 +3663,51 @@ Properties of
 [AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
 on input and output are summarized in the following table.
 
-<table>
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 32%" />
-<col style="width: 26%" />
-<col style="width: 10%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th><strong>AbstractBinGrid property</strong></th>
-<th><strong>On input</strong></th>
-<th><strong>On output if toCRS is not given</strong></th>
-<th><strong>On output if toCRS *is* given</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>BinGridName</td>
-<td>ignored</td>
-<td>copy of input (leave blank if empty on input)</td>
-<td>if present on input then append “-reprojected” on output</td>
-</tr>
-<tr class="even">
-<td>BinGridTypeID</td>
-<td>ignored</td>
-<td>copy of input (leave blank if empty on input)</td>
-<td>- same</td>
-</tr>
-<tr class="odd">
-<td>SourceBinGridID</td>
-<td>ignored</td>
-<td>copy of input</td>
-<td>- same</td>
-</tr>
-<tr class="even">
-<td>SourceBinGridAppID</td>
-<td>ignored</td>
-<td>copy of input</td>
-<td>- same</td>
-</tr>
-<tr class="odd">
-<td>CoveragePercent</td>
-<td>ignored</td>
-<td>copy of input</td>
-<td>- same</td>
-</tr>
-<tr class="even">
-<td>BinGridDefinitionMethodTypeID</td>
-<td>ignored</td>
-<td>“4Corner”</td>
-<td>“4Corner”</td>
-</tr>
-<tr class="odd">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><p><strong>ABCDBinGridSpatialLocation</strong></p>
-<p><em><strong>.AsIngestedCoordinates</strong></em></p>
-<p>.CoordinateReferenceSystemID</p>
-<p>.persistableReferenceCrs</p>
-<p>.features[1:4].geometry.type</p>
-<p>.features[1:4].geometry.coordinates[]</p>
-<p><em><strong>.Wgs84Coordinates</strong></em></p>
-<p>.features[1:4].geometry.type</p>
-<p>.features[1:4].geometry.coordinates[]</p>
-<p>.SpatialLocationCoordinatesDate</p>
-<p>.QualitativeSpatialAccuracyTypeID</p>
-<p>.QuantitativeAccuracyBandID</p>
-<p>.CoordinateQualityCheckPerformedBy</p>
-<p>.CoordinateQualityCheckDateTime</p>
-<p>.CoordinateQualityCheckRemarks[]</p>
-<p>.AppliedOperations[]</p>
-<p>.SpatialParameterTypeID</p>
-<p>.SpatialGeometryTypeID</p></td>
-<td><p>Required (type AbstractSpatialLocation:1.1.0)</p>
-<p>Required (type AbstractAnyCrsFeatureCollection:1.1.0)</p>
-<p>Required CRS of given features[]/geometry.coordinates[]</p>
-<p>Ignored (use above CRS record-id)</p>
-<p>Ignored (set to “AnyCrsPoint” on output)</p>
-<p>Required corner coordinates (4)</p>
-<p>Ignored on input (compute on output)</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p></td>
-<td><p>See example below.</p>
-<p>n/a (fill)</p>
-<p>- copy of input</p>
-<p>- copy of input (if given)</p>
-<p>- “<strong>AnyCrsPoint</strong>”</p>
-<p>- “Squared up” global coordinates.</p>
-<p>(type AbstractFeatureCollection:1.1.0)</p>
-<p>- “<strong>Point</strong>”</p>
-<p>- “Squared up” coordinates transformed to WGS 84.</p>
-<p>- copy of input (if given)</p>
-<p>- copy of input (if given)</p>
-<p>- copy of input (if given)</p>
-<p>- “CRS convert API convertBinGrid”</p>
-<p>- `now()`</p>
-<p>- append “Max. squaring error: dI=0.0, dJ=0.4 bin"</p>
-<p>- append “squareness tested: dI=x.x, dJ=x.x”</p>
-<p>- copy of input (if given)</p>
-<p>- copy of input (if given)</p></td>
-<td><p>See example below.</p>
-<p>(fill)</p>
-<p>- the “toCRS” record-id</p>
-<p>- (populate with looked up PR)</p>
-<p>- same</p>
-<p>- Converted and “squared up” global coordinates.</p>
-<p>(fill)</p>
-<p>- same</p>
-<p>- same</p>
-<p>- null out</p>
-<p>- null out</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- append “converted from &lt;origCRS&gt; to &lt;toCRS&gt;; squared
-up: dI=x.x, dJ=x.x (bin)”</p>
-<p>- same</p>
-<p>- same</p></td>
-</tr>
-<tr class="odd">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><p>P6TransformationMethod</p>
-<p>P6BinGridOriginI</p>
-<p>P6BinGridOriginJ</p>
-<p>P6BinGridOriginEasting</p>
-<p>P6BinGridOriginNorthing</p>
-<p>P6ScaleFactorOfBinGrid</p>
-<p>P6BinWidthOnIaxis</p>
-<p>P6BinWidthOnJaxis</p>
-<p>P6MapGridBearingOfBinGridJaxis</p>
-<p>P6BinNodeIncrementOnIaxis</p>
-<p>P6BinNodeIncrementOnJaxis</p></td>
-<td><p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p>
-<p>Ignored on input</p></td>
-<td><p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- populate with derived value on output</p>
-<p>- <strong>copy on output</strong>. If not present on input, then set
-to 1</p>
-<p>- <strong>copy on output</strong>. If not present, then set to
-1</p></td>
-<td><p>- same. 9666 for right-handed grids, 1049 for left-handed.</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p>
-<p>- same</p></td>
-</tr>
-</tbody>
-</table>
+
+| **AbstractBinGrid property** | **On input**          | **On output if toCRS is not given** | **On output if toCRS is given**   |
+|------------------------------|-----------------------|-------------------------------------|-----------------------------------|
+| BinGridName                  | ignored               | copy of input (leave blank if empty on input)  | same |
+| BinGridTypeID                | ignored               | copy of input (leave blank if empty on input)  | same |
+| SourceBinGridID              | ignored               | copy of input (leave blank if empty on input)  | same |
+| SourceBinGridAppID           | ignored               | copy of input (leave blank if empty on input)  | same |
+| CoveragePercent              | ignored               | copy of input (leave blank if empty on input)  | same |
+| BinGridTypeID                | ignored               | copy of input (leave blank if empty on input)  | same |
+| BinGridDefinitionMethodTypeID   | ignored               | “4Corner”  | “4Corner” |
+|                                 |                       |                                                |      |
+| ~~ABCDBinGridLocalCoordinates~~ | **deprecated usage**  | ignored  | ignored |
+|                                 |                       |                                                |      |
+| **ABCDBinGridSpatialLocation**      | Required            |    _(type AbstractSpatialLocation:1.1.0)_   |   |
+| > **_.AsIngestedCoordinates_**      | Required           |    _(type AbstractAnyCrsFeatureCollection:1.1.0)_  |  |
+| >> .CoordinateReferenceSystemID     | Required CRS of given features[]/geometry.coordinates[]  |  copy of input    | the “toCRS” record-id |
+| >> .persistableReferenceCrs         | Ignored (use CRS record-id) |  copy of input (leave blank if empty on input)    | populate with looked up PR |
+| >> .features[1:4].geometry.type     | Ignored          |  **“AnyCrsPoint”**    | **“AnyCrsPoint”** |
+| >> .features[1:4].geometry.coordinates[]  | Required corner coordinates (4)  |  “Squared up” global coordinates    | Converted and “squared up” global coordinates |
+| > **_.Wgs84Coordinates_**                 | Ignored on input          |      |      |
+| >> .features[1:4].geometry.type           | Ignored on input          |  **“Point”**    | **“Point”** |
+| >> .features[1:4].geometry.coordinates[]  | Ignored on input          |  “Squared up” coordinates transformed to WGS 84.    | same |
+| > .SpatialLocationCoordinatesDate     | Ignored on input          |  copy of input (if given)    | same |
+| > .QualitativeSpatialAccuracyTypeID   | Ignored on input          |  copy of input (if given)    | null out |
+| > .QuantitativeAccuracyBandID         | Ignored on input          |  copy of input (if given)    | null out |
+| > .CoordinateQualityCheckPerformedBy  | Ignored on input          |  “CRS convert API convertBinGrid”    | same |
+| >  .CoordinateQualityCheckDateTime   | Ignored on input          |   `now()`   | same |
+| >  .CoordinateQualityCheckRemarks[]  | Ignored on input          |  append “Max. squaring error: dI=0.0, dJ=0.4 bin    | same |
+| >  .AppliedOperations[]              | Ignored on input          |  append “squareness tested: dI=x.x, dJ=x.x bin”    | append “converted from <origCRS> to <toCRS>; "squared up": dI=x.x, dJ=x.x (bin)” |
+| >  .SpatialParameterTypeID           | Ignored on input          |  copy of input (if given)    | same |
+| >  .SpatialParameterTypeID           | Ignored on input          |  copy of input (if given)    | same |
+|                                |                           |                                                |      |
+| P6TransformationMethod         | Ignored on input          |  populate with derived value on output    | same. 9666 for right-handed grids, 1049 for left-handed. |
+| P6BinGridOriginI               | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginJ               | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginEasting         | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginNorthing        | Ignored on input          |  populate with derived value on output    | same |
+| P6ScaleFactorOfBinGrid         | Ignored on input          |  populate with derived value on output    | same |
+| P6BinWidthOnIaxis              | Ignored on input          |  populate with derived value on output    | same |
+| P6BinWidthOnJaxis              | Ignored on input          |  populate with derived value on output    | same |
+| P6MapGridBearingOfBinGridJaxis | Ignored on input          |  populate with derived value on output    | same |
+| P6BinNodeIncrementOnIaxis      | Ignored on input          |  copy on output. If not present on input, then set to 1    | same |
+| P6BinNodeIncrementOnJaxis      | Ignored on input          |  copy on output. If not present on input, then set to 1    | same |
+
+
 
 ### 7.3 Exception handling / Error codes
 
@@ -3916,6 +3761,8 @@ response messages when parsing the input:
   lineage as child of the original geometry. Applications can then
   search for such child with the desired `CRS record-id`.
 
+<!---
+
 ### 7.5 Examples
 
 Example 1:
@@ -3939,7 +3786,12 @@ Example 2:
 
 *(put example here in expandable code widget)*
 
-## Seismic Bin Grid Spatial Area
+--->
+
+
+
+
+### 7.5 Seismic Bin Grid Spatial Area
 
 The spatial area of the SeismicBinGrid should be written as an
 (AnyCrs) Polygon with 5 nodes (the last node is a copy of the first point to close the polygon), representing the outer edges of the bin
