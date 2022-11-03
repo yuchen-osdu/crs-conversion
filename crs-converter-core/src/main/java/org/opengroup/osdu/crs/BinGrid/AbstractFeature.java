@@ -3,8 +3,10 @@ package org.opengroup.osdu.crs.BinGrid;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class AbstractFeature extends BinGridJsonBase{
 	
 	AbstractFeature(String type) {
@@ -12,16 +14,9 @@ public class AbstractFeature extends BinGridJsonBase{
 	}
 
 	@JsonProperty("properties")
-    private Object properties;	
+    private PropertiesBinGridCorners properties;	
 	
 	@JsonProperty("geometry")
     private BinGridJsonBase geometry;
 	
-
-	
-	@Override
-	public String toString() {
-		return "AbstractFeature [properties=" + properties + ", geometry=" + geometry + "]";
-	}
-
 }
