@@ -2,11 +2,14 @@ package org.opengroup.osdu.crs.BinGrid;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
 @Data
+@JsonInclude(Include.NON_NULL)
 public class AbstractSpatialLocation {
 
 	@JsonProperty("SpatialLocationCoordinatesDate")
@@ -34,8 +37,8 @@ public class AbstractSpatialLocation {
 	private String spatialParameterTypeID;
 
 	@JsonProperty("SpatialGeometryTypeID")
-	private String spatialGeometryTypeID;
-
+	private String spatialGeometryTypeID;	
+	
 	@JsonProperty("AsIngestedCoordinates")
 	private AbstractAnyCrsFeatureCollection asIngestedcoordinates;
 

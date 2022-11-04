@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class AbstractCoordinates {
+public class MaxMisLocation {
 	
-	@JsonProperty("X")
-	private Double x;
-	
-	@JsonProperty("Y")
-	private Double y;
+	@JsonProperty("dI")	
+	private Double dI;
+	@JsonProperty("dJ")	
+	private Double dJ;	
 	
 }
