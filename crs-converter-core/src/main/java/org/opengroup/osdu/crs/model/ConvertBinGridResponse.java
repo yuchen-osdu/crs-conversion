@@ -3,16 +3,20 @@ package org.opengroup.osdu.crs.model;
 import java.util.List;
 
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
-import org.opengroup.osdu.crs.BinGrid.MaxMinLocation;
+import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
 public class ConvertBinGridResponse {
 
-	private MaxMinLocation maxMinLocation;
-
+	@JsonProperty("MaxMisLocation")
+	private MaxMisLocation maxMisLocation;
+	@JsonProperty("outBinGrid")
 	private AbstractBinGrid outBinGrid;
-	private List<String> operationsApplied;
+	@JsonProperty("AppliedOperations")
+	private List<String> appliedOperations;
 
 }

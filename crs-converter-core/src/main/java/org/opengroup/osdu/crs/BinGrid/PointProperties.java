@@ -9,9 +9,9 @@ public class PointProperties {
 	
 	@JsonProperty("Label")
 	private String label;
-	@JsonProperty("InlineNo")
-	private Integer inlineNo;
-	@JsonProperty("CrosslineNo")
-	private Integer crosslineNo;	
+	@JsonProperty("Inline")
+	private Integer inline;
+	@JsonProperty("Crossline")
+	private Integer crossline;	
 
 }
