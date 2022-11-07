@@ -2,12 +2,16 @@ package org.opengroup.osdu.crs.converter;
 
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialReference;
 
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
+import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
 import org.opengroup.osdu.crs.BinGrid.PointProperties;
@@ -188,6 +192,7 @@ public class CRSConverter implements ICRSConverter {
 	public ConvertBinGridResponse convertBinGrid(String toCrs, AbstractBinGrid inBinGrid) {
 		
 		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
+		outBinGrid.setOutBinGrid(inBinGrid);
         // checking the binGridDefinitionMethodType
 		if (inBinGrid.getBinGridDefinitionMethodTypeID().equals(BIN_GRID_METHOD_4_CORNERS)) {
 			// checking the size of the input coordinates
@@ -283,7 +288,7 @@ public class CRSConverter implements ICRSConverter {
 				Map<String, Double> spatialCoordinatesComputeMap = RcomputationBetweenPoints(spatialcoordinates);
 
 				Map<String, Double> rDeltaIJMap = rDeltaIandJComputation(spatialCoordinatesComputeMap,
-						features.getProperties().getPointPropertiesList(), crsParamMap, inBinGrid.getP6BinNodeIncrementOnIaxis(), inBinGrid.getP6BinNodeIncrementOnJaxis());
+						spatialcoordinates.getAsIngestedcoordinates().getFeatures(), crsParamMap, inBinGrid.getP6BinNodeIncrementOnIaxis(), inBinGrid.getP6BinNodeIncrementOnJaxis());
 
 				thetaCalculation(inBinGrid, rDeltaIJMap, crsParamMap, convertBinGridResponse);
 				//convertBinGridResponse.setAppliedOperations(internal_response.getOperationsApplied());
@@ -297,21 +302,21 @@ public class CRSConverter implements ICRSConverter {
 		
 		Map<String, Double> spatialCoordinatesComputeMap = new HashMap<>();
 		
-		spatialcoordinates.getAsIngestedcoordinates().getFeatures().stream().forEach(features -> {
+		List<AbstractFeature> abstractFeatureList = spatialcoordinates.getAsIngestedcoordinates().getFeatures();
 			
-			List<Double> abstractCoordinatesList = features.getGeometry().getCoordinates();
 			
-			    Double coordinateAx = abstractCoordinatesList.get(0);
-			    Double coordinateAy = abstractCoordinatesList.get(0);
+			
+			    Double coordinateAx = abstractFeatureList.get(0).getGeometry().getCoordinates().get(0);
+			    Double coordinateAy = abstractFeatureList.get(0).getGeometry().getCoordinates().get(1);
 			    
-			    Double coordinateBx = abstractCoordinatesList.get(1);
-			    Double coordinateBy = abstractCoordinatesList.get(1);
+			    Double coordinateBx = abstractFeatureList.get(1).getGeometry().getCoordinates().get(0);
+			    Double coordinateBy = abstractFeatureList.get(1).getGeometry().getCoordinates().get(1);
 			    
-			    Double coordinateCx = abstractCoordinatesList.get(2);
-			    Double coordinateCy = abstractCoordinatesList.get(2);
+			    Double coordinateCx = abstractFeatureList.get(2).getGeometry().getCoordinates().get(0);
+			    Double coordinateCy = abstractFeatureList.get(2).getGeometry().getCoordinates().get(1);
 			    
-			    Double coordinateDx = abstractCoordinatesList.get(3);
-			    Double coordinateDy = abstractCoordinatesList.get(3);
+			    Double coordinateDx = abstractFeatureList.get(3).getGeometry().getCoordinates().get(0);
+			    Double coordinateDy = abstractFeatureList.get(3).getGeometry().getCoordinates().get(1);
 			    
 			    Double rAC = Math.sqrt(Math.pow((coordinateCy - coordinateAy), 2) + Math.pow((coordinateCx - coordinateAx), 2));
 			    spatialCoordinatesComputeMap.put(KEY_RAC, rAC);
@@ -321,24 +326,24 @@ public class CRSConverter implements ICRSConverter {
                 spatialCoordinatesComputeMap.put(KEY_RAB, rAB);
 			    Double rCD = Math.sqrt(Math.pow((coordinateDy - coordinateCy), 2) + Math.pow((coordinateDx - coordinateCx), 2));
 			    spatialCoordinatesComputeMap.put(KEY_RCD, rCD);
-			});		
+			
 		
 		return spatialCoordinatesComputeMap;
 	}
 	
 	private Map<String, Double> rDeltaIandJComputation(
-			Map<String, Double> spatialCoordinatesComputeMap, List<PointProperties> pointCoordinates,
+			Map<String, Double> spatialCoordinatesComputeMap, List<AbstractFeature> pointCoordinates,
 			Map<String, Double> crsParamMap, Double p6BinNodeIncrementOnIaxis, Double p6BinNodeIncrementOnJaxis) {
 
 		Map<String, Double> rDeltaIJMap = new HashMap<>();
 
-		Integer iA = pointCoordinates.get(0).getInline();
-		Integer jA = pointCoordinates.get(0).getCrossline();
+		Integer iA = pointCoordinates.get(0).getProperties().getPointPropertiesList().get(0).getInline();
+		Integer jA = pointCoordinates.get(0).getProperties().getPointPropertiesList().get(0).getCrossline();
 
 		// Integer iB = pointCoordinates.get(1).getInlineNo();
-		Integer jB = pointCoordinates.get(1).getCrossline();
+		Integer jB =  pointCoordinates.get(1).getProperties().getPointPropertiesList().get(0).getCrossline();
 
-		Integer iC = pointCoordinates.get(2).getInline();
+		Integer iC = pointCoordinates.get(2).getProperties().getPointPropertiesList().get(0).getInline();
 		// Integer jC = pointCoordinates.get(2).getCrosslineNo();
 
 		// Integer iD = pointCoordinates.get(3).getInlineNo();
@@ -347,16 +352,16 @@ public class CRSConverter implements ICRSConverter {
 		if (p6BinNodeIncrementOnIaxis == 0.0)
 			p6BinNodeIncrementOnIaxis = crsParamMap.get(KEY_P6BinNodeIncrementOnIaxis);
 
-		Double rDeltaI = p6BinNodeIncrementOnIaxis
-				* ((spatialCoordinatesComputeMap.get(KEY_RAC) + spatialCoordinatesComputeMap.get(KEY_RBD) / 2))
-				/ (iC - iA);
+		Double rDeltaI = p6BinNodeIncrementOnIaxis*(
+				((spatialCoordinatesComputeMap.get(KEY_RAC) + spatialCoordinatesComputeMap.get(KEY_RBD)) / 2)
+				/ (iC - iA));
 
 		rDeltaIJMap.put(KEY_RDELTAI, rDeltaI);
 
 		if (p6BinNodeIncrementOnJaxis == 0.0)
 			p6BinNodeIncrementOnJaxis = crsParamMap.get(KEY_P6BinNodeIncrementOnJaxis);
 		Double rDeltaJ = p6BinNodeIncrementOnJaxis
-				* ((spatialCoordinatesComputeMap.get(KEY_RAB) + spatialCoordinatesComputeMap.get(KEY_RCD) / 2))
+				* ((spatialCoordinatesComputeMap.get(KEY_RAB) + spatialCoordinatesComputeMap.get(KEY_RCD)) / 2)
 				/ (jB - jA);
 
 		rDeltaIJMap.put(KEY_RDELTAJ, rDeltaJ);
@@ -376,34 +381,29 @@ public class CRSConverter implements ICRSConverter {
 
 		// If right-handed, then handednesssign = 1 else handednesssign = -1		
 		
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream().forEach(features -> {
+		List<AbstractFeature> abstractCoordinatesList =	inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures();				
+	
+		    Double coordinateAx = abstractCoordinatesList.get(0).getGeometry().getCoordinates().get(0);
+		    Double coordinateAy = abstractCoordinatesList.get(0).getGeometry().getCoordinates().get(1);
+		    
+		    Double coordinateBx = abstractCoordinatesList.get(1).getGeometry().getCoordinates().get(0);
+		    Double coordinateBy = abstractCoordinatesList.get(1).getGeometry().getCoordinates().get(1);
+		    
+		    Double coordinateCx = abstractCoordinatesList.get(2).getGeometry().getCoordinates().get(0);
+		    Double coordinateCy = abstractCoordinatesList.get(2).getGeometry().getCoordinates().get(1);
+		    
+		    Double coordinateDx = abstractCoordinatesList.get(3).getGeometry().getCoordinates().get(0);
+		    Double coordinateDy = abstractCoordinatesList.get(3).getGeometry().getCoordinates().get(1);
 
-			List<Double> abstractCoordinatesList = features.getGeometry().getCoordinates();					
-
-			Double coordinateAx = abstractCoordinatesList.get(0);
-			Double coordinateAy = abstractCoordinatesList.get(0);
-
-			Double coordinateBx = abstractCoordinatesList.get(1);
-			Double coordinateBy = abstractCoordinatesList.get(1);
-
-			Double coordinateCx = abstractCoordinatesList.get(2);
-			Double coordinateCy = abstractCoordinatesList.get(2);
-
-			Double coordinateDx = abstractCoordinatesList.get(3);
-			Double coordinateDy = abstractCoordinatesList.get(3);
-
-			Double thetaAB = Math.atan2(coordinateBx - coordinateAx, coordinateBy - coordinateAy);
-
-			Double thetaCD = Math.atan2(coordinateDx - coordinateCx, coordinateDy - coordinateCy);
-
-			Double theta = Math.atan2(Math.sin(thetaAB) + Math.sin(thetaCD), Math.cos(thetaAB) + Math.cos(thetaCD));
-
-			if (Math.toDegrees(theta.doubleValue()) < 0) {
+			Double thetaAB = Math.toDegrees(Math.atan2(coordinateBx - coordinateAx, coordinateBy - coordinateAy));
+			Double thetaCD = Math.toDegrees(Math.atan2(coordinateDx - coordinateCx, coordinateDy - coordinateCy));
+			Double theta = Math.toDegrees(Math.atan2(Math.sin(Math.toRadians(thetaAB)) + Math.sin(Math.toRadians(thetaCD)), Math.cos(Math.toRadians(thetaAB)) + Math.cos(Math.toRadians(thetaCD))));
+			if (theta < 0) {
 
 				theta = theta + 360;
 			}
 			String handedNess;
-			if ((coordinateCx - coordinateAx) * Math.cos(theta) > (coordinateCy - coordinateAy) * Math.sin(theta)) {
+			if ((coordinateCx - coordinateAx) * Math.cos(Math.toRadians(theta)) > (coordinateCy - coordinateAy) * Math.sin(Math.toRadians(theta))) {
 
 				handedNess = RIGHT_HANDED_NESS;				
 			} else {
@@ -419,19 +419,18 @@ public class CRSConverter implements ICRSConverter {
 			}			
 			
 			
-			List<PointProperties> pointCoordinates = features.getProperties().getPointPropertiesList();
 
-			Integer iA = pointCoordinates.get(0).getInline();
-			Integer jA = pointCoordinates.get(0).getCrossline();
+			Integer iA = abstractCoordinatesList.get(0).getProperties().getPointPropertiesList().get(0).getInline();
+			Integer jA = abstractCoordinatesList.get(0).getProperties().getPointPropertiesList().get(0).getCrossline() ;
 
-			Integer iB = pointCoordinates.get(1).getInline();
-			Integer jB = pointCoordinates.get(1).getCrossline();
+			Integer iB = abstractCoordinatesList.get(1).getProperties().getPointPropertiesList().get(0).getInline();
+			Integer jB =abstractCoordinatesList.get(1).getProperties().getPointPropertiesList().get(0).getCrossline();
 
-			Integer iC = pointCoordinates.get(2).getInline();
-			Integer jC = pointCoordinates.get(2).getCrossline();
+			Integer iC = abstractCoordinatesList.get(2).getProperties().getPointPropertiesList().get(0).getInline();
+			Integer jC = abstractCoordinatesList.get(2).getProperties().getPointPropertiesList().get(0).getCrossline();
 
-			Integer iD = pointCoordinates.get(3).getInline();
-			Integer jD = pointCoordinates.get(3).getCrossline();
+			Integer iD = abstractCoordinatesList.get(3).getProperties().getPointPropertiesList().get(0).getInline();
+			Integer jD = abstractCoordinatesList.get(3).getProperties().getPointPropertiesList().get(0).getCrossline();
 			 
 			
 			/*
@@ -448,135 +447,159 @@ public class CRSConverter implements ICRSConverter {
 			 * 
 			 * 16. J = J0 + { [(X-X0)*sin(θ) + (Y-Y0)*cos(θ)] * [ΔJ / (SF*dRΔJ)] }
 			 */
-
+			DecimalFormat upto2Decimal = new DecimalFormat("0.00");
 			Double p6ScaleFactorOfBinGrid = inBinGrid.getP6ScaleFactorOfBinGrid();
+			Double p6BinNodeIncrementOnIaxis = inBinGrid.getP6BinNodeIncrementOnIaxis();
+			Double p6BinNodeIncrementOnJaxis = inBinGrid.getP6BinNodeIncrementOnJaxis();
 			if(p6ScaleFactorOfBinGrid == 0.0) {
 				p6ScaleFactorOfBinGrid = crsParamsMap.get(KEY_P6ScaleFactorOfBinGrid);
 			}
+			if(p6BinNodeIncrementOnIaxis == 0.0) {
+				p6BinNodeIncrementOnIaxis = crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis);
+			}
+			if(p6BinNodeIncrementOnJaxis == 0.0) {
+				p6BinNodeIncrementOnJaxis = crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis);
+			}
 			
 			
-			Double valueAX = inBinGrid.getP6BinGridOriginEasting()
-					+ handedNessValue * ((iA - inBinGrid.getP6BinGridOriginI()) * Math.cos(theta)
+		Double valueAX = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginEasting()
+				+ handedNessValue * ((iA - inBinGrid.getP6BinGridOriginI()) * Math.cos(Math.toRadians(theta))
+						* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI) / p6BinNodeIncrementOnIaxis)
+						+ ((jA - inBinGrid.getP6BinGridOriginJ()) * Math.sin(Math.toRadians(theta))
+								* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
+	
+
+			Double valueAY = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginNorthing()
+					- handedNessValue * ((iA - inBinGrid.getP6BinGridOriginI()) * Math.sin(Math.toRadians(theta))
 							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jA - inBinGrid.getP6BinGridOriginJ()) * Math.sin(theta) * inBinGrid.getP6ScaleFactorOfBinGrid()
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jA - inBinGrid.getP6BinGridOriginJ()) * Math.cos(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueAY = inBinGrid.getP6BinGridOriginNorthing()
-					- handedNessValue * ((iA - inBinGrid.getP6BinGridOriginI()) * Math.sin(theta)
+			
+		
+		Double valueAI = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginI() + handedNessValue
+				* (((valueAX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(Math.toRadians(theta))
+						- (valueAY - inBinGrid.getP6BinGridOriginNorthing()) * Math.sin(Math.toRadians(theta)))
+						* (p6BinNodeIncrementOnIaxis / (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI))))));
+
+		Double valueAJ = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginJ() + ((
+	              (valueAX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(Math.toRadians(theta)) +
+			      (valueAY - inBinGrid.getP6BinGridOriginNorthing()) * Math.cos(Math.toRadians(theta)) )
+					* (p6BinNodeIncrementOnJaxis / (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ))))));
+
+			Double valueBX = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginEasting()
+					+ handedNessValue * ((iB - inBinGrid.getP6BinGridOriginI()) * Math.cos(Math.toRadians(theta))
 							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jA - inBinGrid.getP6BinGridOriginJ()) * Math.cos(theta) * inBinGrid.getP6ScaleFactorOfBinGrid()
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jB - inBinGrid.getP6BinGridOriginJ()) * Math.sin(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueAI = inBinGrid.getP6BinGridOriginI()
-					+ handedNessValue * ((valueAX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(theta)
-							- (valueAY - inBinGrid.getP6BinGridOriginNorthing() * Math.sin(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)));
+			Double valueBY = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginNorthing()
+					- handedNessValue * ((iB - inBinGrid.getP6BinGridOriginI()) * Math.sin(Math.toRadians(theta))
+							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jB - inBinGrid.getP6BinGridOriginJ()) * Math.cos(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueAJ = inBinGrid.getP6BinGridOriginJ()
-					+ ((valueAX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(theta)
-							- (valueAY - inBinGrid.getP6BinGridOriginNorthing() * Math.cos(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ)));
+			Double valueBI = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginI()
+					+ handedNessValue * (((valueBX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(Math.toRadians(theta))
+							- (valueBY - inBinGrid.getP6BinGridOriginNorthing()) * Math.sin(Math.toRadians(theta)))
+									* (p6BinNodeIncrementOnIaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI))))));
 
-			Double valueBX = inBinGrid.getP6BinGridOriginEasting()
-					+ handedNessValue * ((iB - inBinGrid.getP6BinGridOriginI()) * Math.cos(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jB - inBinGrid.getP6BinGridOriginJ()) * Math.sin(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+			Double valueBJ = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginJ()
+					+ (((valueBX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(Math.toRadians(theta))
+							+ (valueBY - inBinGrid.getP6BinGridOriginNorthing()) * Math.cos(Math.toRadians(theta)))
+									* (p6BinNodeIncrementOnJaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ))))));
 
-			Double valueBY = inBinGrid.getP6BinGridOriginNorthing()
-					- handedNessValue * ((iB - inBinGrid.getP6BinGridOriginI()) * Math.sin(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jB - inBinGrid.getP6BinGridOriginJ()) * Math.cos(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+			Double valueCX = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginEasting()
+					+ handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.cos(Math.toRadians(theta))
+							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.sin(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueBI = inBinGrid.getP6BinGridOriginI()
-					+ handedNessValue * ((valueBX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(theta)
-							- (valueBY - inBinGrid.getP6BinGridOriginNorthing() * Math.sin(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)));
+			Double valueCY = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginNorthing()
+					- handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.sin(Math.toRadians(theta))
+							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.cos(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueBJ = inBinGrid.getP6BinGridOriginJ()
-					+ ((valueBX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(theta)
-							- (valueBY - inBinGrid.getP6BinGridOriginNorthing() * Math.cos(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ)));
+			Double valueCI =Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginI()
+					+ handedNessValue * (((valueCX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(Math.toRadians(theta))
+							- (valueCY - inBinGrid.getP6BinGridOriginNorthing()) * Math.sin(Math.toRadians(theta)))
+									*( p6BinNodeIncrementOnIaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI))))));
 
-			Double valueCX = inBinGrid.getP6BinGridOriginEasting()
-					+ handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.cos(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.sin(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+			Double valueCJ = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginJ()
+					+ (((valueCX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(Math.toRadians(theta))
+							+ (valueCY - inBinGrid.getP6BinGridOriginNorthing()) * Math.cos(Math.toRadians(theta)))
+									* (p6BinNodeIncrementOnJaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ))))));
 
-			Double valueCY = inBinGrid.getP6BinGridOriginNorthing()
-					- handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.sin(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.cos(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
+			Double valueDX = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginEasting()
+					+ handedNessValue * ((iD - inBinGrid.getP6BinGridOriginI()) * Math.cos(Math.toRadians(theta))
+							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jD - inBinGrid.getP6BinGridOriginJ()) * Math.sin(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueCI = inBinGrid.getP6BinGridOriginI()
-					+ handedNessValue * ((valueCX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(theta)
-							- (valueCY - inBinGrid.getP6BinGridOriginNorthing() * Math.sin(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)));
+			Double valueDY = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginNorthing()
+					- handedNessValue * ((iD - inBinGrid.getP6BinGridOriginI()) * Math.sin(Math.toRadians(theta))
+							* p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)
+							/ p6BinNodeIncrementOnIaxis)
+					+ ((jD - inBinGrid.getP6BinGridOriginJ()) * Math.cos(Math.toRadians(theta)) * p6ScaleFactorOfBinGrid
+							* rDeltaIJMap.get(KEY_RDELTAJ) / p6BinNodeIncrementOnJaxis)));
 
-			Double valueCJ = inBinGrid.getP6BinGridOriginJ()
-					+ ((valueCX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(theta)
-							- (valueCY - inBinGrid.getP6BinGridOriginNorthing() * Math.cos(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ)));
+			Double valueDI = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginI()
+					+ handedNessValue * (((valueDX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(Math.toRadians(theta))
+							- (valueDY - inBinGrid.getP6BinGridOriginNorthing()) * Math.sin(Math.toRadians(theta)))
+									* (p6BinNodeIncrementOnIaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI))))));
 
-			Double valueDX = inBinGrid.getP6BinGridOriginEasting()
-					+ handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.cos(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.sin(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
-
-			Double valueDY = inBinGrid.getP6BinGridOriginNorthing()
-					- handedNessValue * ((iC - inBinGrid.getP6BinGridOriginI()) * Math.sin(theta)
-							* inBinGrid.getP6ScaleFactorOfBinGrid() * rDeltaIJMap.get(KEY_RDELTAI)
-							/ crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis))
-					+ ((jC - inBinGrid.getP6BinGridOriginJ()) * Math.cos(theta) * p6ScaleFactorOfBinGrid
-							* rDeltaIJMap.get(KEY_RDELTAJ) / crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis));
-
-			Double valueDI = inBinGrid.getP6BinGridOriginI()
-					+ handedNessValue * ((valueDX - inBinGrid.getP6BinGridOriginEasting()) * Math.cos(theta)
-							- (valueDY - inBinGrid.getP6BinGridOriginNorthing() * Math.sin(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnIaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAI)));
-
-			Double valueDJ = inBinGrid.getP6BinGridOriginJ()
-					+ ((valueDX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(theta)
-							- (valueDY - inBinGrid.getP6BinGridOriginNorthing() * Math.cos(theta)
-									* crsParamsMap.get(KEY_P6BinNodeIncrementOnJaxis)
-									/ p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ)));
-
-			double dI = Math.max(
-					Math.max(Math.abs(Double.valueOf(iA) - Double.valueOf(valueAI)),
-							Math.abs(Double.valueOf(iB) - Double.valueOf(valueBI))),
-					Math.max(Math.abs(Double.valueOf(iC) - Double.valueOf(valueCI)),
-							Math.abs(Double.valueOf(iD) - Double.valueOf(valueDI))));
-			double dJ = Math.max(
-					Math.max(Math.abs(Double.valueOf(jA) - Double.valueOf(valueAJ)),
-							Math.abs(Double.valueOf(jB) - Double.valueOf(valueBJ))),
-					Math.max(Math.abs(Double.valueOf(jC) - Double.valueOf(valueCJ)),
-							Math.abs(Double.valueOf(jD) - Double.valueOf(valueDJ))));
-
-			MaxMisLocation maxMinLocation = new MaxMisLocation();
+			Double valueDJ = Double.valueOf(upto2Decimal.format(inBinGrid.getP6BinGridOriginJ()
+					+ (((valueDX - inBinGrid.getP6BinGridOriginEasting()) * Math.sin(Math.toRadians(theta))
+							+ (valueDY - inBinGrid.getP6BinGridOriginNorthing()) * Math.cos(Math.toRadians(theta)))
+									* (p6BinNodeIncrementOnJaxis
+									/ (p6ScaleFactorOfBinGrid * rDeltaIJMap.get(KEY_RDELTAJ))))));
+        double AiI=(iA-valueAI);
+		double BiI= (iB-valueBI);
+		double CiI= (iC-valueCI);
+		double DiI= (iD-valueDI);
+		
+		
+		
+		double maxAB= Math.max(AiI, BiI);
+		double maxCD= Math.max(CiI, DiI);
+		
+		
+		
+        double AjJ=(jA-valueAJ);
+		double BjJ= (jB-valueBJ);
+		double CjJ= (jC-valueCJ);
+		double DjJ= (jD-valueDJ);
+		
+		 
+					
+		
+		double maxvalueI = Stream.of(Arrays.asList(AiI,BiI,CiI,DiI).toArray(new Double[4])).mapToDouble(Double::valueOf).max().getAsDouble();
+		double minvalueI = Stream.of(Arrays.asList(AiI,BiI,CiI,DiI).toArray(new Double[4])).mapToDouble(Double::valueOf).min().getAsDouble();
+		double dI = (Math.max(maxvalueI, -minvalueI));
+		
+		double maxvalueJ = Stream.of(Arrays.asList(AjJ,BjJ,CjJ,DjJ).toArray(new Double[4])).mapToDouble(Double::valueOf).max().getAsDouble();
+		double minvalueJ = Stream.of(Arrays.asList(AjJ,BjJ,CjJ,DjJ).toArray(new Double[4])).mapToDouble(Double::valueOf).min().getAsDouble();
+		double dJ = (Math.max(maxvalueJ, -minvalueJ));
+			
+		MaxMisLocation maxMinLocation = new MaxMisLocation();
 			maxMinLocation.setDI(dI);
 			maxMinLocation.setDJ(dJ);
 
 			convertBinGridResponse.setMaxMisLocation(maxMinLocation);
 			
-		});		
+
 	}
 	
 	//ToDo to replace this method , and set the computed values in the inBinGrid Class
