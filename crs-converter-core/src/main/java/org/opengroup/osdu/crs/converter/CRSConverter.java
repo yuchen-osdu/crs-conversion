@@ -38,6 +38,7 @@ import org.opengroup.osdu.crs.sis.operation.CRSCoordinateOperationFactory;
 import org.opengroup.osdu.crs.sis.operation.ICRSCoordinateOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
 import org.opengroup.osdu.crs.util.Constants;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -360,22 +361,26 @@ public class CRSConverter implements ICRSConverter {
 			logger.info("CRS Id and Persistence Reference not present in the input request");
 		}
 		List<String> appliedOperations = new ArrayList<>();
-		/*
-		 * try {
-		 * spatialcoordinates.getAsIngestedcoordinates().getFeatures().stream().forEach(
-		 * features -> { double xCoordinate =
-		 * features.getGeometry().getCoordinates().get(0); double yCoordinate =
-		 * features.getGeometry().getCoordinates().get(1); double zCoordinate = 0.0;
-		 * double xys[] = new double[2]; xys[0] = xCoordinate; xys[1] = yCoordinate;
-		 * double zs[] = new double[1]; zs[0] = zCoordinate; // To be fixed for the
-		 * convert point operation for the from and to crs ConvertPointsResponse
-		 * internal_response = convertPoint(value.get(), toCrs, xys,zs);
-		 * appliedOperations.addAll(internal_response.getOperationsApplied()); });
-		 * }catch(IllegalArgumentException illegalArgumentException) {
-		 * logger.info("Got error response from the convertPoint call"); throw new
-		 * ValidationException(illegalArgumentException.getMessage()); }
-		 */
-		
+
+		try {
+			spatialcoordinates.getAsIngestedcoordinates().getFeatures().stream().forEach(features -> {
+				double xCoordinate = features.getGeometry().getCoordinates().get(0);
+				double yCoordinate = features.getGeometry().getCoordinates().get(1);
+				double zCoordinate = 0.0;
+				double xys[] = new double[2];
+				xys[0] = xCoordinate;
+				xys[1] = yCoordinate;
+				double zs[] = new double[1];
+				zs[0] = zCoordinate; 
+				/* To be fixed for the convert point operation for the from and to crs */
+				ConvertPointsResponse internal_response = convertPoint(value.get(), toCrs, xys, zs);
+				appliedOperations.addAll(internal_response.getOperationsApplied());
+			});
+		} catch (IllegalArgumentException illegalArgumentException) {
+			logger.info("Got error response from the convertPoint call");
+			throw new ValidationException(illegalArgumentException.getMessage());
+		}
+
 		Map<String, Double> spatialCoordinatesComputeMap = RcomputationBetweenPoints(spatialcoordinates);
 
 		Map<String, Double> rDeltaIJMap = rDeltaIandJComputation(spatialCoordinatesComputeMap,
@@ -623,24 +628,14 @@ public class CRSConverter implements ICRSConverter {
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto3Decimal.format(valueBX)),Double.valueOf(upto3Decimal.format(valueBY))));
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto3Decimal.format(valueCX)),Double.valueOf(upto3Decimal.format(valueCY))));
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto3Decimal.format(valueDX)),Double.valueOf(upto3Decimal.format(valueDY))));
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().setWgs84Coordinates(new AbstractFeatureCollection());
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().setFeatures(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures());
+				
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(0).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto8Decimal.format(valueAX)),Double.valueOf(upto3Decimal.format(valueAY))));
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(1).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto8Decimal.format(valueBX)),Double.valueOf(upto3Decimal.format(valueBY))));
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(2).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto8Decimal.format(valueCX)),Double.valueOf(upto3Decimal.format(valueCY))));
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(3).getGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto8Decimal.format(valueDX)),Double.valueOf(upto3Decimal.format(valueDY))));
 		
-		//featureCollection.
-		
-		//convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().setFeatures().a(0).setGeometry().setCoordinates(Arrays.asList(Double.valueOf(upto8Decimal.format(valueAX)),Double.valueOf(upto8Decimal.format(valueAY))));
-		/*
-		 * convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().
-		 * getWgs84Coordinates().getFeatures().get(1).getGeometry().setCoordinates(
-		 * Arrays.asList(Double.valueOf(upto8Decimal.format(valueBX)),Double.valueOf(
-		 * upto8Decimal.format(valueBY))));
-		 * convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().
-		 * getWgs84Coordinates().getFeatures().get(2).getGeometry().setCoordinates(
-		 * Arrays.asList(Double.valueOf(upto8Decimal.format(valueCX)),Double.valueOf(
-		 * upto8Decimal.format(valueCY))));
-		 * convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().
-		 * getWgs84Coordinates().getFeatures().get(3).getGeometry().setCoordinates(
-		 * Arrays.asList(Double.valueOf(upto8Decimal.format(valueDX)),Double.valueOf(
-		 * upto8Decimal.format(valueDY))));
-		 */
 		MaxMisLocation maxMisLocation = new MaxMisLocation();
 		maxMisLocation.setDI(Double.valueOf(upto2Decimal.format(dI)));
 		maxMisLocation.setDJ(Double.valueOf(upto2Decimal.format(dJ)));
