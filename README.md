@@ -94,7 +94,7 @@ requires the following environment variables:
 | ENTITLEMENT_URL | Required | |
 | SIS_DATA | Required | ${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA |
 
-## GCP
+## Google Cloud
 
-Instructions for Google Cloud Platform implementation can be found [here](./provider/crs-catalog-gcp/crs-catalog-gke/README.md).
+Instructions for Google Cloud implementation can be found [here](./provider/crs-catalog-gcp/crs-catalog-gke/README.md).
 
