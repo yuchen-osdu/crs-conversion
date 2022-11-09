@@ -23,7 +23,7 @@ public class AbstractBinGrid {
 	private String sourceBinGridAppID;
 
 	@JsonProperty("CoveragePercent")
-	private String coveragePercent;
+	private Double coveragePercent;
 
 	@JsonProperty("BinGridDefinitionMethodTypeID")
 	private String binGridDefinitionMethodTypeID;
@@ -56,10 +56,10 @@ public class AbstractBinGrid {
 	private Double p6MapGridBearingOfBinGridJaxis;
 
 	@JsonProperty("P6BinNodeIncrementOnIaxis")
-	private Double p6BinNodeIncrementOnIaxis;
+	private Integer p6BinNodeIncrementOnIaxis;
 
 	@JsonProperty("P6BinNodeIncrementOnJaxis")
-	private Double p6BinNodeIncrementOnJaxis;
+	private Integer p6BinNodeIncrementOnJaxis;
 	 
 	@JsonProperty("ABCDBinGridSpatialLocation")
 	private AbstractSpatialLocation aBCDBinGridSpatialLocation;
