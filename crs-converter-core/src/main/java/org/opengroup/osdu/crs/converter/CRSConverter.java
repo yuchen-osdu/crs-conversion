@@ -19,7 +19,6 @@ import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
 import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
-import org.opengroup.osdu.crs.BinGrid.Geometry;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
 import org.opengroup.osdu.crs.BinGrid.PointProperties;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
@@ -38,7 +37,6 @@ import org.opengroup.osdu.crs.sis.operation.CRSCoordinateOperationFactory;
 import org.opengroup.osdu.crs.sis.operation.ICRSCoordinateOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
 import org.opengroup.osdu.crs.util.Constants;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -348,39 +346,8 @@ public class CRSConverter implements ICRSConverter {
 
 	private ConvertBinGridResponse binGridComputation(String toCrs, AbstractBinGrid inBinGrid,
 			ConvertBinGridResponse convertBinGridResponse) {
-
 		AbstractSpatialLocation spatialcoordinates = inBinGrid.getABCDBinGridSpatialLocation();
-		String crsId = spatialcoordinates.getAsIngestedcoordinates().getCoordinateReferenceSystemID();
-		String persistableReference = spatialcoordinates.getAsIngestedcoordinates().getPersistableReferenceCrs();
-		AtomicReference<String> value = new AtomicReference<>(StringUtils.EMPTY);
-		if (!StringUtil.isNullOrEmpty(crsId)) {
-			value.set(crsId);
-		} else if (!StringUtil.isNullOrEmpty(persistableReference)) {
-			value.set(persistableReference);
-		} else {
-			logger.info("CRS Id and Persistence Reference not present in the input request");
-		}
-		List<String> appliedOperations = new ArrayList<>();
-
-		try {
-			spatialcoordinates.getAsIngestedcoordinates().getFeatures().stream().forEach(features -> {
-				double xCoordinate = features.getGeometry().getCoordinates().get(0);
-				double yCoordinate = features.getGeometry().getCoordinates().get(1);
-				double zCoordinate = 0.0;
-				double xys[] = new double[2];
-				xys[0] = xCoordinate;
-				xys[1] = yCoordinate;
-				double zs[] = new double[1];
-				zs[0] = zCoordinate; 
-				/* To be fixed for the convert point operation for the from and to crs */
-				ConvertPointsResponse internal_response = convertPoint(value.get(), toCrs, xys, zs);
-				appliedOperations.addAll(internal_response.getOperationsApplied());
-			});
-		} catch (IllegalArgumentException illegalArgumentException) {
-			logger.info("Got error response from the convertPoint call");
-			throw new ValidationException(illegalArgumentException.getMessage());
-		}
-
+		
 		Map<String, Double> spatialCoordinatesComputeMap = RcomputationBetweenPoints(spatialcoordinates);
 
 		Map<String, Double> rDeltaIJMap = rDeltaIandJComputation(spatialCoordinatesComputeMap,
@@ -388,9 +355,40 @@ public class CRSConverter implements ICRSConverter {
 				inBinGrid.getP6BinNodeIncrementOnJaxis());
 
 		thetaCalculation(inBinGrid, rDeltaIJMap, convertBinGridResponse);
-		convertBinGridResponse.setAppliedOperations(appliedOperations);
+		// calling the convertPoints to get the applied operations for the toCRS
+		convertBinGridResponse.setAppliedOperations(appliedOperationsFromConvertPoints(toCrs,spatialcoordinates));
 
 		return convertBinGridResponse;
+	}
+	
+	
+	private List<String> appliedOperationsFromConvertPoints(String toCrs,AbstractSpatialLocation spatialcoordinates){
+		
+		String crsId = spatialcoordinates.getAsIngestedcoordinates().getCoordinateReferenceSystemID();
+		String persistableReference = spatialcoordinates.getAsIngestedcoordinates().getPersistableReferenceCrs();
+		List<String> appliedOperations = new ArrayList<>();
+		AtomicReference<String> value = new AtomicReference<>(StringUtils.EMPTY);
+		if (!StringUtil.isNullOrEmpty(crsId)) {
+			value.set(crsId);
+		} else if (!StringUtil.isNullOrEmpty(persistableReference)) {
+			value.set(persistableReference);
+		} else {
+			logger.info("CRS Id and Persistence Reference not present in the input request");
+		}		
+		try {
+			AbstractFeature feature = spatialcoordinates.getAsIngestedcoordinates().getFeatures().get(0);			
+				double xCoordinate = feature.getGeometry().getCoordinates().get(0);
+				double yCoordinate = feature.getGeometry().getCoordinates().get(1);
+				double zCoordinate = 0.0;
+				double xys[] = {xCoordinate,yCoordinate};				
+				double zs[] = {zCoordinate};				
+				ConvertPointsResponse internal_response = convertPoint(value.get(), toCrs, xys, zs);
+				appliedOperations.addAll(internal_response.getOperationsApplied());			
+		} catch (IllegalArgumentException illegalArgumentException) {
+			logger.info("Got error response from the convertPoint call");
+			throw new ValidationException(illegalArgumentException.getMessage());
+		}		
+		return appliedOperations;
 	}
 	
 	
