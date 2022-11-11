@@ -211,20 +211,12 @@ public class CRSConverter implements ICRSConverter {
 			// Setting the computed values for P6 SchemaParameters
 			inBinGrid = prepareSchemaParameters(inBinGrid);
 			// sort the point coordinates in the order (min, min), (min, max), (max, min), (max, max)
-			inBinGrid = sortAnyCRSFeature(inBinGrid);			
-            // performing the bin grid computation
-			String type = StringUtils.EMPTY;
-			if (toCrs.contains(CRS_TYPE_PROJECTED) && toCrs.contains(CRS_CODE_4326)) {
-				type = CRS_TYPE_PROJECTED;
-				outBinGrid = binGridComputation(toCrs, inBinGrid, outBinGrid);
-			} else if (toCrs.contains(CRS_TYPE_BOUND_PROJECTED) && !toCrs.contains(CRS_CODE_4326)) {
-				outBinGrid = binGridComputation(toCrs, inBinGrid, outBinGrid);
-			} else {
-				if (type.equals(CRS_TYPE_PROJECTED))
-					logger.info("Input CRS type is projected but BaseCRS is not WGS 84");
-				else
-					logger.info(
-							"Unexpected. CRS type is BoundProjected but BaseCRS is WGS 84 which should be of type projected in OSDU");
+			inBinGrid = sortAnyCRSFeature(inBinGrid);         
+			// performing the bin grid computation
+			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
+			if(toCrs!=null && !StringUtils.isEmpty(toCrs)) {
+				// calling the convertPoints to get the applied operations for the toCRS
+				outBinGrid.setAppliedOperations(appliedOperationsFromConvertPoints(toCrs,inBinGrid.getABCDBinGridSpatialLocation()));				
 			}
 			inBinGrid.setBinGridDefinitionMethodTypeID(BIN_GRID_METHOD_4_CORNER);
 			outBinGrid.setOutBinGrid(inBinGrid);
@@ -272,10 +264,10 @@ public class CRSConverter implements ICRSConverter {
 		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties().getPointPropertiesList().get(0).setCrossline(maxCrossLine);
 		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties().getPointPropertiesList().get(0).setLabel(LABEL_C);
 		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties().getPointPropertiesList().get(0).setInline(maxInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties().getPointPropertiesList().get(0).setCrossline(maxCrossLine);
+		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties().getPointPropertiesList().get(0).setCrossline(minCrossLine);
 		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties().getPointPropertiesList().get(0).setLabel(LABEL_D);
 		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties().getPointPropertiesList().get(0).setInline(maxInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties().getPointPropertiesList().get(0).setCrossline(minCrossLine);
+		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties().getPointPropertiesList().get(0).setCrossline(maxCrossLine);
 		
 		return inBinGrid;
 	}
@@ -344,7 +336,7 @@ public class CRSConverter implements ICRSConverter {
 		return inBinGrid;
 	}
 
-	private ConvertBinGridResponse binGridComputation(String toCrs, AbstractBinGrid inBinGrid,
+	private ConvertBinGridResponse binGridComputation(AbstractBinGrid inBinGrid,
 			ConvertBinGridResponse convertBinGridResponse) {
 		AbstractSpatialLocation spatialcoordinates = inBinGrid.getABCDBinGridSpatialLocation();
 		
@@ -355,10 +347,7 @@ public class CRSConverter implements ICRSConverter {
 				inBinGrid.getP6BinNodeIncrementOnJaxis());
 
 		thetaCalculation(inBinGrid, rDeltaIJMap, convertBinGridResponse);
-		// calling the convertPoints to get the applied operations for the toCRS
-		convertBinGridResponse.setAppliedOperations(appliedOperationsFromConvertPoints(toCrs,spatialcoordinates));
-
-		return convertBinGridResponse;
+        return convertBinGridResponse;
 	}
 	
 	
@@ -475,6 +464,9 @@ public class CRSConverter implements ICRSConverter {
 		if (theta < 0) {
 			theta = theta + 360;
 		}
+		
+		convertBinGridResponse.getOutBinGrid().setP6MapGridBearingOfBinGridJaxis(theta);
+		
 		String handedNess;
 		if ((coordinateCx - coordinateAx) * Math.cos(Math.toRadians(theta)) > (coordinateCy - coordinateAy)
 				* Math.sin(Math.toRadians(theta))) {
@@ -490,6 +482,9 @@ public class CRSConverter implements ICRSConverter {
 			convertBinGridResponse.getOutBinGrid().setP6TransformationMethod(CRS_CODE_1049);
 			handedNessValue = -1;
 		}
+		
+		convertBinGridResponse.getOutBinGrid().setP6BinWidthOnIaxis(rDeltaIJMap.get(KEY_RDELTAI));
+		convertBinGridResponse.getOutBinGrid().setP6BinWidthOnJaxis(rDeltaIJMap.get(KEY_RDELTAJ));		
 
 		Integer iA = abstractCoordinatesList.get(0).getProperties().getPointPropertiesList().get(0).getInline();
 		Integer jA = abstractCoordinatesList.get(0).getProperties().getPointPropertiesList().get(0).getCrossline();
