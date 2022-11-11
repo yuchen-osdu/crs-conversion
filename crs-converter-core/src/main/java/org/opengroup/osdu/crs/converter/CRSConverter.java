@@ -51,10 +51,7 @@ public class CRSConverter implements ICRSConverter {
 
     private static final String METER = "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}";
 
-    private static final String BIN_GRID_METHOD_4_CORNER = "4Corner";
-    private static final String CRS_TYPE_PROJECTED = "Projected";
-    private static final String CRS_CODE_4326 = "4326";
-    private static final String CRS_TYPE_BOUND_PROJECTED = "BoundProjected";
+    private static final String BIN_GRID_METHOD_4_CORNER = "4Corner";   
     private static final Integer CRS_CODE_9666 = 9666;
     private static final Integer CRS_CODE_1049 = 1049;
     private static final String RIGHT_HANDED_NESS = "rightHandedNess";
