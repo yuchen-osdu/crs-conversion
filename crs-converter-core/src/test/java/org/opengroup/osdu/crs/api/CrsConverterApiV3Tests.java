@@ -9,16 +9,17 @@ import java.io.IOException;
 import javax.validation.ValidationException;
 
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.opengroup.osdu.crs.converter.CRSConverter;
 import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
 import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class CrsConverterApiV3Tests {
 
@@ -60,7 +61,7 @@ public class CrsConverterApiV3Tests {
 	@Mock
 	CRSConverter crsConverter;
 
-	@InjectMocks
+	@MockBean
 	private CrsConverterApiV3 crsConverterApi;
 
 	private ConvertBinGridResponse makeBinGridResponse() {
@@ -74,7 +75,7 @@ public class CrsConverterApiV3Tests {
 		response = CrsConverterApiV3Tests.createResponseInstance(Input_Response_Test_1d);
 		return response;
 	}
-
+	
 	@Test
 	public void convertBinGridWithSuccessfulResponse() {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
@@ -85,6 +86,23 @@ public class CrsConverterApiV3Tests {
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
 		assertEquals(response.getMaxMisLocation().getDJ(), 0.0);
 	}
+
+	/*@RunWith(SpringRunner.class)
+	  @SpringBootTest*/
+	/*@Test
+	public void convertBinGridWithSuccessfulResponse() {
+		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
+		ConvertBinGridResponse response = new ConvertBinGridResponse();
+		MaxMisLocation location = new MaxMisLocation();
+		location.setDI(0.0);
+		location.setDJ(0.0);
+		response.setMaxMisLocation(location);
+		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1a);
+		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid())).thenReturn(Mockito.any(ConvertBinGridResponse.class));
+		when(crsConverterApi.convertBinGrid(inBinGrid)).thenReturn(response);
+		assertEquals(new Double(0.0), response.getMaxMisLocation().getDI());
+		assertEquals(new Double(0.0),response.getMaxMisLocation().getDJ());
+	}*/
 	
 	@Test
 	public void convertBinGridWithSuccessfulResponseWithToCRS() {

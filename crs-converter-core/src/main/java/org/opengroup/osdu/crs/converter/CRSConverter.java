@@ -202,13 +202,10 @@ public class CRSConverter implements ICRSConverter {
 			logger.info("Invalid size for spatial coordinates in the input request.");
 			throw new ValidationException("Invalid size for spatial coordinates in the input request.");
 		} else {						
-			// checking the size of the input coordinates
-			validatePointCoordinates(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()
-					.get(0).getProperties().getPointPropertiesList());
-			// Setting the computed values for P6 SchemaParameters
-			inBinGrid = prepareSchemaParameters(inBinGrid);
 			// sort the point coordinates in the order (min, min), (min, max), (max, min), (max, max)
-			inBinGrid = sortAnyCRSFeature(inBinGrid);         
+			inBinGrid = sortAnyCRSFeature(inBinGrid);
+			// Setting the computed values for P6 SchemaParameters
+			inBinGrid = prepareSchemaParameters(inBinGrid);         
 			// performing the bin grid computation
 			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
 			if(toCrs!=null && !StringUtils.isEmpty(toCrs)) {
@@ -632,37 +629,4 @@ public class CRSConverter implements ICRSConverter {
 		convertBinGridResponse.setMaxMisLocation(maxMisLocation);
 	}
 	
-	private boolean validatePointCoordinates(List<PointProperties> points) {
-		logger.info("Validating BinGrid input request");
-		if (points != null) {
-			if (points.size() != 4)
-				return false;
-
-			double tMin = points.get(0).getInline();
-			double bMin = points.get(0).getCrossline();
-
-			double tMax = points.get(3).getInline();
-			double bMax = points.get(3).getInline();
-
-			PointProperties secondPoint = points.get(1);
-			PointProperties thirdPoint = points.get(2);
-			if (tMax <= tMin || bMax <= bMin) {
-				logger.info("Tmax and Bmax are not greater than Tmin and Bmin");
-				return false;
-			}
-
-			else if (secondPoint.getInline() != tMin || secondPoint.getCrossline() != bMax) {
-				logger.info("Second point is not Tmin and Bmax");
-				return false;
-			}
-
-			else if (thirdPoint.getInline() != tMax || thirdPoint.getCrossline() != bMin) {
-				logger.info("Third point is not Tmax and Bmin");
-				return false;
-			}
-			logger.info("BinGrid input request is valid");
-		} else
-			return false;
-		return true;
-	}
 }
