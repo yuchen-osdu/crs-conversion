@@ -3670,8 +3670,7 @@ on input and output are summarized in the following table.
 | BinGridTypeID                | ignored               | copy of input (leave blank if empty on input)  | same |
 | SourceBinGridID              | ignored               | copy of input (leave blank if empty on input)  | same |
 | SourceBinGridAppID           | ignored               | copy of input (leave blank if empty on input)  | same |
-| CoveragePercent              | ignored               | copy of input (leave blank if empty on input)  | same |
-| BinGridTypeID                | ignored               | copy of input (leave blank if empty on input)  | same |
+| CoveragePercent              | ignored               | copy of input (leave blank if empty on input)  | same | 
 | BinGridDefinitionMethodTypeID   | ignored               | “4Corner”  | “4Corner” |
 |                                 |                       |                                                |      |
 | ~~ABCDBinGridLocalCoordinates~~ | **deprecated usage**  | ignored  | ignored |
