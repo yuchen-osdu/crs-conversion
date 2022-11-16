@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class ConvertBinGridResponse {
 
-	@JsonProperty("MaxMisLocation")
+	@JsonProperty("maxMisLocation")
 	private MaxMisLocation maxMisLocation;
 	@JsonProperty("outBinGrid")
 	private AbstractBinGrid outBinGrid;
