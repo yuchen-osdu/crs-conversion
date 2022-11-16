@@ -1,6 +1,8 @@
 package org.opengroup.osdu.crs.api;
 
 import io.swagger.annotations.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
@@ -166,6 +168,13 @@ public class CrsConverterApiV3 {
 		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
 
 		AbstractBinGrid inBinGrid = request.getInBinGrid();
+
+		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+				.getCoordinateReferenceSystemID())) {
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+					.setPersistableReferenceCrs(getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
+							.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), false));
+		}
 
 		ConvertBinGridResponse response = this.crsConverter.convertBinGrid(toCrs, inBinGrid);
 		return response;

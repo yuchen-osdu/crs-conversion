@@ -1,10 +1,10 @@
 package org.opengroup.osdu.crs.BinGrid;
 
-import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import lombok.Data;
 public class AbstractSpatialLocation {
 
 	@JsonProperty("SpatialLocationCoordinatesDate")
-	private Date spatialLocationCoordinatesDate;
+	private String spatialLocationCoordinatesDate;
 
 	@JsonProperty("QuantitativeAccuracyBandID")
 	private String quantitativeAccuracyBandID;
@@ -25,13 +25,13 @@ public class AbstractSpatialLocation {
 	private String coordinateQualityCheckPerformedBy;
 
 	@JsonProperty("CoordinateQualityCheckDateTime")
-	private Date coordinateQualityCheckDateTime;
+	private String coordinateQualityCheckDateTime;
 
 	@JsonProperty("CoordinateQualityCheckRemarks")
-	private String[] coordinateQualityCheckRemarks;
+	private List<String> coordinateQualityCheckRemarks;
 
 	@JsonProperty("AppliedOperations")
-	private String[] appliedOperations;
+	private List<String> appliedOperations;
 
 	@JsonProperty("SpatialParameterTypeID")
 	private String spatialParameterTypeID;
