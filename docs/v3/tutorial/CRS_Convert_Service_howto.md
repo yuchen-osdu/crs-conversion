@@ -3692,7 +3692,7 @@ on input and output are summarized in the following table.
 | >  .CoordinateQualityCheckRemarks[]  | Ignored on input          |  append “Max. squaring error: dI=0.0, dJ=0.4 bin    | same |
 | >  .AppliedOperations[]              | Ignored on input          |  append “squareness tested: dI=x.x, dJ=x.x bin”    | append “converted from <origCRS> to <toCRS>; "squared up": dI=x.x, dJ=x.x (bin)” |
 | >  .SpatialParameterTypeID           | Ignored on input          |  copy of input (if given)    | same |
-| >  .SpatialParameterTypeID           | Ignored on input          |  copy of input (if given)    | same |
+| >  .SpatialGeometryTypeID           | Ignored on input          |  copy of input (if given)    | same |
 |                                |                           |                                                |      |
 | P6TransformationMethod         | Ignored on input          |  populate with derived value on output    | same. 9666 for right-handed grids, 1049 for left-handed. |
 | P6BinGridOriginI               | Ignored on input          |  populate with derived value on output    | same |
