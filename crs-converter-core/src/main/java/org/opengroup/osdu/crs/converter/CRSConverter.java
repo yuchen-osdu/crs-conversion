@@ -264,32 +264,39 @@ public class CRSConverter implements ICRSConverter {
 				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
 				.mapToInt(Integer::valueOf).min().getAsInt();
 
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-				.getPointPropertiesList().get(0).setLabel(LABEL_A);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-				.getPointPropertiesList().get(0).setInline(minInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-				.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-				.getPointPropertiesList().get(0).setLabel(LABEL_B);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-				.getPointPropertiesList().get(0).setInline(minInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-				.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-				.getPointPropertiesList().get(0).setLabel(LABEL_C);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-				.getPointPropertiesList().get(0).setInline(maxInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-				.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-				.getPointPropertiesList().get(0).setLabel(LABEL_D);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-				.getPointPropertiesList().get(0).setInline(maxInLine);
-		inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-				.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
+		if (minInLine < minCrossLine && maxInLine < maxCrossLine) {
 
-		return inBinGrid;
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
+					.getPointPropertiesList().get(0).setLabel(LABEL_A);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
+					.getPointPropertiesList().get(0).setInline(minInLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
+					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
+					.getPointPropertiesList().get(0).setLabel(LABEL_B);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
+					.getPointPropertiesList().get(0).setInline(minInLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
+					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
+					.getPointPropertiesList().get(0).setLabel(LABEL_C);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
+					.getPointPropertiesList().get(0).setInline(maxInLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
+					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
+					.getPointPropertiesList().get(0).setLabel(LABEL_D);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
+					.getPointPropertiesList().get(0).setInline(maxInLine);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
+					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
+
+			return inBinGrid;
+		} else {
+			logger.info("MinInline should be less then MinCrossLine and MaxInline should be less then MaxCrossLine.");
+			throw new ValidationException("MinInline should be less then MinCrossLine and MaxInline should be less then MaxCrossLine.");
+		}
+
 	}
 
 	private AbstractBinGrid prepareSchemaParameters(AbstractBinGrid inBinGrid) {
