@@ -175,6 +175,12 @@ public class CrsConverterApiV3 {
 					.setPersistableReferenceCrs(getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
 							.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), false));
 		}
+		
+		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+				.getPersistableReferenceCrs())) {
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+					.setCoordinateReferenceSystemID(null);
+		}
 
 		ConvertBinGridResponse response = this.crsConverter.convertBinGrid(toCrs, inBinGrid);
 		return response;
