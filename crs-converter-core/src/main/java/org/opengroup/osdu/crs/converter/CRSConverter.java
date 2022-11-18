@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -203,7 +205,7 @@ public class CRSConverter implements ICRSConverter {
 		int size = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().size();
 		if (size != 4) {
 			logger.info("Invalid size for spatial coordinates in the input request.");
-			throw new ValidationException("Invalid size for spatial coordinates in the input request.");
+			throw new ValidationException("Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry “AnyCrsPoint”.  Found "+size+" points");
 		} else {
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
 			// (max, max)
@@ -264,7 +266,7 @@ public class CRSConverter implements ICRSConverter {
 				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
 				.mapToInt(Integer::valueOf).min().getAsInt();
 
-		if (minInLine < minCrossLine && maxInLine < maxCrossLine) {
+		if (minInLine != maxInLine && minCrossLine != maxCrossLine) {
 
 			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
 					.getPointPropertiesList().get(0).setLabel(LABEL_A);
@@ -293,8 +295,8 @@ public class CRSConverter implements ICRSConverter {
 
 			return inBinGrid;
 		} else {
-			logger.info("MinInline should be less then MinCrossLine and MaxInline should be less then MaxCrossLine.");
-			throw new ValidationException("MinInline should be less then MinCrossLine and MaxInline should be less then MaxCrossLine.");
+			logger.info("MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
+			throw new ValidationException("MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
 		}
 
 	}
@@ -701,9 +703,10 @@ public class CRSConverter implements ICRSConverter {
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation()
 				.setCoordinateQualityCheckPerformedBy("CRS convert API convertBinGrid");
 
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+		format.setTimeZone(TimeZone.getTimeZone("UTC"));
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation()
-				.setCoordinateQualityCheckDateTime(formatter.format(new Date()));
+				.setCoordinateQualityCheckDateTime(format.format(new Date()));
 
 		MaxMisLocation maxMisLocation = new MaxMisLocation();
 		maxMisLocation.setDI(Double.valueOf(upto2Decimal.format(dI)));
