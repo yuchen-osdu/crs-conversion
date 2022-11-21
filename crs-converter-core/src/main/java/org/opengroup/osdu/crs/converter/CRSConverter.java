@@ -210,8 +210,31 @@ public class CRSConverter implements ICRSConverter {
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
 			// (max, max)
 			inBinGrid = sortAnyCRSFeature(inBinGrid);
-			// Setting the computed values for P6 SchemaParameters
-			inBinGrid = prepareSchemaParameters(inBinGrid);
+			
+			// Setting the computed values for P6 SchemaParameters			
+			// if the scaleFactor value from the input request is 0.0 , then it is set to
+			// 1.0
+			if (inBinGrid.getP6ScaleFactorOfBinGrid() == 0.0) {
+				inBinGrid.setP6ScaleFactorOfBinGrid(1.0);
+			}
+			// Setting the default value to 1 , if the value is 0 from the input request
+			if (inBinGrid.getP6BinNodeIncrementOnIaxis() == 0) {
+				inBinGrid.setP6BinNodeIncrementOnIaxis(1);
+			}
+			// Setting the default value to 1 , if the value is 0 from the input request
+			if (inBinGrid.getP6BinNodeIncrementOnJaxis() == 0) {
+				inBinGrid.setP6BinNodeIncrementOnJaxis(1);
+			}
+
+			inBinGrid.setP6BinGridOriginI(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+					.getProperties().getPointPropertiesList().get(0).getInline().doubleValue());
+			inBinGrid.setP6BinGridOriginJ(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+					.getProperties().getPointPropertiesList().get(0).getCrossline().doubleValue());
+			inBinGrid.setP6BinGridOriginEasting(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+					.getGeometry().getCoordinates().get(0));
+			inBinGrid.setP6BinGridOriginNorthing(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+					.getGeometry().getCoordinates().get(1));
+			
 			// performing the bin grid computation
 			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
 			outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().setCoordinateQualityCheckRemarks(
@@ -299,70 +322,6 @@ public class CRSConverter implements ICRSConverter {
 			throw new ValidationException("MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
 		}
 
-	}
-
-	private AbstractBinGrid prepareSchemaParameters(AbstractBinGrid inBinGrid) {
-
-		double inlineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		double inlineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		double inlineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		double inlineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		double p6BinGridOriginI = (inlineA + inlineB + inlineC + inlineD) / 4;
-
-		double crossLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		double crossLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		double crossLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		double crossLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		double p6BinGridOriginJ = (crossLineA + crossLineB + crossLineC + crossLineD) / 4;
-
-		double eastingA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getGeometry().getCoordinates().get(0);
-		double eastingB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getGeometry().getCoordinates().get(0);
-		double eastingC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getGeometry().getCoordinates().get(0);
-		double eastingD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getGeometry().getCoordinates().get(0);
-		double p6BinGridOriginEasting = (eastingA + eastingB + eastingC + eastingD) / 4;
-
-		double northingA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getGeometry().getCoordinates().get(1);
-		double northingB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getGeometry().getCoordinates().get(1);
-		double northingC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getGeometry().getCoordinates().get(1);
-		double northingD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getGeometry().getCoordinates().get(1);
-		double p6BinGridOriginNorthing = (northingA + northingB + northingC + northingD) / 4;
-
-		// if the scaleFactor value from the input request is 0.0 , then it is set to
-		// 1.0
-		if (inBinGrid.getP6ScaleFactorOfBinGrid() == 0.0) {
-			inBinGrid.setP6ScaleFactorOfBinGrid(1.0);
-		}
-		// Setting the default value to 1 , if the value is 0 from the input request
-		if (inBinGrid.getP6BinNodeIncrementOnIaxis() == 0) {
-			inBinGrid.setP6BinNodeIncrementOnIaxis(1);
-		}
-		// Setting the default value to 1 , if the value is 0 from the input request
-		if (inBinGrid.getP6BinNodeIncrementOnJaxis() == 0) {
-			inBinGrid.setP6BinNodeIncrementOnJaxis(1);
-		}
-
-		inBinGrid.setP6BinGridOriginI(p6BinGridOriginI);
-		inBinGrid.setP6BinGridOriginJ(p6BinGridOriginJ);
-		inBinGrid.setP6BinGridOriginEasting(p6BinGridOriginEasting);
-		inBinGrid.setP6BinGridOriginNorthing(p6BinGridOriginNorthing);
-
-		return inBinGrid;
 	}
 
 	private ConvertBinGridResponse binGridComputation(AbstractBinGrid inBinGrid,
@@ -701,7 +660,7 @@ public class CRSConverter implements ICRSConverter {
 				.get(3).getGeometry().setType(GEOMETRY_TYPE);
 
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation()
-				.setCoordinateQualityCheckPerformedBy("CRS convert API convertBinGrid");
+				.setCoordinateQualityCheckPerformedBy("CRS Convert service, POST convertBinGrid");
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 		format.setTimeZone(TimeZone.getTimeZone("UTC"));
