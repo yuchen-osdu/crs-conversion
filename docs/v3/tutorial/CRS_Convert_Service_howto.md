@@ -3687,7 +3687,7 @@ on input and output are summarized in the following table.
 | > .SpatialLocationCoordinatesDate     | Ignored on input          |  copy of input (if given)    | same |
 | > .QualitativeSpatialAccuracyTypeID   | Ignored on input          |  copy of input (if given)    | null out |
 | > .QuantitativeAccuracyBandID         | Ignored on input          |  copy of input (if given)    | null out |
-| > .CoordinateQualityCheckPerformedBy  | Ignored on input          |  “CRS convert API convertBinGrid”    | same |
+| > .CoordinateQualityCheckPerformedBy  | Ignored on input          |  “CRS Convert service, POST convertBinGrid”    | same |
 | >  .CoordinateQualityCheckDateTime   | Ignored on input          |   `now()`   | same |
 | >  .CoordinateQualityCheckRemarks[]  | Ignored on input          |  append “Max. squaring error: dI=0.0, dJ=0.4 bin    | same |
 | >  .AppliedOperations[]              | Ignored on input          |  append “squareness tested: dI=x.x, dJ=x.x bin”    | append “converted from <origCRS> to <toCRS>; "squared up": dI=x.x, dJ=x.x (bin)” |
