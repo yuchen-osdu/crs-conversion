@@ -20,6 +20,7 @@ import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.crs.BinGrid.AbstractAnyCrsFeatureCollection;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
@@ -207,6 +208,8 @@ public class CRSConverter implements ICRSConverter {
 			logger.info("Invalid size for spatial coordinates in the input request.");
 			throw new ValidationException("Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry “AnyCrsPoint”.  Found "+size+" points");
 		} else {
+			
+			validateFeaturePoints(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates());
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
 			// (max, max)
 			inBinGrid = sortAnyCRSFeature(inBinGrid);
@@ -255,6 +258,28 @@ public class CRSConverter implements ICRSConverter {
 			outBinGrid.setOutBinGrid(inBinGrid);
 		}
 		return outBinGrid;
+
+	}
+
+	private void validateFeaturePoints(AbstractAnyCrsFeatureCollection asIngestedcoordinates) {
+
+		asIngestedcoordinates.getFeatures().stream().forEach(feature -> {
+			int geometrySize = feature.getGeometry().getCoordinates().size();
+			if (geometrySize != 2) {
+				throw new ValidationException("Both x and y coordinates are mandatory.");
+			}
+			int pointSize = feature.getProperties().getPointPropertiesList().size();
+			if (pointSize != 1) {
+				throw new ValidationException("Point properties (inLine and crossLine) are mandatory.");
+			}
+
+			Integer inLine = feature.getProperties().getPointPropertiesList().get(0).getInline();
+			Integer crossLine = feature.getProperties().getPointPropertiesList().get(0).getCrossline();
+			if (inLine == null || crossLine == null) {
+				throw new ValidationException("Point properties (inLine and crossLine) are mandatory.");
+			}
+
+		});
 
 	}
 
