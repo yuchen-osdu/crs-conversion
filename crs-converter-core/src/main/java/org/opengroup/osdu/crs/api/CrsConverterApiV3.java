@@ -165,21 +165,19 @@ public class CrsConverterApiV3 {
 	public ConvertBinGridResponse convertBinGrid(
 			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
 
-		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), true);
 
 		AbstractBinGrid inBinGrid = request.getInBinGrid();
 
-		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+			if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 				.getCoordinateReferenceSystemID())) {
+			String temp = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
+					.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
+			if(temp!=null)
 			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.setPersistableReferenceCrs(getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
-							.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), false));
-		}
-		
-		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-				.getPersistableReferenceCrs())) {
+					.setPersistableReferenceCrs(temp);
 			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.setCoordinateReferenceSystemID(null);
+			.setCoordinateReferenceSystemID(null);
 		}
 
 		ConvertBinGridResponse response = this.crsConverter.convertBinGrid(toCrs, inBinGrid);
