@@ -212,7 +212,7 @@
 	"/v3/convertBinGrid": {
       "post": {
         "tags": [
-          "crs-converter-api-v-3"
+          "CRS Conversion"
         ],
         "operationId": "convertBinGrid",
         "parameters": [
@@ -958,7 +958,7 @@
         }
       }
     },
-	"ConvertGeoJsonResponse": {
+    "ConvertGeoJsonResponse": {
       "title": "Convert GeoJSON/AnyCrsGeoJson response",
       "description": "Response of a CRS conversion/transformation operation involving GeoJSON FeatureCollection or AnyCrsFeatureCollection.",
       "type": "object",
@@ -1030,7 +1030,7 @@
         ]
       }
     },
-	ConvertBinGridRequest": {
+	"ConvertBinGridRequest": {
         "type": "object",
         "properties": {
           "toCRS": {
@@ -1041,7 +1041,7 @@
           }
         }
       },
-      "Geometry": {
+	  "Geometry": {
         "required": [
           "coordinates",
           "type"
@@ -1060,7 +1060,7 @@
           }
         }
       },
-      "PointProperties": {
+	  "PointProperties": {
         "type": "object",
         "properties": {
           "Label": {
@@ -1076,7 +1076,7 @@
           }
         }
       },
-      "PropertiesBinGridCorners": {
+	  "PropertiesBinGridCorners": {
         "type": "object",
         "properties": {
           "Kind": {
@@ -1107,7 +1107,7 @@
           }
         }
       },
-      "MaxMisLocation": {
+	  "MaxMisLocation": {
         "type": "object",
         "properties": {
           "dI": {
