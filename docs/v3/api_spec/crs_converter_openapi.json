@@ -214,7 +214,15 @@
         "tags": [
           "CRS Conversion"
         ],
+		"summary": "CRS Convert service is an OSDU platform standard method for QC and conversion of Bin Grids, associated in particular with ingested seismic volumes, that describe the “real world” (Easting, Northing) of bin grid centers at (inline, crossline) local coordinates",
+        "description": "QC check of the “squareness” of a Bin Grid defined using 4 corner points. Coordinate conversion of a Bin Grid to a new CRS and “square it up” (if target CRS is same as original CRS then conversion is omitted, and the squareness test is done in the original CRS). Calculate derived P6 parameters from the input 4 corners. Calculate WGS 84 coordinates at the corners. Returns converted Bin Grid and a QC of squareness of the bin grid",
         "operationId": "convertBinGrid",
+		"consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "name": "data-partition-id",
