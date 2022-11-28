@@ -227,7 +227,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConvertBinGridRequest"
+                "$ref": "#/definitions/ConvertBinGridRequest"
               }
             }
           },
@@ -239,7 +239,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConvertBinGridResponse"
+                  "$ref": "#/definitions/ConvertBinGridResponse"
                 }
               }
             }
@@ -1037,7 +1037,7 @@
             "type": "string"
           },
           "inBinGrid": {
-            "$ref": "#/components/schemas/AbstractBinGrid"
+            "$ref": "#/definitions/AbstractBinGrid"
           }
         }
       },
@@ -1108,7 +1108,7 @@
             "format": "int32"
           },
           "ABCDBinGridSpatialLocation": {
-            "$ref": "#/components/schemas/AbstractSpatialLocation"
+            "$ref": "#/definitions/AbstractSpatialLocation"
           }
         }
       },
@@ -1149,10 +1149,10 @@
             "type": "string"
           },
           "AsIngestedCoordinates": {
-            "$ref": "#/components/schemas/AbstractAnyCrsFeatureCollection"
+            "$ref": "#/definitions/AbstractAnyCrsFeatureCollection"
           },
           "Wgs84Coordinates": {
-            "$ref": "#/components/schemas/AbstractFeatureCollection"
+            "$ref": "#/definitions/AbstractFeatureCollection"
           }
         }
       },
@@ -1171,7 +1171,7 @@
           "features": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AbstractFeature"
+              "$ref": "#/definitions/AbstractFeature"
             }
           }
         }
@@ -1183,10 +1183,10 @@
             "type": "string"
           },
           "properties": {
-            "$ref": "#/components/schemas/PropertiesBinGridCorners"
+            "$ref": "#/definitions/PropertiesBinGridCorners"
           },
           "geometry": {
-            "$ref": "#/components/schemas/Geometry"
+            "$ref": "#/definitions/Geometry"
           }
         }
       },
@@ -1199,7 +1199,7 @@
           "PointProperties": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PointProperties"
+              "$ref": "#/definitions/PointProperties"
             }
           }
         }
@@ -1245,7 +1245,7 @@
           "features": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AbstractFeature"
+              "$ref": "#/definitions/AbstractFeature"
             }
           }
         }
@@ -1254,10 +1254,10 @@
         "type": "object",
         "properties": {
           "maxMisLocation": {
-            "$ref": "#/components/schemas/MaxMisLocation"
+            "$ref": "#/definitions/MaxMisLocation"
           },
           "outBinGrid": {
-            "$ref": "#/components/schemas/AbstractBinGrid"
+            "$ref": "#/definitions/AbstractBinGrid"
           },
           "AppliedOperations": {
             "type": "array",
