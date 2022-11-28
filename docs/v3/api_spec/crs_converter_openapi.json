@@ -210,64 +210,43 @@
       }
     },
 	"/v3/convertBinGrid": {
-		"post": {
+      "post": {
         "tags": [
-          "CRS Conversion"
+          "crs-converter-api-v-3"
         ],
-		"summary": "CRS Convert service is an OSDU platform standard method for QC and conversion of Bin Grids, associated in particular with ingested seismic volumes, that describe the “real world” (Easting, Northing) of bin grid centers at (inline, crossline) local coordinates",
-        "description": "QC check of the “squareness” of a Bin Grid defined using 4 corner points. Coordinate conversion of a Bin Grid to a new CRS and “square it up” (if target CRS is same as original CRS then conversion is omitted, and the squareness test is done in the original CRS). Calculate derived P6 parameters from the input 4 corners. Calculate WGS 84 coordinates at the corners. Returns converted Bin Grid and a QC of squareness of the bin gri",
-		"operationId": "convertBinGrid",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-		"parameters": [
+        "operationId": "convertBinGrid",
+        "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/ConvertGeoJsonRequest"
-            }
-          },
-          {
-            "in": "header",
             "name": "data-partition-id",
-            "required": false
+            "in": "header",
+            "description": "Tenant Id",
+            "required": true
           }
         ],
-		"responses": {
-          "200": {
-            "description": "Conversion performed successfully",
-            "schema": {
-              "$ref": "#/definitions/ConvertGeoJsonResponse"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertBinGridRequest"
+              }
             }
           },
-          "400": {
-            "description": "Bad input format",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
-          "503": {
-            "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          }
+          "required": true
         },
-        "security": [
-          {
-            "Bearer": []
-          },
-          {
-            "google_id_token": []
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertBinGridResponse"
+                }
+              }
+            }
           }
-        ]
-	}
-	},
+        }
+      }
+    },
     "/v3/info": {
       "get": {
           "tags": [
@@ -979,7 +958,7 @@
         }
       }
     },
-    "ConvertGeoJsonResponse": {
+	"ConvertGeoJsonResponse": {
       "title": "Convert GeoJSON/AnyCrsGeoJson response",
       "description": "Response of a CRS conversion/transformation operation involving GeoJSON FeatureCollection or AnyCrsFeatureCollection.",
       "type": "object",
@@ -1051,6 +1030,96 @@
         ]
       }
     },
+	ConvertBinGridRequest": {
+        "type": "object",
+        "properties": {
+          "toCRS": {
+            "type": "string"
+          },
+          "inBinGrid": {
+            "$ref": "#/components/schemas/AbstractBinGrid"
+          }
+        }
+      },
+      "Geometry": {
+        "required": [
+          "coordinates",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        }
+      },
+      "PointProperties": {
+        "type": "object",
+        "properties": {
+          "Label": {
+            "type": "string"
+          },
+          "Inline": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Crossline": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PropertiesBinGridCorners": {
+        "type": "object",
+        "properties": {
+          "Kind": {
+            "type": "string"
+          },
+          "PointProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointProperties"
+            }
+          }
+        }
+      },
+	  "ConvertBinGridResponse": {
+        "type": "object",
+        "properties": {
+          "maxMisLocation": {
+            "$ref": "#/components/schemas/MaxMisLocation"
+          },
+          "outBinGrid": {
+            "$ref": "#/components/schemas/AbstractBinGrid"
+          },
+          "AppliedOperations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MaxMisLocation": {
+        "type": "object",
+        "properties": {
+          "dI": {
+            "type": "number",
+            "format": "double"
+          },
+          "dJ": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
     "AnyCrsGeoJsonPoint": {
       "title": "AnyCrsGeoJSON Point",
       "type": "object",
