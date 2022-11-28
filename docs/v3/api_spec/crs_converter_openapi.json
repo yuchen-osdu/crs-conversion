@@ -209,6 +209,13 @@
         ]
       }
     },
+	"/v3/convertBinGrid": {
+		"post": {
+        "tags": [
+          "CRS Conversion"
+        ]
+	}
+	},
     "/v3/info": {
       "get": {
           "tags": [
