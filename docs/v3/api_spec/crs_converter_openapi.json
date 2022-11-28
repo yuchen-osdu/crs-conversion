@@ -1041,6 +1041,169 @@
           }
         }
       },
+	  "AbstractBinGrid": {
+        "type": "object",
+        "properties": {
+          "BinGridName": {
+            "type": "string"
+          },
+          "BinGridTypeID": {
+            "type": "string"
+          },
+          "SourceBinGridID": {
+            "type": "string"
+          },
+          "SourceBinGridAppID": {
+            "type": "string"
+          },
+          "CoveragePercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "BinGridDefinitionMethodTypeID": {
+            "type": "string"
+          },
+          "P6TransformationMethod": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "P6BinGridOriginI": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinGridOriginJ": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinGridOriginEasting": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinGridOriginNorthing": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6ScaleFactorOfBinGrid": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinWidthOnIaxis": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinWidthOnJaxis": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6MapGridBearingOfBinGridJaxis": {
+            "type": "number",
+            "format": "double"
+          },
+          "P6BinNodeIncrementOnIaxis": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "P6BinNodeIncrementOnJaxis": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ABCDBinGridSpatialLocation": {
+            "$ref": "#/components/schemas/AbstractSpatialLocation"
+          }
+        }
+      },
+	  "AbstractSpatialLocation": {
+        "type": "object",
+        "properties": {
+          "SpatialLocationCoordinatesDate": {
+            "type": "string"
+          },
+          "QuantitativeAccuracyBandID": {
+            "type": "string"
+          },
+          "QualitativeSpatialAccuracyTypeID": {
+            "type": "string"
+          },
+          "CoordinateQualityCheckPerformedBy": {
+            "type": "string"
+          },
+          "CoordinateQualityCheckDateTime": {
+            "type": "string"
+          },
+          "CoordinateQualityCheckRemarks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "AppliedOperations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "SpatialParameterTypeID": {
+            "type": "string"
+          },
+          "SpatialGeometryTypeID": {
+            "type": "string"
+          },
+          "AsIngestedCoordinates": {
+            "$ref": "#/components/schemas/AbstractAnyCrsFeatureCollection"
+          },
+          "Wgs84Coordinates": {
+            "$ref": "#/components/schemas/AbstractFeatureCollection"
+          }
+        }
+      },
+	  "AbstractAnyCrsFeatureCollection": {
+        "type": "object",
+        "properties": {
+          "persistableReferenceCrs": {
+            "type": "string"
+          },
+          "CoordinateReferenceSystemID": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbstractFeature"
+            }
+          }
+        }
+      },
+	  "AbstractFeature": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/PropertiesBinGridCorners"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry"
+          }
+        }
+      },
+	  "PropertiesBinGridCorners": {
+        "type": "object",
+        "properties": {
+          "Kind": {
+            "type": "string"
+          },
+          "PointProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointProperties"
+            }
+          }
+        }
+      },
 	  "Geometry": {
         "required": [
           "coordinates",
@@ -1076,21 +1239,18 @@
           }
         }
       },
-	  "PropertiesBinGridCorners": {
+	  "AbstractFeatureCollection": {
         "type": "object",
         "properties": {
-          "Kind": {
-            "type": "string"
-          },
-          "PointProperties": {
+          "features": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PointProperties"
+              "$ref": "#/components/schemas/AbstractFeature"
             }
           }
         }
       },
-	  "ConvertBinGridResponse": {
+	"ConvertBinGridResponse": {
         "type": "object",
         "properties": {
           "maxMisLocation": {
@@ -1106,8 +1266,7 @@
             }
           }
         }
-      },
-	  "MaxMisLocation": {
+      },"MaxMisLocation": {
         "type": "object",
         "properties": {
           "dI": {
