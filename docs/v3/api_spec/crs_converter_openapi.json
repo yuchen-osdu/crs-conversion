@@ -225,10 +225,17 @@
         ],
         "parameters": [
           {
-            "name": "data-partition-id",
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ConvertBinGridRequest"
+            }
+          },
+          {
             "in": "header",
-            "description": "Tenant Id",
-            "required": true
+            "name": "data-partition-id",
+            "required": false
           }
         ],
         "requestBody": {
@@ -243,13 +250,21 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/definitions/ConvertBinGridResponse"
-                }
-              }
+            "description": "Conversion performed successfully",
+            "schema": {
+              "$ref": "#/definitions/ConvertBinGridResponse"
+            }
+          },
+          "400": {
+            "description": "Bad input format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "503": {
+            "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
             }
           }
         }
