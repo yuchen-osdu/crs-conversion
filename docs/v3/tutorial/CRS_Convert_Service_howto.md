@@ -145,9 +145,20 @@ z| Vertical CRS| ```Length``` |pass-through| typically elevation relative to an 
 
 # 3. Check if the service is running
 
-The GET /info endpoint is self-explanatory from the swagger documentation and in postman.
+The GET /info and /actuator/health endpoints are self-explanatory and can be used to check the version and if the service is up.
 
-This endpoints can be used to check the version and if the service is up.
+_{{osduonaws_base_url}}/api/crs/converter/actuator/health_ response is
+```json
+{
+    "status": "UP",
+    "groups": [
+        "liveness",
+        "readiness"
+    ]
+}
+```
+
+
 
 # 4. Performing coordinate operations
 
@@ -420,7 +431,7 @@ are returned as "NaN"
 
 <details><summary>Request leading to partial success example</summary>
 
-```
+```json
 {
   "fromCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}",
   "toCRS": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"20256017\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"20256\"},\"name\":\"AGD_1966_AMG_Zone_56\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"AGD_1966_AMG_Zone_56\\\",GEOGCS[\\\"GCS_Australian_1966\\\",DATUM[\\\"D_Australian_1966\\\",SPHEROID[\\\"Australian\\\",6378160.0,298.25]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",10000000.0],PARAMETER[\\\"Central_Meridian\\\",153.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",20256]]\"},\"name\":\"AGD66 * OGP-Aus 0.1m / AMG zone 56 [20256,15786]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15786\"},\"name\":\"AGD_1966_To_WGS_1984_17_NTv2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"AGD_1966_To_WGS_1984_17_NTv2\\\",GEOGCS[\\\"GCS_Australian_1966\\\",DATUM[\\\"D_Australian_1966\\\",SPHEROID[\\\"Australian\\\",6378160.0,298.25]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NTv2\\\"],PARAMETER[\\\"Dataset_australia/A66_National_13_09_01\\\",0.0],AUTHORITY[\\\"EPSG\\\",15786]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}",
@@ -459,7 +470,7 @@ are returned as "NaN"
 
 <details><summary>Response example</summary>
 
-```
+```json
 {
   "successCount": 3,
   "points": [
@@ -558,7 +569,7 @@ used in OSDU to store locations.
 
 **Response**
 
-```
+```json
 {
     "successCount": 1,
     "totalCount": 1,
@@ -628,7 +639,7 @@ used in OSDU to store locations.
 
 **Response**
 
-```
+```json
 {
     "successCount": 1,
     "totalCount": 1,
@@ -874,7 +885,7 @@ unitXY and unitZ. It is recommended to use record id as in the simplified exampl
 
 <details><summary>Click to expand Request body (86 survey stations)</summary>
 
-```
+```json
 {
   "azimuthReference": "GN",
   "interpolate": false,
@@ -3008,7 +3019,7 @@ scaled to remove the application of the *psf* by the algorithm.
 Copied from the example presented above, the output for the first point
 was:
 
-```
+```json
 {
             "md": 0.0,
             "inclination": 0.0,
@@ -3032,7 +3043,7 @@ was:
 
 And for the last point:
 
-```
+```json
         {
             "md": 27386.0,
             "inclination": 24.11,
