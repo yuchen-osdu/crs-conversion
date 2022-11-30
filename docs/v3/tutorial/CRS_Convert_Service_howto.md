@@ -159,6 +159,20 @@ _{{osduonaws_base_url}}/api/crs/converter/actuator/health_ response is
 ```
 
 
+_{{osduonaws_base_url}}/api/crs/converter/v3/info_ response is like
+```json
+{
+    "groupId": "org.opengroup.osdu.crs-converter-service",
+    "artifactId": "crs-converter-aws",
+    "version": "0.16.2-SNAPSHOT",
+    "buildTime": "2022-08-18T20:58:49.957Z",
+    "branch": "refs/heads/release/r3-m13",
+    "commitId": "Id",
+    "commitMessage": "Update version of release branch to 0.16.2-SNAPSHOT",
+    "connectedOuterServices": []
+}
+```
+
 
 # 4. Performing coordinate operations
 
