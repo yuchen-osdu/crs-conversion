@@ -545,8 +545,7 @@ This is a more convenient form compare to `convert` because no manipulation is n
 schema fragment “objects” of the AbstractSpatialLocation data definition
 used in OSDU to store locations.
 
-### Example 1
-
+### Example 1: Conversion NOT to WGS 84 (returning an AnyCrsFeatureCollection)
 
 **Request** _{{osduonaws_base_url}}/api/crs/converter/v3/convertGeoJson_
 
@@ -579,7 +578,6 @@ used in OSDU to store locations.
   }
 }
 ```
-
 
 **Response**
 
@@ -616,7 +614,7 @@ used in OSDU to store locations.
 }
 ```
 
-### Example 2: Conversion to WGS 84
+### Example 2: Conversion to WGS 84 (returning a normal GeoJSON FeatureCollection)
 
 **Request** _{{osduonaws_base_url}}/api/crs/converter/v3/convertGeoJson_
 
@@ -649,7 +647,6 @@ used in OSDU to store locations.
   }
 }
 ```
-
 
 **Response**
 
