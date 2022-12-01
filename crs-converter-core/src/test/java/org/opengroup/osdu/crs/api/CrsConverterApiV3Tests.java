@@ -53,8 +53,9 @@ public class CrsConverterApiV3Tests {
 	@Test
 	public void convertBinGridWithSuccessfulResponse() {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
+		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1a);
-		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid())).thenReturn(makeBinGridResponse());
+		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponse());
 		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
 		assertNotNull(response);
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
@@ -64,10 +65,11 @@ public class CrsConverterApiV3Tests {
 	@Test
 	public void convertBinGridWithSuccessfulResponseWithToCRS() {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
+		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1d);
 		when(crsConverter.convertBinGrid(
 				"{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851",
-				inBinGrid.getInBinGrid())).thenReturn(makeBinGridResponseWithToCRS());
+				inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponseWithToCRS());
 		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
 		assertNotNull(response);
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
@@ -77,8 +79,9 @@ public class CrsConverterApiV3Tests {
 	@Test(expected = ValidationException.class)
 	public void convertBinGridSizeErrorTest() {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
+		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_with_3_point);
-		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid())).thenThrow(ValidationException.class);
+		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenThrow(ValidationException.class);
 	}
 
 	public static ConvertBinGridRequest createRequestInstance(String json) {
