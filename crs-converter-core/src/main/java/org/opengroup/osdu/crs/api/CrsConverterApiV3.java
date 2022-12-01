@@ -16,6 +16,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import javax.validation.ValidationException;
 
@@ -24,6 +27,9 @@ import javax.validation.Valid;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.core.common.model.storage.Record;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
 @RestController
@@ -165,22 +171,44 @@ public class CrsConverterApiV3 {
 	public ConvertBinGridResponse convertBinGrid(
 			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
 
-		String toCrs = getPersistableReferenceFromID(request.getToCRS(), true);
+		String toCrs = request.getToCRS();
 
 		AbstractBinGrid inBinGrid = request.getInBinGrid();
+		List<String> operationsApplied = new ArrayList<>();
+		ConvertPointsRequest convertPointsRequest = new ConvertPointsRequest();
+		convertPointsRequest.setToCRS(toCrs);
+		convertPointsRequest.setFromCRS(
+				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
 
-			if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+		if (!StringUtils.isEmpty(toCrs)) {
+			request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
+					.forEach(feature -> {
+						Point point = new Point();
+						point.setX(feature.getGeometry().getCoordinates().get(0));
+						point.setY(feature.getGeometry().getCoordinates().get(1));
+						point.setZ(0.0);
+						convertPointsRequest.setPoints(Arrays.asList(point));
+
+						ConvertPointsResponse response = convertPoint(convertPointsRequest);
+						feature.getGeometry().setCoordinates(
+								Arrays.asList(response.getPoints().get(0).getX(), response.getPoints().get(0).getY()));
+						operationsApplied.addAll(response.getOperationsApplied());
+					});
+		}
+
+		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
+		outBinGrid.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
+
+		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 				.getCoordinateReferenceSystemID())) {
 			String temp = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
 					.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
-			if(temp!=null)
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.setPersistableReferenceCrs(temp);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-			.setCoordinateReferenceSystemID(null);
+			if (temp != null)
+				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setPersistableReferenceCrs(temp);
+			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setCoordinateReferenceSystemID(null);
 		}
 
-		ConvertBinGridResponse response = this.crsConverter.convertBinGrid(toCrs, inBinGrid);
-		return response;
+		ConvertBinGridResponse convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, outBinGrid);
+		return convertBinGridResponse;
 	}
 }
