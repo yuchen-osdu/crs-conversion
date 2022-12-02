@@ -242,17 +242,19 @@ public class CRSConverter implements ICRSConverter {
 
 			// performing the bin grid computation
 			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
-			if (!StringUtils.isEmpty(toCrs))
-				// calling the convertPoints for squared up coordinates on Wgs84Coordinates
-				outBinGrid = convertedWgs84Coordinates(toCrs, outBinGrid);
 			outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().setCoordinateQualityCheckRemarks(
 					Arrays.asList("Max. squaring error: dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
 							+ outBinGrid.getMaxMisLocation().getDJ() + " bin"));
-			
-			outBinGrid.getAppliedOperations().add("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
-					+ outBinGrid.getMaxMisLocation().getDJ() + " bin");
-
+			if(outBinGrid.getAppliedOperations()==null) {
+				outBinGrid.setAppliedOperations(Arrays.asList("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
+						+ outBinGrid.getMaxMisLocation().getDJ() + " bin"));
+			}else {
+				outBinGrid.getAppliedOperations().add("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
+						+ outBinGrid.getMaxMisLocation().getDJ() + " bin");
+			}
 			if (toCrs != null && !StringUtils.isEmpty(toCrs)) {
+				// calling the convertPoints for squared up coordinates on Wgs84Coordinates
+				outBinGrid = convertedWgs84Coordinates(toCrs, outBinGrid);
 				outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 						.setPersistableReferenceCrs(toCrs);
 				outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
