@@ -171,15 +171,14 @@ public class CrsConverterApiV3 {
 	public ConvertBinGridResponse convertBinGrid(
 			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
 
-		String toCrs = request.getToCRS();
-
-		AbstractBinGrid inBinGrid = request.getInBinGrid();
-		List<String> operationsApplied = new ArrayList<>();
+		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
 		ConvertPointsRequest convertPointsRequest = new ConvertPointsRequest();
-		convertPointsRequest.setToCRS(toCrs);
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), true);		
+		AbstractBinGrid inBinGrid = request.getInBinGrid();
+		List<String> operationsApplied = new ArrayList<>();		
+		convertPointsRequest.setToCRS(toCrs);		
 		convertPointsRequest.setFromCRS(
-				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
-
+				getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true));
 		if (!StringUtils.isEmpty(toCrs)) {
 			request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
 					.forEach(feature -> {
@@ -194,21 +193,19 @@ public class CrsConverterApiV3 {
 								Arrays.asList(response.getPoints().get(0).getX(), response.getPoints().get(0).getY()));
 						operationsApplied.addAll(response.getOperationsApplied());
 					});
-		}
-
-		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
-		outBinGrid.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
+			convertBinGridResponse.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
+		}	
 
 		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 				.getCoordinateReferenceSystemID())) {
 			String temp = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
 					.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
 			if (temp != null)
-				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setPersistableReferenceCrs(temp);
+				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setPersistableReferenceCrs(temp);			
 			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setCoordinateReferenceSystemID(null);
 		}
 
-		ConvertBinGridResponse convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, outBinGrid);
+		convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, convertBinGridResponse);
 		return convertBinGridResponse;
 	}
 }
