@@ -162,7 +162,7 @@ public class CrsConverterApiV3 {
 	
 	@PostMapping("/convertBinGrid")
 	@ApiOperation(value = Constants.SWAGGER_BIN_GRID_CONVERT_TITLE, notes = Constants.SWAGGER_BIN_GRID_CONVERT_NOTES, tags = {
-			Constants.SWAGGER_TAG_TRJ_CONVERSION })
+			Constants.SWAGGER_TAG_CRS_CONVERSION })
 	@ApiResponses({
 			@ApiResponse(code = 200, message = Constants.SWAGGER_BIN_GRID_CONVERSION_RESPONSE, response = ConvertTrajectoryResponse.class),
 			@ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
@@ -172,40 +172,45 @@ public class CrsConverterApiV3 {
 			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
 
 		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
-		ConvertPointsRequest convertPointsRequest = new ConvertPointsRequest();
-		String toCrs = getPersistableReferenceFromID(request.getToCRS(), true);		
-		AbstractBinGrid inBinGrid = request.getInBinGrid();
-		List<String> operationsApplied = new ArrayList<>();		
-		convertPointsRequest.setToCRS(toCrs);		
-		convertPointsRequest.setFromCRS(
-				getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true));
-		if (!StringUtils.isEmpty(toCrs)) {
-			request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
-					.forEach(feature -> {
-						Point point = new Point();
-						point.setX(feature.getGeometry().getCoordinates().get(0));
-						point.setY(feature.getGeometry().getCoordinates().get(1));
-						point.setZ(0.0);
-						convertPointsRequest.setPoints(Arrays.asList(point));
+		ConvertPointsRequest convertPointsRequest = new ConvertPointsRequest();		
+		try {		
+			AbstractBinGrid inBinGrid = request.getInBinGrid();
+			List<String> operationsApplied = new ArrayList<>();
+			convertPointsRequest.setToCRS(request.getToCRS());
+			convertPointsRequest.setFromCRS(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+					.getCoordinateReferenceSystemID());
+			if (!StringUtils.isEmpty(request.getToCRS())) {
+				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
+						.forEach(feature -> {
+							Point point = new Point();
+							point.setX(feature.getGeometry().getCoordinates().get(0));
+							point.setY(feature.getGeometry().getCoordinates().get(1));
+							point.setZ(0.0);
+							convertPointsRequest.setPoints(Arrays.asList(point));
+							ConvertPointsResponse response = convertPoint(convertPointsRequest);
+							feature.getGeometry().setCoordinates(Arrays.asList(response.getPoints().get(0).getX(),
+									response.getPoints().get(0).getY()));
+							operationsApplied.addAll(response.getOperationsApplied());
+						});
+				convertBinGridResponse.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
+			}
 
-						ConvertPointsResponse response = convertPoint(convertPointsRequest);
-						feature.getGeometry().setCoordinates(
-								Arrays.asList(response.getPoints().get(0).getX(), response.getPoints().get(0).getY()));
-						operationsApplied.addAll(response.getOperationsApplied());
-					});
-			convertBinGridResponse.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
-		}	
-
-		if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-				.getCoordinateReferenceSystemID())) {
-			String temp = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
-					.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
-			if (temp != null)
-				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setPersistableReferenceCrs(temp);			
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setCoordinateReferenceSystemID(null);
+			if (StringUtils.isNotEmpty(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+					.getCoordinateReferenceSystemID())) {
+				String fromCRS = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
+						.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
+				if (fromCRS != null)
+					inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+							.setPersistableReferenceCrs(fromCRS);
+				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+						.setCoordinateReferenceSystemID(null);
+			}
+			String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+			convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, convertBinGridResponse);
+			return convertBinGridResponse;
+		} catch (IllegalArgumentException illegalException) {
+			logger.error("Exception from the convert call " + illegalException.getMessage());
+			throw new ValidationException(illegalException.getMessage());
 		}
-
-		convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, convertBinGridResponse);
-		return convertBinGridResponse;
 	}
 }
