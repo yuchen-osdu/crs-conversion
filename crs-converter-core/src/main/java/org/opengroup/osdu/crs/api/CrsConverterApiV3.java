@@ -202,12 +202,7 @@ public class CrsConverterApiV3 {
 							point.setY(feature.getGeometry().getCoordinates().get(1));
 							point.setZ(0.0);
 							convertPointsRequest.setPoints(Arrays.asList(point));
-							ConvertPointsResponse response = convertPoint(convertPointsRequest);
-							/*
-							 * String str_response = osduRestHelper.testAPI(convertPointsRequest);
-							 * ConvertPointsResponse response = new Gson().fromJson(str_response,
-							 * ConvertPointsResponse.class);
-							 */							
+							ConvertPointsResponse response = convertPoint(convertPointsRequest);						
 							feature.getGeometry().setCoordinates(Arrays.asList(response.getPoints().get(0).getX(),
 									response.getPoints().get(0).getY()));
 							operationsApplied.addAll(response.getOperationsApplied());
