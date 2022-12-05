@@ -249,8 +249,11 @@ public class CRSConverter implements ICRSConverter {
 				outBinGrid.setAppliedOperations(Arrays.asList("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
 						+ outBinGrid.getMaxMisLocation().getDJ() + " bin"));
 			}else {
-				outBinGrid.getAppliedOperations().add("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
+				List<String> appliedOperations = outBinGrid.getAppliedOperations();
+				List<String> appliedOperationsUpdated = new ArrayList<String>(appliedOperations);
+				appliedOperationsUpdated.add("Squared up the bin grid. dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
 						+ outBinGrid.getMaxMisLocation().getDJ() + " bin");
+				outBinGrid.setAppliedOperations(appliedOperationsUpdated);
 			}
 			if (toCrs != null && !StringUtils.isEmpty(toCrs)) {
 				// calling the convertPoints for squared up coordinates on Wgs84Coordinates
