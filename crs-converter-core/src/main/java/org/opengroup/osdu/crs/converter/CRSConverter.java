@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.crs.BinGrid.AbstractAnyCrsFeatureCollection;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
@@ -28,7 +30,9 @@ import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonPoint;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.model.CRSType;
 import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
@@ -407,18 +411,18 @@ public class CRSConverter implements ICRSConverter {
 
 						double xCoordinate = features.getGeometry().getCoordinates().get(0);
 						double yCoordinate = features.getGeometry().getCoordinates().get(1);
-						double zCoordinate = 0.0;
-						double xys[] = { xCoordinate, yCoordinate };
-						double zs[] = { zCoordinate };
 
-						ConvertPointsResponse internal_response = convertPoint(value.get(), toCrs, xys, zs);
+						GeoJsonFeatureCollection  geoJsonFeatureCollection = prepareGeoJsonRequest(xCoordinate, yCoordinate, value.get());
+						ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(geoJsonFeatureCollection, toCrs, "");
+						GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection().extractCoordinates();
+						double[] coordinates = xyCoordinates.getXys();
 
 						convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates()
 								.getFeatures().stream().forEach(wgs84Features -> {
 									wgs84Features.getGeometry()
 											.setCoordinates(Arrays.asList(
-													Double.valueOf(upto8Decimal.format(internal_response.getPoints().get(0).getX())),
-													Double.valueOf(upto8Decimal.format(internal_response.getPoints().get(0).getY()))));
+													Double.valueOf(upto8Decimal.format(coordinates[0])),
+													Double.valueOf(upto8Decimal.format(coordinates[1]))));
 									wgs84Features.setType(FEATURE_TYPE);
 									wgs84Features.getGeometry().setType(GEOMETRY_TYPE);
 								});
@@ -430,6 +434,48 @@ public class CRSConverter implements ICRSConverter {
 		}
 		return convertBinGrid;
 	}
+
+	@SuppressWarnings("unchecked")
+	private GeoJsonFeatureCollection prepareGeoJsonRequest(double xCoordinate, double yCoordinate, String value) {
+
+		JSONArray coordinates = new JSONArray();
+		coordinates.add(xCoordinate);
+		coordinates.add(yCoordinate);
+		coordinates.add(0.0);
+		JSONObject geometry = new JSONObject();
+		geometry.put("type", "AnyCrsPoint");
+		geometry.put("coordinates", coordinates);
+
+		JSONObject finalJson = new JSONObject();
+		finalJson.put("type", "AnyCrsFeature");
+		finalJson.put("geometry", geometry);
+
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.add(finalJson);
+		JSONObject finalJsonPayload = new JSONObject();
+		finalJsonPayload.put("features", jsonArray);
+
+		GeoJsonFeatureCollection geoJsonFeatureCollection = new GeoJsonFeatureCollection();
+		GeoJsonFeature[] geoJsonFeatureArray = new GeoJsonFeature[1];
+		GeoJsonFeature geoJsonFeature = new GeoJsonFeature();
+		ArrayList<GeoJsonBase> gs = new ArrayList<>();
+		gs.add(getGeoJsonPoint(xCoordinate, yCoordinate, 0.0));
+		geoJsonFeature.setGeometry(gs.get(0));
+		geoJsonFeatureArray[0] = geoJsonFeature;
+		geoJsonFeatureCollection.setFeatures(geoJsonFeatureArray);
+		geoJsonFeatureCollection.setCoordinateReferenceSystemID(value);
+		geoJsonFeatureCollection.setPersistableReferenceCrs(value);
+
+		return geoJsonFeatureCollection;
+	}
+	
+	private static GeoJsonPoint getGeoJsonPoint(double dx, double dy, double dz) {
+        GeoJsonPoint g_pt = new GeoJsonPoint();
+        g_pt.setGeoJsonVariant(GeoJsonBase.GeoJsonVariant.GEO_JSON);
+        g_pt.setCoordinates(new double[]{dx, dy, dz});
+        g_pt.setType("AnyCrsPoint");
+        return g_pt;
+    }
 
 	private Map<String, Double> RcomputationBetweenPoints(AbstractSpatialLocation spatialcoordinates) {
 
