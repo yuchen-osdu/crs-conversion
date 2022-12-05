@@ -1,35 +1,50 @@
 package org.opengroup.osdu.crs.api;
 
-import io.swagger.annotations.*;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.core.common.model.storage.Record;
+import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.*;
+import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
+import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
+import org.opengroup.osdu.crs.model.ConvertGeoJsonRequest;
+import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
+import org.opengroup.osdu.crs.model.ConvertPointsRequest;
+import org.opengroup.osdu.crs.model.ConvertPointsResponse;
+import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
+import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
+import org.opengroup.osdu.crs.model.ErrorResponse;
+import org.opengroup.osdu.crs.model.Point;
+import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
-import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
-import javax.validation.ValidationException;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
-import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
-import org.opengroup.osdu.core.common.model.storage.Record;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
 @RestController
@@ -46,7 +61,7 @@ public class CrsConverterApiV3 {
 	private final ITrajectoryConverter crsTrajectoryConverter;
 	private final IPointConverter pointConverter;
     private RecordCache recordCache;
-
+ 
 	public CrsConverterApiV3(@NonNull ICRSConverter crsConverter,
 				  @NonNull ITrajectoryConverter crsTrajectoryConverter,
 				  @NonNull IPointConverter pointConverter) {
@@ -176,9 +191,9 @@ public class CrsConverterApiV3 {
 		try {		
 			AbstractBinGrid inBinGrid = request.getInBinGrid();
 			List<String> operationsApplied = new ArrayList<>();
-			convertPointsRequest.setToCRS(request.getToCRS());
-			convertPointsRequest.setFromCRS(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.getCoordinateReferenceSystemID());
+			convertPointsRequest.setToCRS(getPersistableReferenceFromID(request.getToCRS(), true));
+			convertPointsRequest.setFromCRS(getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+					.getCoordinateReferenceSystemID(),true));
 			if (!StringUtils.isEmpty(request.getToCRS())) {
 				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
 						.forEach(feature -> {
@@ -188,6 +203,11 @@ public class CrsConverterApiV3 {
 							point.setZ(0.0);
 							convertPointsRequest.setPoints(Arrays.asList(point));
 							ConvertPointsResponse response = convertPoint(convertPointsRequest);
+							/*
+							 * String str_response = osduRestHelper.testAPI(convertPointsRequest);
+							 * ConvertPointsResponse response = new Gson().fromJson(str_response,
+							 * ConvertPointsResponse.class);
+							 */							
 							feature.getGeometry().setCoordinates(Arrays.asList(response.getPoints().get(0).getX(),
 									response.getPoints().get(0).getY()));
 							operationsApplied.addAll(response.getOperationsApplied());
@@ -205,7 +225,7 @@ public class CrsConverterApiV3 {
 				inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 						.setCoordinateReferenceSystemID(null);
 			}
-			String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+			String toCrs = getPersistableReferenceFromID(request.getToCRS(), true);
 			convertBinGridResponse = this.crsConverter.convertBinGrid(toCrs, inBinGrid, convertBinGridResponse);
 			return convertBinGridResponse;
 		} catch (IllegalArgumentException illegalException) {
