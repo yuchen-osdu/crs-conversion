@@ -13,4 +13,7 @@ public interface ICRSConverter {
 	ConvertGeoJsonResponse convertGeoJson(GeoJsonFeatureCollection featureCollection, String toCrs, String toUnitZ);
 	
 	ConvertBinGridResponse convertBinGrid(String toCrs, AbstractBinGrid inBinGrid, ConvertBinGridResponse outBinGrid);
+
+	GeoJsonFeatureCollection prepareGeoJsonRequest(Double double1, Double double2, String empty);
+	
 }

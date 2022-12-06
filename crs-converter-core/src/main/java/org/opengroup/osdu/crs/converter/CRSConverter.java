@@ -65,6 +65,12 @@ public class CRSConverter implements ICRSConverter {
 	private static final Integer CRS_CODE_1049 = 1049;
 	private static final String RIGHT_HANDED_NESS = "rightHandedNess";
 	private static final String LEFT_HANDED_NESS = "leftHandedNess";
+	private static final String ANY_CRS_POINT = "AnyCrsPoint";
+	private static final String ANY_CRS_FEATURE = "AnyCrsFeature";
+	private static final String TYPE = "type";
+	private static final String COORDINATES = "coordinates";
+	private static final String GEOMETRY = "geometry";
+	private static final String FEATURES = "features";
 	private static final String KEY_RDELTAI = "RDELTAI";
 	private static final String KEY_RDELTAJ = "RDELTAJ";
 	private static final String KEY_RAC = "RAC";
@@ -75,8 +81,6 @@ public class CRSConverter implements ICRSConverter {
 	private static final String LABEL_B = "B";
 	private static final String LABEL_C = "C";
 	private static final String LABEL_D = "D";
-	private static final String FEATURE_TYPE = "Feature";
-	private static final String GEOMETRY_TYPE = "Point";
 
 	@Override
 	public ConvertPointsResponse convertPoint(String from, String to, double[] xyCoordinates, double[] zCoordinates) {
@@ -206,7 +210,7 @@ public class CRSConverter implements ICRSConverter {
 	public ConvertBinGridResponse convertBinGrid(String toCrs, AbstractBinGrid inBinGrid,
 			ConvertBinGridResponse outBinGrid) {
 
-		outBinGrid.setOutBinGrid(inBinGrid);
+		logger.info("Starting convertBinGrid()..");
 		int size = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().size();
 		if (size != 4) {
 			logger.info("Invalid size for spatial coordinates in the input request.");
@@ -219,7 +223,7 @@ public class CRSConverter implements ICRSConverter {
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
 			// (max, max)
 			inBinGrid = sortAnyCRSFeature(inBinGrid);
-
+			logger.info("Validation and sorting successfull...");
 			// Setting the computed values for P6 SchemaParameters
 			// if the scaleFactor value from the input request is 0.0 , then it is set to
 			// 1.0
@@ -246,6 +250,7 @@ public class CRSConverter implements ICRSConverter {
 
 			// performing the bin grid computation
 			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
+			logger.info("binGridComputation completed..");
 			outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().setCoordinateQualityCheckRemarks(
 					Arrays.asList("Max. squaring error: dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
 							+ outBinGrid.getMaxMisLocation().getDJ() + " bin"));
@@ -260,16 +265,11 @@ public class CRSConverter implements ICRSConverter {
 				outBinGrid.setAppliedOperations(appliedOperationsUpdated);
 			}
 			if (toCrs != null && !StringUtils.isEmpty(toCrs)) {
-				// calling the convertPoints for squared up coordinates on Wgs84Coordinates
-				outBinGrid = convertedWgs84Coordinates(toCrs, outBinGrid);
-				outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-						.setPersistableReferenceCrs(toCrs);
-				outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-						.setCoordinateReferenceSystemID(toCrs);
 				outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().setCoordinateQualityCheckRemarks(
 						Arrays.asList("converted from to; squared up: dI= " + outBinGrid.getMaxMisLocation().getDI()
 								+ ", dJ= " + outBinGrid.getMaxMisLocation().getDJ() + " (bin)"));
 			}
+			logger.info("di & dj valuess added.");
 			inBinGrid.setBinGridDefinitionMethodTypeID(BIN_GRID_METHOD_4_CORNER);
 			outBinGrid.setOutBinGrid(inBinGrid);
 		}
@@ -372,88 +372,37 @@ public class CRSConverter implements ICRSConverter {
 		AbstractSpatialLocation spatialcoordinates = inBinGrid.getABCDBinGridSpatialLocation();
 
 		Map<String, Double> spatialCoordinatesComputeMap = RcomputationBetweenPoints(spatialcoordinates);
-
+		logger.info("RcomputationBetweenPoints successfully completed.");
 		Map<String, Double> rDeltaIJMap = rDeltaIandJComputation(spatialCoordinatesComputeMap,
 				spatialcoordinates.getAsIngestedcoordinates().getFeatures(), inBinGrid.getP6BinNodeIncrementOnIaxis(),
 				inBinGrid.getP6BinNodeIncrementOnJaxis());
+		logger.info("rDeltaIandJComputation successfully completed.");
 
 		thetaCalculation(inBinGrid, rDeltaIJMap, convertBinGridResponse);
+		logger.info("thetaCalculation successfully completed.");
 		return convertBinGridResponse;
 	}
-
-	private ConvertBinGridResponse convertedWgs84Coordinates(String toCrs, ConvertBinGridResponse convertBinGrid) {
-
-		DecimalFormat upto8Decimal = new DecimalFormat("0.00000000");
-		String crsId = convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-				.getCoordinateReferenceSystemID();
-		String persistableReference = convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation()
-				.getAsIngestedcoordinates().getPersistableReferenceCrs();
-		AtomicReference<String> value = new AtomicReference<>(StringUtils.EMPTY);
-		if (StringUtils.isNotEmpty(crsId)) {
-			value.set(crsId);
-		} else if (StringUtils.isNotEmpty(persistableReference)) {
-			value.set(persistableReference);
-		} else {
-			logger.info("CRS Id and Persistence Reference not present in the input request");
-		}
-		try {
-			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation()
-					.setWgs84Coordinates(new AbstractFeatureCollection());
-			Gson gson = new Gson();
-			Type listType = new TypeToken<ArrayList<AbstractFeature>>() {
-			}.getType();
-			List<AbstractFeature> deepCopy = gson.fromJson(gson.toJson(convertBinGrid.getOutBinGrid()
-					.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()), listType);
-			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().setFeatures(deepCopy);
-
-			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()
-					.stream().forEach(features -> {
-
-						double xCoordinate = features.getGeometry().getCoordinates().get(0);
-						double yCoordinate = features.getGeometry().getCoordinates().get(1);
-
-						GeoJsonFeatureCollection  geoJsonFeatureCollection = prepareGeoJsonRequest(xCoordinate, yCoordinate, value.get());
-						ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(geoJsonFeatureCollection, toCrs, "");
-						GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection().extractCoordinates();
-						double[] coordinates = xyCoordinates.getXys();
-
-						convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates()
-								.getFeatures().stream().forEach(wgs84Features -> {
-									wgs84Features.getGeometry()
-											.setCoordinates(Arrays.asList(
-													Double.valueOf(upto8Decimal.format(coordinates[0])),
-													Double.valueOf(upto8Decimal.format(coordinates[1]))));
-									wgs84Features.setType(FEATURE_TYPE);
-									wgs84Features.getGeometry().setType(GEOMETRY_TYPE);
-								});
-					});
-
-		} catch (IllegalArgumentException illegalArgumentException) {
-			logger.info("Got error response from the convertPoint call");
-			throw new ValidationException(illegalArgumentException.getMessage());
-		}
-		return convertBinGrid;
-	}
+	
 
 	@SuppressWarnings("unchecked")
-	private GeoJsonFeatureCollection prepareGeoJsonRequest(double xCoordinate, double yCoordinate, String value) {
+	public GeoJsonFeatureCollection prepareGeoJsonRequest(Double xCoordinate, Double yCoordinate, String value) {
 
 		JSONArray coordinates = new JSONArray();
 		coordinates.add(xCoordinate);
 		coordinates.add(yCoordinate);
 		coordinates.add(0.0);
 		JSONObject geometry = new JSONObject();
-		geometry.put("type", "AnyCrsPoint");
-		geometry.put("coordinates", coordinates);
+		geometry.put(TYPE, ANY_CRS_POINT);
+		geometry.put(COORDINATES, coordinates);
 
 		JSONObject finalJson = new JSONObject();
-		finalJson.put("type", "AnyCrsFeature");
-		finalJson.put("geometry", geometry);
+		finalJson.put(TYPE, ANY_CRS_FEATURE);
+		finalJson.put(GEOMETRY, geometry);
 
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.add(finalJson);
 		JSONObject finalJsonPayload = new JSONObject();
-		finalJsonPayload.put("features", jsonArray);
+		finalJsonPayload.put(FEATURES, jsonArray);
 
 		GeoJsonFeatureCollection geoJsonFeatureCollection = new GeoJsonFeatureCollection();
 		GeoJsonFeature[] geoJsonFeatureArray = new GeoJsonFeature[1];
@@ -473,7 +422,7 @@ public class CRSConverter implements ICRSConverter {
         GeoJsonPoint g_pt = new GeoJsonPoint();
         g_pt.setGeoJsonVariant(GeoJsonBase.GeoJsonVariant.GEO_JSON);
         g_pt.setCoordinates(new double[]{dx, dy, dz});
-        g_pt.setType("AnyCrsPoint");
+        g_pt.setType(ANY_CRS_POINT);
         return g_pt;
     }
 
