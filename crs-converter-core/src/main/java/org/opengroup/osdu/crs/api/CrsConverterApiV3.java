@@ -6,7 +6,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -32,7 +31,6 @@ import org.opengroup.osdu.crs.model.ConvertPointsResponse;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 import org.opengroup.osdu.crs.model.ErrorResponse;
-import org.opengroup.osdu.crs.model.Point;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
@@ -214,7 +212,6 @@ public class CrsConverterApiV3 {
 							ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
 							convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
 							convertGeoJsonRequest.setToCRS(request.getToCRS());
-							convertGeoJsonRequest.setToUnitZ(StringUtils.EMPTY);
 							logger.info("Sending the GeoJsonRequest. With CRS value : " + convertGeoJsonRequest.getToCRS());
 							ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
 							GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection()
@@ -230,7 +227,7 @@ public class CrsConverterApiV3 {
 				logger.info("CRS ID from outBinGrid. "+convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
 				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);				
 			}
-			convertBinGridResponse = this.crsConverter.convertBinGrid(request.getToCRS(), inBinGrid, convertBinGridResponse);
+			convertBinGridResponse = this.crsConverter.squaring(request.getToCRS(), inBinGrid, convertBinGridResponse);
 			return convertBinGridResponse;
 		} catch (IllegalArgumentException illegalException) {
 			logger.error("Exception from the convert call " + illegalException.getMessage());
@@ -264,7 +261,6 @@ public class CrsConverterApiV3 {
 						ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
 						convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
 						convertGeoJsonRequest.setToCRS(Constants.WGS84);
-						convertGeoJsonRequest.setToUnitZ(StringUtils.EMPTY);
 						ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
 						GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection()
 								.extractCoordinates();
