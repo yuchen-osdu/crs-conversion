@@ -1,6 +1,9 @@
 package org.opengroup.osdu.crs.interfaces;
 
+import java.util.List;
+
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
+import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
 import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
@@ -14,6 +17,6 @@ public interface ICRSConverter {
 	
 	ConvertBinGridResponse squaring(String toCrs, AbstractBinGrid inBinGrid, ConvertBinGridResponse outBinGrid);
 
-	GeoJsonFeatureCollection prepareGeoJsonRequest(Double double1, Double double2, String empty);
+	GeoJsonFeatureCollection prepareGeoJsonRequest(List<AbstractFeature> abstractFeature, String crsId);
 	
 }

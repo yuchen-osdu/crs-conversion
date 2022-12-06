@@ -17,7 +17,7 @@ import org.opengroup.osdu.core.common.model.storage.Record;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
@@ -200,32 +200,39 @@ public class CrsConverterApiV3 {
 		try {
 			AbstractBinGrid inBinGrid = request.getInBinGrid();
 			List<String> operationsApplied = new ArrayList<>();
+			convertBinGridResponse.setOutBinGrid(inBinGrid);
 			if (!StringUtils.isEmpty(request.getToCRS())) {
-				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().stream()
-						.forEach(feature -> {
 
-							GeoJsonFeatureCollection geoJsonFeatureCollection = this.crsConverter.prepareGeoJsonRequest(
-									feature.getGeometry().getCoordinates().get(0),
-									feature.getGeometry().getCoordinates().get(1),
-									inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-											.getCoordinateReferenceSystemID());
-							ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
-							convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
-							convertGeoJsonRequest.setToCRS(request.getToCRS());
-							logger.info("Sending the GeoJsonRequest. With CRS value : " + convertGeoJsonRequest.getToCRS());
-							ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
-							GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection()
-									.extractCoordinates();
-							double[] coordinates = xyCoordinates.getXys();
-							logger.info("Converted Co-ordinates : " + coordinates[0]+","+coordinates[1]);
-							feature.getGeometry().setCoordinates(Arrays.asList(coordinates[0], coordinates[1]));
-							operationsApplied.addAll(convertGeoJsonResponse.getOperationsApplied());
-						});
-				convertBinGridResponse.setAppliedOperations(Arrays.asList(operationsApplied.get(0)));
-				convertBinGridResponse.setOutBinGrid(inBinGrid);
-				convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().setCoordinateReferenceSystemID(request.getToCRS());
-				logger.info("CRS ID from outBinGrid. "+convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
-				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);				
+				GeoJsonFeatureCollection geoJsonFeatureCollection = this.crsConverter.prepareGeoJsonRequest(
+						request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures(),
+						inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+								.getCoordinateReferenceSystemID());
+				ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
+				convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
+				convertGeoJsonRequest.setToCRS(request.getToCRS());
+				logger.info("Sending the GeoJsonRequest. With CRS value : " + convertGeoJsonRequest.getToCRS());
+				ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
+				GeoJsonFeature[] geoJsonFeature = convertGeoJsonResponse.getFeatureCollection().getFeatures();
+
+				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+						.getGeometry().setCoordinates(Arrays.asList(geoJsonFeature[0].extractCoordinates().getXys()[0],
+								geoJsonFeature[0].extractCoordinates().getXys()[1]));
+				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
+						.getGeometry().setCoordinates(Arrays.asList(geoJsonFeature[1].extractCoordinates().getXys()[0],
+								geoJsonFeature[1].extractCoordinates().getXys()[1]));
+				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
+						.getGeometry().setCoordinates(Arrays.asList(geoJsonFeature[2].extractCoordinates().getXys()[0],
+								geoJsonFeature[2].extractCoordinates().getXys()[1]));
+				request.getInBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
+						.getGeometry().setCoordinates(Arrays.asList(geoJsonFeature[3].extractCoordinates().getXys()[0],
+								geoJsonFeature[3].extractCoordinates().getXys()[1]));
+				operationsApplied.addAll(convertGeoJsonResponse.getOperationsApplied());
+				convertBinGridResponse.setAppliedOperations(operationsApplied);
+				convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+						.setCoordinateReferenceSystemID(request.getToCRS());
+				logger.info("CRS ID from outBinGrid. " + convertBinGridResponse.getOutBinGrid()
+						.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
+				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);
 			}
 			convertBinGridResponse = this.crsConverter.squaring(request.getToCRS(), inBinGrid, convertBinGridResponse);
 			return convertBinGridResponse;
@@ -235,7 +242,8 @@ public class CrsConverterApiV3 {
 		}
 	}
 	
-	public ConvertBinGridResponse convertedWgs84Coordinates(ConvertBinGridResponse convertBinGrid, AbstractBinGrid inBinGrid) {
+	public ConvertBinGridResponse convertedWgs84Coordinates(ConvertBinGridResponse convertBinGrid,
+			AbstractBinGrid inBinGrid) {
 
 		logger.info("Start of convertedWgs84Coordinates.");
 		DecimalFormat upto8Decimal = new DecimalFormat("0.00000000");
@@ -249,33 +257,53 @@ public class CrsConverterApiV3 {
 					.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()), listType);
 			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().setFeatures(deepCopy);
 
-			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()
-					.stream().forEach(features -> {
+			GeoJsonFeatureCollection geoJsonFeatureCollection = this.crsConverter.prepareGeoJsonRequest(
+					convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+							.getFeatures(),
+					inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+							.getCoordinateReferenceSystemID());
+			ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
+			convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
+			convertGeoJsonRequest.setToCRS(Constants.WGS84);
+			ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
+			GeoJsonFeature[] geoJsonFeature = convertGeoJsonResponse.getFeatureCollection().getFeatures();
 
-						double xCoordinate = features.getGeometry().getCoordinates().get(0);
-						double yCoordinate = features.getGeometry().getCoordinates().get(1);
-
-						GeoJsonFeatureCollection geoJsonFeatureCollection = this.crsConverter.prepareGeoJsonRequest(
-								xCoordinate, yCoordinate, inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-								.getCoordinateReferenceSystemID());
-						ConvertGeoJsonRequest convertGeoJsonRequest = new ConvertGeoJsonRequest();
-						convertGeoJsonRequest.setFeatureCollection(geoJsonFeatureCollection);
-						convertGeoJsonRequest.setToCRS(Constants.WGS84);
-						ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
-						GeoJsonCoordinates xyCoordinates = convertGeoJsonResponse.getFeatureCollection()
-								.extractCoordinates();
-						double[] coordinates = xyCoordinates.getXys();
-						logger.info("Converted Co-ordinates from convertedWgs84Coordinates : " + coordinates[0]+","+coordinates[1]);
-						
-						convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates()
-								.getFeatures().stream().forEach(wgs84Features -> {
-									wgs84Features.getGeometry().setCoordinates(
-											Arrays.asList(Double.valueOf(upto8Decimal.format(coordinates[0])),
-													Double.valueOf(upto8Decimal.format(coordinates[1]))));
-									wgs84Features.setType(FEATURE_TYPE);
-									wgs84Features.getGeometry().setType(GEOMETRY_TYPE);
-								});
-					});
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(0)
+					.getGeometry()
+					.setCoordinates(Arrays.asList(
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[0].extractCoordinates().getXys()[0])),
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[0].extractCoordinates().getXys()[1]))));
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(0)
+					.setType(FEATURE_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(0)
+					.getGeometry().setType(GEOMETRY_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(1)
+					.getGeometry()
+					.setCoordinates(Arrays.asList(
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[1].extractCoordinates().getXys()[0])),
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[1].extractCoordinates().getXys()[1]))));
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(1)
+					.setType(FEATURE_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(1)
+					.getGeometry().setType(GEOMETRY_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(2)
+					.getGeometry()
+					.setCoordinates(Arrays.asList(
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[2].extractCoordinates().getXys()[0])),
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[2].extractCoordinates().getXys()[1]))));
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(2)
+					.setType(FEATURE_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(2)
+					.getGeometry().setType(GEOMETRY_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(3)
+					.getGeometry()
+					.setCoordinates(Arrays.asList(
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[3].extractCoordinates().getXys()[0])),
+							Double.valueOf(upto8Decimal.format(geoJsonFeature[3].extractCoordinates().getXys()[1]))));
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(3)
+					.setType(FEATURE_TYPE);
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(3)
+					.getGeometry().setType(GEOMETRY_TYPE);
 
 		} catch (IllegalArgumentException illegalArgumentException) {
 			logger.info("Got error response from the convertPoint call");
