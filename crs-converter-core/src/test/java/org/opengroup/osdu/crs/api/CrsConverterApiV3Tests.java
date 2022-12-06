@@ -55,7 +55,7 @@ public class CrsConverterApiV3Tests {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
 		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1a);
-		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponse());
+		when(crsConverter.squaring("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponse());
 		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
 		assertNotNull(response);
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
@@ -67,7 +67,7 @@ public class CrsConverterApiV3Tests {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
 		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1d);
-		when(crsConverter.convertBinGrid(
+		when(crsConverter.squaring(
 				"{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851",
 				inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponseWithToCRS());
 		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
@@ -81,7 +81,7 @@ public class CrsConverterApiV3Tests {
 		ConvertBinGridRequest inBinGrid = new ConvertBinGridRequest();
 		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_with_3_point);
-		when(crsConverter.convertBinGrid("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenThrow(ValidationException.class);
+		when(crsConverter.squaring("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenThrow(ValidationException.class);
 	}
 
 	public static ConvertBinGridRequest createRequestInstance(String json) {

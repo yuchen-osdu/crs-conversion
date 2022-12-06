@@ -207,7 +207,7 @@ public class CRSConverter implements ICRSConverter {
 		return false;
 	}
 
-	public ConvertBinGridResponse convertBinGrid(String toCrs, AbstractBinGrid inBinGrid,
+	public ConvertBinGridResponse squaring(String toCrs, AbstractBinGrid inBinGrid,
 			ConvertBinGridResponse outBinGrid) {
 
 		logger.info("Starting convertBinGrid()..");
