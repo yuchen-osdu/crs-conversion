@@ -36,7 +36,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
         'bbox': 'list[float]',
         'persistable_reference_crs': 'str',
         'coordinate_reference_system_id': 'str',
-        'vertical_unit_z': 'str',
+        'vertical_unit_id': 'str',
         'persistable_reference_unit_z': 'str'
     }
 
@@ -50,7 +50,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
         'persistable_reference_unit_z': 'persistableReferenceUnitZ'
     }
 
-    def __init__(self, type=None, features=None, bbox=None, persistable_reference_crs=None, coordinate_reference_system_id=None, vertical_unit_z=None, persistable_reference_unit_z=None):
+    def __init__(self, type=None, features=None, bbox=None, persistable_reference_crs=None, coordinate_reference_system_id=None, vertical_unit_id=None, persistable_reference_unit_z=None):
         """
         AnyCrsGeoJsonFeatureCollection - a model defined in Swagger
         """
@@ -60,7 +60,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
         self._bbox = None
         self._persistable_reference_crs = None
         self._coordinate_reference_system_id = None
-        self._vertical_unit_z = None
+        self._vertical_unit_id = None
         self._persistable_reference_unit_z = None
 
         self.type = type
@@ -71,8 +71,8 @@ class AnyCrsGeoJsonFeatureCollection(object):
           self.persistable_reference_crs = persistable_reference_crs
         if coordinate_reference_system_id is not None:
           self.coordinate_reference_system_id = coordinate_reference_system_id
-        if vertical_unit_z is not None:
-          self.vertical_unit_z = vertical_unit_z
+        if vertical_unit_id is not None:
+          self.vertical_unit_id = vertical_unit_id
         if persistable_reference_unit_z is not None:
           self.persistable_reference_unit_z = persistable_reference_unit_z
 
@@ -176,7 +176,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
     def coordinate_reference_system_id(self):
         """
         Gets the coordinate_reference_system_id of this AnyCrsGeoJsonFeatureCollection.
-        The spatial context of this AnyCrsGeoJsonFeatureCollection as a CoordinateReferenceSystemID.
+        The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.
 
         :return: The coordinate_reference_system_id of this AnyCrsGeoJsonFeatureCollection.
         :rtype: str
@@ -187,7 +187,7 @@ class AnyCrsGeoJsonFeatureCollection(object):
     def coordinate_reference_system_id(self, coordinate_reference_system_id):
         """
         Sets the coordinate_reference_system_id of this AnyCrsGeoJsonFeatureCollection.
-        The spatial context of this AnyCrsGeoJsonFeatureCollection as a CoordinateReferenceSystemID.
+        The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.
 
         :param coordinate_reference_system_id: The coordinate_reference_system_id of this AnyCrsGeoJsonFeatureCollection.
         :type: str
@@ -196,27 +196,27 @@ class AnyCrsGeoJsonFeatureCollection(object):
         self._coordinate_reference_system_id = coordinate_reference_system_id
 
     @property
-    def vertical_unit_z(self):
+    def vertical_unit_id(self):
         """
-        Gets the vertical_unit_z of this AnyCrsGeoJsonFeatureCollection.
-        The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID.
+        Gets the vertical_unit_id of this AnyCrsGeoJsonFeatureCollection.
+        The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.
 
-        :return: The vertical_unit_z of this AnyCrsGeoJsonFeatureCollection.
+        :return: The vertical_unit_id of this AnyCrsGeoJsonFeatureCollection.
         :rtype: str
         """
-        return self._vertical_unit_z
+        return self._vertical_unit_id
 
-    @vertical_unit_z.setter
-    def vertical_unit_z(self, vertical_unit_z):
+    @vertical_unit_id.setter
+    def vertical_unit_id(self, vertical_unit_id):
         """
-        Sets the vertical_unit_z of this AnyCrsGeoJsonFeatureCollection.
-        The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID.
+        Sets the vertical_unit_id of this AnyCrsGeoJsonFeatureCollection.
+        The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.
 
-        :param vertical_unit_z: The vertical_unit_z of this AnyCrsGeoJsonFeatureCollection.
+        :param vertical_unit_id: The vertical_unit_id of this AnyCrsGeoJsonFeatureCollection.
         :type: str
         """
 
-        self._vertical_unit_z = vertical_unit_z
+        self._vertical_unit_id = vertical_unit_id
 
     @property
     def persistable_reference_unit_z(self):

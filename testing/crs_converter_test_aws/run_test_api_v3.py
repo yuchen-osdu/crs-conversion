@@ -19,4 +19,4 @@ from crs_converter_test_core.test_crs_converter_v3 import *
 
 if __name__ == '__main__':
     import xmlrunner
-    xmlrunner.XMLTestRunner(output='test-reports/v3', outsuffix='aws').run(suite())
+    unittest.main(testRunner=xmlrunner.XMLTestRunner(output='test-reports/v3', outsuffix='aws'))
