@@ -17,7 +17,7 @@ public class AbstractBinGrid {
 	private String binGridTypeID;
 
 	@JsonProperty("SourceBinGridID")
-	private String sourceBinGridID;
+	private Integer sourceBinGridID;
 
 	@JsonProperty("SourceBinGridAppID")
 	private String sourceBinGridAppID;

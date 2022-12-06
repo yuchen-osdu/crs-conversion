@@ -225,28 +225,7 @@ public class CRSConverter implements ICRSConverter {
 			inBinGrid = sortAnyCRSFeature(inBinGrid);
 			logger.info("Validation and sorting successfull...");
 			// Setting the computed values for P6 SchemaParameters
-			// if the scaleFactor value from the input request is 0.0 , then it is set to
-			// 1.0
-			if (inBinGrid.getP6ScaleFactorOfBinGrid() == 0.0) {
-				inBinGrid.setP6ScaleFactorOfBinGrid(1.0);
-			}
-			// Setting the default value to 1 , if the value is 0 from the input request
-			if (inBinGrid.getP6BinNodeIncrementOnIaxis() == 0) {
-				inBinGrid.setP6BinNodeIncrementOnIaxis(1);
-			}
-			// Setting the default value to 1 , if the value is 0 from the input request
-			if (inBinGrid.getP6BinNodeIncrementOnJaxis() == 0) {
-				inBinGrid.setP6BinNodeIncrementOnJaxis(1);
-			}
-
-			inBinGrid.setP6BinGridOriginI(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.getFeatures().get(0).getProperties().getPointPropertiesList().get(0).getInline().doubleValue());
-			inBinGrid.setP6BinGridOriginJ(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.getFeatures().get(0).getProperties().getPointPropertiesList().get(0).getCrossline().doubleValue());
-			inBinGrid.setP6BinGridOriginEasting(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.getFeatures().get(0).getGeometry().getCoordinates().get(0));
-			inBinGrid.setP6BinGridOriginNorthing(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
-					.getFeatures().get(0).getGeometry().getCoordinates().get(1));
+			prepareSchemaParameters(inBinGrid);
 
 			// performing the bin grid computation
 			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
@@ -275,6 +254,63 @@ public class CRSConverter implements ICRSConverter {
 		}
 		return outBinGrid;
 
+	}
+	
+	private AbstractBinGrid prepareSchemaParameters(AbstractBinGrid inBinGrid) {
+		double inlineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+				.getProperties().getPointPropertiesList().get(0).getInline();
+		double inlineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
+				.getProperties().getPointPropertiesList().get(0).getInline();
+		double inlineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
+				.getProperties().getPointPropertiesList().get(0).getInline();
+		double inlineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
+				.getProperties().getPointPropertiesList().get(0).getInline();
+		double p6BinGridOriginI = (inlineA + inlineB + inlineC + inlineD) / 4;
+		double crossLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+				.getProperties().getPointPropertiesList().get(0).getCrossline();
+		double crossLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
+				.getProperties().getPointPropertiesList().get(0).getCrossline();
+		double crossLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
+				.getProperties().getPointPropertiesList().get(0).getCrossline();
+		double crossLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
+				.getProperties().getPointPropertiesList().get(0).getCrossline();
+		double p6BinGridOriginJ = (crossLineA + crossLineB + crossLineC + crossLineD) / 4;
+		double eastingA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+				.getGeometry().getCoordinates().get(0);
+		double eastingB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
+				.getGeometry().getCoordinates().get(0);
+		double eastingC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
+				.getGeometry().getCoordinates().get(0);
+		double eastingD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
+				.getGeometry().getCoordinates().get(0);
+		double p6BinGridOriginEasting = (eastingA + eastingB + eastingC + eastingD) / 4;
+		double northingA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
+				.getGeometry().getCoordinates().get(1);
+		double northingB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
+				.getGeometry().getCoordinates().get(1);
+		double northingC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
+				.getGeometry().getCoordinates().get(1);
+		double northingD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
+				.getGeometry().getCoordinates().get(1);
+		double p6BinGridOriginNorthing = (northingA + northingB + northingC + northingD) / 4;
+		// if the scaleFactor value from the input request is 0.0 , then it is set to
+		// 1.0
+		if (inBinGrid.getP6ScaleFactorOfBinGrid() == 0.0) {
+			inBinGrid.setP6ScaleFactorOfBinGrid(1.0);
+		}
+		// Setting the default value to 1 , if the value is 0 from the input request
+		if (inBinGrid.getP6BinNodeIncrementOnIaxis() == 0) {
+			inBinGrid.setP6BinNodeIncrementOnIaxis(1);
+		}
+		// Setting the default value to 1 , if the value is 0 from the input request
+		if (inBinGrid.getP6BinNodeIncrementOnJaxis() == 0) {
+			inBinGrid.setP6BinNodeIncrementOnJaxis(1);
+		}
+		inBinGrid.setP6BinGridOriginI(p6BinGridOriginI);
+		inBinGrid.setP6BinGridOriginJ(p6BinGridOriginJ);
+		inBinGrid.setP6BinGridOriginEasting(p6BinGridOriginEasting);
+		inBinGrid.setP6BinGridOriginNorthing(p6BinGridOriginNorthing);
+		return inBinGrid;
 	}
 
 	private void validateFeaturePoints(AbstractAnyCrsFeatureCollection asIngestedcoordinates) {
@@ -384,41 +420,29 @@ public class CRSConverter implements ICRSConverter {
 	}
 	
 
-	@SuppressWarnings("unchecked")
-	public GeoJsonFeatureCollection prepareGeoJsonRequest(Double xCoordinate, Double yCoordinate, String value) {
+	public GeoJsonFeatureCollection prepareGeoJsonRequest(List<AbstractFeature> abstractFeature, String crsId) {
 
-		JSONArray coordinates = new JSONArray();
-		coordinates.add(xCoordinate);
-		coordinates.add(yCoordinate);
-		coordinates.add(0.0);
-		JSONObject geometry = new JSONObject();
-		geometry.put(TYPE, ANY_CRS_POINT);
-		geometry.put(COORDINATES, coordinates);
-
-		JSONObject finalJson = new JSONObject();
-		finalJson.put(TYPE, ANY_CRS_FEATURE);
-		finalJson.put(GEOMETRY, geometry);
-
-		JSONArray jsonArray = new JSONArray();
-		jsonArray.add(finalJson);
-		JSONObject finalJsonPayload = new JSONObject();
-		finalJsonPayload.put(FEATURES, jsonArray);
 
 		GeoJsonFeatureCollection geoJsonFeatureCollection = new GeoJsonFeatureCollection();
-		GeoJsonFeature[] geoJsonFeatureArray = new GeoJsonFeature[1];
-		GeoJsonFeature geoJsonFeature = new GeoJsonFeature();
-		ArrayList<GeoJsonBase> gs = new ArrayList<>();
-		gs.add(getGeoJsonPoint(xCoordinate, yCoordinate, 0.0));
-		geoJsonFeature.setGeometry(gs.get(0));
-		geoJsonFeatureArray[0] = geoJsonFeature;
+		List<GeoJsonFeature> geoJsonFeatureList = new ArrayList<>();
+		abstractFeature.stream().forEach(features -> {
+			GeoJsonFeature geoJsonFeature = new GeoJsonFeature();
+			ArrayList<GeoJsonBase> gs = new ArrayList<>();
+			gs.add(getGeoJsonPoint(features.getGeometry().getCoordinates().get(0),
+					features.getGeometry().getCoordinates().get(1), 0.0));
+			geoJsonFeature.setGeometry(gs.get(0));
+			geoJsonFeatureList.add(geoJsonFeature);
+		});
+		GeoJsonFeature[] geoJsonFeatureArray = geoJsonFeatureList.stream().toArray(GeoJsonFeature[]::new);
+
 		geoJsonFeatureCollection.setFeatures(geoJsonFeatureArray);
-		geoJsonFeatureCollection.setCoordinateReferenceSystemID(value);
-		geoJsonFeatureCollection.setPersistableReferenceCrs(value);
+		geoJsonFeatureCollection.setCoordinateReferenceSystemID(crsId);
+		geoJsonFeatureCollection.setPersistableReferenceCrs(crsId);
 
 		return geoJsonFeatureCollection;
 	}
 	
-	private static GeoJsonPoint getGeoJsonPoint(double dx, double dy, double dz) {
+	private static GeoJsonPoint getGeoJsonPoint(Double dx, Double dy, Double dz) {
         GeoJsonPoint g_pt = new GeoJsonPoint();
         g_pt.setGeoJsonVariant(GeoJsonBase.GeoJsonVariant.GEO_JSON);
         g_pt.setCoordinates(new double[]{dx, dy, dz});
@@ -687,6 +711,14 @@ public class CRSConverter implements ICRSConverter {
 		maxMisLocation.setDI(Double.valueOf(upto2Decimal.format(dI)));
 		maxMisLocation.setDJ(Double.valueOf(upto2Decimal.format(dJ)));
 		convertBinGridResponse.setMaxMisLocation(maxMisLocation);
+		convertBinGridResponse.getOutBinGrid().setP6BinGridOriginEasting(valueAX);
+		convertBinGridResponse.getOutBinGrid().setP6BinGridOriginNorthing(valueAY);
+		convertBinGridResponse.getOutBinGrid()
+				.setP6BinGridOriginI(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()
+						.get(0).getProperties().getPointPropertiesList().get(0).getInline().doubleValue());
+		convertBinGridResponse.getOutBinGrid()
+				.setP6BinGridOriginJ(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures()
+						.get(0).getProperties().getPointPropertiesList().get(0).getCrossline().doubleValue());
 	}
 
 }
