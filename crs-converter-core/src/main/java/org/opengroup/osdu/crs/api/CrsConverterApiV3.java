@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 
@@ -194,7 +195,7 @@ public class CrsConverterApiV3 {
 			@ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
 			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class) })
 	public ConvertBinGridResponse convertBinGrid(
-			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request, @RequestHeader(value = "data-partition-id") String partitionId) {
+			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request, HttpServletRequest httpServletRequest) {
 
 		logger.info("Starting Bin Grid Convert API.");
 		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
@@ -236,7 +237,7 @@ public class CrsConverterApiV3 {
 				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);
 			}
 			if (StringUtils.isEmpty(inBinGrid.getBinGridDefinitionMethodTypeID()))
-				inBinGrid.setBinGridDefinitionMethodTypeID(partitionId + BIN_GRID_METHOD_4_CORNER);
+				inBinGrid.setBinGridDefinitionMethodTypeID(httpServletRequest.getHeader("data-partition-id") + BIN_GRID_METHOD_4_CORNER);
 			convertBinGridResponse = this.crsConverter.squaring(request.getToCRS(), inBinGrid, convertBinGridResponse);
 			return convertBinGridResponse;
 		} catch (IllegalArgumentException illegalException) {
