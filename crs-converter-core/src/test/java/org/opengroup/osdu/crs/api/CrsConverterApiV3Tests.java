@@ -56,7 +56,7 @@ public class CrsConverterApiV3Tests {
 		ConvertBinGridResponse outBinGrid = new ConvertBinGridResponse();
 		inBinGrid = CrsConverterApiV3Tests.createRequestInstance(Input_Request_Test_1a);
 		when(crsConverter.squaring("toCrs", inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponse());
-		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
+		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid,"partition-id");
 		assertNotNull(response);
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
 		assertEquals(response.getMaxMisLocation().getDJ(), 0.0);
@@ -70,7 +70,7 @@ public class CrsConverterApiV3Tests {
 		when(crsConverter.squaring(
 				"{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851",
 				inBinGrid.getInBinGrid(), outBinGrid)).thenReturn(makeBinGridResponseWithToCRS());
-		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid);
+		ConvertBinGridResponse response = crsConverterApi.convertBinGrid(inBinGrid,"partition-id");
 		assertNotNull(response);
 		assertEquals(response.getMaxMisLocation().getDI(), 0.0);
 		assertEquals(response.getMaxMisLocation().getDJ(), 0.38);

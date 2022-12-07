@@ -70,6 +70,7 @@ public class CrsConverterApiV3 {
     private RecordCache recordCache;
     private static final String FEATURE_TYPE = "Feature";
 	private static final String GEOMETRY_TYPE = "Point";
+	private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner";
  
 	public CrsConverterApiV3(@NonNull ICRSConverter crsConverter,
 				  @NonNull ITrajectoryConverter crsTrajectoryConverter,
@@ -193,7 +194,7 @@ public class CrsConverterApiV3 {
 			@ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
 			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class) })
 	public ConvertBinGridResponse convertBinGrid(
-			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request) {
+			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request, @RequestHeader(value = "data-partition-id") String partitionId) {
 
 		logger.info("Starting Bin Grid Convert API.");
 		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
@@ -234,6 +235,8 @@ public class CrsConverterApiV3 {
 						.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
 				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);
 			}
+			if (StringUtils.isEmpty(inBinGrid.getBinGridDefinitionMethodTypeID()))
+				inBinGrid.setBinGridDefinitionMethodTypeID(partitionId + BIN_GRID_METHOD_4_CORNER);
 			convertBinGridResponse = this.crsConverter.squaring(request.getToCRS(), inBinGrid, convertBinGridResponse);
 			return convertBinGridResponse;
 		} catch (IllegalArgumentException illegalException) {
@@ -267,7 +270,8 @@ public class CrsConverterApiV3 {
 			convertGeoJsonRequest.setToCRS(Constants.WGS84);
 			ConvertGeoJsonResponse convertGeoJsonResponse = convertGeoJson(convertGeoJsonRequest);
 			GeoJsonFeature[] geoJsonFeature = convertGeoJsonResponse.getFeatureCollection().getFeatures();
-
+			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates()
+			.setType(convertGeoJsonResponse.getFeatureCollection().getType());
 			convertBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().getWgs84Coordinates().getFeatures().get(0)
 					.getGeometry()
 					.setCoordinates(Arrays.asList(
