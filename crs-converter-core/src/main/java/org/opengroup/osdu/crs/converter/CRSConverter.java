@@ -2,7 +2,6 @@ package org.opengroup.osdu.crs.converter;
 
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialReference;
 
-import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,19 +12,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.crs.BinGrid.AbstractAnyCrsFeatureCollection;
 import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
-import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
 import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
@@ -49,9 +44,6 @@ import org.opengroup.osdu.crs.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 @Service
 public class CRSConverter implements ICRSConverter {
 
@@ -60,17 +52,11 @@ public class CRSConverter implements ICRSConverter {
 
 	private static final String METER = "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}";
 
-	private static final String BIN_GRID_METHOD_4_CORNER = "4Corner";
 	private static final Integer CRS_CODE_9666 = 9666;
 	private static final Integer CRS_CODE_1049 = 1049;
 	private static final String RIGHT_HANDED_NESS = "rightHandedNess";
 	private static final String LEFT_HANDED_NESS = "leftHandedNess";
 	private static final String ANY_CRS_POINT = "AnyCrsPoint";
-	private static final String ANY_CRS_FEATURE = "AnyCrsFeature";
-	private static final String TYPE = "type";
-	private static final String COORDINATES = "coordinates";
-	private static final String GEOMETRY = "geometry";
-	private static final String FEATURES = "features";
 	private static final String KEY_RDELTAI = "RDELTAI";
 	private static final String KEY_RDELTAJ = "RDELTAJ";
 	private static final String KEY_RAC = "RAC";
@@ -249,7 +235,6 @@ public class CRSConverter implements ICRSConverter {
 								+ ", dJ= " + outBinGrid.getMaxMisLocation().getDJ() + " (bin)"));
 			}
 			logger.info("di & dj valuess added.");
-			inBinGrid.setBinGridDefinitionMethodTypeID(BIN_GRID_METHOD_4_CORNER);
 			outBinGrid.setOutBinGrid(inBinGrid);
 		}
 		return outBinGrid;
@@ -706,7 +691,8 @@ public class CRSConverter implements ICRSConverter {
 		format.setTimeZone(TimeZone.getTimeZone("UTC"));
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation()
 				.setCoordinateQualityCheckDateTime(format.format(new Date()));
-
+		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation()
+				.setSpatialLocationCoordinatesDate(format.format(new Date()));
 		MaxMisLocation maxMisLocation = new MaxMisLocation();
 		maxMisLocation.setDI(Double.valueOf(upto2Decimal.format(dI)));
 		maxMisLocation.setDJ(Double.valueOf(upto2Decimal.format(dJ)));
