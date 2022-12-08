@@ -3,6 +3,14 @@ data:
   javaAppJar: "/deployments/*-spring-boot.jar"
   serverPort: 8080
   contextPath: "/api/crs/converter"
+  pKCEndPointHost: referenv
+  keycloakRealm: OSDU
+  pKCClientId: partition-service
+  pKCClientSecret: referenv
+  grantType: password
+  pKCPassword: changeit
+  pKCUser: partition-service-admin
+  pKAcceptHttp: true
   
 # log
   logPrefix: schema

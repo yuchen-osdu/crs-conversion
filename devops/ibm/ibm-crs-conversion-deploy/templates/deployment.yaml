@@ -54,6 +54,17 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: partition.keycloak.client_secert
+              valueFrom:
+                secretKeyRef:
+                  key: partition_service_secret_data
+                  name: props-secret-generated-password
+            - name: partition.keycloak.url
+              valueFrom:
+                configMapKeyRef:
+                  key: partition.keycloak.url
+                  name: partition-config
           envFrom:
             - configMapRef:
                 name: crs-conversion-config
