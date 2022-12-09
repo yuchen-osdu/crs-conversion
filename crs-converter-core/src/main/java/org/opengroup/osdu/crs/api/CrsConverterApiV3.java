@@ -71,7 +71,7 @@ public class CrsConverterApiV3 {
     private RecordCache recordCache;
     private static final String FEATURE_TYPE = "Feature";
 	private static final String GEOMETRY_TYPE = "Point";
-	private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner";
+	private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner:";
  
 	public CrsConverterApiV3(@NonNull ICRSConverter crsConverter,
 				  @NonNull ITrajectoryConverter crsTrajectoryConverter,
