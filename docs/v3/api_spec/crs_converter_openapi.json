@@ -1074,7 +1074,8 @@
             "type": "string"
           },
           "SourceBinGridID": {
-            "type": "string"
+            "type": "integer",
+            "format": "int32"
           },
           "SourceBinGridAppID": {
             "type": "string"
@@ -1270,6 +1271,9 @@
             "items": {
               "$ref": "#/definitions/AbstractFeature"
             }
+          },
+          "Type": {
+            "type": "string"
           }
         }
       },
