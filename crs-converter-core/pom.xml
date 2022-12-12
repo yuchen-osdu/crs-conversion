@@ -14,7 +14,7 @@
   <properties>
     <app.version>1</app.version>
     <app.id>crs-converter-core</app.id>
-    <jackson-databind.version>2.13.2.2</jackson-databind.version>
+    <jackson-databind.version>2.13.4.2</jackson-databind.version>
     <jackson.version>2.13.2</jackson.version>
     <spring-webmvc.version>5.3.22</spring-webmvc.version>
   </properties>
@@ -130,6 +130,11 @@
       <artifactId>spring-webmvc</artifactId>
       <version>${spring-webmvc.version}</version>
     </dependency>
+    <dependency>
+	    <groupId>org.apache.tomcat.embed</groupId>
+	    <artifactId>tomcat-embed-core</artifactId>
+	    <version>9.0.68</version>
+	</dependency>
   </dependencies>
 
     <build>
