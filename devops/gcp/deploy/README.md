@@ -30,22 +30,17 @@ Before installing deploy Helm chart you need to install [configmap Helm chart](.
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**image** | your image name | string | - | yes
-**requestsCpu** | amount of requests CPU | string | 0.1 | yes
-**requestsMemory** | amount of requests memory| string | 256M | yes
-**limitsCpu** | CPU limit | string | 1 | yes
-**limitsMemory** | memory limit | string | 1G | yes
-**serviceAccountName** | name of your service account | string | crs-conversion | yes
-**imagePullPolicy** | when to pull image | string | IfNotPresent | yes
+**logLevel** | logging level | string | INFO | yes
+**sisData**  | path to Apache SIS library | string | "/crs-converter/apachesis_setup/SIS_DATA" | yes
+**storageHost** | host to Storage service | string | "http://storage" | yes
+**entitlementsHost** | host to Entitlements service | string | "http://entitlements" | yes
 
 ### Config variables
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**domain** | your domain | string | - | yes
-**appName** | name of the app | string | crs-conversion | yes
 **configmap** | configmap to be used | string | crs-conversion-config | yes
-**onPremEnabled** | whether on-prem is enabled | boolean | false | yes
+**appName** | name of the app | string | crs-conversion | yes
 
 ### Install the helm chart
 

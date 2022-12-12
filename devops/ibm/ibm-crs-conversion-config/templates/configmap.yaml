@@ -15,4 +15,15 @@ data:
 
 #Authorization  
   osdu.entitlement.url: "http://{{ .Release.Name }}-ibm-entitlement-deploy:8080/api/entitlements/v2"
-  SIS_DATA: /home/jboss/data/SIS_DATA 
+  SIS_DATA: /home/jboss/data/SIS_DATA
+#tenant-validation
+  ibm.health-check-uri: /api/crs/converter/v2/info
+  PARTITION_API: "http://{{ .Release.Name }}-ibm-partition-deploy:8080/api/partition/v1"
+  partition.keycloak.client_id: "{{ .Values.data.pKCClientId }}"
+  partition.keycloak.client_secert: "{{ .Values.data.pKCClientSecret }}"
+  partition.keycloak.grant_type: "{{ .Values.data.grantType }}"
+  partition.keycloak.password: "{{ .Values.data.pKCPassword }}"
+  partition.keycloak.realm: "{{ .Values.data.keycloakRealm }}"
+  partition.keycloak.url: "{{ .Values.data.pKCEndPointHost }}"
+  partition.keycloak.user: "{{ .Values.data.pKCUser }}"
+  partition.keycloak.accept_http: "{{ .Values.data.pKAcceptHttp }}" 
