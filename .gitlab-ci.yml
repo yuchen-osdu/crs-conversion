@@ -63,3 +63,6 @@ include:
     file: "publishing/pages.yml"
 
   - local: "devops/gcp/pipeline/override-stages.yml"
+
+  - local: "devops/aws/pipeline/override-stages.yml"
+
