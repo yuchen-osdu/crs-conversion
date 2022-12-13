@@ -12,7 +12,7 @@ public class AbstractFeatureCollection {
 	@JsonProperty("features")
     private List<AbstractFeature> features;
 	
-	@JsonProperty("Type")
+	@JsonProperty("type")
     private String type;
 
 }
