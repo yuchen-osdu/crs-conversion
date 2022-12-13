@@ -195,7 +195,8 @@ public class CrsConverterApiV3 {
 			@ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
 			@ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class) })
 	public ConvertBinGridResponse convertBinGrid(
-			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request, HttpServletRequest httpServletRequest) {
+			@ApiParam(hidden = true) @NonNull @Valid @RequestBody ConvertBinGridRequest request,
+			HttpServletRequest httpServletRequest) {
 
 		logger.info("Starting Bin Grid Convert API.");
 		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
@@ -232,13 +233,24 @@ public class CrsConverterApiV3 {
 				convertBinGridResponse.setAppliedOperations(operationsApplied);
 				convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 						.setCoordinateReferenceSystemID(request.getToCRS());
+				convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+						.setPersistableReferenceCrs(
+								convertGeoJsonResponse.getFeatureCollection().getPersistableReferenceCrs());
 				logger.info("CRS ID from outBinGrid. " + convertBinGridResponse.getOutBinGrid()
 						.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getCoordinateReferenceSystemID());
-				convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);
+			} else {
+				String persistableRefString = getPersistableReferenceFromID(inBinGrid.getABCDBinGridSpatialLocation()
+						.getAsIngestedcoordinates().getCoordinateReferenceSystemID(), true);
+				logger.info("persistableRefString : " + String.valueOf(persistableRefString));
+				if (persistableRefString != null)
+					convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
+							.setPersistableReferenceCrs(persistableRefString);
 			}
 			if (StringUtils.isEmpty(inBinGrid.getBinGridDefinitionMethodTypeID()))
-				inBinGrid.setBinGridDefinitionMethodTypeID(httpServletRequest.getHeader("data-partition-id") + BIN_GRID_METHOD_4_CORNER);
+				inBinGrid.setBinGridDefinitionMethodTypeID(
+						httpServletRequest.getHeader("data-partition-id") + BIN_GRID_METHOD_4_CORNER);
 			convertBinGridResponse = this.crsConverter.squaring(request.getToCRS(), inBinGrid, convertBinGridResponse);
+			convertBinGridResponse = convertedWgs84Coordinates(convertBinGridResponse, inBinGrid);
 			return convertBinGridResponse;
 		} catch (IllegalArgumentException illegalException) {
 			logger.error("Exception from the convert call " + illegalException.getMessage());
