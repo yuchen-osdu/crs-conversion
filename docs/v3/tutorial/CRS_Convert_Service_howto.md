@@ -2,52 +2,39 @@
 
 *The OSDU has two CRS helper services: "`CRS Convert`" and "`CRS Catalog`".
 This tutorial provides examples and background to help
-application developers accomplish typical tasks.*
+application developers accomplish typical tasks using the "`CRS Convert`" endpoints.
+
 
 **Revision Log**
 
 | **Version** | **Reason for change** | **Author** | **Date**   |
 |-------------|-----------------------|------------|------------|
-| 1.0         | Initial version for Convert v3      | Geomatics Integration  | 2022-06-15 |
-|             |                       |            |            |
+| 1.0         | Initial version for Convert v3     | Geomatics Integration  | 2022-06-15 |
+| 1.1         | Added convertBinGrid               |                        | 2022-11-30 |
+
 
 **Table of Contents**
 
-- [1. Introduction](#1-introduction)
+* [1. Introduction](#1-introduction)  
+* [2. CRS Convert Overview](#2-crs-convert-overview)  
+* [3. Check if the service is running](#3-check-if-the-service-is-running)  
+* [4. Performing coordinate operations](#4-performing-coordinate-operations)  
+  * [4.1 Context](#41-context)  
+    * [4.1.1 Known issues](#411-known-issues)  
+  * [4.2 Converting a list of points from one CRS to another](42-converting-a-list-of-points-from-one-crs-to-another)  
+    * [4.2.1 Simple example with POST /convert](#421-simple-example-with-post-convert)  
+    * [4.2.2 Simple example with POST /convertGeoJson](#422-simple-example-with-post-convertgeojson)  
+    * [4.2.3 Correctness and performance tests](#423-correctness-and-performance-tests)  
+* [5. Computing a wellbore trajectory from directional survey data](#5-computing-a-wellbore-trajectory-from-directional-survey-data)  
+  * [5.1 Basic example](#51-basic-example)  
+  * [5.2 Realistic example](#52-realistic-example)  
+    * [5.2.1 Python script to help generate the Request for test data](#521-python-script-to-help-generate-the-request-for-test-data)  
+    * [5.2.2 Correctness and performance](#522-correctness-and-performance)  
+  * [5.3 “Unscaling” the calculated wellbore path](#53-unscaling-the-calculated-wellbore-path)  
+  * [5.4 A trick to get scale and convergence at any location](#54-a-trick-to-get-scale-and-convergence-at-any-location)  
+* [6. Wellbore interpolation on MD](#6-wellbore-interpolation-on-md)  
+* [7. QC and Convert Bin Grid](#7-qc-and-convert-bin-grid)
 
-- [2. CRS Convert Overview](#2-crs-convert-overview)
-
-- [3. Check if the service is running](#3-check-if-the-service-is-running)
-
-- [4. Performing coordinate operations](#4-performing-coordinate-operations)
-
-  - [4.1 Context](#41-context)
-
-    - [4.1.1 Known issues](#411-known-issues)
-
-  - [4.2 Converting a list of points from one CRS to another](42-converting-a-list-of-points-from-one-crs-to-another)
-
-    - [4.2.1 Simple example with POST /convert](#421-simple-example-with-post-convert)
-
-    - [4.2.2 Simple example with POST /convertGeoJson](#422-simple-example-with-post-convertgeojson)
-
-    - [4.2.3 Correctness and performance tests](#423-correctness-and-performance-tests)
-
-- [5. Computing a wellbore trajectory from directional survey data](#5-computing-a-wellbore-trajectory-from-directional-survey-data)
-
-  - [5.1 Basic example](#51-basic-example)
-
-  - [5.2 Realistic example](#52-realistic-example)
-
-    - [5.2.1 Python script to help generate the Request for test data](#521-python-script-to-help-generate-the-request-for-test-data)
-
-    - [5.2.2 Correctness and performance](#522-correctness-and-performance)
-
-  - [5.3 “Unscaling” the calculated wellbore path](#53-unscaling-the-calculated-wellbore-path)
-
-  - [5.4 A trick to get scale and convergence at any location](#54-a-trick-to-get-scale-and-convergence-at-any-location)
-
-- [6. Wellbore interpolation on MD](#6-wellbore-interpolation-on-md)
 
 # 1. Introduction
 
@@ -55,20 +42,24 @@ application developers accomplish typical tasks.*
     describing common tasks with examples how to accomplish them (and
     background not easily described in swagger documentation or postman
     collections).
-
 -   The [Apache SIS - The Apache SIS™ library](https://sis.apache.org/) is
     used in OSDU as public domain geodetic engine. The correctness of this
     engine has been assessed by OSDU Geomatics Integration workstream using
     the GIGS framework (to link to report).
+-   CRS definitions are centrally managed as reference data. The CRS record-id is critical.
 
 
 # 2. CRS Convert Overview
 
-Applications build on top of OSDU require coordinates to be converted from
+Applications built on top of OSDU require coordinates to be converted from
 one CRS to another, e.g., for normalization to a global CRS (WGS 84),
 or for delivery in a common CRS to work in a project.
 
-The endpoints for CRS Convert v3 are fully specified via the [Swagger documentation](https://community.opengroup.org/osdu/platform/system/reference/crs-conversion-service/-/blob/master/docs/v3/api_spec/crs_converter_openapi.json). Its endpoints are:
+The CRS Convert service enables such conversions (/transformations) of coordinates.
+
+The endpoints for CRS Convert v3 {{osduonaws_base_url}}/api/crs/converter/ are fully specified via 
+the [Swagger documentation](https://community.opengroup.org/osdu/platform/system/reference/crs-conversion-service/-/blob/master/docs/v3/api_spec/crs_converter_openapi.json). 
+Its endpoints are:
 
 <table>
 <colgroup>
@@ -84,20 +75,25 @@ The endpoints for CRS Convert v3 are fully specified via the [Swagger documentat
 </tr>
 </thead>
 <tbody>
+<tr class="even">
+<td>GET</td>
+<td><strong>.../actuator/health</strong></td>
+<td>Checks if service is up and running.</td>
+</tr>
 <tr class="odd">
 <td>GET</td>
-<td>/info</td>
-<td>Checks if service is running</td>
+<td><strong>.../v3/info</strong></td>
+<td>Provides info, including of underlying geodetic engine built.</td>
 </tr>
 <tr class="even">
 <td>POST</td>
-<td><strong>/convert</strong></td>
+<td><strong>.../v3/convert</strong></td>
 <td><p>Convert coordinates from one CRS to another.</p>
 <p>CT is taken from the BoundCRS.</p></td>
 </tr>
 <tr class="odd">
 <td>POST</td>
-<td><strong>/convertGeoJson</strong></td>
+<td><strong>.../v3/convertGeoJson</strong></td>
 <td><p>Convert coordinates from one CRS to another.</p>
 <p>Same as /convert but the parameters in the request/response bodies
 are GeoJson (WGS 84) or AnyCrsGeoJson structure as stored in
@@ -105,40 +101,41 @@ AbstractSpatialLocation.</p></td>
 </tr>
 <tr class="even">
 <td>POST</td>
-<td><strong>/convertTrajectory</strong></td>
-<td>Compute the wellbore trajectory based on directional survey
+<td><strong>.../v3/convertTrajectory</strong></td>
+<td>Compute the wellbore trajectory based on directional survey observables.</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><strong>.../v3/convertBinGrid</strong></td>
+<td>Convert a bin grid to a new CRS, square it up, and provide a measure of the non-orthogonality.
 observables.</td>
 </tr>
 </tbody>
 </table>
 
-The CRS Convert service provides spatial reference conversions for coordinates.
-Coordinates are represented by an array of 3D points.
-```
-  "points": [
-    {
-      "x": -61.04340628871454,
-      "y": 10.673103179456877,
-      "z": 0
-    },
-    {
-      "x": -62.28871454043406,
-      "y": 11.794568776731031,
-      "z": 0
-    }
-  ]
-```
+2D and 3D locations are expressed using coordinates that are (required to be) associated with a CRS.
+* [Chapter 4 of the Guide](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Guides/Chapters/04-FrameOfReference.md) 
+explains how the CRS is stored in OSDU.
+* [AbstractSpatialLocation](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractSpatialLocation.1.1.0.json) holds the coordinates of points and geometries such as Points, Lines and Polygons.
+* [AbstractFeatureCollection](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractFeatureCollection.1.0.0.json) 
+and [AnyCrsFeatureCollection](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/Generated/abstract/AbstractAnyCrsFeatureCollection.1.1.0.json)
+hold the coordinates in a GeoJson (like) structures for WGS 84 (lat,lon) and arbitrary CRS.
+
+
+## Axes (order) definition
+
+The API assumes "XYZ" order, positive east, north, up.
+
 The context, i.e., the measurement and unit associated with the axes,
 is given by the CRS definitions. In most of the cases, the CRS definition
 is 2D. In both the geographic and projected CRS types, the Z-axis is passed through unchanged, and its unit is
 only known to the client.
 
-## Axis Definitions
 
 Axis|CRS type|Measurement|Unit|Sign and Directions
 ----|--------|-----------|----|---------------
-x| Geographic CRS| longitude ```Plane_Angle``` |from CRS| positive values ```E```, negative values ```W``` hemisphere
-y| Geographic CRS| latitude  ```Plane_Angle``` |from CRS| positive values ```N```, negative values ```S``` hemisphere
+x| Geographic 2D CRS| (geodetic) longitude ```Plane_Angle``` |from CRS| positive values ```E```, negative values ```W``` hemisphere
+y| Geographic 2D CRS| (geodetic) latitude  ```Plane_Angle``` |from CRS| positive values ```N```, negative values ```S``` hemisphere
 z| Vertical CRS| ```Length``` |pass-through | typically elevation relative to an implicit Mean Sea Level surface
 x| Projected CRS| ```Length``` |from CRS| direction given by the CRS, normally easting
 y| Projected CRS| ```Length``` |from CRS| direction given by the CRS, normally northing
@@ -148,9 +145,34 @@ z| Vertical CRS| ```Length``` |pass-through| typically elevation relative to an 
 
 # 3. Check if the service is running
 
-The GET /info endpoint is self-explanatory from the swagger documentation and in postman.
+The GET /info and /actuator/health endpoints are self-explanatory and can be used to check the version and if the service is up.
 
-This endpoints can be used to check the version and if the service is up.
+_{{osduonaws_base_url}}/api/crs/converter/actuator/health_ response is
+```json
+{
+    "status": "UP",
+    "groups": [
+        "liveness",
+        "readiness"
+    ]
+}
+```
+
+
+_{{osduonaws_base_url}}/api/crs/converter/v3/info_ response is like
+```json
+{
+    "groupId": "org.opengroup.osdu.crs-converter-service",
+    "artifactId": "crs-converter-aws",
+    "version": "0.16.2-SNAPSHOT",
+    "buildTime": "2022-08-18T20:58:49.957Z",
+    "branch": "refs/heads/release/r3-m13",
+    "commitId": "Id",
+    "commitMessage": "Update version of release branch to 0.16.2-SNAPSHOT",
+    "connectedOuterServices": []
+}
+```
+
 
 # 4. Performing coordinate operations
 
@@ -175,8 +197,8 @@ coordinates in the base geographic CRS of a projected CRS.*
   there is the issue of transformation multiplicity, i.e., various
   coordinate transformations can be used and a common issue is how to
   select the appropriate CT for the given data? In the OSDU this is
-  resolved by using a BoundCRSs and the "WGS 84 hub" concept (see 
-  [IOGP Guidance Note 373-07-1](epsg.org) for detail). 
+  resolved by using a BoundCRSs and the "WGS 84 hub" concept 
+  (see [IOGP Guidance Note 373-07-1](epsg.org) for detail). 
   This means that **when data is ingested it must be associated with a BoundCRS**
   and the BoundCRS must have a transform to WGS 84 (and not some other binding) - unless the data is already (based on) WGS 84.
 
@@ -199,9 +221,9 @@ coordinates in the base geographic CRS of a projected CRS.*
 
 
 
-- Actually, for Apache SIS the situation is slightly more subtle. The
+- Actually, the situation is slightly more subtle for Apache SIS. The
   OSDU api/SIS engine does not blindly interpret the provided explicit
-  definition:
+  definition, but attempts to match the EPSG code with its internal library:
 
   - First the authCode is extracted for the lateBoundCRS and singleCT.
     In the above BoundCRS example these are:
@@ -226,7 +248,7 @@ coordinates in the base geographic CRS of a projected CRS.*
 
 ### **4.1.1 Known issues**
 
-- An issue was identified in M3.R12; namely all CTs in the OSDU
+- An issue was identified in M3.R12 (2022.1); namely all CTs in the OSDU
   reference data for BoundCRSs must be defined “to WGS 84” (as opposed
   to “from WGS 84”). This is theoretically not guaranteed in the EPSG
   Dataset which is the basis for OSDU. However, in practice the potential impact is small because
@@ -335,8 +357,8 @@ A simple example to convert a single point is provided below. The input is an ar
 
 ```json
 {
-  "fromCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672",
-  "toCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632",
+  "fromCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::28992_EPSG::1672:",
+  "toCRS" : "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
   "points" : [ {
     "x" : 400000,
     "y" : 190000,
@@ -423,7 +445,7 @@ are returned as "NaN"
 
 <details><summary>Request leading to partial success example</summary>
 
-```
+```json
 {
   "fromCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}",
   "toCRS": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"20256017\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"20256\"},\"name\":\"AGD_1966_AMG_Zone_56\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"AGD_1966_AMG_Zone_56\\\",GEOGCS[\\\"GCS_Australian_1966\\\",DATUM[\\\"D_Australian_1966\\\",SPHEROID[\\\"Australian\\\",6378160.0,298.25]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",10000000.0],PARAMETER[\\\"Central_Meridian\\\",153.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",20256]]\"},\"name\":\"AGD66 * OGP-Aus 0.1m / AMG zone 56 [20256,15786]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15786\"},\"name\":\"AGD_1966_To_WGS_1984_17_NTv2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"AGD_1966_To_WGS_1984_17_NTv2\\\",GEOGCS[\\\"GCS_Australian_1966\\\",DATUM[\\\"D_Australian_1966\\\",SPHEROID[\\\"Australian\\\",6378160.0,298.25]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NTv2\\\"],PARAMETER[\\\"Dataset_australia/A66_National_13_09_01\\\",0.0],AUTHORITY[\\\"EPSG\\\",15786]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}",
@@ -462,7 +484,7 @@ are returned as "NaN"
 
 <details><summary>Response example</summary>
 
-```
+```json
 {
   "successCount": 3,
   "points": [
@@ -512,20 +534,25 @@ Inappropriate CRS combinations will lead to unsuccessful responses. The response
 
 ### 4.2.2 Simple example with POST /convertGeoJson
 
-The same result can be achieved using convertGeoJson. Note that the
-featureCollection in the Request body contains the CRS of the input
+The exact same converted coordinates can be computed with `convertGeoJson`. 
+The only difference between convert and convertGeoJson is the payload, 
+i.e., `convert` uses a list of coordinates, `convertGeoJson` a _schema fragment_.
+Note that this is not true GeoJson (which is always in WGS 84); the
+featureCollection in the Request body specifies the CRS of the input
 coordinates.
 
-This is a convenient form because no manipulation is needed for these
+This is a more convenient form compare to `convert` because no manipulation is needed for these
 schema fragment “objects” of the AbstractSpatialLocation data definition
 used in OSDU to store locations.
+
+### Example 1: Conversion NOT to WGS 84 (returning an AnyCrsFeatureCollection)
 
 **Request** _{{osduonaws_base_url}}/api/crs/converter/v3/convertGeoJson_
 
 ```json
 {
-  "toCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632",
-  "toUnitZ": "{{NAMESPACE}}:reference-data--UnitOfMeasure:m",
+  "toCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32632:",
+  "toUnitZ": "{{NAMESPACE}}:reference-data--UnitOfMeasure:ft:",
   "featureCollection": {
     "features": [
       {
@@ -533,7 +560,7 @@ used in OSDU to store locations.
           "coordinates": [
             313405.9477893702,
             6944797.620047403,
-            6.561679790026246
+            2
           ],
           "bbox": null,
           "type": "AnyCrsPoint"
@@ -545,72 +572,137 @@ used in OSDU to store locations.
     ],
     "bbox": null,
     "properties": {},
-    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612",
-    "VerticalUnitID": "{{NAMESPACE}}:reference-data--UnitOfMeasure:ft",
+    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+    "VerticalUnitID": "{{NAMESPACE}}:reference-data--UnitOfMeasure:m:",
     "type": "AnyCrsFeatureCollection"
   }
 }
 ```
 
-
 **Response**
 
-```
+```json
 {
     "successCount": 1,
     "totalCount": 1,
     "featureCollection": {
         "type": "AnyCrsFeatureCollection",
         "features": [
-        {
-           "type": "AnyCrsFeature",
-           "geometry": {
-           "type": "AnyCrsPoint",
-           "coordinates": [
-               313327.53836151725,
-               6944590.577335917,
-               1.9999999999999998
-               ]
-            },
-            "properties": {}
+            {
+                "type": "AnyCrsFeature",
+                "geometry": {
+                    "type": "AnyCrsPoint",
+                    "coordinates": [
+                        313327.53831136867,
+                        6944590.577356114,
+                        6.561679790026246
+                    ]
+                },
+                "properties": {}
             }
         ],
         "properties": {},
-        "persistableReferenceCrs": "{"authCode":{"auth":"OSDU","code":"25832001"},"lateBoundCRS":{"authCode":{"auth":"EPSG","code":"25832"},"name":"ETRS_1989_UTM_Zone_32N","type":"LBC","ver":"PE_10_9_1","wkt":"PROJCS[\"ETRS_1989_UTM_Zone_32N\",GEOGCS[\"GCS_ETRS_1989\",DATUM[\"D_ETRS_1989\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",9.0],PARAMETER[\"Scale_Factor\",0.9996],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0],AUTHORITY[\"EPSG\",25832]]"},"name":"ETRS89 * EPSG-eur / UTM zone 32N [25832,1149]","singleCT":{"authCode":{"auth":"EPSG","code":"1149"},"name":"ETRS_1989_To_WGS_1984","type":"ST","ver":"PE_10_9_1","wkt":"GEOGTRAN[\"ETRS_1989_To_WGS_1984\",GEOGCS[\"GCS_ETRS_1989\",DATUM[\"D_ETRS_1989\",SPHEROID[\"GRS_1980\",6378137.0,298.257222101]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],METHOD[\"Position_Vector\"],PARAMETER[\"X_Axis_Translation\",0.0],PARAMETER[\"Y_Axis_Translation\",0.0],PARAMETER[\"Z_Axis_Translation\",0.0],PARAMETER[\"X_Axis_Rotation\",0.0],PARAMETER[\"Y_Axis_Rotation\",0.0],PARAMETER[\"Z_Axis_Rotation\",0.0],PARAMETER[\"Scale_Difference\",0.0],OPERATIONACCURACY[1.0],AUTHORITY[\"EPSG\",1149]]"},"type":"EBC","ver":"PE_10_9_1"}",
-        "persistableReferenceUnitZ": "{"abcd":{"a":0.0,"b":1.0,"c":1.0,"d":0.0},"symbol":"m","baseMeasurement":{"ancestry":"L","type":"UM"},"type":"UAD"}"
+        "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32632\"},\"name\":\"WGS_1984_UTM_Zone_32N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_32N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",9.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32632]]\"}",
+        "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":0.3048,\"c\":1.0,\"d\":0.0},\"symbol\":\"ft\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
     },
     "operationsApplied": [
         "conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 1 points converted",
         "transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 1 points successfully transformed",
-        "transformation GCS_WGS_1984 to GCS_ETRS_1989 using ETRS_1989_To_WGS_1984; 1 points successfully transformed",
-        "conversion from GCS_ETRS_1989 to ETRS_1989_UTM_Zone_32N; 1 points converted",
-        "Z-axis unit conversion from ft to m"
+        "conversion from GCS_WGS_1984 to WGS_1984_UTM_Zone_32N; 1 points converted",
+        "Z-axis unit conversion from m to ft"
+    ]
+}
+```
+
+### Example 2: Conversion to WGS 84 (returning a normal GeoJSON FeatureCollection)
+
+**Request** _{{osduonaws_base_url}}/api/crs/converter/v3/convertGeoJson_
+
+```json
+{
+  "toCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+  "toUnitZ": "{{NAMESPACE}}:reference-data--UnitOfMeasure:ft:",
+  "featureCollection": {
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            313405.9477893702,
+            6944797.620047403,
+            2
+          ],
+          "bbox": null,
+          "type": "AnyCrsPoint"
+        },
+        "bbox": null,
+        "properties": {},
+        "type": "AnyCrsFeature"
+      }
+    ],
+    "bbox": null,
+    "properties": {},
+    "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+    "VerticalUnitID": "{{NAMESPACE}}:reference-data--UnitOfMeasure:m:",
+    "type": "AnyCrsFeatureCollection"
+  }
+}
+```
+
+**Response**
+
+```json
+{
+    "successCount": 1,
+    "totalCount": 1,
+    "featureCollection": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        5.364754854438938,
+                        62.58480904234893,
+                        2.0
+                    ]
+                },
+                "properties": {}
+            }
+        ],
+        "properties": {},
+        "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+    },
+    "operationsApplied": [
+        "conversion from ED_1950_UTM_Zone_32N to GCS_European_1950; 1 points converted",
+        "transformation GCS_European_1950 to GCS_WGS_1984 using ED_1950_To_WGS_1984_23; 1 points successfully transformed",
+        "Z-axis unit conversion from m to m"
     ]
 }
 ```
 
 
+
+
 ### 4.2.3 Correctness and performance tests
 
-The SIS engine was checked intensively using GIGS and individual tests
-by geodesists in several Operator companies.
+The SIS engine was checked extensively for mathematical correctness 
+using [GIGS](https://epsg.org/) and individual tests
+by geodesists in several Operator companies in pre-ship testing of R3.M13.
 
 - The standard EPSG projections and transformations are all working
   within expected boundaries.
-
 - There currently is 1 small bug on the board for a Mercator projection
   in an area spanning the antimeridian (2022-06-18; supposed to be fixed
   in Apache SIS 1.3 to be deployed with M14).
-
 - Custom WKT for projections is supported in EpsgManifestGenerator.py
   for the most common methods (LCC1SP, LCC2SP, TM, Mercator (A), Albers,
   Oblique Mercator) and confirmed to work correctly.
-
 - Custom WKT for transformation is supported in EpsgManifestGenerator.py
   for the most common methods (geocentric translations (geog2D); PVT,
   CFR, geographic offsets).
 
-**Performance check**
+### Performance check
 
 To get a feeling for throughput and potential bottlenecks a simple experiment was done to measured the time it takes to convert a steadily increasing number of points.
 
@@ -623,17 +715,13 @@ To get a feeling for throughput and potential bottlenecks a simple experiment wa
 - The main conclusion is that the service is not overly slow, and that there is
   no point at which performance suddenly degrades. Deployment and
   testing in a production environment will yield better numbers.
-
 - 1.5 seconds for single point is long; but this is mainly due to latency in the
   environment. Network speed appears to have been 200 KB/sec during this test and with a
   large request body some time gets lost there.
-
 - 1000 points in 2.5s would mean it takes less than 1 second to
   mathematically do the 1000 points (1 ms/point).
-
 - 10000 points in 6.5s similarly would mean it took the engine 5 seconds
   for 10000 points (0.5 ms/point).
-
 - 50000 pnts in 22s would then correspond to 20 seconds to compute 50000
   points (0.4 ms/point).
 
@@ -654,29 +742,30 @@ standard calculation algorithms are implemented, LMP (Lee’s Modified
 Proposal) and GNL with scale factor correction (called
 "AzimuthalEquidistant" in the API).
 
-- These methods are described in [IOGP Guidance Note 373-07, Part 2](https://epsg.org). 
+- These methods are described in [IOGP Guidance Note 373-07, Part 2](https://epsg.org).
   Both methods require minimum curvature calculated offsets as input.
+
+- A calculation spreadsheet and description of the minimum curvature math are at
+- [OSDU_wellbore_trajectory_calculations.docx](OSDU_wellbore_trajectory_calculations.docx), and 
+- [OSDU_wellbore_trajectory_calculations.xlsx](OSDU_wellbore_trajectory_calculations.xlsx).
+
 
 ## 5.1 Basic example
 
 A very simplified example is given below with 3 survey stations to
 introduce the request and response. This is not a realistic example due
-to the large distance between the survey stations.
+to the large distance between the survey stations and survey only containing 3 points 
+(normally one expects there to be stations every 90 ft or so).
 
-The input in this example uses PersistableReferences for TrajectoryCRS,
-unitXY and unitZ. In the next examples these are replaced by a record-id
-for readability. A record id can be used for CRS and for UOM.
-
-- The MD unit is given by unitZ.
-
+- The input in this example uses record id for CRS and UOM (these records need to exist, the API retrieves the persistableReference).
+- The MD unit is given by `unitZ`.
 - The input unitXY is only used for the algorithm option to input
   dx,dy,dz and not MD,INC,AZI in the InputStations. However it cannot be
   omitted.
-
-  - An issue has been logged. It seems unitXY cannot be omitted. There
-    also is currently a bug if the unit of the projected CRS is not
+  - An issue has been logged. It seems unitXY cannot be omitted. 
+- There also is currently a bug if the unit of the projected CRS is not
     equal to the unit of the MD.
-
+    - An issue has been logged 2022-04-04.
 - The output “Z” coordinates are always heights and not depths (i.e.,
   they are positive station.points.z values when above the “permanent”
   geodetic vertical datum surface).
@@ -688,31 +777,31 @@ for readability. A record id can be used for CRS and for UOM.
   "azimuthReference": "GN",
   "interpolate": false,
   "referencePoint": {
-    "y": 10228686.35,
-    "x": 1009773.17,
-    "z": 102.00
+    "x": 2000000,
+    "y": 10000000,
+    "z": 0
   },
-  "unitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+  "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
   "inputStations": [
     {
       "md": 0,
-      "azimuth": 0.9247,
-      "inclination": 0
+      "azimuth": 100,
+      "inclination": 10
     },
     {
-      "md": 4600,
-      "azimuth": 106.7747,
-      "inclination": 0
+      "md": 1000,
+      "azimuth": 100,
+      "inclination": 10
     },
     {
-      "md": 4902,
-      "azimuth": 106.7747,
-      "inclination": 0.41
+      "md": 1200,
+      "azimuth": 120,
+      "inclination": 12
     }
   ],
-  "trajectoryCRS": "{\"authCode\":{\"auth\":\"SHELL\",\"code\":\"532066079\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32066\"},\"name\":\"NAD_1927_BLM_Zone_16N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"NAD_1927_BLM_Zone_16N\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",1640416.666666667],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-87.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Foot_US\\\",0.3048006096012192],AUTHORITY[\\\"EPSG\\\",32066]]\"},\"name\":\"NAD27 / UTM zone 16N (ftUS) [1241_32066]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15851\"},\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],OPERATIONACCURACY[5.0],AUTHORITY[\\\"EPSG\\\",15851]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+  "trajectoryCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32066_EPSG::15851:",
   "inputKind": "MD_Incl_Azim",
-  "unitXY": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+  "unitXY": "osdu:reference-data--UnitOfMeasure:m:",
   "method": "AzimuthalEquidistant"
 }
 ```
@@ -723,69 +812,69 @@ for readability. A record id can be used for CRS and for UOM.
 ```json
 {
     "trajectoryCRS": "{\"authCode\":{\"auth\":\"SHELL\",\"code\":\"532066079\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32066\"},\"name\":\"NAD_1927_BLM_Zone_16N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"NAD_1927_BLM_Zone_16N\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",1640416.666666667],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-87.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Foot_US\\\",0.3048006096012192],AUTHORITY[\\\"EPSG\\\",32066]]\"},\"name\":\"NAD27 / UTM zone 16N (ftUS) [1241_32066]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15851\"},\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],OPERATIONACCURACY[5.0],AUTHORITY[\\\"EPSG\\\",15851]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
-    "unitXY": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
-    "unitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+    "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+    "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
     "unitDls": "{\"scaleOffset\":{\"scale\":5.81776417331443E-4,\"offset\":0.0},\"symbol\":\"deg/30m\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
     "stations": [
         {
             "md": 0.0,
-            "inclination": 0.0,
-            "azimuthTN": 4.1021980223376886E-5,
-            "azimuthGN": 0.924699999999973,
+            "inclination": 10.0,
+            "azimuthTN": 100.51354989131318,
+            "azimuthGN": 100.0,
             "dxTN": 0.0,
             "dyTN": 0.0,
             "point": {
-                "x": 1009773.1700000245,
-                "y": 1.0228686349999696E7,
-                "z": 102.0
+                "x": 1999999.99999999,
+                "y": 9999999.99999969,
+                "z": 0.0
             },
-            "wgs84Longitude": -88.9578984522382,
-            "wgs84Latitude": 28.172935420826686,
+            "wgs84Longitude": -85.88980921169528,
+            "wgs84Latitude": 27.553258329196616,
             "dls": 0.0,
             "original": true,
             "dz": 0.0
         },
         {
-            "md": 4600.0,
-            "inclination": 0.0,
-            "azimuthTN": 105.85004102198025,
-            "azimuthGN": 106.7747,
-            "dxTN": 0.0,
-            "dyTN": 0.0,
+            "md": 1000.0,
+            "inclination": 10.0,
+            "azimuthTN": 100.51354989131318,
+            "azimuthGN": 100.0,
+            "dxTN": 170.732934404631,
+            "dyTN": -31.68524446220624,
             "point": {
-                "x": 1009773.1700000245,
-                "y": 1.0228686349999696E7,
-                "z": -4498.0
+                "x": 2000170.9670364524,
+                "y": 9999969.85389616,
+                "z": -984.807753012208
             },
-            "wgs84Longitude": -88.9578984522382,
-            "wgs84Latitude": 28.172935420826686,
-            "dls": 0.0,
+            "wgs84Longitude": -85.88928230486448,
+            "wgs84Latitude": 27.553171177913015,
+            "dls": 2.5613209387547815E-8,
             "original": true,
-            "dz": 4600.0
+            "dz": 984.807753012208
         },
         {
-            "md": 4902.0,
-            "inclination": 0.41,
-            "azimuthTN": 105.85004102198025,
-            "azimuthGN": 106.7747,
-            "dxTN": 1.0394468347826642,
-            "dyTN": -0.29511457442461336,
+            "md": 1200.0,
+            "inclination": 12.000000000000002,
+            "azimuthTN": 120.51354989131318,
+            "azimuthGN": 119.99999999999999,
+            "dxTN": 205.73427353766394,
+            "dyTN": -45.41670171219168,
             "point": {
-                "x": 1009774.204607042,
-                "y": 1.0228686038131852E7,
-                "z": -4799.997422628456
+                "x": 2000206.0812087534,
+                "y": 9999956.440082304,
+                "z": -1181.1945438868763
             },
-            "wgs84Longitude": -88.95789522599455,
-            "wgs84Latitude": 28.17293460913737,
-            "dls": 0.04072847682119448,
+            "wgs84Longitude": -85.88917428558662,
+            "wgs84Latitude": 27.5531334082539,
+            "dls": 0.6417379492258135,
             "original": true,
-            "dz": 4901.997422628456
+            "dz": 1181.1945438868763
         }
     ],
-    "localCRS": "{\"lateBoundCRS\":{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=-88.95787999;Lat=28.17268029\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-88.95787999066273],PARAMETER[\\\"Latitude_Of_Origin\\\",28.172680287395558],UNIT[\\\"Foot_US\\\",0.3048006096012192]]\"},\"name\":\"Azimuthal Equidistant - NAD_1927_To_WGS_1984_79_CONUS\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15851\"},\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],OPERATIONACCURACY[5.0],AUTHORITY[\\\"EPSG\\\",15851]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+    "localCRS": "{\"lateBoundCRS\":{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=-85.88989730;Lat=27.55297419\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-85.8898973001242],PARAMETER[\\\"Latitude_Of_Origin\\\",27.55297419069309],UNIT[\\\"Foot_US\\\",0.3048006096012192]]\"},\"name\":\"Azimuthal Equidistant - NAD_1927_To_WGS_1984_79_CONUS\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15851\"},\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],OPERATIONACCURACY[5.0],AUTHORITY[\\\"EPSG\\\",15851]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
     "method": "AzimuthalEquidistant",
     "operationsApplied": [
-        "derived TN from GN azimuth by grid convergence 359.075341",
+        "derived TN from GN azimuth by grid convergence 0.513550",
         "computed deflections via minimum curvature method",
         "computation method: AzimuthalEquidistant",
         "conversion from 'Azimuthal Equidistant' to 'GCS_North_American_1927'",
@@ -800,14 +889,14 @@ for readability. A record id can be used for CRS and for UOM.
 
 ## 5.2 Realistic example
 
-A realistic example is shown below for a directional survey with 86
+A more realistic example is shown below for a directional survey with 86
 survey stations down the wellbore.
-
-<img src="media/image2.tmp" style="width:0.16667in;height:0.16667in" />
+This example demonstrates usage of PersistableReference to define the TrajectoryCRS,
+unitXY and unitZ. It is recommended to use record id as in the simplified example.
 
 <details><summary>Click to expand Request body (86 survey stations)</summary>
 
-```
+```json
 {
   "azimuthReference": "GN",
   "interpolate": false,
@@ -2941,7 +3030,7 @@ scaled to remove the application of the *psf* by the algorithm.
 Copied from the example presented above, the output for the first point
 was:
 
-```
+```json
 {
             "md": 0.0,
             "inclination": 0.0,
@@ -2965,7 +3054,7 @@ was:
 
 And for the last point:
 
-```
+```json
         {
             "md": 27386.0,
             "inclination": 24.11,
@@ -3107,7 +3196,7 @@ the BHL of the wellbore then the following can be done:
       "inclination": 90
     }
   ],
-  "trajectoryCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32066_EPSG::15851",
+  "trajectoryCRS": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32066_EPSG::15851:",
   "inputKind": "MD_Incl_Azim",
   "unitXY": "osdu:reference-data--UnitOfMeasure:m",
   "method": "AzimuthalEquidistant"
@@ -3183,6 +3272,7 @@ the BHL of the wellbore then the following can be done:
 - Issue: what is record id for ftUS and does it guarantee to return ft
   if “ft” is used or ft[US] or ft[GC] ? (“ft%5BUS%5D” in url encoding)
 
+
 # 6. Wellbore interpolation on MD
 
 Interpolation on MD is not currently possible and identified as a gap in
@@ -3194,8 +3284,728 @@ stations is more than 1000 (z-units). It may be the easiest to extent the
 request to include interpolation points, as well as to prescribe an
 interpolation interval as value.
 
-- Issue: Enhancement request: change interpolation to a regular interval that can be specified as a number value (e.g., "1.0" to interpolate every 1 z-unit).
+- Issue: Enhancement request: change interpolation to a regular interval that can be specified as a number value 
+  (e.g., "1.0" to interpolate every 1 z-unit).
 - Issue: New feature: add option to convertTrajectory to interpolate at given input MD values.
 - Issue: Enhancement suggested: improve request body to use a record id for the
   wellbore (that seems more tricky since the survey data are stored file
   based and not in a relation database).
+
+
+# 7. QC and convert Bin Grid
+
+## 7.1 Context
+
+A Bin Grid describe the
+“real world” (Easting, Northing) of bin grid centers at (inline,
+crossline) local coordinates.  The math formulas are defined in 
+- [SDU geometric aspects of bin grids.docx](SDU_geometric_aspects_of_bin_grids.docx), and 
+- [SDU geometric aspects of bin grids.xlsx](SDU_geometric_aspects_of_bin_grids.xlsx).
+
+The figure below shows the four-point bin grid definition using the projected and bin grid local coordinates at 4 corner tie points. 
+The main advantage of the 4 Corner definition is that it is very straightforward and unlikely to be misinterpreted.
+The disadvantage is that one cannot calculate with the corners, and must derive the P6 parameters. The derived (calculated) spacings may not be exactly an integer or multiple of 6.25 m.
+
+The formulas to compute (inline,crossline) at a given (Easting, Northing) with the P6 parameters are described in section 4 and 5 in the above referenced document.
+
+In this definition:
+* Point A is the point with minimum inline and crossline. 
+* Line A->B is a constant inline (increasing crossline coordinates).
+* Line A->C is a constant crossline (increasing inline coordinates). 
+* Point D complements a rectangle (in the (inline,crossline) space and in the (Easting,Northing) space). Point D is redundant and used for QC. It would be trivial to extend the SDU format to include a three-point definition method by omitting the D point, but this is not recommended because the D point facilitates QC and spatializing the grids.
+
+
+![Figure 1: Bin Grid terminology.](ABCDBinGrid.jpg 'Figure 1: Bin Grid terminology.')
+
+
+
+### 7.2 Description of CRS Convert POST v3/convertBinGrid
+
+The CRS Convert service POST v3/convertBinGrid endpoint is an OSDU
+platform standard method for QC and conversion of Bin Grids, associated
+in particular with ingested seismic volumes. 
+This endpoint takes an AbstractBinGrid as
+input and “enriches” it by returning computed properties on output:
+
+- Optionally, convert the Bin Grid to a new CRS and “square it up” (if
+  target CRS is same as original CRS then conversion is omitted, and the
+  squareness test is done in the original CRS).
+- The derived P6 parameters (calculated from the input 4 corners
+  coordinates).
+- Sorts the 4 corners in order ABCD on output. This order is (inl, xln) =
+  (min, min), (min, max), (max, min), (max, max), for the ABCDBinGridSpatialLocation Points.
+- Computes the WGS 84 (lat,lon) coordinates at the corners.
+- Output a QC check of the “squareness” of the input Bin Grid defined using 4
+  corner points, expressed in easily human interpretable metric (partial
+  bins).
+- Additionally, output an AbstractSpatialLocation that maps the BinGrid as a Polygon,
+  to be stored as the SeismicBinGrid SpatialArea, and picked up by the
+  Geospatial Consumption Zone transformer.
+
+### 7.2.1 Request Body
+
+The input and output of this method use the
+[AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
+definition. On input a minimum required properties can be given, which
+are enriched on output as indicated.
+
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 16%" />
+<col style="width: 70%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Parameter name</strong></th>
+<th><strong>Data type</strong></th>
+<th><strong>Description</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inBinGrid</td>
+<td>AbstractBinGrid (1.0.0)</td>
+<td>Mandatory. See table below for required properties on input and
+expected structure of the AsIngestedCoordinates array.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>toCrs</td>
+<td>string (record-id)</td>
+<td><p>Optional. If omitted, then no conversion is performed and only
+the P6 parameters are computed and the check for “squareness” that
+indicates non-orthogonality, as well as the WGS 84 cordinates.</p>
+<p>Record-id of the desired output CRS of bin grid to convert to,
+e.g.,</p>
+<p>"{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:".</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+**NOTE**: Usage of ABCDBinGridLocalCoordinates and
+AbstractCoordinates is **deprecated**. Instead the AnyCrsFeatureCollection
+GeoJson construct with Feature properties should be used as show below (`Inline`, `Crossline`).
+
+Click on expand to show an example ABCDBinGridSpatialLocation containing the local and global
+coordinates on input. 
+This is not a numerically realistic example.
+It is using Coordinate Reference System "NAD83 / UTM zone 15N", CRS code EPSG::26915, 
+bound with Coordinate Transformation "NAD83 to WGS 84 (1)", CT code EPSG::1188.
+
+<details><summary>Click to expand</summary>
+
+```json
+{
+    "BinGridName": "ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534",
+    "ABCDBinGridSpatialLocation": {
+        "AsIngestedCoordinates": {
+            "type": "AnyCrsFeatureCollection",
+            "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::26915_EPSG::1188:",
+            "features": [
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            500000.0,
+                            3000000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            500000.0,
+                            3100000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            600000.0,
+                            3000000.0
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            600000.0,
+                            3100000.0
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+</details>
+
+
+### 7.2.2 Response Body
+
+The response is a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, 
+and an output BinGrid which is enriched with derived information 
+(augmented with the derived P6 parameters filled out, 
+and optionally (if a toCrs was given in the request) converted
+global coordinates that are “squared up” in the new geometry (which can
+be used in applications that require a square grid in a project CRS
+geometry; if the “squaring error” is small enough).
+
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Parameter name</strong></th>
+<th><strong>Data type</strong></th>
+<th><strong>Description</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>outBinGrid</strong></td>
+<td>AbstractBinGrid</td>
+<td>See table below for required properties. The main properties are
+those that hold the (inline, crossline) coordinates at the four ABCD
+corners (in that order), and those that hold the global (Easting,
+Northing) coordinates.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><p><strong>maxMislocation[].dI</strong></p>
+<p><strong>maxMislocation[].dJ</strong></p></td>
+<td><p>Float</p>
+<p>Float</p></td>
+<td>Max mis-location (dI, dJ) expressed in fractional bins at increment
+1 in direction of the inline and crossline, respectively. This should be
+compared to the real spacing (in bins) of the volume loaded. For
+example, if the volume uses incr=2 then an error of 1 bin is only half
+an increment "real" bin. For interpretation, normally acceptable would
+be 1 real (incremented) bin mis-placement. Moreover, since the
+mis-location is zero in the middle and the maximum at the corners of the
+grid, the strict criteria of 1 bin could be relaxed slightly.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+
+`outBinGrid` properties are populated as shown below, depending on whether
+a conversion was requested using the optional "toCrs" parameter.
+
+Click on "expand" to show the example for global coordinates on output, showing the relevant
+geometry properties (the converted and “squared up” x,y coordinates).
+These are the output, "squared up" 4 corners in order A, B, C, D as defined above.
+Additionally the Wgs84Coordinates are populated, as well as the various calculated P6 parameters.
+
+<details><summary>Click to expand Output Example (no realistic values)</summary>
+
+```json
+{
+    "ABCDBinGridSpatialLocation": {
+        "AsIngestedCoordinates": {
+            "type": "AnyCrsFeatureCollection",
+            "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+            "features": [
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3593536.4609,
+                            9888463.8749
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3577506.2747,
+                            10217819.3106
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3922894.4303,
+                            9904494.1844
+                        ]
+                    }
+                },
+                {
+                    "type": "AnyCrsFeature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "AnyCrsPoint",
+                        "coordinates": [
+                            3906864.2441,
+                            10233849.6201
+                        ]
+                    }
+                }
+            ]
+        },
+        "Wgs84Coordinates": {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "A",
+                                "Inline": 1,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.9496875,
+                            58.4141503
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "B",
+                                "Inline": 1,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.9683358,
+                            58.4561357
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "C",
+                                "Inline": 101,
+                                "Crossline": 1000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.8237808,
+                            58.4294624
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "Kind": "osdu:wks:AbstractGeoJson.PropertiesBinGridCorners:1.0.0",
+                        "PointProperties": [
+                            {
+                                "Label": "D",
+                                "Inline": 101,
+                                "Crossline": 2000
+                            }
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            1.8422867,
+                            58.4714655
+                        ]
+                    }
+                }
+            ]
+        },
+        "AppliedOperations": [
+            "AsIngestedCoordinates converted to Wgs84Coordinates: Input CRS EPSG 23031 (ED50 / UTM zone 31N) to Target CRS EPSG 4326 (WGS84) using CT EPSG 1613 (ED50 to WGS 84 (24) - Norway - offshore south of 62°N - North Sea.)"
+        ]
+    },
+    "P6TransformationMethod": 9666,
+    "P6BinGridOriginI": 9985.0,
+    "P6BinGridOriginJ": 1932.0,
+    "P6BinGridOriginEasting": 3593536.4609,
+    "P6BinGridOriginNorthing": 9888463.8749,
+    "P6BinWidthOnIaxis": 25.0,
+    "P6BinWidthOnJaxis": 25.0,
+    "P6MapGridBearingOfBinGridJaxis": 284.12345,
+    "P6BinNodeIncrementOnIaxis": 1,
+    "P6BinNodeIncrementOnJaxis": 1
+} 
+```
+</details>
+
+
+
+### 7.2.3 Input and output AbstractBinGrid properties
+
+Properties of
+[AbstractBinGrid:1.0.0](https://community.opengroup.org/osdu/data/data-definitions/-/blob/master/E-R/abstract/AbstractBinGrid.1.0.0.md)
+on input and output are summarized in the following table.
+
+
+| **AbstractBinGrid property** | **On input**          | **On output if toCRS is not given** | **On output if toCRS is given**   |
+|------------------------------|-----------------------|-------------------------------------|-----------------------------------|
+| BinGridName                  | ignored               | copy of input (leave blank if empty on input)  | same |
+| BinGridTypeID                | ignored               | copy of input (leave blank if empty on input)  | same |
+| SourceBinGridID              | ignored               | copy of input (leave blank if empty on input)  | same |
+| SourceBinGridAppID           | ignored               | copy of input (leave blank if empty on input)  | same |
+| CoveragePercent              | ignored               | copy of input (leave blank if empty on input)  | same | 
+| BinGridDefinitionMethodTypeID   | ignored               | “4Corner”  | “4Corner” |
+|                                 |                       |                                                |      |
+| ~~ABCDBinGridLocalCoordinates~~ | **deprecated usage**  | ignored  | ignored |
+|                                 |                       |                                                |      |
+| **ABCDBinGridSpatialLocation**      | Required            |    _(type AbstractSpatialLocation:1.1.0)_   |   |
+| > **_.AsIngestedCoordinates_**      | Required           |    _(type AbstractAnyCrsFeatureCollection:1.1.0)_  |  |
+| >> .CoordinateReferenceSystemID     | Required CRS of given features[]/geometry.coordinates[]  |  copy of input    | the “toCRS” record-id |
+| >> .persistableReferenceCrs         | Ignored (use CRS record-id) |  copy of input (leave blank if empty on input)    | populate with looked up PR |
+| >> .features[1:4].geometry.type     | Ignored          |  **“AnyCrsPoint”**    | **“AnyCrsPoint”** |
+| >> .features[1:4].geometry.coordinates[]  | Required corner coordinates (4)  |  “Squared up” global coordinates    | Converted and “squared up” global coordinates |
+| > **_.Wgs84Coordinates_**                 | Ignored on input          |      |      |
+| >> .features[1:4].geometry.type           | Ignored on input          |  **“Point”**    | **“Point”** |
+| >> .features[1:4].geometry.coordinates[]  | Ignored on input          |  “Squared up” coordinates transformed to WGS 84.    | same |
+| > .SpatialLocationCoordinatesDate     | Ignored on input          |  copy of input (if given)    | same |
+| > .QualitativeSpatialAccuracyTypeID   | Ignored on input          |  copy of input (if given)    | null out |
+| > .QuantitativeAccuracyBandID         | Ignored on input          |  copy of input (if given)    | null out |
+| > .CoordinateQualityCheckPerformedBy  | Ignored on input          |  “CRS Convert service, POST convertBinGrid”    | same |
+| >  .CoordinateQualityCheckDateTime   | Ignored on input          |   `now()`   | same |
+| >  .CoordinateQualityCheckRemarks[]  | Ignored on input          |  append “Max. squaring error: dI=0.0, dJ=0.4 bin    | same |
+| >  .AppliedOperations[]              | Ignored on input          |  append “squareness tested: dI=x.x, dJ=x.x bin”    | append “converted from <origCRS> to <toCRS>; "squared up": dI=x.x, dJ=x.x (bin)” |
+| >  .SpatialParameterTypeID           | Ignored on input          |  copy of input (if given)    | same |
+| >  .SpatialGeometryTypeID           | Ignored on input          |  copy of input (if given)    | same |
+|                                |                           |                                                |      |
+| P6TransformationMethod         | Ignored on input          |  populate with derived value on output    | same. 9666 for right-handed grids, 1049 for left-handed. |
+| P6BinGridOriginI               | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginJ               | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginEasting         | Ignored on input          |  populate with derived value on output    | same |
+| P6BinGridOriginNorthing        | Ignored on input          |  populate with derived value on output    | same |
+| P6ScaleFactorOfBinGrid         | Ignored on input          |  populate with derived value on output    | same |
+| P6BinWidthOnIaxis              | Ignored on input          |  populate with derived value on output    | same |
+| P6BinWidthOnJaxis              | Ignored on input          |  populate with derived value on output    | same |
+| P6MapGridBearingOfBinGridJaxis | Ignored on input          |  populate with derived value on output    | same |
+| P6BinNodeIncrementOnIaxis      | Ignored on input          |  copy on output. If not present on input, then set to 1    | same |
+| P6BinNodeIncrementOnJaxis      | Ignored on input          |  copy on output. If not present on input, then set to 1    | same |
+
+
+
+### 7.3 Exception handling / Error codes
+
+Error checking is performed with following exception handling and
+response messages when parsing the input:
+
+1.  Checks for ABCDBinGridSpatialLocation
+    1.  Check that a `CRS record-id` is given and exists.
+        * Note: BinGrids should use type BoundProjected or Projected (if based on WGS 84).
+    2.  Four points are given.  
+    3.  Using PropertiesBinGridCorners to give local coordinates.  
+        * Note: Usage of ABCDBinGridLocalCoordinates is deprecated.
+    4.  Local coordinates are sortable as A,B,C,D, i.e., in order (inline,crossline) = (I,J) =
+        (minI,minJ), (minI,maxJ), (maxI,maxJ), (maxI,minJ).  
+        Check that the numbers with same symbols are the same and 
+        minI \< maxI and minJ \< maxJ.
+2.  If toCrs is given
+    1. Check that the given `CRS record-id` exists.
+
+
+### 7.4 How to use CRS Convert method POST v3/convertBinGrid?
+
+- When storing a seismic volume file (e.g., a SEGY file) into OSDU, then a `SeismicTraceData WPC` is created
+  which references a `SeismicBinGrid`, which references an `AbstractBinGrid`.
+  -  Create a basic AbstractBinGrid and set the 
+     `CRS record-id` and 4 corner coordinates in its ABCDBinGridSpatialLocation.
+  -  Call this endpoint without the optional toCrs parameter to fill out
+     the `P6 parameters` and Wgs84 coordinates and to get the (`dI`,`dJ`) QC metric
+     for squareness.   
+  -  Check the squareness, and ingest the data into OSDU platform if it passes. That enables a systematic checking of
+     ingested seismic volumes, and avoid loading wrong data to the platform. 
+
+- The increments of the `SeismicTraceData`
+  referencing a bin grid are supposed to be kept with the data, overwriting
+  the SeismicBinGrid values, such that an efficient loading and referencing the
+  same bin grid for data output at different increments (spacings) is enabled.
+  However, a company can elect to create multiple Bin Grids and use the 
+  P6BinNodeIncrementOnIaxis and P6BinNodeIncrementOnIaxis.  
+- Similarly, there could be multiple seismic volumes on the same AbstractBinGrid, 
+  but using a different inline, crossline range as stored with the `SeismicTraceData`. 
+  These min/max inline/crossline ranges are supposed to be kept with the data, but 
+  a company could elect to create a seismicBinGrid for each dataset.
+
+- OSDU should store only the original SEGY data, and only the original
+  bin grid in the original CRS. Applications that require a conversion
+  to a (different) project CRS can call this endpoint and check that the
+  approximation error (“squaring error”) is small enough to merge with
+  other project data. 
+  However, it is also possible to use the toCrs
+  parameter in a second call, and store the converted BinGrid in a
+  lineage as child of the original geometry. Applications can then
+  search for such child with the desired `CRS record-id`.
+
+<!---
+
+### 7.5 Examples
+
+Example 1:
+
+- SourceCRS: WGS 84 / UTM zone 15N (EPSG::32615) - Not Bound (already WGS 84 based):
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615
+
+- toCrs = NULL
+
+*(put example here in expandable code widget)*
+
+Example 2:
+
+- SourceCRS: NAD83 / UTM zone 15N (EPSG::26915) - Bound with CT “NAD83
+  to WGS 84 (1)”, EPSG::1188:
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::26915_EPSG::1188
+
+- TargetCRS: NAD27 / BLM 14N (ftUS) (EPSG::32064) - Bound with CT “NAD27
+  to WGS 84 (79)”, EPSG::15851:
+  {{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32615_EPSG::15851
+
+*(put example here in expandable code widget)*
+
+--->
+
+
+
+
+### 7.5 Seismic Bin Grid Spatial Area
+
+The spatial area of the SeismicBinGrid should be written as an
+(AnyCrs) Polygon with 5 nodes (the last node is a copy of the first point to close the polygon), representing the outer edges of the bin
+grid. 
+The outer rim is written counterclockwise, per the OGC/GeoJSON convention followed by OSDU.
+The four corner points defined in the AbstractBinGrid corner points are used as follows to create the SpatialArea:
+
+1.  Retrieve the 4 corner points from
+    `AbstractBinGrid.ABCDBinGridSpatialLocation.AsIngestedCoordinates`
+
+2.  Identify the “A”, “B”, “C”, and “D” points from the
+    `ABCDBinGridSpatialLocation.AsIngestedCoordinates`, by finding the
+    (minI,minJ), (minI,maxJ), (maxI,minJ), and (maxI,maxJ),
+    respectively.
+
+    * _(where minI is the minimum Inline and minJ is the minimum crossline)_
+
+3.  Order the points for the polygon as A,B,D,C,A. 
+    Test if this is a clockwise or counterclockwise simple convex polygon:
+    * If Det(B) = (Xb-Xa)(Yd-Ya) - (Xd-Xa)(Yb-Ya) is positive then this simple polygon is counterclockwise.
+    * _(where Xb is the Easting global coordinates for the B point, etc.)_
+
+4.  If A,B,D,C,A is clockwise then reorder the nodes as A,C,D,B,A.
+
+5.  Output the AnyCrsPolygon
+
+The following example shows the closed polygon, using 5 points (last point is copy of
+first point), an outer rim, meaning re-ordered to be drawable in
+counter-clockwise point order.
+Technically the edges might have to be densified for correct mapping the locations drawn in WGS 84 / Web Mercator.
+However, this is not considered necessary because that representation is only for search and discovery.
+
+<details><summary>SeismicBinGrid Spatial Area (click to expand)</summary>
+
+```json
+  "SpatialArea": {
+    "AsIngestedCoordinates": {
+      "CoordinateReferenceSystemID": "{{NAMESPACE}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851:",
+      "features": [
+          {
+          "type": "AnyCrsFeature"
+          "properties": {
+              "Label": "SeismicBinGrid NAME outer rim"
+          },
+          "geometry": {
+            "type": "AnyCrsPolygon"
+            "coordinates": [  
+              [
+                [3593536.4609,
+                 9888463.8749
+                ],
+                [3577506.2747,
+                 10217819.3106
+                ],
+                [3922894.4303,
+                 9904494.1844
+                ],
+                [3906864.2441,
+                 10233849.6201
+                ],
+                [3593536.4609,
+                 9888463.8749
+                ]
+              ]
+            ]
+          }      
+        }
+      ]
+    },
+    "Wgs84Coordinates": {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "properties": {
+                      "Label": "SeismicBinGrid NAME outer rim"
+                  },
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                      [
+                        [
+                          1.9496875,
+                          58.4141503
+                        ],
+                        [
+                          1.9683358,
+                          58.4561357
+                        ],
+                        [
+                          1.8422867,
+                          58.4714655
+                        ],
+                        [
+                          1.8237808,
+                          58.4294624
+                        ],
+                        [
+                          1.9496875,
+                          58.4141503
+                        ]
+                      ]
+                    ]
+                  }
+                }
+             ]
+    }
+    "AppliedOperations": [
+              "AsIngestedCoordinates converted to Wgs84Coordinates: Input CRS EPSG 23031 (ED50 / UTM zone 31N) to Target CRS EPSG 4326 (WGS84) using CT EPSG 1613 (ED50 to WGS 84 (24) - Norway - offshore south of 62°N - North Sea.)"
+    ],
+    "SpatialParameterTypeID": "osdu:reference-data--SpatialParameterType:Outline:",
+    "SpatialGeometryTypeID": "osdu:reference-data--SpatialGeometryType:Polygon:"
+  }
+```
+
+</details>
+
+
+
+**FOLLOWING VOLVE EXAMPLE NEEDS TO BE aligned**
+
+See also [Volve example](https://community.opengroup.org/osdu/platform/data-flow/data-loading/open-test-data/-/blob/master/rc--3.0.0/4-instances/Volve/work-products/seismics/load_seismic_bingrid_ST0202R08_PS_PSDM_RAW_PP_TIME.MIG_RAW.POST_STACK.3D.JS-017534.json).

@@ -185,4 +185,19 @@ public final class Constants {
     public static final String SWAGGER_GEO_PERSISTABLE_REFERENCE_CRS_EXAMPLE = "\"{\"lateBoundCRS\":{\"wkt\":\"PROJCS[\\\"ED_1950_UTM_Zone_32N\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",9.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",23032]]\",\"ver\":\"PE_10_3_1\",\"name\":\"ED_1950_UTM_Zone_32N\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"23032\"},\"type\":\"LBC\"},\"singleCT\":{\"wkt\":\"GEOGTRAN[\\\"ED_1950_To_WGS_1984_23\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-116.641],PARAMETER[\\\"Y_Axis_Translation\\\",-56.931],PARAMETER[\\\"Z_Axis_Translation\\\",-110.559],PARAMETER[\\\"X_Axis_Rotation\\\",0.893],PARAMETER[\\\"Y_Axis_Rotation\\\",0.921],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.917],PARAMETER[\\\"Scale_Difference\\\",-3.52],AUTHORITY[\\\"EPSG\\\",1612]]\",\"ver\":\"PE_10_3_1\",\"name\":\"ED_1950_To_WGS_1984_23\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1612\"},\"type\":\"ST\"},\"ver\":\"PE_10_3_1\",\"name\":\"ED50 * EPSG-Nor N62 2001 / UTM zone 32N [23032,1612]\",\"authCode\":{\"auth\":\"SLB\",\"code\":\"23032023\"},\"type\":\"EBC\"}\"";
     public static final String SWAGGER_GEO_PERSISTABLE_REFERENCE_UNIT_Z = "\"{\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"scaleOffset\":{\"offset\":0.0,\"scale\":0.3048},\"symbol\":\"ft\",\"type\":\"USO\"}\"";
     public static final String SWAGGER_GEO_ANY_CRS_FEATURE_COLLECTION_EXAMPLE = "AnyCrsFeatureCollection";
+
+
+	public static final String SWAGGER_BIN_GRID_CONVERT_TITLE = "CRS Convert service is an OSDU platform standard method for QC and conversion of Bin Grids, associated in particular with ingested seismic volumes, that describe the “real world” (Easting, Northing) of bin grid centers at (inline, crossline) local coordinates";
+	public static final String SWAGGER_BIN_GRID_CONVERT_NOTES = " QC check of the “squareness” of a Bin Grid defined using 4 corner points."
+			+ " Coordinate conversion of a Bin Grid to a new CRS and “square it up” (if target CRS is same as original CRS then conversion is omitted, and the squareness test is done in the original CRS)."
+			+ " Calculate derived P6 parameters from the input 4 corners."
+			+ " Calculate WGS 84 coordinates at the corners"
+			+ " Returns converted Bin Grid and a QC of squareness of the bin grid";
+	public static final String SWAGGER_BIN_GRID_CONVERT_REQUEST_DESCR = "The input and output of this method use the AbstractBinGrid:1.0.0  definition.  On input a minimum required properties can be given, which are enriched on output as indicated ";
+	public static final String SWAGGER_BIN_GRID_CONVERSION_RESPONSE = "The response is essentially a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, and an output BinGrid which is essentially a copy of the input, but augmented with the derived P6 parameters filled out, and optionally (if a toCrs was given in the request) converted global coordinates that are “squared up” in the new geometry (which can be used in applications that require a square grid in a project CRS geometry; if the “squaring error” is small enough";
+	public static final String SWAGGER_BIN_GRID_CONVERTED = " ";
+
+
+
+
 }
