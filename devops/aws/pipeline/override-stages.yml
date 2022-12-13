@@ -1,0 +1,15 @@
+aws-test-python:
+  extends:
+    - .aws
+    - .aws_common_variables
+    - .aws_variables
+  before_script:
+    - !reference [.aws, before_script]
+    - !reference [.aws_variables, before_script]
+    - |
+      # Need to append "records" to the end so integration test pings the correct storage API endpoint.
+      export STORAGE_URL=$STORAGE_URL'records'
+      export MY_TENANT="osdu"
+      export MY_REPLACE_DOMAIN="example.com"
+      export MY_TEST_ID="12345678"
+      export MY_LEGAL_TAG="osdu-public-usa-dataset"
