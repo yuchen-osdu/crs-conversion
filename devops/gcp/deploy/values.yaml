@@ -3,6 +3,12 @@
 # Declare variables to be passed into your templates.
 
 data:
+  #configmaps
+  logLevel: "ERROR"
+  sisData: "/crs-converter/apachesis_setup/SIS_DATA"
+  storageHost: "http://storage"
+  entitlementsHost: "http://entitlements"
+  #deployments
   requestsCpu: "0.1"
   requestsMemory: "256M"
   limitsCpu: "1"
@@ -16,3 +22,4 @@ conf:
   appName: "crs-conversion"
   onPremEnabled: false
   domain: ""
+  
