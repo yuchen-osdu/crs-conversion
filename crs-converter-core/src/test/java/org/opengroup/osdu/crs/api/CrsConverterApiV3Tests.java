@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.validation.ValidationException;
 
 import org.junit.Test;
+import org.junit.Ignore;
 import org.mockito.Mock;
 import org.opengroup.osdu.crs.converter.CRSConverter;
 import org.opengroup.osdu.crs.model.ConvertBinGridRequest;

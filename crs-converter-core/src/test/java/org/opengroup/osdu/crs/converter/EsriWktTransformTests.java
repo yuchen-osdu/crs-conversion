@@ -2,6 +2,7 @@ package org.opengroup.osdu.crs.converter;
 
 import org.apache.sis.io.wkt.WKTFormat;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengroup.osdu.crs.model.ConvertPointsResponse;
 import org.opengroup.osdu.crs.util.ConstantsTests;
