@@ -65,8 +65,8 @@ public class CrsConverterBinGridV3Tests {
 		convertBinGridResponse.getOutBinGrid().getABCDBinGridSpatialLocation().getAsIngestedcoordinates()
 				.setPersistableReferenceCrs(persistableReferenceCrs);
 		try {
-			lenient().when(crsConverterApi.convertGeoJson(Mockito.any())).thenThrow(new IllegalArgumentException());
-		} catch (IllegalArgumentException exception) {
+			lenient().when(crsConverterApi.convertGeoJson(Mockito.any())).thenThrow(BadRequestException.class);
+		} catch (BadRequestException exception) {
 			assertEquals(exception.getMessage(), errorMsg);
 		}
 	}
@@ -76,7 +76,7 @@ public class CrsConverterBinGridV3Tests {
 		final String errorMsg = "Point properties (inLine and crossLine) are mandatory.";
 		lenient().when(crsConverterApi.convertGeoJson(Mockito.any())).thenReturn(new ConvertGeoJsonResponse());
 		try {
-			lenient().when(crsConverterApi.convertBinGrid(Mockito.any(), Mockito.any())).thenThrow(new BadRequestException(errorMsg));
+			lenient().when(crsConverterApi.convertBinGrid(Mockito.any(), Mockito.any())).thenThrow(BadRequestException.class);
 		} catch (BadRequestException exception) {
 			assertEquals(exception.getMessage(), errorMsg);
 		}
