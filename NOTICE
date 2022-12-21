@@ -25,6 +25,7 @@ The following software have components provided under the terms of this license:
 - Microsoft Application Insights Log4j 2 Appender (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Proton-J (from https://repo1.maven.org/maven2/org/apache/qpid/proton-j)
 - QpidJMS Client (from https://repo1.maven.org/maven2/org/apache/qpid/qpid-jms-client)
+- tomcat-annotations-api (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 - tomcat-embed-websocket (from http://tomcat.apache.org/, https://tomcat.apache.org/)
 
 ========================================================================
@@ -108,6 +109,7 @@ The following software have components provided under the terms of this license:
 - JSON Small and Fast Parser (from https://repo1.maven.org/maven2/net/minidev/json-smart, https://urielch.github.io/)
 - JSON Web Token support for the JVM (from https://github.com/jwtk/jjwt)
 - JSON library from Android SDK (from http://developer.android.com/sdk)
+- JSON.simple (from http://code.google.com/p/json-simple/)
 - JSONassert (from http://github.com/skyscreamer/yoga, https://github.com/skyscreamer/JSONassert)
 - JSR107 API and SPI (from https://github.com/jsr107/jsr107spec)
 - Jackson 2 extensions to the Google HTTP Client Library for Java. (from https://repo1.maven.org/maven2/com/google/http-client/google-http-client-jackson2)
@@ -340,7 +342,6 @@ The following software have components provided under the terms of this license:
 - Protocol Buffer Java API (from http://code.google.com/p/protobuf, https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java)
 - Protocol Buffers [Util] (from https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java-util)
 - Redisson (from http://redisson.org)
-- SnakeYAML (from http://code.google.com/p/snakeyaml/, http://www.snakeyaml.org, https://bitbucket.org/snakeyaml/snakeyaml)
 - Spring Core (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-core)
 - ThreeTen backport (from https://github.com/ThreeTen/threetenbp, https://www.threeten.org/threetenbp)
 - Units of Measurement API (from http://unitsofmeasurement.github.io/unit-api/)
@@ -445,7 +446,6 @@ The following software have components provided under the terms of this license:
 - Microsoft Application Insights Java SDK Spring Boot starter (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Application Insights Java SDK Web Module (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Application Insights Log4j 2 Appender (from https://github.com/Microsoft/ApplicationInsights-Java)
-- SnakeYAML (from http://code.google.com/p/snakeyaml/, http://www.snakeyaml.org, https://bitbucket.org/snakeyaml/snakeyaml)
 
 ========================================================================
 EPL-2.0
@@ -476,13 +476,6 @@ The following software have components provided under the terms of this license:
 - JavaBeans Activation Framework (from https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - RabbitMQ Java Client (from http://www.rabbitmq.com, https://www.rabbitmq.com)
 - tomcat-embed-core (from http://tomcat.apache.org/)
-
-========================================================================
-GPL-2.0-or-later
-========================================================================
-The following software have components provided under the terms of this license:
-
-- SnakeYAML (from http://code.google.com/p/snakeyaml/, http://www.snakeyaml.org, https://bitbucket.org/snakeyaml/snakeyaml)
 
 ========================================================================
 GPL-2.0-with-classpath-exception
@@ -554,7 +547,6 @@ The following software have components provided under the terms of this license:
 
 - Java Native Access (from https://github.com/java-native-access/jna, https://github.com/twall/jna)
 - Javassist (from http://www.javassist.org/)
-- SnakeYAML (from http://code.google.com/p/snakeyaml/, http://www.snakeyaml.org, https://bitbucket.org/snakeyaml/snakeyaml)
 
 ========================================================================
 MIT
