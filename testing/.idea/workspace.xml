@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="e493fea0-d6ae-489d-a55e-265a598f1fcf" name="Default Changelist" comment="" />
+    <list default="true" id="e493fea0-d6ae-489d-a55e-265a598f1fcf" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,13 +24,9 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/Puneet.Bhardwaj/apps/8.OSDU/crs-conversion-service/testing"
-  }
-}]]></component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../python_tests/crs-conversion-service/testing" />
+  </component>
   <component name="RunManager">
     <configuration name="run_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="testing" />
@@ -67,48 +68,6 @@
       <updated>1595854707024</updated>
     </task>
     <servers />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="223" y="72" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1595854810888">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state x="223" y="72" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595854810888" />
-    <state x="484" y="12" key="#run_test" timestamp="1595854781723">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state x="484" y="12" key="#run_test/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595854781723" />
-    <state width="1515" height="265" key="GridCell.Tab.0.bottom" timestamp="1595945369359">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945369359" />
-    <state width="1515" height="265" key="GridCell.Tab.0.center" timestamp="1595945369359">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945369359" />
-    <state width="1515" height="265" key="GridCell.Tab.0.left" timestamp="1595945369359">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945369359" />
-    <state width="1515" height="265" key="GridCell.Tab.0.right" timestamp="1595945369359">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945369359" />
-    <state width="1515" height="265" key="GridCell.Tab.1.bottom" timestamp="1595945379870">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.1.bottom/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945379870" />
-    <state width="1515" height="265" key="GridCell.Tab.1.center" timestamp="1595945379870">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.1.center/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945379870" />
-    <state width="1515" height="265" key="GridCell.Tab.1.left" timestamp="1595945379870">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.1.left/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945379870" />
-    <state width="1515" height="265" key="GridCell.Tab.1.right" timestamp="1595945379870">
-      <screen x="0" y="0" width="1536" height="834" />
-    </state>
-    <state width="1515" height="265" key="GridCell.Tab.1.right/0.0.1536.834/-1920.0.1920.1050@0.0.1536.834" timestamp="1595945379870" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

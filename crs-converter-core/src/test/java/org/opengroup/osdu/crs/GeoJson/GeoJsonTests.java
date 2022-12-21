@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public class testGeoJson {
+public class GeoJsonTests {
     private static final String P01 = "{\"coordinates\": [-92.11569999999999,29.8823,153.4779442519685],\"type\": \"Point\"}";
     private static final String P02 = "{\"coordinates\": [1315694.366039069,458966.7531300551,1223.77],\"type\": \"AnyCrsPoint\"}";
     private static final String MP01 = "{\"coordinates\": [[-92.11569999999999,29.8823,153.4779442519685],[-92.11569999999999,29.88231111,153.4779442519685]],\"type\": \"MultiPoint\"}";

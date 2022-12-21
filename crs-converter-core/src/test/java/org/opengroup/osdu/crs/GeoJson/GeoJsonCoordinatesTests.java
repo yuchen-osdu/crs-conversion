@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class testGeoJsonCoordinates {
+public class GeoJsonCoordinatesTests {
 
     static GeoJsonFeatureCollection makeAFeatureCollection(){
         GeoJsonFeatureCollection fc = new GeoJsonFeatureCollection();
