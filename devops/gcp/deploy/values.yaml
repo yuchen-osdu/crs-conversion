@@ -22,4 +22,9 @@ conf:
   appName: "crs-conversion"
   onPremEnabled: false
   domain: ""
-  
+
+istio:
+  proxyCPU: "50m"
+  proxyCPULimit: "500m"
+  proxyMemory: "64Mi"
+  proxyMemoryLimit: "512Mi"
