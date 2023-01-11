@@ -1,13 +1,16 @@
 # dps-crs-converter integration tests
+
 ## Folder structure
+
 testing/  
+
 * crs_converter_test_core/  
   * ...
 * crs_converter_test_$PROVIDER_NAME/  
   * jwt_client.py  
   * run_test.py  
 
-This integration test uses a swagger generated Python client to test a 
+This integration test uses a swagger generated Python client to test a
 deployed crs-converter service. The source is located in this repository
 ```./api_spec/crs_converter_openapi.json```.
 
@@ -16,33 +19,40 @@ created incorrect impost statements for cyclic class references. Therefore the c
 code is generated using [swagger-codegen-cli-2.2.3.jar](http://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar).
 The command to create the python code is:
 Linux
+
 ```bash
 cd testing
 java -jar ~/swagger-codegen-cli-2.2.3.jar generate -i crs_converter_test_core/api_spec/crs_converter_openapi.json -l python -o crs_converter_test_core/v2
 ```
+
 Windows
+
 ```bat
 cd testing
 java -jar %UserProfile%\repositories\azure\swagger-codegen-cli-2.2.3.jar generate -i crs_converter_test_core\api_spec\crs_converter_openapi.json -l python -o crs_converter_test_core\v2
 ```
 
 ## Sanity Test: ```test_crs_converter_v2.py```
+
 This test is intended as a simple sanity test. It is quick but doesn't challenge the conversion engine thoroughly
 
 The following parameters are expected as environment variables:
 
-## GCP auth provider (crs_converter_test_gcp/jwt_client.py)
+## Google Cloud auth provider (crs_converter_test_gc/jwt_client.py)
+
 | Variable | Contents |
 |----------|----------|
 | INTEGRATION_TESTER | go to the google IAM & admin console, navigate to Service accounts to create a key and download the account info file. |
 | GOOGLE_AUDIENCES |  |
 
 ## Anthos auth provider (crs_converter_test_anthos/jwt_client.py)
+
 | Variable | Contents |
 |----------|----------|
 | INTEGRATION_TESTER | go to the google IAM & admin console, navigate to Service accounts to create a key and download the account info file. |
 
 ## Tests core (crs_converter_test_core/constants.py)
+
 | Variable | Contents |
 |----------|----------|
 | BASE_URL | e.g. `/api/crs/converter/v2`  |
@@ -53,27 +63,38 @@ The following parameters are expected as environment variables:
 | REPORT_PATH | e.g.  ```E:\tmp\CloudTestData\Report\SuiteReport.txt``` |
 
 ## Building/running ```test_crs_converter_v2.py```
+
 Go to the provider folder:
+
 ```bash
 cd crs_converter_test_$PROVIDER_NAME/
 ```
+
 To set up a virtual environment:
+
 ```bash
 virtualenv venv
 python3 -m pip install -r requirements.txt
 ```
+
 To activate on Windows:
+
 ```bash
 venv\Scripts\activate
 ```
+
 To run:
+
 ```bash
 python3 run_test.py
 ```
+
 ### Azure Tests
-For the python tests to run in Azure, the CI-CD pipeline copies the SIS_DATA folder to the shared storage for the pods to read. If you are setting up the environment manually and not using Azure CI-CD Pipeline, make sure to copy the folder 
+
+For the python tests to run in Azure, the CI-CD pipeline copies the SIS_DATA folder to the shared storage for the pods to read. If you are setting up the environment manually and not using Azure CI-CD Pipeline, make sure to copy the folder
 
 Sample code:
+
 ```bash
 search_dir="apachesis_setup/SIS_DATA"
   find "$search_dir/" -type f -print0 | while read -d $'\0' file; do
@@ -85,9 +106,11 @@ search_dir="apachesis_setup/SIS_DATA"
 **Note:** To simulate a runtime exactly as that of the vsts build agent, you can simply exec into the docker image we use for the build agent, and run the tests from inside it. To know how to do this, please follow [this](https://slb-swt.visualstudio.com/data-at-rest/_git/dps-vsts-build-agent?path=%2FREADME.md&version=GBmaster) documentation.
 
 ## Suite Test: ```test_suite.py```
+
 This test requires pre-computed test data with expected values. This test - depending on how many data are sent through - will take a significant amount of time.
 
 ### Example format for the test data
+
 ```
 {
   "CreateDate": "2017-08-07T15:02:51.8424946+00:00",
@@ -166,17 +189,22 @@ This test requires pre-computed test data with expected values. This test - depe
 ```
 
 ## Building/running ```test_suite.py```
+
 To set up a virtual environment:
+
 ```bash
 virtualenv venv
 python3 -m pip install -r requirements.txt
 ```
+
 To activate on Windows:
+
 ```bash
 venv\Scripts\activate
 ```
+
 To run:
+
 ```bash
 python test_suite.py
 ```
-
