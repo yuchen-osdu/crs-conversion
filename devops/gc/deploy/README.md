@@ -47,7 +47,7 @@ Before installing deploy Helm chart you need to install [configmap Helm chart](.
 Run this command from within this directory:
 
 ```console
-helm install gcp-crs-conversion-deploy .
+helm install gc-crs-conversion-deploy .
 ```
 
 ## Uninstalling the Chart
@@ -55,7 +55,7 @@ helm install gcp-crs-conversion-deploy .
 To uninstall the helm release:
 
 ```console
-helm uninstall gcp-crs-conversion-deploy
+helm uninstall gc-crs-conversion-deploy
 ```
 
 [Move-to-Top](#deploy-helm-chart)
