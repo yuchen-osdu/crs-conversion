@@ -10,15 +10,15 @@ fi
 
 STAGE_DIR=$1
 
-cd $BUILD_REPOSITORY_LOCALPATH/provider/crs-converter-gcp/crs-converter-gae/scripts
+cd $BUILD_REPOSITORY_LOCALPATH/provider/crs-converter-gc/crs-converter-gae/scripts
 
 source ./config.sh
 
-#apply gomplate to deploy2gcp.sh.tmpl
-gomplate -f ./deploy2gcp.sh.tmpl -o ./deploy2gcp.sh
+#apply gomplate to deploy2gc.sh.tmpl
+gomplate -f ./deploy2gc.sh.tmpl -o ./deploy2gc.sh
 chmod a+x ./*.sh
-echo "Contents of deploy2gcp.sh:"
-cat ./deploy2gcp.sh
+echo "Contents of deploy2gc.sh:"
+cat ./deploy2gc.sh
 
 cd ..
 

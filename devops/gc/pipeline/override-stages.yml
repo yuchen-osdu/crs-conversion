@@ -1,0 +1,22 @@
+variables:
+  BUILD_PATH: "provider/crs-converter-$GC_VENDOR/cloudbuild/Dockerfile.cloudbuild"
+  GC_SERVICE: crs-conversion
+  GC_VENDOR: gc
+  GC_INT_TEST_TYPE: python
+  GC_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_gc
+  # Anthos variable
+  GC_ANTHOS_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_anthos
+  # FIXME remove when all services are migrated to a single helm
+  GC_ENABLE_HELM_CONFIG: "false"
+
+gc-test-python:
+  variables:
+    VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
+
+gc-dev2-test-python:
+  variables:
+    VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
+
+gc-anthos-test-python:
+  variables:
+    VIRTUAL_SERVICE_HOST_NAME: $OSDU_ANTHOS_CRS_CONVERTER_HOSTNAME

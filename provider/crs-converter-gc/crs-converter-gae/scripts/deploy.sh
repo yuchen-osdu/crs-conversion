@@ -39,6 +39,6 @@ echo "Current working directory: $DEPLOY_DIR"
 
 source $DEPLOY_SCRIPTS_DIR/config.sh
 
-echo "Deploying to gcp"
-$DEPLOY_SCRIPTS_DIR/deploy2gcp.sh
-echo "Deployed to gcp"
+echo "Deploying to Google Cloud"
+$DEPLOY_SCRIPTS_DIR/deploy2gc.sh
+echo "Deployed to Google Cloud"

@@ -50,10 +50,11 @@ In order to run the service locally or remotely, you will need to have the follo
  | ---  | ---   | ---         | ---        | ---    |
  | `LOG_PREFIX` | `service` | Logging prefix | no | - |
  | `SERVER_SERVLET_CONTEXPATH` | `/api/crs/converter/v2` | CRS conversion service context path | no | - |
- | `ENTITLEMENTS_API` | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint | no | output of infrastructure deployment |
+ | `osdu.entitlement.url` | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint | no | output of infrastructure deployment |
  | `SIS_DATA` | ex `E:\crs-converter\apachesis_setup\` | Apache SIS setup | no | [apachesis](../../../apachesis_setup/README.md) |
- | `STORAGE_API` | ex `https://storage.com//api/storage/v2` | Storage service API endpoint | no | output of infrastructure deployment |
-
+ | `GOOGLE_AUDIENCES` | ex `*****.apps.googleusercontent.com` | Client ID for getting access to cloud resources | yes | https://console.cloud.google.com/apis/credentials |
+ | `PARTITION_API` | ex `http://localhost:8081/api/partition/v1` | Partition service endpoint | no | - |
+ 
 ### Run Locally
 
 Check that maven is installed:
@@ -123,7 +124,7 @@ mvn clean install -DskipTests
 After configuring your environment as specified above, you can follow these steps to build and run the application. These steps should be invoked from the *repository root.*
 
 ```bash
-cd provider/crs-converte-gcp/crs-converter-gke/ && mvn spring-boot:run
+cd provider/crs-converte-gc/crs-converter-gae/ && mvn spring-boot:run
 ```
 
 ## Testing
@@ -138,22 +139,16 @@ $ (cd crs-converter-core/ && mvn clean install)
 
 After the service has started it should be accessible via a web browser by visiting [http://localhost:8080/api/crs/converter/swagger-ui.html](http://localhost:8080/api/crs/converter/swagger-ui.html). If the request does not fail, you can then run the integration tests.
 
-### Running E2E Tests 
+## Running E2E Tests 
 
-This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_gcp).
+This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_gc).
 
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
 | `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
 | `GOOGLE_AUDIENCES` | ex `*****.apps.googleusercontent.com` | Client ID for getting access to cloud resources | yes | https://console.cloud.google.com/apis/credentials |
 
-This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_anthos).
-
-| name | value | description | sensitive? | source |
-| ---  | ---   | ---         | ---        | ---    |
-| `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
-
-## Tests core (crs_converter_test_core/constants.py)
+#### Tests core (crs_converter_test_core/constants.py)
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
 | `BASE_URL` | ex `/api/crs/converter/v2` | CRS conversion service context path | yes | output of infrastructure deployment |
@@ -169,7 +164,7 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 
 Execute following command to build code and run all the integration tests:
 
-## Building/running ```test_crs_converter_v2.py```
+#### Building/running ```test_crs_converter_v2.py```
 Go to the provider folder:
 ```bash
 cd crs_converter_test_$PROVIDER_NAME/
@@ -190,10 +185,10 @@ python3 run_test.py
 
 **Note:** To simulate a runtime exactly as that of the vsts build agent, you can simply exec into the docker image we use for the build agent, and run the tests from inside it. To know how to do this, please follow [this](https://slb-swt.visualstudio.com/data-at-rest/_git/dps-vsts-build-agent?path=%2FREADME.md&version=GBmaster) documentation.
 
-## Suite Test: ```test_suite.py```
+#### Suite Test: ```test_suite.py```
 This test requires pre-computed test data with expected values. This test - depending on how many data are sent through - will take a significant amount of time.
 
-### Example format for the test data
+#### Example format for the test data
 ```
 {
   "CreateDate": "2017-08-07T15:02:51.8424946+00:00",
@@ -288,7 +283,10 @@ python test_suite.py
 
 ## Deployment
 
-See Google Documentation: https://cloud.google.com/cloud-build/docs/deploying-builds/deploy-gke
+* Data-Lake unit Google Cloud Endpoints on App Engine Flex environment
+  * Edit the app.yaml
+      * Open the [app.yaml](src/main/appengine/app.yaml) file in editor, and replace the YOUR-PROJECT-ID `PROJECT` line with Google Cloud Platform project Id. Also update `ENTITLEMENT_URL` based on your deployment.
+  * Google Documentation: https://cloud.google.com/cloud-build/docs/deploying-builds/deploy-appengine
 
 ## Licence
 Copyright © Google LLC
@@ -305,5 +303,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-
