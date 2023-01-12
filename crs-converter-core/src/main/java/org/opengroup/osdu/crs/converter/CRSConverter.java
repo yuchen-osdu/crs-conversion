@@ -197,13 +197,6 @@ public class CRSConverter implements ICRSConverter {
 			ConvertBinGridResponse outBinGrid) {
 
 		logger.info("Starting convertBinGrid()..");
-		int size = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().size();
-		if (size != 4) {
-			logger.info("Invalid size for spatial coordinates in the input request.");
-			throw new ValidationException(
-					"Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry “AnyCrsPoint”.  Found "
-							+ size + " points");
-		} else {
 
 			validateFeaturePoints(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates());
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
@@ -236,7 +229,7 @@ public class CRSConverter implements ICRSConverter {
 			}
 			logger.info("di & dj valuess added.");
 			outBinGrid.setOutBinGrid(inBinGrid);
-		}
+		
 		return outBinGrid;
 
 	}
