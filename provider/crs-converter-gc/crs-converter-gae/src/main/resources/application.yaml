@@ -24,7 +24,5 @@ osdu:
   entitlement:
     url: localhost
 
-google:
-  audiences: 123.apps.googleusercontent.com
 partition:
   api: http://localhsot:8080/api/partition/v1
