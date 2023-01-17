@@ -43,7 +43,7 @@ def generate_jwt():
         'iat': now,
         "exp": now + 3600,
         'iss': integration_test_service_account,
-        "target_audience": str(os.getenv('GOOGLE_AUDIENCES')),
+        "target_audience": 'osdu',
         "aud": "https://www.googleapis.com/oauth2/v4/token"
     }
 
