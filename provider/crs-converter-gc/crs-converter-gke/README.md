@@ -52,8 +52,8 @@ This project uses [Lombok](https://projectlombok.org/) for code generation. You 
 
 In order to run the service locally or remotely, you will need to have the following environment variables defined.
 
- | name | value | description | sensitive? | source |
- | ---  | ---   | ---         | ---        | ---    |
+| name | value | description | sensitive? | source |
+| ---  | ---   | ---         | ---        | ---    |
  | `LOG_PREFIX` | `service` | Logging prefix | no | - |
  | `SERVER_SERVLET_CONTEXPATH` | `/api/crs/converter/v2` | CRS conversion service context path | no | - |
  | `ENTITLEMENTS_API` | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint | no | output of infrastructure deployment |
@@ -154,7 +154,6 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
 | `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
-| `GOOGLE_AUDIENCES` | ex `*****.apps.googleusercontent.com` | Client ID for getting access to cloud resources | yes | <https://console.cloud.google.com/apis/credentials> |
 
 This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_anthos).
 
