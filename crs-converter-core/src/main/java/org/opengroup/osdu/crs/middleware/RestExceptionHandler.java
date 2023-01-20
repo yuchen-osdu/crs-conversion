@@ -99,6 +99,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<AppError> handleGenericException(Exception e) {
         if (e instanceof AppException) {
             return getResponse((AppException) e);
+        } else if (e instanceof StringIndexOutOfBoundsException) {
+            /*When invalid input types are passed(UnitXY or UnitZ fields with values like '^$#@><!()',), it causes StringIndexOutOfBoundsException.
+                GetBadInputResponse below method does not handle these cases.
+                Handled it with generic error with code 400 (Bad Request).*/
+            return getResponse(new AppException(HttpStatus.BAD_REQUEST.value(), "Bad input type or format.", "Please check the input type and format and try again."));
         } else {
             return getResponse(new AppException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Server error.", "An unknown error has occurred.", e));
         }

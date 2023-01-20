@@ -7,6 +7,7 @@ import org.opengroup.osdu.core.common.model.storage.StorageException;
 import org.opengroup.osdu.core.common.storage.IStorageFactory;
 import org.opengroup.osdu.core.common.storage.IStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,9 +25,11 @@ public class StorageClient implements IStorageClient{
             Record upsertRecords = service.getRecord(record);
             return upsertRecords;
         } catch (StorageException e) {
+            /*Catch block is executed when record param is bad request. Eg: fromCRS = ';:' in v3/convert API.
+                Trying to keep the error generic*/
             String error = e.getHttpResponse().getBody();
-            throw new AppException(e.getHttpResponse().getResponseCode(), "Error getting record",
-                    "An unexpected error occurred when getting record: " + error, e);
+            throw new AppException(HttpStatus.BAD_REQUEST.value(), "Error getting record",
+                    "Please check the input type and format and try again.");
         }
     }
 }
