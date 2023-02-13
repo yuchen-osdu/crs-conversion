@@ -33,8 +33,6 @@ environmentVariables:
     value: "http://os-entitlements:8080"
   - name: STORAGE_BASE_URL
     value: "http://os-storage:8080"
-podAnnotations: 
-  seccomp.security.alpha.kubernetes.io/pod: "runtime/default"
 
 # Resource Config
 replicaCount: 1
@@ -72,8 +70,12 @@ securityContext:
   capabilities:
     drop:
     - ALL
+podSecurityContext: 
+  fsGroup: 1337
+  seccompProfile:
+    type: RuntimeDefault
 allowedPrincipals:
-  - cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account
+  - cluster.local/ns/istio-system/sa/istio-ingressgateway
   - cluster.local/ns/{{ .Release.Namespace }}/sa/os-storage
   - cluster.local/ns/aws-binary-dms/sa/binary-dms
   - cluster.local/ns/osdu-airflow/sa/airflow-dag-upload

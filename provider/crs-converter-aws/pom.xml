@@ -49,7 +49,6 @@
     </prerequisites>
 
     <dependencies>
-
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
