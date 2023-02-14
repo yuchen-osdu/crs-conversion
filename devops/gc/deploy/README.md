@@ -40,8 +40,8 @@ First you need to set variables in **values.yaml** file using any code editor. S
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
 **data.image** | path to the image in a registry | string | - | yes
-**data.requestsCpu** | amount of requests CPU | string | `0.1` | yes
-**data.requestsMemory** | amount of requests memory| string | `256M` | yes
+**data.requestsCpu** | amount of requests CPU | string | `20` | yes
+**data.requestsMemory** | amount of requests memory| string | `350Mi` | yes
 **data.limitsCpu** | CPU limit | string | `1` | yes
 **data.limitsMemory** | memory limit | string | `1G` | yes
 **data.serviceAccountName** | name of kubernetes service account | string | `crs-conversion` | yes
@@ -60,9 +60,9 @@ First you need to set variables in **values.yaml** file using any code editor. S
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**istio.proxyCPU** | CPU request for Envoy sidecars | string | 50m | yes
+**istio.proxyCPU** | CPU request for Envoy sidecars | string | 10m | yes
 **istio.proxyCPULimit** | CPU limit for Envoy sidecars | string | 500m | yes
-**istio.proxyMemory** | memory request for Envoy sidecars | string | 64Mi | yes
+**istio.proxyMemory** | memory request for Envoy sidecars | string | 100Mi | yes
 **istio.proxyMemoryLimit** | memory limit for Envoy sidecars | string | 512Mi | yes
 
 ### Install the helm chart
