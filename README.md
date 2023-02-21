@@ -96,5 +96,5 @@ requires the following environment variables:
 
 ## Google Cloud
 
-Instructions for Google Cloud implementation can be found [here](./provider/crs-catalog-gcp/crs-catalog-gke/README.md).
+Instructions for Google Cloud implementation can be found [here](./provider/crs-converter-gc/crs-converter-gke/README.md).
 

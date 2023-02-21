@@ -99,6 +99,21 @@ public class RestExceptionHandlerTest {
     }
 
     @Test
+    public void shouldUseValuesInResponseOnStringIndexOutOfBoundsException() {
+        StringIndexOutOfBoundsException stException = new StringIndexOutOfBoundsException("Index out of Bound");
+
+        ResponseEntity<AppError> response = restExceptionHandler.handleGenericException(stException);
+
+        assertEquals(400, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        AppError body = response.getBody();
+        assertEquals(400, body.getCode());
+        assertEquals("Bad input type or format.", body.getReason());
+        assertEquals("Please check the input type and format and try again.", body.getMessage());
+        jaxRsDpsLog.error(stException.getMessage(), stException);
+    }
+
+    @Test
     public void shouldUseGenericValuesInResponseOnException() {
         Exception exception = new Exception("any message");
 

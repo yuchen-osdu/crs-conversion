@@ -201,13 +201,13 @@ public class CRSConverter implements ICRSConverter {
 			validateFeaturePoints(inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates());
 			// sort the point coordinates in the order (min, min), (min, max), (max, min),
 			// (max, max)
-			inBinGrid = sortAnyCRSFeature(inBinGrid);
+			sortAnyCRSFeature(inBinGrid);
 			logger.info("Validation and sorting successfull...");
 			// Setting the computed values for P6 SchemaParameters
 			prepareSchemaParameters(inBinGrid);
 
 			// performing the bin grid computation
-			outBinGrid = binGridComputation(inBinGrid, outBinGrid);
+			binGridComputation(inBinGrid, outBinGrid);
 			logger.info("binGridComputation completed..");
 			outBinGrid.getOutBinGrid().getABCDBinGridSpatialLocation().setCoordinateQualityCheckRemarks(
 					Arrays.asList("Max. squaring error: dI= " + outBinGrid.getMaxMisLocation().getDI() + ", dJ= "
@@ -344,7 +344,7 @@ public class CRSConverter implements ICRSConverter {
 				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
 				.mapToInt(Integer::valueOf).min().getAsInt();
 
-		if (minInLine != maxInLine && minCrossLine != maxCrossLine) {
+		if (!minInLine.equals(maxInLine) && !minCrossLine.equals(maxCrossLine)) {
 
 			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
 					.getPointPropertiesList().get(0).setLabel(LABEL_A);
