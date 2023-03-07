@@ -20,18 +20,19 @@ If you run into an issue with Lombok on compile add '-Djps.track.ap.dependencies
 
 In order to run the service locally or remotely, you will need to have the following environment variables defined.
 
-| name | example value | required | description | sensitive? |
+| name                    | example value                                        | required | description                                                                                   | sensitive? |
 | ---  | ---   | ---         | ---        | ---    |
-| `APPLICATION_PORT` | `8080` | no | The port the service will be hosted on. | no |
-| `AWS_REGION` | `us-east-1` | yes | The region where resources needed by the service are deployed | no |
-| `AWS_ACCESS_KEY_ID` | `ASIAXXXXXXXXXXXXXX` | yes | The AWS Access Key for a user with access to Backend Resources required by the service | yes |
-| `AWS_SECRET_ACCESS_KEY` | `super-secret-key==` | yes | The AWS Secret Key for a user with access to Backend Resources required by the service | yes |
-| `AWS_SESSION_TOKEN` | `session-token-xxxxxxxxxx` | no | AWS Session token needed if using an SSO user session to authenticate | yes |
-| `ENVIRONMENT` | `osdu-prefix` | yes | The Resource Prefix defined during deployment | no |
-| `LOG_LEVEL` | `DEBUG` | yes | The Log Level severity to use (https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm) | no |
-| `SSM_ENABLED` | `true` | yes | Set to 'true' to use SSM to resolve config properties, otherwise use env vars | no |
-| `SSL_ENABLED` | `false` | no | Set to 'false' to disable SSL for local development | no |
-| `ENTITLEMENTS_BASE_URL` | `http://localhost:8081` or `https://some-hosted-url` | yes | Specify the base url for an entitlements service instance. Can be run locally or remote | no |
+| `APPLICATION_PORT`      | `8080`                                               | no | The port the service will be hosted on.                                                       | no |
+| `AWS_REGION`            | `us-east-1`                                          | yes | The region where resources needed by the service are deployed                                 | no |
+| `AWS_ACCESS_KEY_ID`     | `ASIAXXXXXXXXXXXXXX`                                 | yes | The AWS Access Key for a user with access to Backend Resources required by the service        | yes |
+| `AWS_SECRET_ACCESS_KEY` | `super-secret-key==`                                 | yes | The AWS Secret Key for a user with access to Backend Resources required by the service        | yes |
+| `AWS_SESSION_TOKEN`     | `session-token-xxxxxxxxxx`                           | no | AWS Session token needed if using an SSO user session to authenticate                         | yes |
+| `ENVIRONMENT`           | `osdu-prefix`                                        | yes | The Resource Prefix defined during deployment                                                 | no |
+| `LOG_LEVEL`             | `DEBUG`                                              | yes | The Log Level severity to use (https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm) | no |
+| `SSM_ENABLED`           | `true`                                               | yes | Set to 'true' to use SSM to resolve config properties, otherwise use env vars                 | no |
+| `SSL_ENABLED`           | `false`                                              | no | Set to 'false' to disable SSL for local development                                           | no |
+| `ENTITLEMENTS_BASE_URL` | `http://localhost:8081` or `https://some-hosted-url` | yes | Specify the base url for an entitlements service instance. Can be run locally or remote       | no |
+| `STORAGE_BASE_URL`      | `http://localhost:8082` or `https://some-hosted-url` | yes | Specify the base url for an storage service instance. Can be run locally or remote            | no |
 
 ### Run Locally
 Check that maven is installed:
@@ -77,8 +78,8 @@ This section describes how to run OSDU Integration tests (testing/crs-converter-
 
 You will need to have the following environment variables defined.
 
-| name | example value | description | sensitive?
- | ---  | ---   | ---         | ---        |
+| name | example value | description | sensitive? |
+| ---  | ---   | ---         | ---        |
 | `AWS_ACCESS_KEY_ID` | `ASIAXXXXXXXXXXXXXX` | The AWS Access Key for a user with access to Backend Resources required by the service | yes |
 | `AWS_SECRET_ACCESS_KEY` | `super-secret-key==` | The AWS Secret Key for a user with access to Backend Resources required by the service | yes |
 | `AWS_SESSION_TOKEN` | `session-token-xxxxxxxxx` | AWS Session token needed if using an SSO user session to authenticate | yes |
