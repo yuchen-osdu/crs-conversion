@@ -4,6 +4,7 @@
 
 global:
   domain: ""
+  onPremEnabled: false
 
 data:
   #configmaps
@@ -23,7 +24,6 @@ data:
 conf:
   configmap: "crs-conversion-config"
   appName: "crs-conversion"
-  onPremEnabled: false
 
 istio:
   proxyCPU: "10m"
