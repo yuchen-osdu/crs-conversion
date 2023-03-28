@@ -56,16 +56,16 @@ swagger_client.configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 # swagger_client.configuration.api_key_prefix['Authorization'] = 'Bearer'
 # create an instance of the API class
-api_instance = swagger_client.CRSPointConversionApi()
-body = swagger_client.ConvertGeoJsonRequest() # ConvertGeoJsonRequest |  (optional)
+api_instance = swagger_client.CRSConversionApi()
+body = swagger_client.ConvertBinGridRequest() # ConvertBinGridRequest |  (optional)
 data_partition_id = 'data_partition_id_example' # str |  (optional)
 
 try:
-    # Convert a GeoJSON or AnyCrsGeoJson structure
-    api_response = api_instance.convert_geo_json(body=body, data_partition_id=data_partition_id)
+    # CRS Convert service is an OSDU platform standard method for QC and conversion of Bin Grids, associated in particular with ingested seismic volumes, that describe the “real world” (Easting, Northing) of bin grid centers at (inline, crossline) local coordinates
+    api_response = api_instance.convert_bin_grid(body=body, data_partition_id=data_partition_id)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling CRSPointConversionApi->convert_geo_json: %s\n" % e)
+    print("Exception when calling CRSConversionApi->convert_bin_grid: %s\n" % e)
 
 ```
 
@@ -75,14 +75,20 @@ All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*CRSPointConversionApi* | [**convert_geo_json**](docs/CRSPointConversionApi.md#convert_geo_json) | **POST** /v3/convertGeoJson | Convert a GeoJSON or AnyCrsGeoJson structure
-*CRSPointConversionApi* | [**convert_point**](docs/CRSPointConversionApi.md#convert_point) | **POST** /v3/convert | Convert a list of points
+*CRSConversionApi* | [**convert_bin_grid**](docs/CRSConversionApi.md#convert_bin_grid) | **POST** /v3/convertBinGrid | CRS Convert service is an OSDU platform standard method for QC and conversion of Bin Grids, associated in particular with ingested seismic volumes, that describe the “real world” (Easting, Northing) of bin grid centers at (inline, crossline) local coordinates
+*CRSConversionApi* | [**convert_geo_json**](docs/CRSConversionApi.md#convert_geo_json) | **POST** /v3/convertGeoJson | Convert a GeoJSON or AnyCrsGeoJson structure
+*CRSConversionApi* | [**convert_point**](docs/CRSConversionApi.md#convert_point) | **POST** /v3/convert | Convert a list of points
 *InfoApiApi* | [**info_using_get**](docs/InfoApiApi.md#info_using_get) | **GET** /v3/info | info
 *TrajectoryComputationAndConversionApi* | [**convert_trajectory**](docs/TrajectoryComputationAndConversionApi.md#convert_trajectory) | **POST** /v3/convertTrajectory | Convert trajectory stations
 
 
 ## Documentation For Models
 
+ - [AbstractAnyCrsFeatureCollection](docs/AbstractAnyCrsFeatureCollection.md)
+ - [AbstractBinGrid](docs/AbstractBinGrid.md)
+ - [AbstractFeature](docs/AbstractFeature.md)
+ - [AbstractFeatureCollection](docs/AbstractFeatureCollection.md)
+ - [AbstractSpatialLocation](docs/AbstractSpatialLocation.md)
  - [AnyCrsGeoJsonFeature](docs/AnyCrsGeoJsonFeature.md)
  - [AnyCrsGeoJsonFeatureCollection](docs/AnyCrsGeoJsonFeatureCollection.md)
  - [AnyCrsGeoJsonFeatureGeometry](docs/AnyCrsGeoJsonFeatureGeometry.md)
@@ -95,6 +101,8 @@ Class | Method | HTTP request | Description
  - [AnyCrsGeoJsonPoint](docs/AnyCrsGeoJsonPoint.md)
  - [AnyCrsGeoJsonPolygon](docs/AnyCrsGeoJsonPolygon.md)
  - [AnyProperty](docs/AnyProperty.md)
+ - [ConvertBinGridRequest](docs/ConvertBinGridRequest.md)
+ - [ConvertBinGridResponse](docs/ConvertBinGridResponse.md)
  - [ConvertGeoJsonRequest](docs/ConvertGeoJsonRequest.md)
  - [ConvertGeoJsonResponse](docs/ConvertGeoJsonResponse.md)
  - [ConvertPointsRequest](docs/ConvertPointsRequest.md)
@@ -102,7 +110,11 @@ Class | Method | HTTP request | Description
  - [ConvertTrajectoryRequest](docs/ConvertTrajectoryRequest.md)
  - [ConvertTrajectoryResponse](docs/ConvertTrajectoryResponse.md)
  - [ErrorResponse](docs/ErrorResponse.md)
+ - [Geometry](docs/Geometry.md)
+ - [MaxMisLocation](docs/MaxMisLocation.md)
  - [Point](docs/Point.md)
+ - [PointProperties](docs/PointProperties.md)
+ - [PropertiesBinGridCorners](docs/PropertiesBinGridCorners.md)
  - [TrajectoryStationIn](docs/TrajectoryStationIn.md)
  - [TrajectoryStationOut](docs/TrajectoryStationOut.md)
  - [VersionInfo](docs/VersionInfo.md)

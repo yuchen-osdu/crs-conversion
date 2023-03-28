@@ -14,10 +14,12 @@ import warnings
 import logging
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
-
-from crs_converter_test_core.v3.swagger_client import ApiClient, CRSPointConversionApi, TrajectoryComputationAndConversionApi, \
-    TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse, InfoApiApi
-from crs_converter_test_core.v3.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point, ConvertTrajectoryRequest, \
+from crs_converter_test_core.v3.swagger_client import ApiClient, CRSConversionApi, \
+    TrajectoryComputationAndConversionApi, \
+    TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse, InfoApiApi, \
+    AbstractAnyCrsFeatureCollection, ConvertBinGridRequest
+from crs_converter_test_core.v3.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point, \
+    ConvertTrajectoryRequest, \
     ConvertGeoJsonRequest, AnyCrsGeoJsonFeatureCollection, \
     AnyCrsGeoJsonFeature, AnyCrsGeoJsonPolygon, VersionInfo
 from crs_converter_test_core.v3.swagger_client.rest import ApiException
@@ -242,7 +244,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
         client = ApiClient(host=url)
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
-        cls.api_instance = CRSPointConversionApi(client)
+        cls.api_instance = CRSConversionApi(client)
         cls.test_records = TestRecords()
         cls.test_records.setup()
 
@@ -437,6 +439,83 @@ class TestCrsConverterIntegration(unittest.TestCase):
             fc.bbox = r_dict['featureCollection']['bbox']
         return ConvertGeoJsonRequest(to_crs=r_dict['toCRS'], feature_collection=fc)
 
+    def test_bin_grid_without_TOCRS(self):
+        request = self.__read_binGrid_request('v3/data/Convert_BinGrid_WithoutToCRS.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # Convert a BinGrid
+            api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.max_mis_location.d_i, 0.0)
+            self.assertEquals(api_response.max_mis_location.d_j, 0.0)
+        except ApiException as e:
+            self.fail(str(e))
+
+    def test_bin_grid_with_TOCRS(self):
+        request = self.__read_binGrid_request('v3/data/Convert_BinGrid_With_ToCRS.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # Convert a BinGrid
+            api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.max_mis_location.d_i, 0.0)
+            self.assertEquals(api_response.max_mis_location.d_j, 0.38)
+        except ApiException as e:
+            self.fail(str(e))
+
+    def test_bin_grid_with_InvalidRequest(self):
+        request = self.__read_binGrid_request('v3/data/Convert_BinGrid_With_InvalidRequest.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # Convert a BinGrid
+            api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+
+        except ApiException as e:
+            self.assertTrue(400 == e.status)
+            self.assertTrue(e.reason in ["Bad Request"])
+
+    def test_bin_grid_with_InvalidCRS(self):
+        request = self.__read_binGrid_request('v3/data/Convert_BinGrid_With_InvalidCRS.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # Convert a BinGrid
+            api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+
+        except ApiException as e:
+            self.assertTrue(400 == e.status)
+            self.assertTrue(e.reason in ["Bad Request"])
+
+    def test_bin_grid_with_InvalidSize(self):
+        request = self.__read_binGrid_request('v3/data/Convert_BinGrid_With_InvalidSize.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # Convert a BinGrid
+            api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+        except ApiException as e:
+            self.assertTrue(400 == e.status)
+            self.assertTrue(e.reason in ["Bad Request"])
+
+    @staticmethod
+    def __read_binGrid_request(file_name):
+        dir_path = os.path.dirname(__file__)
+        dir_path = os.path.join(dir_path, file_name)
+        with open(dir_path) as json_file:
+            r_dict = json.loads(convertString(json_file.read()))
+            inBinGrid = r_dict['inBinGrid']
+            if r_dict.get("toCRS"):
+                return ConvertBinGridRequest(to_crs=r_dict['toCRS'], in_bin_grid=inBinGrid)
+            else:
+                return ConvertBinGridRequest(to_crs=None, in_bin_grid=inBinGrid)
+
+
 class TestTrajectoryConverterIntegration(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
 
@@ -610,7 +689,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
         client = ApiClient(host=url)
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
-        cls.api_instance = CRSPointConversionApi(client)
+        cls.api_instance = CRSConversionApi(client)
 
     def test_transformation_with_unAuthorized_token(self):
         """Read from data/PartialFail.json and convert/transform"""
@@ -747,6 +826,11 @@ def suite():
     suite.addTest(TestInfo('test_info_using_get'))
     suite.addTest(TestCrsConverterIntegration('test_conversion_only_ID'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json_ID'))
+    suite.addTest(TestCrsConverterIntegration('test_bin_grid_without_TOCRS'))
+    suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_TOCRS'))
+    suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_InvalidRequest'))
+    suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_InvalidCRS'))
+    suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_InvalidSize'))
     suite.addTest(TestTrajectoryConverterIntegration('test_32613_TN_trajectory_ID'))
     return suite
 
