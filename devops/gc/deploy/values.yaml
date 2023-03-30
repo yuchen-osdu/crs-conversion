@@ -2,6 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  domain: ""
+  onPremEnabled: false
+
 data:
   #configmaps
   logLevel: "ERROR"
@@ -20,8 +24,6 @@ data:
 conf:
   configmap: "crs-conversion-config"
   appName: "crs-conversion"
-  onPremEnabled: false
-  domain: ""
 
 istio:
   proxyCPU: "10m"
