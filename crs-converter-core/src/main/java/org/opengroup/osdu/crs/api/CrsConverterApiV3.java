@@ -202,6 +202,14 @@ public class CrsConverterApiV3 {
 		ConvertBinGridResponse convertBinGridResponse = new ConvertBinGridResponse();
 		try {
 			AbstractBinGrid inBinGrid = request.getInBinGrid();
+			int size = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().size();
+			if (size != 4) {
+				logger.info("Invalid size for spatial coordinates in the input request.");
+				throw new ValidationException(
+						"Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry “AnyCrsPoint”.  Found "
+								+ size + " points");
+			}
+			
 			List<String> operationsApplied = new ArrayList<>();
 			convertBinGridResponse.setOutBinGrid(inBinGrid);
 			if (!StringUtils.isEmpty(request.getToCRS())) {
