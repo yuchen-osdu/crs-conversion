@@ -27,7 +27,7 @@
 
 	<groupId>org.opengroup.osdu.crs-converter-service</groupId>
 	<artifactId>crs-converter-service</artifactId>
-	<version>0.20.0-SNAPSHOT</version>
+	<version>0.21.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>crs-converter-service</name>
 	<description>crs-converter service</description>
