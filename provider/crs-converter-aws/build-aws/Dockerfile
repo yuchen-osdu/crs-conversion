@@ -19,11 +19,9 @@ ARG JAR_FILE=provider/crs-converter-aws/target/crs-converter-aws-*.jar
 WORKDIR /
 
 #Default to using self signed generated TLS cert
-ENV USE_SELF_SIGNED_SSL_CERT true
 
 COPY ${JAR_FILE} /app.jar
 COPY /apachesis_setup /apachesis_setup
-COPY /provider/crs-converter-aws/build-aws/ssl.sh /ssl.sh
 COPY /provider/crs-converter-aws/build-aws/entrypoint.sh /entrypoint.sh
 
 ENV SIS_DATA=/apachesis_setup/SIS_DATA
