@@ -14,6 +14,11 @@
 from __future__ import absolute_import
 
 # import models into model package
+from .abstract_any_crs_feature_collection import AbstractAnyCrsFeatureCollection
+from .abstract_bin_grid import AbstractBinGrid
+from .abstract_feature import AbstractFeature
+from .abstract_feature_collection import AbstractFeatureCollection
+from .abstract_spatial_location import AbstractSpatialLocation
 from .any_crs_geo_json_feature import AnyCrsGeoJsonFeature
 from .any_crs_geo_json_feature_collection import AnyCrsGeoJsonFeatureCollection
 from .any_crs_geo_json_feature_geometry import AnyCrsGeoJsonFeatureGeometry
@@ -26,6 +31,8 @@ from .any_crs_geo_json_multi_polygon import AnyCrsGeoJsonMultiPolygon
 from .any_crs_geo_json_point import AnyCrsGeoJsonPoint
 from .any_crs_geo_json_polygon import AnyCrsGeoJsonPolygon
 from .any_property import AnyProperty
+from .convert_bin_grid_request import ConvertBinGridRequest
+from .convert_bin_grid_response import ConvertBinGridResponse
 from .convert_geo_json_request import ConvertGeoJsonRequest
 from .convert_geo_json_response import ConvertGeoJsonResponse
 from .convert_points_request import ConvertPointsRequest
@@ -33,7 +40,11 @@ from .convert_points_response import ConvertPointsResponse
 from .convert_trajectory_request import ConvertTrajectoryRequest
 from .convert_trajectory_response import ConvertTrajectoryResponse
 from .error_response import ErrorResponse
+from .geometry import Geometry
+from .max_mis_location import MaxMisLocation
 from .point import Point
+from .point_properties import PointProperties
+from .properties_bin_grid_corners import PropertiesBinGridCorners
 from .trajectory_station_in import TrajectoryStationIn
 from .trajectory_station_out import TrajectoryStationOut
 from .version_info import VersionInfo
