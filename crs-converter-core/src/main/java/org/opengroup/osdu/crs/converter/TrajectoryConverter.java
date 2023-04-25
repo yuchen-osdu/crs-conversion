@@ -77,7 +77,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
                 // add method to compute interpolation based on MD_i input
-                computeInterpolationForMDiInput(request,response);
+                computeInterpolationForMDiInput(request,referencePoint,response);
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
@@ -99,7 +99,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private ConvertTrajectoryResponse computeInterpolationForMDiInput(ConvertTrajectoryRequest request,ConvertTrajectoryResponse response){
+    private ConvertTrajectoryResponse computeInterpolationForMDiInput(ConvertTrajectoryRequest request,Point referencePoint,ConvertTrajectoryResponse response){
         /*
         In a second pass, for each desired MD_i[i],
             a. Find the station before and after MD_i[i].
@@ -155,11 +155,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                             Math.sin(i1)*Math.cos(a1)*Math.sin(dl-dli) + Math.sin(i2)*Math.cos(a2)*Math.sin(dli));
                 rfi = 2*Math.tan(dli/2)/dli;
             }
-            double mi = m2 - m1;
+            double mi = md_i.getMd_i() - m1;
             double ni = mi * (rfi/2) * (Math.sin(i1)*Math.cos(a1) + Math.sin(ii)*Math.cos(ai));
             double ei = mi * (rfi/2) * (Math.sin(i1)*Math.sin(a1) + Math.sin(ii)*Math.sin(ai));
             double di = mi * (rfi/2) * (Math.cos(i1)*Math.sin(ii));
-            outTrajectoryStation.setPoint(new Point(ni, ei, di));
+            outTrajectoryStation.setDxTN(referencePoint.getX()+ni);
+            outTrajectoryStation.setDyTN(referencePoint.getY()+ei);
+            outTrajectoryStation.setDZ(inTrajectoryStation.getDZ()+di);
+            outTrajectoryStation.setPoint(new Point(outTrajectoryStation.getDxTN(), outTrajectoryStation.getDyTN(),referencePoint.getZ()-di));
             outTrajectoryStation.setInclination(ii);
             outTrajectoryStation.setAzimuthTN(ai);
             stationsList.add(outTrajectoryStation);
