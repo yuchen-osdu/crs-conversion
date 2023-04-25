@@ -81,6 +81,11 @@ public class ConvertTrajectoryRequest {
 			example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX, dataType = "Boolean")
 	private boolean interpolate;
 
+	@JsonProperty("MD_i")
+	@ApiModelProperty(value=Constants.SWAGGER_TRJ_MD_I,
+			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
+	private List<MinimumDepthInterval> MD_i;
+
     @Override
     public String toString() {
         String result = null;

@@ -69,9 +69,15 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 to.setAzimuthGN(gn);
                 to.setDls(Double.NaN);
             }
+            computeScaleFactor(response);
+            computeConvergence(response);
+
+
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
+                // add method to compute interpolation based on MD_i input
+                computeInterpolationForMDiInput(request,response);
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
@@ -90,6 +96,142 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             throw new BadRequestException(String.join(" ", state.getErrors()));
         }
         response.setOperationsApplied(state.getOperations());
+        return response;
+    }
+
+    private ConvertTrajectoryResponse computeInterpolationForMDiInput(ConvertTrajectoryRequest request,ConvertTrajectoryResponse response){
+        /*
+        In a second pass, for each desired MD_i[i],
+            a. Find the station before and after MD_i[i].
+            b. Interpolate the Dog Leg with the equations provided at the desired MD_i.
+            c. Compute the interpolated INC_i and AZI_i.
+            d. Compute the local offsets dx,dy,dz.
+            e. Add those offsets to the previous (real) station.
+               Output calculated (incl. interpolated) stations in an array stations_i.
+
+               (DL = 2*sin-1 {sqrt[ sin2((I2-I1)/2) + sin(I1)*sin(I2)* sin2((A2-A1)/2) ]}) // SPE84246 recommended
+               DLi = DL * (Mi-M1) / (M2-M1),
+                The inclination and azimuth are interpolated using the interpolated Dog Leg DLi as:
+                    Ii = I1   									// if DLi=0
+                       cos-1 [ (sin(DL-DLi)/sin(DL))*cos(I1) + (sin(DLi)/sin(DL)*cos(I2) ]    	// else
+                Ai = A1 									// if DLi=0
+                                      ATAN2  (sin(I1)*sin(A1)*sin(DL-DLi) + sin(I2)*sin(A2)* sin(DLi) ,		// else
+                         sin(I1)*cos(A1)*sin(DL-DLi) + sin(I2)*cos(A2)* sin(DLi) )
+
+
+                         RFi = 	1,			if DLi=0
+                        2*tan(DLi/2) / DLi,	else
+                        Δn1, i = ni – n1 = ΔMi * (RFi/2) * (sin(I1)*cos(A1) + sin(Ii)*cos(Ai))
+                        Δe1, i = ei – e1 = ΔMi * (RFi/2) * (sin(I1)*sin(A1) + sin(Ii)*sin(Ai))
+                        Δd1, i = di – d1 = ΔMi * (RFi/2) * (cos(I1) + cos(Ii))
+
+        */
+        List<MinimumDepthInterval> MD_i = request.getMD_i();
+        List<TrajectoryStationOut> stationsList = response.getStations();
+        int count=1,innerCount=0;
+        for(count=1;count<stationsList.size();count++) {
+            TrajectoryStationOut outTrajectoryStation = stationsList.get(count);
+                TrajectoryStationOut inTrajectoryStation = stationsList.get(innerCount);
+
+            double i2=outTrajectoryStation.getInclination();
+            double i1=inTrajectoryStation.getInclination();
+            double a2=outTrajectoryStation.getAzimuthTN();
+            double a1=inTrajectoryStation.getAzimuthTN();
+            double dl=  2 * Math.asin(Math.sqrt(Math.pow(Math.sin((i2-i1)/2),2) + Math.sin(i1) * Math.sin(i2) * Math.pow(Math.sin((a2-a1)/2),2)));
+            double m2= outTrajectoryStation.getMd();
+            double m1= inTrajectoryStation.getMd();
+            MinimumDepthInterval md_i = MD_i.get(innerCount);
+            double dli = dl * (md_i.getMd_i()-m1)/(m2-m1);
+            double ii;
+            double ai;
+            double rfi;
+            if(dli==0){
+                ii = i1;
+                ai = a1;
+                rfi = 1;
+            }else{
+                ii = Math.acos((Math.sin(dl-dli)/Math.sin(dl))*Math.cos(i1) + (Math.sin(dli)/Math.sin(dl))*Math.cos(i2));
+                ai = Math.atan2(Math.sin(i1)*Math.sin(a1)*Math.sin(dl-dli) + Math.sin(i2)*Math.sin(a2)*Math.sin(dli) ,
+                            Math.sin(i1)*Math.cos(a1)*Math.sin(dl-dli) + Math.sin(i2)*Math.cos(a2)*Math.sin(dli));
+                rfi = 2*Math.tan(dli/2)/dli;
+            }
+            double mi = m2 - m1;
+            double ni = mi * (rfi/2) * (Math.sin(i1)*Math.cos(a1) + Math.sin(ii)*Math.cos(ai));
+            double ei = mi * (rfi/2) * (Math.sin(i1)*Math.sin(a1) + Math.sin(ii)*Math.sin(ai));
+            double di = mi * (rfi/2) * (Math.cos(i1)*Math.sin(ii));
+            outTrajectoryStation.setPoint(new Point(ni, ei, di));
+            outTrajectoryStation.setInclination(ii);
+            outTrajectoryStation.setAzimuthTN(ai);
+            stationsList.add(outTrajectoryStation);
+        }
+        response.setStations_i(stationsList);
+        return response;
+    }
+
+    private ConvertTrajectoryResponse computeScaleFactor(ConvertTrajectoryResponse response){
+        List<TrajectoryStationOut> stationsList = response.getStations();
+        TrajectoryStationOut first_station = stationsList.get(0);
+        TrajectoryStationOut last_station = stationsList.get(stationsList.size()-1);
+
+        Point lastStationPoint = last_station.getPoint();
+        double yn = lastStationPoint.getY();
+        double xn = lastStationPoint.getX();
+
+        Point firstStationPoint = first_station.getPoint();
+        double y0 = firstStationPoint.getY();
+        double x0 = firstStationPoint.getX();
+        //dGN = sqrt(x[2]-x[1])^2 + y[2]-y[1])^2)
+        //dTN = sqrt((dxTNn-dxTN1)^2 + (dyTNn-dyTN1)^2)
+        double dGN = Math.sqrt(Math.pow(yn-y0,2) + Math.pow(xn-x0,2));
+        double dTN = Math.sqrt(Math.pow(last_station.getDxTN()-first_station.getDxTN(),2) + Math.pow(last_station.getDyTN()-first_station.getDyTN(),2));
+        double scaleFactor = dGN/dTN;
+
+        for(int count=0;count<stationsList.size();count++){
+            TrajectoryStationOut to = stationsList.get(count);
+            to.setScalefactor(scaleFactor);
+            stationsList.add(to);
+        }
+        response.setStations(stationsList);
+        return response;
+    }
+
+    private ConvertTrajectoryResponse computeConvergence(ConvertTrajectoryResponse response){
+        // GC=TN-GN, and wrapped to interval (-180,+180) by "if convergence<-180 then convergence+=360; if convergence>180 then convergence-=360"
+        List<TrajectoryStationOut> stationsList = response.getStations();
+        for(int count=0;count<stationsList.size();count++){
+            TrajectoryStationOut to = stationsList.get(count);
+            double gridConvergence = to.getAzimuthTN() - to.getAzimuthGN();
+            if(gridConvergence < -180 ){
+                 gridConvergence+=360;
+            }else if(gridConvergence > 180){
+                 gridConvergence-=360;
+            }
+            to.setConvergence(gridConvergence);
+            stationsList.add(to);
+        }
+        response.setStations(stationsList);
+        return response;
+    }
+
+    private ConvertTrajectoryResponse computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){
+        //To calculated path can be “unscaled” by applying this factor in reverse
+        //as follows for i=1:N:
+        //x_unscaled[i] = x[1] + (x[i] - x[1]) / psf
+        //y_unscaled[i] = y[1] + (y[i] - y[1]) / psf
+        List<TrajectoryStationOut> stationsList = response.getStations();
+        int count=0;
+        for(count=0;count<stationsList.size();count++) {
+            TrajectoryStationOut to = stationsList.get(count);
+            double scaleFactor = to.getScalefactor();
+            Point firstStationPoint = to.getPoint();
+            double y0 = firstStationPoint.getY();
+            double x0 = firstStationPoint.getX();
+            double x = x0 + (to.getPoint().getX() - x0) / scaleFactor;
+            double y = y0 + (to.getPoint().getY() - y0) / scaleFactor;
+            to.setPoint(new Point(x, y, to.getPoint().getZ()));
+            stationsList.add(to);
+        }
+        response.setStations(stationsList);
         return response;
     }
 

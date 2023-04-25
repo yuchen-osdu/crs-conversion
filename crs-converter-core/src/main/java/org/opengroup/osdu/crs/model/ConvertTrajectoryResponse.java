@@ -67,4 +67,9 @@ public class ConvertTrajectoryResponse {
 
     @ApiModelProperty(value = Constants.SWAGGER_CONVERT_AUDIT)
     private List<String> operationsApplied;
+
+    @Valid
+    @ApiModelProperty(value = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I, required = true)
+    private List<TrajectoryStationOut> stations_i;
+
 }

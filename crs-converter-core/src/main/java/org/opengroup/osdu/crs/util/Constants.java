@@ -168,6 +168,16 @@ public final class Constants {
     public static final String SWAGGER_TRJ_RSP_DLS = "Curvature, Dog Leg Severity, measured in 'unitDls'.";
     public static final String SWAGGER_TRJ_WGS84_LONGITUDE = "WGS 84 longitude in dega";
     public static final String SWAGGER_TRJ_WGS84_LATITUDE = "WGS 84 latitude in dega";
+    public static final String SWAGGER_TRJ_SCALE_FACTOR = "Scalefactor";
+    public static final String SWAGGER_TRJ_CONVERGENCE = "convergence";
+    public static final String SWAGGER_TRJ_MD_I = "MD_i";
+    public static final String SWAGGER_TRJ_REQ_MD_I_EX =  "\"MD_i\":[{\"md_i\":200},{\"md_i\":400},{\"md_i\":600},{\"md_i\":800}]";
+    public static final String SWAGGER_TRJ_MINIMUM_DEPTH_INTERVAL_DESCRIPTION = "Minimum depth interval record; context is provided by the container.";
+    public static final String SWAGGER_MD_I = "MD_I (measured depth)";
+    public static final String SWAGGER_MD_I_EXAMPLE = "200";
+    public static final String SWAGGER_MD_INTERVAL = "MD_INTERVAL (measured depth interval)";
+    public static final String SWAGGER_MD_INTERVAL_EXAMPLE = "1.0";
+    public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I = "Computed trajectory stations i.";
     public static final String SWAGGER_GEO_JSON_FEATURE_EXAMPLES = "[\n" +
             "      {\n" +
             "        \"geometry\": {\n" +

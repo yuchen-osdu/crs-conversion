@@ -68,4 +68,12 @@ public class TrajectoryStationOut {
             value = Constants.SWAGGER_TRJ_RSP_ORIGINAL, dataType = "Boolean"
     )
     private boolean original;
+
+    @ApiModelProperty(
+            value = Constants.SWAGGER_TRJ_SCALE_FACTOR, dataType = "Double")
+    double scalefactor;
+
+    @ApiModelProperty(
+            value = Constants.SWAGGER_TRJ_CONVERGENCE, dataType = "Double")
+    double convergence;
 }
