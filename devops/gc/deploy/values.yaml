@@ -13,8 +13,8 @@ data:
   storageHost: "http://storage"
   entitlementsHost: "http://entitlements"
   #deployments
-  requestsCpu: "20m"
-  requestsMemory: "350Mi"
+  requestsCpu: "5m"
+  requestsMemory: "230Mi"
   limitsCpu: "1"
   limitsMemory: "1G"
   serviceAccountName: "crs-conversion"
@@ -26,7 +26,7 @@ conf:
   appName: "crs-conversion"
 
 istio:
-  proxyCPU: "10m"
+  proxyCPU: "5m"
   proxyCPULimit: "500m"
-  proxyMemory: "100Mi"
+  proxyMemory: "50Mi"
   proxyMemoryLimit: "512Mi"
