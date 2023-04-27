@@ -6,11 +6,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
@@ -72,6 +74,9 @@ public class CrsConverterApiV3 {
     private static final String FEATURE_TYPE = "Feature";
 	private static final String GEOMETRY_TYPE = "Point";
 	private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner:";
+
+	private static final String BOUND_PROJECTED = "BoundProjected";
+	private static final String PROJECTED = "Projected";
  
 	public CrsConverterApiV3(@NonNull ICRSConverter crsConverter,
 				  @NonNull ITrajectoryConverter crsTrajectoryConverter,
@@ -114,6 +119,24 @@ public class CrsConverterApiV3 {
 			throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
 		}
     }
+
+	private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
+
+		String temp;
+		try {
+			temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
+		} catch (Exception e) {
+			return trajectoryCRS; // try our best to return user input
+		}
+		temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+		Record record =  StorageClient.getRecord(temp);
+		if (record == null)
+			throw new ValidationException(String.join(" ", "record not found:", temp));
+		Map<String,Object> data = record.getData();
+		Map<String,Object> coordinateSystem = (Map<String, Object>) data.get("CoordinateSystem");
+		String horizontalAxisUnitID = (String) coordinateSystem.get("HorizontalAxisUnitID");
+		return horizontalAxisUnitID;
+	}
 
 	@PostMapping("/convert")
 	@ApiOperation(value = Constants.SWAGGER_CONVERT_TITLE, notes = Constants.SWAGGER_CONVERT_NOTES, tags = {Constants.SWAGGER_TAG_CRS_CONVERSION})
@@ -179,8 +202,15 @@ public class CrsConverterApiV3 {
 		String message = String.format("Using trajectory: %s", "no");
 		logger.info(message);
 		DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
+		if(request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED)){
+			if(!Strings.isNullOrEmpty(request.getUnitXY())) {
+				throw new ValidationException("unitXY should not be provided for BoundProjected and Projected CRS.");
+			}
+			String unit = getUnitFromTrajectoryCRS(request.getTrajectoryCRS());
+			request.setUnitXY(getPersistableReferenceFromID(unit, false));
+		}else
+			request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
 		request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
-		request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
 		request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
 		ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectory(dpsHeaders, request);
 		return response;
@@ -206,7 +236,7 @@ public class CrsConverterApiV3 {
 			if (size != 4) {
 				logger.info("Invalid size for spatial coordinates in the input request.");
 				throw new ValidationException(
-						"Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry “AnyCrsPoint”.  Found "
+						"Invalid size for spatial coordinates in the input request. Expected 4 AnyCrsFeatures with geometry ï¿½AnyCrsPointï¿½.  Found "
 								+ size + " points");
 			}
 			
