@@ -307,6 +307,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double B = A * (1 - 1 / RF);                                            // B is semi-minor axis
             double E2 = 1 - (B * B) / (A * A);                                      // E2 is eccentricity squared
 
+            double xyFactor = state.getHorizontalUnit().scaleToSI();  // ensuring that Edep and Ndep are in meters
+
             TrajectoryStationOut station = response.getStations().get(0);
             double Edeplast = station.getDxTN();
             double Ndeplast = station.getDyTN();
@@ -331,8 +333,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 double R = A * (1.0 - E2) / (Math.pow(Math.sqrt(1.0 - E2 * sinLATRADsqared), 3)); // % Radius in the meridian
                 double N = A / Math.sqrt(1 - E2 * sinLATRADsqared); //% Radius in the prime vertical
                 double TVD = refZ - station.getPoint().getZ();             // data(dex,4); //% Grab the TVD
-                double Edep = station.getDxTN(); // data(dex,6);
-                double Ndep = station.getDyTN(); // data(dex,5); //% Grab the departures
+                double Edep = station.getDxTN() * xyFactor; // data(dex,6);
+                double Ndep = station.getDyTN() * xyFactor; // data(dex,5); //% Grab the departures
                 double dEdep = Edep - Edeplast;  // % Difference the departures
                 double dNdep = Ndep - Ndeplast;  // % Difference the departures
                 Edeplast = Edep;
