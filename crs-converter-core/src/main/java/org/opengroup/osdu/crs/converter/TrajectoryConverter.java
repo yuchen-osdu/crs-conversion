@@ -70,7 +70,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 to.setDls(Double.NaN);
             }
             computeScaleFactor(response);
-            computeConvergence(response);
+           computeConvergence(response);
 
 
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
@@ -78,6 +78,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
                 // add method to compute interpolation based on MD_i input
                 computeInterpolationForMDiInput(request,referencePoint,response);
+                // add method to compute inverse minimum curvataure
+                computeInverseMinimumCuravture(response);
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
@@ -171,6 +173,71 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
+    private ConvertTrajectoryResponse computeInverseMinimumCuravture(ConvertTrajectoryResponse response) {
+        /*
+        Δn1,2 = n2 – n1
+        Δe1,2 = e2 – e1
+        Δd1,2 = d2 – d1
+        R = sqrt(Δn^2 + Δe^2 + Δd^2)
+        DL = 2*cos-1 [max(-1,min(1,  {Δn*sin(I1)*cos(A1) + Δe*sin(I1)*sin(A1) + Δd*cos(I1)} / R ))]
+        If DL=0
+            RF = 1
+            ΔM = R
+        else
+        RF = 2*tan(DL/2) / DL
+        ΔM = 0.5*DL*R / sin(DL/2)
+        M2 = M1 + ΔM
+        I2 = cos-1 [max(-1,min(1, Δd/(0.5*ΔM*RF) – cos(I1) ))]
+        A2 = 	0 			if I2<0.00001 deg
+        sign(A2E) * A2N		else, where:
+        A2N = cos-1 [max(-1,min(1,  {Δn/(0.5*ΔM*RF) – sin(I1)*cos(A1)} / sin(I2) ))]
+        A2E = sin-1 [max(-1,min(1,  {Δe/(0.5*ΔM*RF) – sin(I1)*sin(A1)} / sin(I2) ))]
+
+         */
+        List<TrajectoryStationOut> stationsList = response.getStations();
+        for (int count = 0; count < stationsList.size(); count++) {
+            TrajectoryStationOut outTrajectoryStation1 = stationsList.get(count);
+            TrajectoryStationOut outTrajectoryStation2 = stationsList.get(stationsList.size() - 1);
+            double delta_n = outTrajectoryStation2.getPoint().getX() - outTrajectoryStation1.getPoint().getX();
+            double delta_e = outTrajectoryStation2.getPoint().getY() - outTrajectoryStation1.getPoint().getY();
+            double delta_d = outTrajectoryStation2.getPoint().getZ() - outTrajectoryStation1.getPoint().getZ();
+
+            double R = Math.sqrt(Math.pow(delta_n, 2) + Math.pow(delta_e, 2) + Math.pow(delta_d, 2));
+            double DL = 2 * Math.acos(Math.max(-1, Math.min(1, (delta_n * Math.sin(outTrajectoryStation1.getInclination()) * Math.cos(outTrajectoryStation1.getAzimuthTN()) +
+                    delta_e * Math.sin(outTrajectoryStation1.getInclination()) * Math.sin(outTrajectoryStation1.getAzimuthTN()) + delta_d * Math.cos(outTrajectoryStation1.getInclination())) / R)));
+            double RF;
+            double delta_m;
+            if (DL == 0) {
+                RF = 1;
+                delta_m = R;
+            } else {
+
+                RF = 2 * Math.tan(DL / 2) / DL;
+
+                delta_m = (0.5 * DL * R) / Math.sin(DL / 2);
+            }
+            double M2 = outTrajectoryStation1.getMd() + delta_m;
+
+            double I2 = Math.acos((Math.max(-1, Math.min(1, delta_d / (0.5 * delta_m * RF) - Math.cos(outTrajectoryStation1.getInclination())))));
+            double A2;
+            double A2N = Math.acos(Math.max(-1, Math.min(1, (delta_n / (0.5 * delta_m * RF) - Math.sin(outTrajectoryStation1.getInclination()) * Math.cos(outTrajectoryStation1.getAzimuthTN())) / Math.sin(outTrajectoryStation2.getInclination()))));
+            double A2E = Math.asin(Math.max(-1, Math.min(1, (delta_e / (0.5 * delta_m * RF) - Math.sin(outTrajectoryStation1.getInclination()) * Math.sin(outTrajectoryStation1.getAzimuthTN())) / Math.sin(outTrajectoryStation2.getInclination()))));
+
+            if (I2 < 0.00001) {
+                A2 = 0;
+            } else {
+
+                A2 = Math.signum(A2E) * A2N;
+            }
+            outTrajectoryStation2.setMd(M2);
+            outTrajectoryStation2.setAzimuthTN(A2);
+            outTrajectoryStation2.setInclination(I2);
+            stationsList.add(outTrajectoryStation2);
+        }
+        response.setStations(stationsList);
+
+        return response;
+    }
     private ConvertTrajectoryResponse computeScaleFactor(ConvertTrajectoryResponse response){
         List<TrajectoryStationOut> stationsList = response.getStations();
         TrajectoryStationOut first_station = stationsList.get(0);
