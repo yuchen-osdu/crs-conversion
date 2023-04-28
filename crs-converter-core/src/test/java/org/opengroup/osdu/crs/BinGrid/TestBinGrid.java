@@ -10,7 +10,6 @@ import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestBinGrid {
@@ -72,7 +71,6 @@ public class TestBinGrid {
 		ConvertBinGridRequest result;
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			JsonNode node = mapper.readTree(json);
 			result = mapper.treeToValue(node, ConvertBinGridRequest.class);

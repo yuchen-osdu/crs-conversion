@@ -33,6 +33,8 @@ environmentVariables:
     value: "http://os-entitlements:8080"
   - name: STORAGE_BASE_URL
     value: "http://os-storage:8080"
+  - name: TMP_VOLUME_PATH
+    value: "/tmp"
 
 # Resource Config
 replicaCount: 1
@@ -65,7 +67,7 @@ cors:
 securityContext: 
   runAsUser: 10001
   runAsNonRoot: true
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   allowPrivilegeEscalation: false
   capabilities:
     drop:
