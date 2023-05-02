@@ -48,7 +48,21 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         if (isRequestValid(request, state)) {
             double gridConvergence, to_gn, to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
-            response.setStations(populateResponseFromRequest(request));
+            /*
+            Then, for that case or for "inputKind": "MD_Incl" compute a path that goes straight vertical, as follows:
+              Temporarily add/set "Azimuth": 0 for all stations.
+              Do the computations as for "inputKind": "MD_Incl_Azim" (with the given method).
+              Record the stat/messages to be returned as part of "operationsApplied".
+              max_horizontal_error = n[last]
+              TVD_correction = MD[last] - TVD[last]
+              Correct the path to force it to be perfectly vertical below the first station, but keep the TVD computed in step 2.
+             */
+            if(request.getInputKind().equalsIgnoreCase(TrajectoryInputKind.MD_INCL.toString())){
+                response.setStations(populateResponseFromRequestWithAZZero(request));
+                calculateTVDErrorAndMaxHorizontalOffset(request,state);
+            }else {
+                response.setStations(populateResponseFromRequest(request));
+            }
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
@@ -70,8 +84,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 to.setDls(Double.NaN);
             }
             computeScaleFactor(response);
-           computeConvergence(response);
-
+            computeConvergence(response);
 
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
@@ -645,6 +658,39 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return tos;
     }
 
+    private TrajectoryComputationState calculateTVDErrorAndMaxHorizontalOffset(ConvertTrajectoryRequest request , TrajectoryComputationState state) {
+        double sum = 0.0;
+        TrajectoryStationIn firstTrajectory = null;
+        for (TrajectoryStationIn ti : request.getInputStations()) {
+             firstTrajectory = ti;
+             sum+=ti.getInclination();
+        }
+        double inc_avg = sum/request.getInputStations().size();
+        double tvd_error = Math.pow(Math.tan(inc_avg),2) * firstTrajectory.getMd();
+        double maxHorizontalOffset = Math.tan(inc_avg) * firstTrajectory.getMd();
+        state.getOperations().add(String.format("tvd error:", tvd_error));
+        state.getOperations().add(String.format("Maximum Horizontal Offset:", maxHorizontalOffset));
+        return state;
+    }
+
+    private List<TrajectoryStationOut> populateResponseFromRequestWithAZZero(ConvertTrajectoryRequest request) {
+        List<TrajectoryStationOut> tos = new ArrayList<>();
+        for (TrajectoryStationIn ti : request.getInputStations()) {
+            TrajectoryStationOut to = new TrajectoryStationOut();
+            to.setMd(ti.getMd());
+            to.setInclination(ti.getInclination());
+            to.setAzimuthTN(0.0);
+            to.setAzimuthGN(0.0);
+            to.setOriginal(true); // this is original by definition
+            if (tos.size() == 0) {
+                to.setPoint(request.getReferencePoint()); // copy the reference point into first sample
+            }
+            tos.add(to);
+        }
+        return tos;
+    }
+
+
     boolean isRequestValid(ConvertTrajectoryRequest request, TrajectoryComputationState state) {
         if (request != null) {
             try {
@@ -701,7 +747,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             TrajectoryInputKind k = TrajectoryInputKind.getTrajectoryInputKind(request.getInputKind());
             if (k == null) {
                 state.getErrors().add("Invalid input kind specification.");
-            } else if (k != TrajectoryInputKind.MD_INCL_AZIM) {
+            } else if (k != TrajectoryInputKind.MD_INCL_AZIM && k!= TrajectoryInputKind.MD_INCL) {
                 state.getErrors().add(k.toString() + " is not yet supported as input kind.");
             } else {
                 state.setInputKind(k);
