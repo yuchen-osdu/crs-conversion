@@ -6,4 +6,6 @@ import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 
 public interface ITrajectoryConverter {
 	ConvertTrajectoryResponse convertTrajectory(DpsHeaders headers, ConvertTrajectoryRequest request);
+	ConvertTrajectoryResponse convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequest request,Boolean flag);
+
 }

@@ -1,0 +1,188 @@
+package org.opengroup.osdu.crs.api;
+
+import java.lang.reflect.Type;
+import java.net.URLDecoder;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.ValidationException;
+
+import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.core.common.model.storage.Record;
+import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
+import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
+import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
+import org.opengroup.osdu.crs.interfaces.ICRSConverter;
+import org.opengroup.osdu.crs.interfaces.IPointConverter;
+import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
+import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
+import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
+import org.opengroup.osdu.crs.model.ConvertGeoJsonRequest;
+import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
+import org.opengroup.osdu.crs.model.ConvertPointsRequest;
+import org.opengroup.osdu.crs.model.ConvertPointsResponse;
+import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
+import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
+import org.opengroup.osdu.crs.model.ErrorResponse;
+import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
+import org.opengroup.osdu.crs.util.Constants;
+import org.opengroup.osdu.crs.util.RecordCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+@Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
+@CrossOrigin
+@RestController
+@RequestMapping("/v4")
+public class CrsConverterApiV4 {
+
+    @Autowired
+    private JaxRsDpsLog logger;
+
+    @Autowired
+    private IStorageClient StorageClient;
+
+    private final ICRSConverter crsConverter;
+    private final ITrajectoryConverter crsTrajectoryConverter;
+    private final IPointConverter pointConverter;
+    private RecordCache recordCache;
+    private static final String FEATURE_TYPE = "Feature";
+    private static final String GEOMETRY_TYPE = "Point";
+    private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner:";
+
+    private static final String BOUND_PROJECTED = "BoundProjected";
+    private static final String PROJECTED = "Projected";
+
+    public CrsConverterApiV4(@NonNull ICRSConverter crsConverter,
+                             @NonNull ITrajectoryConverter crsTrajectoryConverter,
+                             @NonNull IPointConverter pointConverter) {
+        this.crsConverter = crsConverter;
+        this.crsTrajectoryConverter = crsTrajectoryConverter;
+        this.pointConverter = pointConverter;
+        this.recordCache = new RecordCache();
+    }
+    // parameter str could be a persistableReference string or recordID. mustID means parameter str must be a recordID
+    private String getPersistableReferenceFromID(String str, boolean mustID){
+        String temp;
+        try {
+            temp = URLDecoder.decode(str, "UTF-8");
+        } catch (Exception e) {
+            return str; // try our best to return user input
+        }
+        // persistableReference string starts with {....}
+        if (temp.startsWith("{") && mustID == false){
+            return str;
+        }
+
+        // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
+        temp = str;
+        // check the cache for recordID with its persistableReference string
+        String pr = recordCache.get(temp);
+        if (pr != null){
+            return pr;
+        }
+        // temp should have record:version format. change last : to be / for storage API call
+        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+        Record record =  StorageClient.getRecord(temp);
+        if (record == null)
+            throw new ValidationException(String.join(" ", "record not found:", temp));
+        pr = record.getData().get("PersistableReference").toString();
+        if(pr != null){
+            recordCache.put(temp, pr);
+            return pr;
+        } else {
+            throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
+        }
+    }
+
+    private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
+
+        String temp;
+        try {
+            temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
+        } catch (Exception e) {
+            return trajectoryCRS; // try our best to return user input
+        }
+        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+        Record record =  StorageClient.getRecord(temp);
+        if (record == null)
+            throw new ValidationException(String.join(" ", "record not found:", temp));
+        Map<String,Object> data = record.getData();
+        Map<String,Object> coordinateSystem = (Map<String, Object>) data.get("CoordinateSystem");
+        String horizontalAxisUnitID = (String) coordinateSystem.get("HorizontalAxisUnitID");
+        return horizontalAxisUnitID;
+    }
+
+    private boolean checkCRSType(String trajectoryCRS) {
+        boolean flag = false;
+        String temp;
+        try {
+            temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
+        } catch (Exception e) {
+            return false; // try our best to return user input
+        }
+        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+        Record record = StorageClient.getRecord(temp);
+        if (record == null)
+            throw new ValidationException(String.join(" ", "record not found:", temp));
+        Map<String, Object> data = record.getData();
+        if (data.get("Kind").equals(BOUND_PROJECTED) || data.get("Kind").equals(PROJECTED)) {
+            flag = true;
+        }
+        return flag;
+    }
+
+    @PostMapping("/convertTrajectory")
+    @ApiOperation(value = Constants.SWAGGER_TRJ_CONVERT_TITLE, notes = Constants.SWAGGER_TRJ_CONVERT_NOTES, tags = {Constants.SWAGGER_TAG_TRJ_CONVERSION})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponse.class),
+            @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
+            @ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
+    public ConvertTrajectoryResponse convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
+                                                       @NonNull @Valid @RequestBody ConvertTrajectoryRequest request) {
+        String message = String.format("Using trajectory: %s", "no");
+        logger.info(message);
+        DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
+        if(request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED)){
+            if(!Strings.isNullOrEmpty(request.getUnitXY())) {
+                throw new ValidationException("unitXY should not be provided for BoundProjected and Projected CRS.");
+            }
+            String unit = getUnitFromTrajectoryCRS(request.getTrajectoryCRS());
+            request.setUnitXY(getPersistableReferenceFromID(unit, false));
+        }else
+            request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
+        Boolean checkCRSType = checkCRSType(request.getTrajectoryCRS());
+        request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
+        request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
+        ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
+        return response;
+    }
+
+
+}

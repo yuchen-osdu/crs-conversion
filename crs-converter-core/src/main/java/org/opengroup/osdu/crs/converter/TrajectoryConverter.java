@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeodeticCRS;
@@ -41,6 +42,68 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
     @Override
     public ConvertTrajectoryResponse convertTrajectory(DpsHeaders headers, ConvertTrajectoryRequest request) {
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setDpsHeaders(headers);
+        ConvertTrajectoryResponse response = new ConvertTrajectoryResponse();
+        response.setTrajectoryCRS(request.getTrajectoryCRS());
+        response.setUnitXY(request.getUnitXY());
+        response.setUnitZ(request.getUnitZ());
+        response.setMethod(request.getMethod());
+        response.setInputKind(request.getInputKind());
+        if (isRequestValid(request, state)) {
+            double gridConvergence, to_gn, to_tn;
+            AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
+            if(request.getInputKind().equalsIgnoreCase(TrajectoryInputKind.MD_INCL.toString())){
+                response.setStations(populateResponseFromRequestWithAZZero(request));
+            }else {
+                response.setStations(populateResponseFromRequest(request));
+            }
+            ProjectionCorrectionSet correctionSet
+                    = azimuthCorrector.createProjectionCorrectionSet(
+                            state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
+            gridConvergence = correctionSet.getConvergenceAngleInDeg();
+            if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
+                to_tn = gridConvergence;
+                to_gn = 0.0;
+                state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
+            } else {
+                to_tn = 0.0;
+                to_gn = -gridConvergence;
+                state.getOperations().add(String.format("derived GN from TN azimuth by grid convergence %f", (to_gn + 360) % 360.0));
+            }
+            for (TrajectoryStationOut to : response.getStations()) {
+                double tn = (to.getAzimuthTN() + to_tn + 360) % 360.0;
+                double gn = (to.getAzimuthGN() + to_gn + 360) % 360.0;
+                to.setAzimuthTN(tn);
+                to.setAzimuthGN(gn);
+                to.setDls(Double.NaN);
+            }
+
+            ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
+            Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
+            if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
+                deNormalizeTrajectory(siResponse, response, state);
+                state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
+                if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
+                    // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
+                    convertPointsLmp(response, state);
+                } else {
+                    // convert from local azimuthal equidistant CRS to requested CRS
+                    convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
+                }
+                response.setLocalCRS(correctionSet.getAzimuthalEquidistantCRS().createPersistableReference());
+                convertToWgs84(response, state);
+            } else {
+                throw new BadRequestException(String.join(" ", state.getErrors()));
+            }
+        } else {
+            throw new BadRequestException(String.join(" ", state.getErrors()));
+        }
+        response.setOperationsApplied(state.getOperations());
+        return response;
+    }
+    @Override
+    public ConvertTrajectoryResponse convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequest request, Boolean flag) {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponse response = new ConvertTrajectoryResponse();
@@ -104,8 +167,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
                     // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     convertPointsLmp(response, state);
-                    //call the dummy method to add 100 to xy values
-                    if (request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED)) {
+                    if (flag) {
                         computeScaleFactor(response);
                         computeConvergence(response);
                     }
@@ -113,7 +175,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
-                    if (request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED)) {
+                    if (flag) {
                         computeScaleFactor(response);
                         computeConvergence(response);
                     }
@@ -283,15 +345,15 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
     private void computeScaleFactor(ConvertTrajectoryResponse response) {
         List<TrajectoryStationOut> stationsList = response.getStations();
-        for (int i = 1; i < stationsList.size(); i++) {
-            computeScaleFactorPair(response, i);
+        List<TrajectoryStationOut> scaleFactorList = new ArrayList<>();
+        for (int i = 0; i < stationsList.size()-1; i++) {//0 0<2, 1 1<2, 2 2<2
+           computeScaleFactorPair(response,scaleFactorList, i);
         }
     }
 
-    private ConvertTrajectoryResponse computeScaleFactorPair(ConvertTrajectoryResponse response, int index) {
-        List<TrajectoryStationOut> stationsList = response.getStations();
-        TrajectoryStationOut t1 = stationsList.get(index - 1);
-        TrajectoryStationOut t2 = stationsList.get(index);
+    private ConvertTrajectoryResponse  computeScaleFactorPair(ConvertTrajectoryResponse response,List<TrajectoryStationOut> scaleFactorList, int index) {
+        TrajectoryStationOut t1 = response.getStations().get(index);
+        TrajectoryStationOut t2 = response.getStations().get(index+1);//1,2,3
         double yn = t2.getPoint().getY();
         double xn = t2.getPoint().getX();
         double y0 = t1.getPoint().getY();
@@ -303,11 +365,16 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         DecimalFormat upto6decimal = new DecimalFormat("#.######");
         double scaleFactor = dGN / dTN;
         t1.setScalefactor(Double.parseDouble(upto6decimal.format(scaleFactor)));
-        stationsList.add(t1);
-        response.setStations(stationsList);
+        if (index +1 == scaleFactorList.size() - 1) {
+            t2.setScalefactor(t1.getScalefactor());
+            scaleFactorList.add(t1);
+            scaleFactorList.add(t2);
+        } else
+            scaleFactorList.add(t1);
+        response.setStations(scaleFactorList);
         return response;
     }
-    private ConvertTrajectoryResponse computeConvergence(ConvertTrajectoryResponse response){
+    private void computeConvergence(ConvertTrajectoryResponse response){
         // GC=TN-GN, and wrapped to interval (-180,+180) by "if convergence<-180 then convergence+=360; if convergence>180 then convergence-=360"
         List<TrajectoryStationOut> stationsList = response.getStations();
         for(int count=0;count<stationsList.size();count++){
@@ -324,7 +391,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             stationsList.add(to);
         }
         response.setStations(stationsList);
-        return response;
     }
 
     private ConvertTrajectoryResponse computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){

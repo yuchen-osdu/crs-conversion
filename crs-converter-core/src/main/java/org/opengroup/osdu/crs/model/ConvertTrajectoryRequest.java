@@ -38,7 +38,7 @@ public class ConvertTrajectoryRequest {
 			example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
 	private String azimuthReference;
 
-	@NotEmpty
+
     @JsonProperty("unitXY")
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_UNIT_XY, dataType = "String",
