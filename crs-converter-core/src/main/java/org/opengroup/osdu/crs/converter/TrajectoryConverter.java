@@ -345,13 +345,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
     private void computeScaleFactor(ConvertTrajectoryResponse response) {
         List<TrajectoryStationOut> stationsList = response.getStations();
-        List<TrajectoryStationOut> scaleFactorList = new ArrayList<>();
-        for (int i = 0; i < stationsList.size()-1; i++) {//0 0<2, 1 1<2, 2 2<2
-           computeScaleFactorPair(response,scaleFactorList, i);
+        for (int i = 0; i < stationsList.size()-1; i++) {
+           computeScaleFactorPair(response, i);
         }
     }
 
-    private ConvertTrajectoryResponse  computeScaleFactorPair(ConvertTrajectoryResponse response,List<TrajectoryStationOut> scaleFactorList, int index) {
+    private void  computeScaleFactorPair(ConvertTrajectoryResponse response, int index) {
         TrajectoryStationOut t1 = response.getStations().get(index);
         TrajectoryStationOut t2 = response.getStations().get(index+1);//1,2,3
         double yn = t2.getPoint().getY();
@@ -364,15 +363,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double dTN = Math.sqrt(Math.pow(t2.getDxTN() - t1.getDxTN(), 2) + Math.pow(t2.getDyTN() - t1.getDyTN(), 2));
         DecimalFormat upto6decimal = new DecimalFormat("#.######");
         double scaleFactor = dGN / dTN;
-        t1.setScalefactor(Double.parseDouble(upto6decimal.format(scaleFactor)));
-        if (index +1 == scaleFactorList.size() - 1) {
-            t2.setScalefactor(t1.getScalefactor());
-            scaleFactorList.add(t1);
-            scaleFactorList.add(t2);
-        } else
-            scaleFactorList.add(t1);
-        response.setStations(scaleFactorList);
-        return response;
+        response.getStations().get(index).setScalefactor(Double.parseDouble(upto6decimal.format(scaleFactor)));
+        if (index +1 == response.getStations().size() - 1) {
+            response.getStations().get(index+1).setScalefactor(response.getStations().get(index).getScalefactor());
+        }
     }
     private void computeConvergence(ConvertTrajectoryResponse response){
         // GC=TN-GN, and wrapped to interval (-180,+180) by "if convergence<-180 then convergence+=360; if convergence>180 then convergence-=360"
@@ -387,13 +381,11 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             }
             DecimalFormat upto5decimal = new DecimalFormat("#.#####");
 
-            to.setConvergence(Double.parseDouble(upto5decimal.format(gridConvergence)));
-            stationsList.add(to);
+            response.getStations().get(count).setConvergence(Double.parseDouble(upto5decimal.format(gridConvergence)));
         }
-        response.setStations(stationsList);
     }
 
-    private ConvertTrajectoryResponse computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){
+    private void computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){
         //To calculated path can be “unscaled” by applying this factor in reverse
         //as follows for i=1:N:
         //x_unscaled[i] = x[1] + (x[i] - x[1]) / psf
@@ -408,11 +400,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double x0 = firstStationPoint.getX();
             double x = x0 + (to.getPoint().getX() - x0) / scaleFactor;
             double y = y0 + (to.getPoint().getY() - y0) / scaleFactor;
-            to.setPoint(new Point(x, y, to.getPoint().getZ()));
-            stationsList.add(to);
+            response.getStations().get(count).setPoint(new Point(x, y, to.getPoint().getZ()));
         }
-        response.setStations(stationsList);
-        return response;
     }
 
     private double[] extractCoordinatesFromResponse(ConvertTrajectoryResponse response) {
