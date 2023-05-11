@@ -230,10 +230,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
         */
 
-        /*MinimumDepthInterval MD_i = request.getMD_i();
+        MinimumDepthInterval MD_i = request.getMD_i();
         List<Double> mdiList = MD_i.getMd_i();
         List<TrajectoryStationOut> stationsList = response.getStations();
-        int count=1,innerCount=0;
+        int count,innerCount=0;
         for(count=1;count<stationsList.size();count++) {
             TrajectoryStationOut outTrajectoryStation = stationsList.get(count);
                 TrajectoryStationOut inTrajectoryStation = stationsList.get(innerCount);
@@ -245,8 +245,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double dl=  2 * Math.asin(Math.sqrt(Math.pow(Math.sin((i2-i1)/2),2) + Math.sin(i1) * Math.sin(i2) * Math.pow(Math.sin((a2-a1)/2),2)));
             double m2= outTrajectoryStation.getMd();
             double m1= inTrajectoryStation.getMd();
-            MinimumDepthInterval md_i = MD_i.get(innerCount);
-            double dli = dl * (md_i.getMd_i()-m1)/(m2-m1);
+            double dli = dl * (mdiList.get(innerCount)-m1)/(m2-m1);
             double ii;
             double ai;
             double rfi;
@@ -260,7 +259,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                             Math.sin(i1)*Math.cos(a1)*Math.sin(dl-dli) + Math.sin(i2)*Math.cos(a2)*Math.sin(dli));
                 rfi = 2*Math.tan(dli/2)/dli;
             }
-            double mi = md_i.getMd_i() - m1;
+            double mi = mdiList.get(innerCount) - m1;
             double ni = mi * (rfi/2) * (Math.sin(i1)*Math.cos(a1) + Math.sin(ii)*Math.cos(ai));
             double ei = mi * (rfi/2) * (Math.sin(i1)*Math.sin(a1) + Math.sin(ii)*Math.sin(ai));
             double di = mi * (rfi/2) * (Math.cos(i1)*Math.sin(ii));
@@ -271,8 +270,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             outTrajectoryStation.setInclination(ii);
             outTrajectoryStation.setAzimuthTN(ai);
             stationsList.add(outTrajectoryStation);
+            innerCount+=innerCount;
         }
-        response.setStations_i(stationsList);*/
+        response.setStations_i(stationsList);
         return response;
     }
 
