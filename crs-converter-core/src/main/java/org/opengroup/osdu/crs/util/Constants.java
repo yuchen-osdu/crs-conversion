@@ -178,6 +178,7 @@ public final class Constants {
     public static final String SWAGGER_MD_INTERVAL = "MD_INTERVAL (measured depth interval)";
     public static final String SWAGGER_MD_INTERVAL_EXAMPLE = "1.0";
     public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I = "Computed trajectory stations i.";
+    public static final String SWAGGER_TRJ_SCALE_CONVERGENCE = "scaleConvergence";
     public static final String SWAGGER_GEO_JSON_FEATURE_EXAMPLES = "[\n" +
             "      {\n" +
             "        \"geometry\": {\n" +

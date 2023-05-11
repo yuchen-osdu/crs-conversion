@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -71,5 +72,9 @@ public class ConvertTrajectoryResponse {
     @Valid
     @ApiModelProperty(value = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I, required = true)
     private List<TrajectoryStationOut> stations_i;
+
+    @Valid
+    @ApiModelProperty(value = Constants.SWAGGER_TRJ_SCALE_CONVERGENCE, required = true)
+    private List<ScaleConvergence> scaleConvergenceList;
 
 }

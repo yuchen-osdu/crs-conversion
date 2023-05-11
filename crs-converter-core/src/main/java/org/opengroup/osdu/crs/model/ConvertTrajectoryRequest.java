@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
 import org.opengroup.osdu.crs.util.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -84,7 +85,7 @@ public class ConvertTrajectoryRequest {
 	@JsonProperty("MD_i")
 	@ApiModelProperty(value=Constants.SWAGGER_TRJ_MD_I,
 			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
-	private List<MinimumDepthInterval> MD_i;
+	private MinimumDepthInterval MD_i;
 
     @Override
     public String toString() {

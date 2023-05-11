@@ -1,60 +1,31 @@
 package org.opengroup.osdu.crs.api;
 
-import java.lang.reflect.Type;
-import java.net.URLDecoder;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-
 import com.google.common.base.Strings;
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.annotations.*;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.storage.Record;
-import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
-import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
-import org.opengroup.osdu.crs.BinGrid.AbstractFeatureCollection;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
-import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
-import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonRequest;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
-import org.opengroup.osdu.crs.model.ConvertPointsRequest;
-import org.opengroup.osdu.crs.model.ConvertPointsResponse;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 import org.opengroup.osdu.crs.model.ErrorResponse;
+import org.opengroup.osdu.crs.model.MinimumDepthInterval;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.validation.Valid;
+import javax.validation.ValidationException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
 @RestController
@@ -180,9 +151,25 @@ public class CrsConverterApiV4 {
         Boolean checkCRSType = checkCRSType(request.getTrajectoryCRS());
         request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
         request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
+
+        MinimumDepthInterval minimumDepthInterval = request.getMD_i();
+        if(minimumDepthInterval.getMd_i().size()>0 && minimumDepthInterval.getMd_interval()>0 && minimumDepthInterval.getMd_interval()!=null){
+            throw new ValidationException("Both md_i's and md_interval values are provided in the input.");
+        }else if(minimumDepthInterval.getMd_interval()>0 && minimumDepthInterval.getMd_interval()!=null){
+            List<Double> mdiList = computeMinimumDepthPointsUsingInterval(minimumDepthInterval.getMd_i().get(0),
+                    minimumDepthInterval.getMd_i().get(minimumDepthInterval.getMd_i().size()-1),minimumDepthInterval.getMd_interval());
+            minimumDepthInterval.setMd_i(mdiList);
+        }
         ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
         return response;
     }
-
+    private List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd,Double lastMd,Integer mdInterval){
+            List<Double> mdiList = new ArrayList<>();
+            while(lastMd > firstMd && lastMd > mdInterval){
+                mdiList.add(firstMd);
+                firstMd=firstMd+mdInterval;
+            }
+         return mdiList;
+    }
 
 }

@@ -168,16 +168,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     convertPointsLmp(response, state);
                     if (flag) {
-                        computeScaleFactor(response);
-                        computeConvergence(response);
+                        computeScaleFactorAndConvergence(response);
                     }
 
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     if (flag) {
-                        computeScaleFactor(response);
-                        computeConvergence(response);
+                        computeScaleFactorAndConvergence(response);
                     }
                     if (state.getMethod() == TrajectoryComputationMethod.GridNorthLocal){
                         computeUnscaledValuesForXAndY(response);
@@ -231,7 +229,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                         Δd1, i = di – d1 = ΔMi * (RFi/2) * (cos(I1) + cos(Ii))
 
         */
-        List<MinimumDepthInterval> MD_i = request.getMD_i();
+
+        /*MinimumDepthInterval MD_i = request.getMD_i();
+        List<Double> mdiList = MD_i.getMd_i();
         List<TrajectoryStationOut> stationsList = response.getStations();
         int count=1,innerCount=0;
         for(count=1;count<stationsList.size();count++) {
@@ -272,9 +272,11 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             outTrajectoryStation.setAzimuthTN(ai);
             stationsList.add(outTrajectoryStation);
         }
-        response.setStations_i(stationsList);
+        response.setStations_i(stationsList);*/
         return response;
     }
+
+
 
     private ConvertTrajectoryResponse computeInverseMinimumCuravture(ConvertTrajectoryResponse response) {
         /*
@@ -343,46 +345,45 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     }
 
 
-    private void computeScaleFactor(ConvertTrajectoryResponse response) {
+    private void computeScaleFactorAndConvergence(ConvertTrajectoryResponse response) {
         List<TrajectoryStationOut> stationsList = response.getStations();
-        for (int i = 0; i < stationsList.size()-1; i++) {
-           computeScaleFactorPair(response, i);
-        }
-    }
-
-    private void  computeScaleFactorPair(ConvertTrajectoryResponse response, int index) {
-        TrajectoryStationOut t1 = response.getStations().get(index);
-        TrajectoryStationOut t2 = response.getStations().get(index+1);//1,2,3
-        double yn = t2.getPoint().getY();
-        double xn = t2.getPoint().getX();
-        double y0 = t1.getPoint().getY();
-        double x0 = t1.getPoint().getX();
+        TrajectoryStationOut firstStation = stationsList.get(0);
+        TrajectoryStationOut lastStation = stationsList.get(stationsList.size() - 1);
+        double yn = lastStation.getPoint().getY();
+        double xn = lastStation.getPoint().getX();
+        double y0 = firstStation.getPoint().getY();
+        double x0 = firstStation.getPoint().getX();
         //dGN = sqrt(x[2]-x[1])^2 + y[2]-y[1])^2)
         //dTN = sqrt((dxTNn-dxTN1)^2 + (dyTNn-dyTN1)^2)
         double dGN = Math.sqrt(Math.pow(yn - y0, 2) + Math.pow(xn - x0, 2));
-        double dTN = Math.sqrt(Math.pow(t2.getDxTN() - t1.getDxTN(), 2) + Math.pow(t2.getDyTN() - t1.getDyTN(), 2));
+        double dTN = Math.sqrt(Math.pow(lastStation.getDxTN() - firstStation.getDxTN(), 2) + Math.pow(lastStation.getDyTN() - firstStation.getDyTN(), 2));
         DecimalFormat upto6decimal = new DecimalFormat("#.######");
-        double scaleFactor = dGN / dTN;
-        response.getStations().get(index).setScalefactor(Double.parseDouble(upto6decimal.format(scaleFactor)));
-        if (index +1 == response.getStations().size() - 1) {
-            response.getStations().get(index+1).setScalefactor(response.getStations().get(index).getScalefactor());
+        double scaleFactor = Double.parseDouble(upto6decimal.format(dGN / dTN));
+        DecimalFormat upto5decimal = new DecimalFormat("#.#####");
+        double gridConvergenceFirst = Double.parseDouble(upto5decimal.format(firstStation.getAzimuthTN() - firstStation.getAzimuthGN()));
+        if (gridConvergenceFirst < -180) {
+            gridConvergenceFirst += 360;
+        } else if (gridConvergenceFirst > 180) {
+            gridConvergenceFirst -= 360;
         }
-    }
-    private void computeConvergence(ConvertTrajectoryResponse response){
-        // GC=TN-GN, and wrapped to interval (-180,+180) by "if convergence<-180 then convergence+=360; if convergence>180 then convergence-=360"
-        List<TrajectoryStationOut> stationsList = response.getStations();
-        for(int count=0;count<stationsList.size();count++){
-            TrajectoryStationOut to = stationsList.get(count);
-            double gridConvergence = to.getAzimuthTN() - to.getAzimuthGN();
-            if(gridConvergence < -180 ){
-                 gridConvergence+=360;
-            }else if(gridConvergence > 180){
-                 gridConvergence-=360;
-            }
-            DecimalFormat upto5decimal = new DecimalFormat("#.#####");
-
-            response.getStations().get(count).setConvergence(Double.parseDouble(upto5decimal.format(gridConvergence)));
+        double gridConvergenceLast = Double.parseDouble(upto5decimal.format(lastStation.getAzimuthTN() - lastStation.getAzimuthGN()));
+        if (gridConvergenceLast < -180) {
+            gridConvergenceLast += 360;
+        } else if (gridConvergenceLast > 180) {
+            gridConvergenceLast -= 360;
         }
+        ScaleConvergence scaleConvergenceFirst = new ScaleConvergence();
+        scaleConvergenceFirst.setPoint(firstStation.getPoint());
+        scaleConvergenceFirst.setScalefactor(scaleFactor);
+        scaleConvergenceFirst.setConvergence(gridConvergenceFirst);
+        ScaleConvergence scaleConvergenceLast = new ScaleConvergence();
+        scaleConvergenceLast.setPoint(lastStation.getPoint());
+        scaleConvergenceLast.setScalefactor(scaleFactor);
+        scaleConvergenceLast.setConvergence(gridConvergenceLast);
+        List<ScaleConvergence> scaleConvergenceList = new ArrayList<>();
+        scaleConvergenceList.add(scaleConvergenceFirst);
+        scaleConvergenceList.add(scaleConvergenceLast);
+        response.setScaleConvergenceList(scaleConvergenceList);
     }
 
     private void computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){
