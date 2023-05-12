@@ -153,9 +153,12 @@ public class CrsConverterApiV4 {
         request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
 
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
-        if(minimumDepthInterval.getMd_i().size()>0 && minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0){
+        if(minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0 && minimumDepthInterval.getMd_i()!=null && minimumDepthInterval.getMd_i().size()>0 ){
             throw new ValidationException("Both md_i's and md_interval values are provided in the input.");
         }else if(minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0){
+                if(minimumDepthInterval.getMd_i()!=null){
+                    minimumDepthInterval.setMd_i(new ArrayList<>());
+                }
             List<Double> mdiList = computeMinimumDepthPointsUsingInterval(request.getInputStations().get(0).getMd(),
                     request.getInputStations().get(request.getInputStations().size()-1).getMd(),minimumDepthInterval.getMd_interval());
             minimumDepthInterval.setMd_i(mdiList);

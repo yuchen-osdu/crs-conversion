@@ -157,11 +157,11 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 // add method to compute interpolation based on MD_i input
                 computeInterpolationForMDiInput(request,referencePoint,response);
                 // add method to compute inverse minimum curvataure
-                computeInverseMinimumCuravture(response);
+                //computeInverseMinimumCuravture(response);
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 // Preparing dummy trajectory for scalefactor computation
-                prepareDummySurvey(response);
+                //prepareDummySurvey(response);
                 siResponse = normalizeTrajectory(response, state);
                 callTrajectoryEngineService(siResponse, referencePoint, state);
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
@@ -233,6 +233,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         MinimumDepthInterval MD_i = request.getMD_i();
         List<Double> mdiList = MD_i.getMd_i();
         List<TrajectoryStationOut> stationsList = response.getStations();
+        List<TrajectoryStationOut> stationsListi = new ArrayList<>();
         int count,innerCount=0;
         for(count=1;count<stationsList.size();count++) {
             TrajectoryStationOut outTrajectoryStation = stationsList.get(count);
@@ -269,10 +270,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             outTrajectoryStation.setPoint(new Point(outTrajectoryStation.getDxTN(), outTrajectoryStation.getDyTN(),referencePoint.getZ()-di));
             outTrajectoryStation.setInclination(ii);
             outTrajectoryStation.setAzimuthTN(ai);
-            stationsList.add(outTrajectoryStation);
+            stationsListi.add(outTrajectoryStation);
             innerCount+=innerCount;
         }
-        response.setStations_i(stationsList);
+        response.setStations_i(stationsListi);
         return response;
     }
 

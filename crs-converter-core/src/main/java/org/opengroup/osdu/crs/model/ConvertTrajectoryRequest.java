@@ -6,14 +6,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import org.opengroup.osdu.crs.util.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import javax.validation.constraints.NotEmpty;
+import org.opengroup.osdu.crs.util.Constants;
+
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.List;
 
