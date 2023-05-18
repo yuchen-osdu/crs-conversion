@@ -6,14 +6,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.opengroup.osdu.crs.util.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.opengroup.osdu.crs.util.Constants;
-
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class ConvertTrajectoryRequest {
 			example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
 	private String azimuthReference;
 
-
+	@NotEmpty
     @JsonProperty("unitXY")
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_UNIT_XY, dataType = "String",
@@ -75,17 +74,12 @@ public class ConvertTrajectoryRequest {
 	@ApiModelProperty(
 			value = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, dataType = "String",
 			example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
-	private String inputKind;
+	public String inputKind;
 
     @JsonProperty("interpolate")
 	@ApiModelProperty(value=Constants.SWAGGER_TRJ_REQ_INTERPOLATE,
 			example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX, dataType = "Boolean")
-	private boolean interpolate;
-
-	@JsonProperty("MD_i")
-	@ApiModelProperty(value=Constants.SWAGGER_TRJ_MD_I,
-			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
-	private MinimumDepthInterval MD_i;
+	public boolean interpolate;
 
     @Override
     public String toString() {

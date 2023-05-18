@@ -1,4 +1,4 @@
-package org.opengroup.osdu.crs.model;
+package org.opengroup.osdu.crs.model.v4;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

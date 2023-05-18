@@ -11,7 +11,8 @@ import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 import org.opengroup.osdu.crs.model.ErrorResponse;
-import org.opengroup.osdu.crs.model.MinimumDepthInterval;
+import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
+import org.opengroup.osdu.crs.model.v4.MinimumDepthInterval;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
@@ -136,7 +137,7 @@ public class CrsConverterApiV4 {
             @ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
             @ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
     public ConvertTrajectoryResponse convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
-                                                       @NonNull @Valid @RequestBody ConvertTrajectoryRequest request) {
+                                                       @NonNull @Valid @RequestBody ConvertTrajectoryRequestV4 request) {
         String message = String.format("Using trajectory: %s", "no");
         logger.info(message);
         DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
@@ -154,7 +155,7 @@ public class CrsConverterApiV4 {
 
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         if(minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0 && minimumDepthInterval.getMd_i()!=null && minimumDepthInterval.getMd_i().size()>0 ){
-            throw new ValidationException("Both md_i's and md_interval values are provided in the input.");
+            throw new ValidationException("Both md_i array and md_interval values are provided in the input.");
         }else if(minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0){
                 if(minimumDepthInterval.getMd_i()!=null){
                     minimumDepthInterval.setMd_i(new ArrayList<>());

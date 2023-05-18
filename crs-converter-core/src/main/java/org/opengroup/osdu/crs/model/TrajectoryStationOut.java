@@ -1,12 +1,11 @@
 package org.opengroup.osdu.crs.model;
 
-import org.opengroup.osdu.crs.model.Point;
-import org.opengroup.osdu.crs.util.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengroup.osdu.crs.util.Constants;
 
 @Data
 @NoArgsConstructor
