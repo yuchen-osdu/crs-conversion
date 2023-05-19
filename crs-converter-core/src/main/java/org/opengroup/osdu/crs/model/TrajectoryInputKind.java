@@ -7,9 +7,7 @@ public enum TrajectoryInputKind {
     MD_X_Y_Z("MD_X_Y_Z"),
     MD_DX_DY_DZ("MD_dX_dY_dZ"),
     X_Y_Z("X_Y_Z"),
-    DX_DY_DZ("dX_dY_dZ"),
-    MD_INCL("MD_Incl");
-
+    DX_DY_DZ("dX_dY_dZ");
     private final String kind;
     TrajectoryInputKind(final String method) {
         this.kind = method;
@@ -24,7 +22,6 @@ public enum TrajectoryInputKind {
             }
             if (kind.contains("DX") && kind.contains("DY") && kind.contains("DZ")) return DX_DY_DZ;
             if (kind.contains("X") && kind.contains("Y") && kind.contains("Z")) return X_Y_Z;
-            if (kind.contains("MD") && kind.contains("INC")) return MD_INCL;
         }
         return null;
     }

@@ -686,7 +686,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             TrajectoryInputKind k = TrajectoryInputKind.getTrajectoryInputKind(request.getInputKind());
             if (k == null) {
                 state.getErrors().add("Invalid input kind specification.");
-            } else if (k != TrajectoryInputKind.MD_INCL_AZIM && k!= TrajectoryInputKind.MD_INCL) {
+            } else if (k != TrajectoryInputKind.MD_INCL_AZIM) {
                 state.getErrors().add(k.toString() + " is not yet supported as input kind.");
             } else {
                 state.setInputKind(k);
