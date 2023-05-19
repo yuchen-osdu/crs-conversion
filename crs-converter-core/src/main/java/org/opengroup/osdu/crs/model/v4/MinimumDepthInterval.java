@@ -21,6 +21,6 @@ public class MinimumDepthInterval {
     @ApiModelProperty(
             value = Constants.SWAGGER_MD_INTERVAL,
             example = Constants.SWAGGER_MD_INTERVAL_EXAMPLE)
-    private Integer md_interval;
+    private Double md_interval;
 
 }

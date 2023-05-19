@@ -8,7 +8,6 @@ import org.opengroup.osdu.core.common.model.storage.Record;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 import org.opengroup.osdu.crs.model.ErrorResponse;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
@@ -32,21 +31,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v4")
 public class CrsConverterApiV4 {
-
     @Autowired
     private JaxRsDpsLog logger;
-
     @Autowired
     private IStorageClient StorageClient;
-
     private final ICRSConverter crsConverter;
     private final ITrajectoryConverter crsTrajectoryConverter;
     private final IPointConverter pointConverter;
     private RecordCache recordCache;
-    private static final String FEATURE_TYPE = "Feature";
-    private static final String GEOMETRY_TYPE = "Point";
-    private static final String BIN_GRID_METHOD_4_CORNER = ":reference-data--BinGridDefinitionMethodType:4Corner:";
-
     private static final String BOUND_PROJECTED = "BoundProjected";
     private static final String PROJECTED = "Projected";
 
@@ -70,7 +62,6 @@ public class CrsConverterApiV4 {
         if (temp.startsWith("{") && mustID == false){
             return str;
         }
-
         // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
         temp = str;
         // check the cache for recordID with its persistableReference string
@@ -93,7 +84,6 @@ public class CrsConverterApiV4 {
     }
 
     private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
-
         String temp;
         try {
             temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
@@ -123,7 +113,7 @@ public class CrsConverterApiV4 {
         if (record == null)
             throw new ValidationException(String.join(" ", "record not found:", temp));
         Map<String, Object> data = record.getData();
-        if (data.get("Kind").equals(BOUND_PROJECTED) || data.get("Kind").equals(PROJECTED)) {
+        if (data!=null && (data.get("Kind").toString().equalsIgnoreCase(BOUND_PROJECTED) || data.get("Kind").toString().equalsIgnoreCase(PROJECTED))) {
             flag = true;
         }
         return flag;
@@ -167,7 +157,7 @@ public class CrsConverterApiV4 {
         ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
         return response;
     }
-    private List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd,Double lastMd,Integer mdInterval){
+    private List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd,Double lastMd,Double mdInterval){
             List<Double> mdiList = new ArrayList<>();
             while(lastMd > firstMd && lastMd > mdInterval){
                 mdiList.add(firstMd);

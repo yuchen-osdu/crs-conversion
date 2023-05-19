@@ -37,9 +37,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     private static final double DEG2RAD = Math.PI / 180.0;
     private static final double RAD2DEG = 180.0 / Math.PI;
 
-    private static final String BOUND_PROJECTED = "BoundProjected";
-    private static final String PROJECTED = "Projected";
-
     public TrajectoryConverter() {
     }
 
@@ -56,11 +53,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         if (isRequestValid(request, state)) {
             double gridConvergence, to_gn, to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
-            if(request.getInputKind().equalsIgnoreCase(TrajectoryInputKind.MD_INCL.toString())){
-                response.setStations(populateResponseFromRequestWithAZZero(request));
-            }else {
-                response.setStations(populateResponseFromRequest(request));
-            }
+            response.setStations(populateResponseFromRequest(request));
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
@@ -118,21 +111,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         if (isRequestValid(request, state)) {
             double gridConvergence, to_gn, to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
-            /*
-            Then, for that case or for "inputKind": "MD_Incl" compute a path that goes straight vertical, as follows:
-              Temporarily add/set "Azimuth": 0 for all stations.
-              Do the computations as for "inputKind": "MD_Incl_Azim" (with the given method).
-              Record the stat/messages to be returned as part of "operationsApplied".
-              max_horizontal_error = n[last]
-              TVD_correction = MD[last] - TVD[last]
-              Correct the path to force it to be perfectly vertical below the first station, but keep the TVD computed in step 2.
-             */
-            if(request.getInputKind().equalsIgnoreCase(TrajectoryInputKind.MD_INCL.toString())){
-                response.setStations(populateResponseFromRequestWithAZZero(request));
-                calculateTVDErrorAndMaxHorizontalOffset(request,state);
-            }else {
-                response.setStations(populateResponseFromRequest(request));
-            }
+            response.setStations(populateResponseFromRequest(request));
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
@@ -159,12 +138,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
                 // add method to compute interpolation based on MD_i input
                 computeInterpolationForMDiInput(request,referencePoint,response);
-                // add method to compute inverse minimum curvature
-                //computeInverseMinimumCurvature(response);
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
-                // Preparing dummy trajectory for scalefactor computation
-                //prepareDummySurvey(response);
                 siResponse = normalizeTrajectory(response, state);
                 callTrajectoryEngineService(siResponse, referencePoint, state);
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
@@ -196,42 +171,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private void prepareDummySurvey(ConvertTrajectoryResponse response ){
-        List<TrajectoryStationOut> stationsList = response.getStations();
-        for(int i=0; i<stationsList.size();i++){
-            TrajectoryStationOut outTrajectoryStation = stationsList.get(i);
-            outTrajectoryStation.getPoint().setX(outTrajectoryStation.getPoint().getX()+100);
-            outTrajectoryStation.getPoint().setY(outTrajectoryStation.getPoint().getY()+100);
-
-        }
-    }
     private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, Point referencePoint, ConvertTrajectoryResponseV4 response){
-        /*
-        In a second pass, for each desired MD_i[i],
-            a. Find the station before and after MD_i[i].
-            b. Interpolate the Dog Leg with the equations provided at the desired MD_i.
-            c. Compute the interpolated INC_i and AZI_i.
-            d. Compute the local offsets dx,dy,dz.
-            e. Add those offsets to the previous (real) station.
-               Output calculated (incl. interpolated) stations in an array stations_i.
 
-               (DL = 2*sin-1 {sqrt[ sin2((I2-I1)/2) + sin(I1)*sin(I2)* sin2((A2-A1)/2) ]}) // SPE84246 recommended
-               DLi = DL * (Mi-M1) / (M2-M1),
-                The inclination and azimuth are interpolated using the interpolated Dog Leg DLi as:
-                    Ii = I1   									// if DLi=0
-                       cos-1 [ (sin(DL-DLi)/sin(DL))*cos(I1) + (sin(DLi)/sin(DL)*cos(I2) ]    	// else
-                Ai = A1 									// if DLi=0
-                                      ATAN2  (sin(I1)*sin(A1)*sin(DL-DLi) + sin(I2)*sin(A2)* sin(DLi) ,		// else
-                         sin(I1)*cos(A1)*sin(DL-DLi) + sin(I2)*cos(A2)* sin(DLi) )
-
-
-                         RFi = 	1,			if DLi=0
-                        2*tan(DLi/2) / DLi,	else
-                        Δn1, i = ni – n1 = ΔMi * (RFi/2) * (sin(I1)*cos(A1) + sin(Ii)*cos(Ai))
-                        Δe1, i = ei – e1 = ΔMi * (RFi/2) * (sin(I1)*sin(A1) + sin(Ii)*sin(Ai))
-                        Δd1, i = di – d1 = ΔMi * (RFi/2) * (cos(I1) + cos(Ii))
-
-        */
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         List<Double> mdiList = minimumDepthInterval.getMd_i();
@@ -290,76 +231,24 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         trajectoryStationOuti.setPoint(new Point(stationOut1.getDxTN(), stationOut1.getDyTN(), referencePoint.getZ() - di));
         trajectoryStationOuti.setInclination(inci);
         trajectoryStationOuti.setAzimuthTN(azi);
-
+        trajectoryStationOuti.setAzimuthGN(azi);
         return trajectoryStationOuti;
     }
 
-    private ConvertTrajectoryResponse computeInverseMinimumCuravture(ConvertTrajectoryResponse response) {
-        /*
-        Δn1,2 = n2 – n1
-        Δe1,2 = e2 – e1
-        Δd1,2 = d2 – d1
-        R = sqrt(Δn^2 + Δe^2 + Δd^2)
-        DL = 2*cos-1 [max(-1,min(1,  {Δn*sin(I1)*cos(A1) + Δe*sin(I1)*sin(A1) + Δd*cos(I1)} / R ))]
-        If DL=0
-            RF = 1
-            ΔM = R
-        else
-        RF = 2*tan(DL/2) / DL
-        ΔM = 0.5*DL*R / sin(DL/2)
-        M2 = M1 + ΔM
-        I2 = cos-1 [max(-1,min(1, Δd/(0.5*ΔM*RF) – cos(I1) ))]
-        A2 = 	0 			if I2<0.00001 deg
-        sign(A2E) * A2N		else, where:
-        A2N = cos-1 [max(-1,min(1,  {Δn/(0.5*ΔM*RF) – sin(I1)*cos(A1)} / sin(I2) ))]
-        A2E = sin-1 [max(-1,min(1,  {Δe/(0.5*ΔM*RF) – sin(I1)*sin(A1)} / sin(I2) ))]
-
-         */
+    private void computeUnscaledValuesForXAndY(ConvertTrajectoryResponseV4 response){
         List<TrajectoryStationOut> stationsList = response.getStations();
-        for (int count = 0; count < stationsList.size(); count++) {
-            TrajectoryStationOut outTrajectoryStation1 = stationsList.get(count);
-            TrajectoryStationOut outTrajectoryStation2 = stationsList.get(stationsList.size() - 1);
-            double delta_n = outTrajectoryStation2.getPoint().getX() - outTrajectoryStation1.getPoint().getX();
-            double delta_e = outTrajectoryStation2.getPoint().getY() - outTrajectoryStation1.getPoint().getY();
-            double delta_d = outTrajectoryStation2.getPoint().getZ() - outTrajectoryStation1.getPoint().getZ();
-
-            double R = Math.sqrt(Math.pow(delta_n, 2) + Math.pow(delta_e, 2) + Math.pow(delta_d, 2));
-            double DL = 2 * Math.acos(Math.max(-1, Math.min(1, (delta_n * Math.sin(outTrajectoryStation1.getInclination()) * Math.cos(outTrajectoryStation1.getAzimuthTN()) +
-                    delta_e * Math.sin(outTrajectoryStation1.getInclination()) * Math.sin(outTrajectoryStation1.getAzimuthTN()) + delta_d * Math.cos(outTrajectoryStation1.getInclination())) / R)));
-            double RF;
-            double delta_m;
-            if (DL == 0) {
-                RF = 1;
-                delta_m = R;
-            } else {
-
-                RF = 2 * Math.tan(DL / 2) / DL;
-
-                delta_m = (0.5 * DL * R) / Math.sin(DL / 2);
-            }
-            double M2 = outTrajectoryStation1.getMd() + delta_m;
-
-            double I2 = Math.acos((Math.max(-1, Math.min(1, delta_d / (0.5 * delta_m * RF) - Math.cos(outTrajectoryStation1.getInclination())))));
-            double A2;
-            double A2N = Math.acos(Math.max(-1, Math.min(1, (delta_n / (0.5 * delta_m * RF) - Math.sin(outTrajectoryStation1.getInclination()) * Math.cos(outTrajectoryStation1.getAzimuthTN())) / Math.sin(outTrajectoryStation2.getInclination()))));
-            double A2E = Math.asin(Math.max(-1, Math.min(1, (delta_e / (0.5 * delta_m * RF) - Math.sin(outTrajectoryStation1.getInclination()) * Math.sin(outTrajectoryStation1.getAzimuthTN())) / Math.sin(outTrajectoryStation2.getInclination()))));
-
-            if (I2 < 0.00001) {
-                A2 = 0;
-            } else {
-
-                A2 = Math.signum(A2E) * A2N;
-            }
-            outTrajectoryStation2.setMd(M2);
-            outTrajectoryStation2.setAzimuthTN(A2);
-            outTrajectoryStation2.setInclination(I2);
-            stationsList.add(outTrajectoryStation2);
+        double scaleFactor = response.getScaleConvergenceList().get(0).getScalefactor();
+        int count=0;
+        for(count=0;count<stationsList.size();count++) {
+            TrajectoryStationOut to = stationsList.get(count);
+            Point firstStationPoint = to.getPoint();
+            double y0 = firstStationPoint.getY();
+            double x0 = firstStationPoint.getX();
+            double x = x0 + (to.getPoint().getX() - x0) / scaleFactor;
+            double y = y0 + (to.getPoint().getY() - y0) / scaleFactor;
+            response.getStations().get(count).setPoint(new Point(x, y, to.getPoint().getZ()));
         }
-        response.setStations(stationsList);
-
-        return response;
     }
-
 
     private void computeScaleFactorAndConvergence(ConvertTrajectoryResponseV4 response) {
         List<TrajectoryStationOut> stationsList = response.getStations();
@@ -369,8 +258,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double xn = lastStation.getPoint().getX();
         double y0 = firstStation.getPoint().getY();
         double x0 = firstStation.getPoint().getX();
-        //dGN = sqrt(x[2]-x[1])^2 + y[2]-y[1])^2)
-        //dTN = sqrt((dxTNn-dxTN1)^2 + (dyTNn-dyTN1)^2)
         double dGN = Math.sqrt(Math.pow(yn - y0, 2) + Math.pow(xn - x0, 2));
         double dTN = Math.sqrt(Math.pow(lastStation.getDxTN() - firstStation.getDxTN(), 2) + Math.pow(lastStation.getDyTN() - firstStation.getDyTN(), 2));
         DecimalFormat upto6decimal = new DecimalFormat("#.######");
@@ -401,26 +288,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         scaleConvergenceList.add(scaleConvergenceLast);
         response.setScaleConvergenceList(scaleConvergenceList);
     }
-
-    private void computeUnscaledValuesForXAndY(ConvertTrajectoryResponse response){
-        //To calculated path can be “unscaled” by applying this factor in reverse
-        //as follows for i=1:N:
-        //x_unscaled[i] = x[1] + (x[i] - x[1]) / psf
-        //y_unscaled[i] = y[1] + (y[i] - y[1]) / psf
-        List<TrajectoryStationOut> stationsList = response.getStations();
-        int count=0;
-        for(count=0;count<stationsList.size();count++) {
-            TrajectoryStationOut to = stationsList.get(count);
-            double scaleFactor = to.getScalefactor();
-            Point firstStationPoint = to.getPoint();
-            double y0 = firstStationPoint.getY();
-            double x0 = firstStationPoint.getX();
-            double x = x0 + (to.getPoint().getX() - x0) / scaleFactor;
-            double y = y0 + (to.getPoint().getY() - y0) / scaleFactor;
-            response.getStations().get(count).setPoint(new Point(x, y, to.getPoint().getZ()));
-        }
-    }
-
     private double[] extractCoordinatesFromResponse(ConvertTrajectoryResponse response) {
         double[] coordinates = new double[2 * response.getStations().size()];
         int i = 0;
@@ -760,39 +627,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
         return tos;
     }
-
-    private TrajectoryComputationState calculateTVDErrorAndMaxHorizontalOffset(ConvertTrajectoryRequest request , TrajectoryComputationState state) {
-        double sum = 0.0;
-        TrajectoryStationIn firstTrajectory = null;
-        for (TrajectoryStationIn ti : request.getInputStations()) {
-             firstTrajectory = ti;
-             sum+=ti.getInclination();
-        }
-        double inc_avg = sum/request.getInputStations().size();
-        double tvd_error = Math.pow(Math.tan(inc_avg),2) * firstTrajectory.getMd();
-        double maxHorizontalOffset = Math.tan(inc_avg) * firstTrajectory.getMd();
-        state.getOperations().add(String.format("tvd error:", tvd_error));
-        state.getOperations().add(String.format("Maximum Horizontal Offset:", maxHorizontalOffset));
-        return state;
-    }
-
-    private List<TrajectoryStationOut> populateResponseFromRequestWithAZZero(ConvertTrajectoryRequest request) {
-        List<TrajectoryStationOut> tos = new ArrayList<>();
-        for (TrajectoryStationIn ti : request.getInputStations()) {
-            TrajectoryStationOut to = new TrajectoryStationOut();
-            to.setMd(ti.getMd());
-            to.setInclination(ti.getInclination());
-            to.setAzimuthTN(0.0);
-            to.setAzimuthGN(0.0);
-            to.setOriginal(true); // this is original by definition
-            if (tos.size() == 0) {
-                to.setPoint(request.getReferencePoint()); // copy the reference point into first sample
-            }
-            tos.add(to);
-        }
-        return tos;
-    }
-
 
     boolean isRequestValid(ConvertTrajectoryRequest request, TrajectoryComputationState state) {
         if (request != null) {
