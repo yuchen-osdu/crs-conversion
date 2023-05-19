@@ -155,7 +155,7 @@ This section describes how to run cloud OSDU E2E tests (testing/crs_converter_te
 | ---  | ---   | ---         | ---        | ---    |
 | `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
 
-This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_anthos).
+This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_baremetal).
 
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
