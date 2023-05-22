@@ -44,7 +44,7 @@ The following parameters are expected as environment variables:
 |----------|----------|
 | INTEGRATION_TESTER | go to the google IAM & admin console, navigate to Service accounts to create a key and download the account info file. |
 
-## Anthos auth provider (crs_converter_test_anthos/jwt_client.py)
+## Baremetal auth provider (crs_converter_test_baremetal/jwt_client.py)
 
 | Variable | Contents |
 |----------|----------|
