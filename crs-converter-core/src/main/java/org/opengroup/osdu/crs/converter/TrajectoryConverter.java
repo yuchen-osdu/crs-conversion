@@ -136,19 +136,19 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
-                // add method to compute interpolation based on MD_i input
-                computeInterpolationForMDiInput(request,referencePoint,response);
                 deNormalizeTrajectory(siResponse, response, state);
+                // add method to compute interpolation based on MD_i input
+                if(request.getMD_i()!=null && request.getMD_i().getMd_i().size()>0) {
+                    computeInterpolationForMDiInput(request, referencePoint, response, state);
+                }
+                state.getOperations().add("Interpolation for MD_i input stations completed");
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
-                siResponse = normalizeTrajectory(response, state);
-                callTrajectoryEngineService(siResponse, referencePoint, state);
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
                     // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     convertPointsLmp(response, state);
                     if (flag) {
                         computeScaleFactorAndConvergence(response);
                     }
-
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
@@ -171,18 +171,20 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, Point referencePoint, ConvertTrajectoryResponseV4 response){
+    private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, Point referencePoint, ConvertTrajectoryResponseV4 response,TrajectoryComputationState state){
 
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         List<Double> mdiList = minimumDepthInterval.getMd_i();
         Collections.sort(mdiList);
         List<TrajectoryStationOut> stationsList = response.getStations();
-        for (int count=0;count<mdiList.size();count++) {
+        for (int count=0;count<mdiList.size()-1;count++) {
             TrajectoryStationOut stationsListOut = calculateBackFrontMdiValue(count,mdiList.get(count), stationsList, referencePoint);
             stationsListOuti.add(stationsListOut);
         }
         response.setStations_i(stationsListOuti);
+        convertToWgs84V4(response, state);
+
         return response;
     }
 
@@ -192,7 +194,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         TrajectoryStationOut stationOut1 = stationsList.get(count);
         Double md1 = stationOut1.getMd();
         TrajectoryStationOut stationOut2;
-        if (count == stationsList.size()) {
+        if (count == stationsList.size()-1) {
             stationOut2 = stationsList.get(count);
         } else {
             stationOut2 = stationsList.get(count + 1);
@@ -202,6 +204,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double i1 = stationOut1.getInclination();
         double a2 = stationOut2.getAzimuthTN();
         double a1 = stationOut1.getAzimuthTN();
+        double azi_gn = stationOut1.getAzimuthGN();
         if (mdi > md1) {
             back = mdi - md1;
         }
@@ -209,29 +212,30 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((i2 - i1) / 2), 2) + Math.sin(i1) * Math.sin(i2) * Math.pow(Math.sin((a2 - a1) / 2), 2)));
         double dli = dl * (back / front);
         double inci;
-        double azi;
+        double azi_tn;
         double rfi;
         if (dli == 0) {
             inci = i1;
-            azi = a1;
+            azi_tn = a1;
             rfi = 1;
         } else {
             inci = Math.acos((Math.sin(dl - dli) / Math.sin(dl)) * Math.cos(i1) + (Math.sin(dli) / Math.sin(dl)) * Math.cos(i2));
-            azi = Math.atan2(Math.sin(i1) * Math.sin(a1) * Math.sin(dl - dli) + Math.sin(i2) * Math.sin(a2) * Math.sin(dli),
+            azi_tn = Math.atan2(Math.sin(i1) * Math.sin(a1) * Math.sin(dl - dli) + Math.sin(i2) * Math.sin(a2) * Math.sin(dli),
                     Math.sin(i1) * Math.cos(a1) * Math.sin(dl - dli) + Math.sin(i2) * Math.cos(a2) * Math.sin(dli));
             rfi = 2 * Math.tan(dli / 2) / dli;
         }
         double mi = back;
-        double ni = mi * (rfi / 2) * (Math.sin(i1) * Math.cos(a1) + Math.sin(inci) * Math.cos(azi));
-        double ei = mi * (rfi / 2) * (Math.sin(i1) * Math.sin(a1) + Math.sin(inci) * Math.sin(azi));
+        double ni = mi * (rfi / 2) * (Math.sin(i1) * Math.cos(a1) + Math.sin(inci) * Math.cos(azi_tn));
+        double ei = mi * (rfi / 2) * (Math.sin(i1) * Math.sin(a1) + Math.sin(inci) * Math.sin(azi_tn));
         double di = mi * (rfi / 2) * (Math.cos(i1) + Math.cos(inci));
         trajectoryStationOuti.setDxTN(referencePoint.getX() + ni);
         trajectoryStationOuti.setDyTN(referencePoint.getY() + ei);
         trajectoryStationOuti.setDZ(stationOut1.getDZ() + di);
         trajectoryStationOuti.setPoint(new Point(stationOut1.getDxTN(), stationOut1.getDyTN(), referencePoint.getZ() - di));
         trajectoryStationOuti.setInclination(inci);
-        trajectoryStationOuti.setAzimuthTN(azi);
-        trajectoryStationOuti.setAzimuthGN(azi);
+        trajectoryStationOuti.setAzimuthTN(azi_tn);
+        trajectoryStationOuti.setAzimuthGN(azi_gn);
+        trajectoryStationOuti.setMd(md1);
         return trajectoryStationOuti;
     }
 
@@ -299,7 +303,28 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return coordinates;
     }
 
+    private double[] extractCoordinatesFromResponseV4(ConvertTrajectoryResponseV4 response) {
+        double[] coordinates = new double[2 * response.getStations().size()];
+        int i = 0;
+        for (TrajectoryStationOut item : response.getStations()) {
+            coordinates[i] = item.getPoint().getX();
+            coordinates[i + 1] = item.getPoint().getY();
+            i += 2;
+        }
+        return coordinates;
+    }
+
     private double[] extractElevationsFromResponse(ConvertTrajectoryResponse response) {
+        double[] elevations = new double[response.getStations().size()];
+        int i = 0;
+        for (TrajectoryStationOut item : response.getStations()) {
+            elevations[i] = item.getPoint().getZ();
+            i++;
+        }
+        return elevations;
+    }
+
+    private double[] extractElevationsFromResponseV4(ConvertTrajectoryResponseV4 response) {
         double[] elevations = new double[response.getStations().size()];
         int i = 0;
         for (TrajectoryStationOut item : response.getStations()) {
@@ -411,6 +436,30 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             }
         } catch (IllegalArgumentException e) {
             for (TrajectoryStationOut to : response.getStations()) {
+                to.setWgs84Latitude(Double.NaN);
+                to.setWgs84Longitude(Double.NaN);
+            }
+        }
+    }
+
+    private void convertToWgs84V4(ConvertTrajectoryResponseV4 response, TrajectoryComputationState state) {
+        double[] xyCoordinates = extractCoordinatesFromResponseV4(response);
+        ICRSConverter crsConverter = new CRSConverter();
+        double[] zCoordinates = extractElevationsFromResponseV4(response);
+        try {
+            ConvertPointsResponse rsp
+                    = crsConverter.convertPoint(state.getSourceCRSAsPersistableReference(), Constants.WGS84, xyCoordinates, zCoordinates);
+            int i = 0;
+            for (TrajectoryStationOut to : response.getStations_i()){
+                to.setWgs84Latitude(xyCoordinates[2 * i + 1]);
+                to.setWgs84Longitude(xyCoordinates[2 * i]);
+                i++;
+            }
+            for (String op : rsp.getOperationsApplied()) {
+                state.getOperations().add("to WGS 84: " + op);
+            }
+        } catch (IllegalArgumentException e) {
+            for (TrajectoryStationOut to : response.getStations_i()) {
                 to.setWgs84Latitude(Double.NaN);
                 to.setWgs84Longitude(Double.NaN);
             }
