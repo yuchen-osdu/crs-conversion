@@ -152,10 +152,27 @@ public class CrsConverterApiV4 {
                     request.getInputStations().get(request.getInputStations().size()-1).getMd(),minimumDepthInterval.getMd_interval());
             mdiList.add(request.getInputStations().get(request.getInputStations().size()-1).getMd());
             minimumDepthInterval.setMd_i(mdiList);
+        }else if(minimumDepthInterval!=null && minimumDepthInterval.getMd_i()!=null && minimumDepthInterval.getMd_i().size()>0){
+            if(checkMdiListForRange(request.getInputStations().get(0).getMd(),request.getInputStations().get(request.getInputStations().size()-1).getMd(),
+                    minimumDepthInterval.getMd_i())){
+                throw new ValidationException("md_i array values provided are not in range of MD stations.");
+            }
         }
         ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
         return response;
     }
+
+    private boolean checkMdiListForRange(Double firstMd,Double lastMd,List<Double> mdiList){
+        boolean checkRange = false;
+        for(int count=0;count<mdiList.size();count++){
+            if(mdiList.get(count)<firstMd && mdiList.get(count)>lastMd){
+                checkRange = true;
+                break;
+            }
+        }
+        return checkRange;
+    }
+
     private List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd,Double lastMd,Double mdInterval){
             List<Double> mdiList = new ArrayList<>();
             while(lastMd > firstMd && lastMd > mdInterval){
