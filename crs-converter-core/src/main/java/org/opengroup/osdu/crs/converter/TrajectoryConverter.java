@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialReference;
 import static org.opengroup.osdu.crs.model.ReferenceConverter.parseUnitReference;
@@ -99,7 +99,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
     @Override
-    public ConvertTrajectoryResponse convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag) {
+    public ConvertTrajectoryResponse convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag_check_projected) {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponseV4 response = new ConvertTrajectoryResponseV4();
@@ -137,22 +137,22 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
             if (callTrajectoryEngineService(siResponse, referencePoint, state)) {
                 deNormalizeTrajectory(siResponse, response, state);
-                // add method to compute interpolation based on MD_i input
-                if(request.getMD_i()!=null && request.getMD_i().getMd_i().size()>0) {
-                    computeInterpolationForMDiInput(request, response, state);
-                    state.getOperations().add("Interpolation for MD_i input stations completed");
-                }
+
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
                     // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     convertPointsLmp(response, state);
-                    if (flag) {
+                    if (flag_check_projected) {
                         computeScaleFactorAndConvergence(response);
                     }
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
-                    if (flag) {
+                    if(request.getMD_i()!=null && request.getMD_i().getMd_i().size()>0) {
+                        computeInterpolationForMDiInput(request, response, state,flag_check_projected);
+                        state.getOperations().add("Interpolation for MD_i input stations completed");
+                    }
+                    if (flag_check_projected) {
                         computeScaleFactorAndConvergence(response);
                     }
                     if (state.getMethod() == TrajectoryComputationMethod.GridNorthLocal){
@@ -172,15 +172,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response,TrajectoryComputationState state){
+    private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationState state,boolean flag_check_projected) {
 
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         List<Double> mdiList = minimumDepthInterval.getMd_i();
-        Collections.sort(mdiList);
         List<TrajectoryStationOut> stationsList = response.getStations();
         for (int count=0;count<mdiList.size();count++) {
-            TrajectoryStationOut stationsListOut = calculateBackFrontMdiValue(count,mdiList.get(count), stationsList);
+            TrajectoryStationOut stationsListOut = interpolateMdi(mdiList.get(count), stationsList,flag_check_projected);
             stationsListOuti.add(stationsListOut);
         }
         response.setStations_i(stationsListOuti);
@@ -189,53 +188,87 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private TrajectoryStationOut calculateBackFrontMdiValue(int count,Double mdi,List<TrajectoryStationOut> stationsList) {
-        TrajectoryStationOut trajectoryStationOuti = new TrajectoryStationOut();
-        Double md_i_minus_1 = 0.0, md_2_minus_1 = 0.0;
-        TrajectoryStationOut stationOut1 = stationsList.get(count);
-        Double md1 = stationOut1.getMd();
-        TrajectoryStationOut stationOut2;
-        if (count == stationsList.size()-1) {
-            stationOut2 = stationsList.get(count);
-        } else {
-            stationOut2 = stationsList.get(count + 1);
+    private static Object[] beforeAndAfterMdi(Double mdi, List<TrajectoryStationOut> stationsList) {
+        TrajectoryStationOut beforeMdiStation;
+        List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() <= mdi).collect(Collectors.toList());
+        if (result.get(result.size() - 1).getMd() == mdi && result.size() == 1)
+            beforeMdiStation = (TrajectoryStationOut) result.get(0);
+        else if (result.get(result.size() - 1).getMd() == mdi)
+            beforeMdiStation = result.get(result.size() - 2);
+        else
+            beforeMdiStation = result.get(result.size() - 1);
+        TrajectoryStationOut afterMdiStation = afterMdi(mdi, stationsList);
+        return new Object[]{beforeMdiStation, afterMdiStation};
+    }
+    private static TrajectoryStationOut afterMdi(Double mdi, List<TrajectoryStationOut> stationsList) {
+        TrajectoryStationOut afterMdiStation;
+        List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() <= mdi).collect(Collectors.toList());
+        if (mdi == result.get(0).getMd() && result.size() == 1)
+            afterMdiStation = result.get(0);
+        else if (mdi == result.get(0).getMd())
+            afterMdiStation = result.get(1);
+        else
+            afterMdiStation = result.get(0);
+        return afterMdiStation;
         }
+    private TrajectoryStationOut interpolateMdi(Double mdi, List<TrajectoryStationOut> stationsList, boolean flag_check_projected) {
+        TrajectoryStationOut trajectoryStationOuti = new TrajectoryStationOut();
+        Double md_i_minus_md_1 = 0.0, md_2_minus_md_1 = 0.0;
+        Object[] station = beforeAndAfterMdi(mdi, stationsList);
+        TrajectoryStationOut stationOut1 = (TrajectoryStationOut) station[0];
+        TrajectoryStationOut stationOut2 = (TrajectoryStationOut) station[1];
         Double md2 = stationOut2.getMd();
-        double i2 = stationOut2.getInclination();
-        double i1 = stationOut1.getInclination();
-        double a2 = stationOut2.getAzimuthTN();
-        double a1 = stationOut1.getAzimuthTN();
-        double azi_gn = stationOut1.getAzimuthGN();
-        md_i_minus_1 = mdi - md1;
-        md_2_minus_1 = md2 - md1;
-        double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((i2 - i1) / 2), 2) + Math.sin(i1) * Math.sin(i2) * Math.pow(Math.sin((a2 - a1) / 2), 2)));
-        double dl_i = dl * (md_i_minus_1 / md_2_minus_1);
+        double inc_2 = stationOut2.getInclination();
+        double inc_1 = stationOut1.getInclination();
+        double azi_TN2 = stationOut2.getAzimuthTN();
+        double azi_TN1 = stationOut1.getAzimuthTN();
+        double azi_GN1 = stationOut1.getAzimuthGN();
+        md_i_minus_md_1 = mdi - stationOut1.getMd();
+        md_2_minus_md_1 = md2 - stationOut1.getMd();
+        double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((inc_2 - inc_1) / 2), 2) + Math.sin(inc_1) * Math.sin(inc_2) * Math.pow(Math.sin((azi_TN2 - azi_TN1) / 2), 2)));
+        double dl_i = dl * (md_i_minus_md_1 / md_2_minus_md_1);
         double inc_i;
-        double azi_i;
+        double azi_TN_i;
         double rf_i;
-        if (dl_i == 0) {
-            inc_i = i1;
-            azi_i = a1;
+        if (dl_i == 0 || Double.isNaN(dl_i)) {
+            inc_i = inc_1;
+            azi_TN_i = azi_TN1;
             rf_i = 1;
         } else {
-            inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(i1) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(i2));
-            azi_i = Math.atan2(Math.sin(i1) * Math.sin(a1) * Math.sin(dl - dl_i) + Math.sin(i2) * Math.sin(a2) * Math.sin(dl_i),
-                    Math.sin(i1) * Math.cos(a1) * Math.sin(dl - dl_i) + Math.sin(i2) * Math.cos(a2) * Math.sin(dl_i));
+            inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(inc_1) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(inc_2));
+            azi_TN_i = Math.atan2(Math.sin(inc_1) * Math.sin(azi_TN1) * Math.sin(dl - dl_i) + Math.sin(inc_2) * Math.sin(azi_TN2) * Math.sin(dl_i),
+                    Math.sin(inc_1) * Math.cos(azi_TN1) * Math.sin(dl - dl_i) + Math.sin(inc_2) * Math.cos(azi_TN2) * Math.sin(dl_i));
             rf_i = 2 * Math.tan(dl_i / 2) / dl_i;
         }
 
-        double n_i_minus_1 = md_i_minus_1 * (rf_i / 2) * (Math.sin(i1) * Math.cos(a1) + Math.sin(inc_i) * Math.cos(azi_i));
-        double e_i_minus_1 = md_i_minus_1 * (rf_i / 2) * (Math.sin(i1) * Math.sin(a1) + Math.sin(inc_i) * Math.sin(azi_i));
-        double d_i_minus_1 = md_i_minus_1 * (rf_i / 2) * (Math.cos(i1) + Math.cos(inc_i));
+        double n_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(inc_1) * Math.cos(azi_TN1) + Math.sin(inc_i) * Math.cos(azi_TN_i));
+        double e_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(inc_1) * Math.sin(azi_TN1) + Math.sin(inc_i) * Math.sin(azi_TN_i));
+        double d_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.cos(inc_1) + Math.cos(inc_i));
+        double convergence_deg = 0.0;
+        double azi_GN_i = 0.0;
+        if (flag_check_projected) {
+            convergence_deg = azi_TN1 - azi_GN1;
+            azi_GN_i = azi_TN_i - convergence_deg;
+            if (azi_GN_i < 0) {
+                azi_GN_i += 360;
+            } else if (azi_GN_i >= 360) {
+                azi_GN_i -= 360;
+            }
+        }
+        double convergence = Math.toRadians((convergence_deg));
+        double e_i_minus_1_GN = Math.cos(convergence) * e_i_minus_1 - Math.sin(convergence) * n_i_minus_1;
+        double n_i_minus_1_GN = Math.sin(convergence) * e_i_minus_1 + Math.cos(convergence) * n_i_minus_1;
         trajectoryStationOuti.setMd(mdi);
         trajectoryStationOuti.setInclination(inc_i);
-        trajectoryStationOuti.setAzimuthTN(azi_i);
-        trajectoryStationOuti.setAzimuthGN(azi_gn);
-        trajectoryStationOuti.setDxTN(stationOut1.getPoint().getX() + n_i_minus_1);
-        trajectoryStationOuti.setDyTN(stationOut1.getPoint().getY() + e_i_minus_1);
+        trajectoryStationOuti.setAzimuthTN(azi_TN_i);
+        trajectoryStationOuti.setAzimuthGN(azi_GN_i);
+        trajectoryStationOuti.setDxTN(e_i_minus_1);
+        trajectoryStationOuti.setDyTN(n_i_minus_1);
         trajectoryStationOuti.setDZ(stationOut1.getDZ() + d_i_minus_1);
-        trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1, stationOut1.getPoint().getY() + n_i_minus_1, stationOut1.getPoint().getZ() + d_i_minus_1));
-
+        if (flag_check_projected) {
+            trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
+        } else {
+        }
         return trajectoryStationOuti;
     }
 
@@ -304,9 +337,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     }
 
     private double[] extractCoordinatesFromResponseV4(ConvertTrajectoryResponseV4 response) {
-        double[] coordinates = new double[2 * response.getStations().size()];
+        double[] coordinates = new double[2 * response.getStations_i().size()];
         int i = 0;
-        for (TrajectoryStationOut item : response.getStations()) {
+        for (TrajectoryStationOut item : response.getStations_i()) {
             coordinates[i] = item.getPoint().getX();
             coordinates[i + 1] = item.getPoint().getY();
             i += 2;
@@ -325,9 +358,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     }
 
     private double[] extractElevationsFromResponseV4(ConvertTrajectoryResponseV4 response) {
-        double[] elevations = new double[response.getStations().size()];
+        double[] elevations = new double[response.getStations_i().size()];
         int i = 0;
-        for (TrajectoryStationOut item : response.getStations()) {
+        for (TrajectoryStationOut item : response.getStations_i()) {
             elevations[i] = item.getPoint().getZ();
             i++;
         }

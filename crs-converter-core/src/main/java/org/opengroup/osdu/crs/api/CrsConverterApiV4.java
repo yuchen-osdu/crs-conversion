@@ -165,7 +165,7 @@ public class CrsConverterApiV4 {
     private boolean checkMdiListForRange(Double firstMd,Double lastMd,List<Double> mdiList){
         boolean checkRange = false;
         for(int count=0;count<mdiList.size();count++){
-            if(mdiList.get(count)<firstMd && mdiList.get(count)>lastMd){
+            if(mdiList.get(count)<firstMd || mdiList.get(count)>lastMd){
                 checkRange = true;
                 break;
             }
