@@ -5,8 +5,6 @@ import io.swagger.annotations.*;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.storage.Record;
-import org.opengroup.osdu.crs.interfaces.ICRSConverter;
-import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
 import org.opengroup.osdu.crs.model.ErrorResponse;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;

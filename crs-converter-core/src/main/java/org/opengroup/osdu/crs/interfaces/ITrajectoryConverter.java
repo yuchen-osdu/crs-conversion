@@ -8,6 +8,6 @@ import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
 
 public interface ITrajectoryConverter {
 	ConvertTrajectoryResponse convertTrajectory(DpsHeaders headers, ConvertTrajectoryRequest request);
-	ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag_check_projected);
+	ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected);
 
 }

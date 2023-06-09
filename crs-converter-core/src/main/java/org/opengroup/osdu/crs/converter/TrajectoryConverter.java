@@ -51,7 +51,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         response.setMethod(request.getMethod());
         response.setInputKind(request.getInputKind());
         if (isRequestValid(request, state)) {
-            double gridConvergence, to_gn, to_tn;
+            double gridConvergence;
+            double to_gn;
+            double to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
             response.setStations(populateResponseFromRequest(request));
             ProjectionCorrectionSet correctionSet
@@ -81,7 +83,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 deNormalizeTrajectory(siResponse, response, state);
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
-                    // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     convertPointsLmp(response, state);
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
@@ -99,7 +100,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
     @Override
-    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag_check_projected) {
+    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected) {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponseV4 response = new ConvertTrajectoryResponseV4();
@@ -109,7 +110,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         response.setMethod(request.getMethod());
         response.setInputKind(request.getInputKind());
         if (isRequestValid(request, state)) {
-            double gridConvergence, to_gn, to_tn;
+            double gridConvergence;
+            double to_gn;
+            double to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
             response.setStations(populateResponseFromRequest(request));
             ProjectionCorrectionSet correctionSet
@@ -140,15 +143,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
-                    // convertPoints(points, correctionSet.getPeAzimuthalEquidistantCRS(), state);
-                    convertPointsLmp(response, state);
+                        convertPointsLmp(response, state);
                     if (flag_check_projected) {
                         computeScaleFactorAndConvergence(response);
                     }
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
-                    if(request.getMD_i()!=null && request.getMD_i().getMd_i().size()>0) {
+                    if(request.getMD_i()!=null && !request.getMD_i().getMd_i().isEmpty()) {
                         computeInterpolationForMDiInput(request, response, state,flag_check_projected);
                         state.getOperations().add("Interpolation for MD_i input stations completed");
                     }
@@ -159,7 +161,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                         computeUnscaledValuesForXAndY(response);
                     }
                 }
-
                 response.setLocalCRS(correctionSet.getAzimuthalEquidistantCRS().createPersistableReference());
                 convertToWgs84(response, state);
             } else {
@@ -191,9 +192,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     private static Object[] beforeAndAfterMdi(Double mdi, List<TrajectoryStationOut> stationsList) {
         TrajectoryStationOut beforeMdiStation;
         List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() <= mdi).collect(Collectors.toList());
-        if (result.get(result.size() - 1).getMd() == mdi && result.size() == 1)
-            beforeMdiStation = (TrajectoryStationOut) result.get(0);
-        else if (result.get(result.size() - 1).getMd() == mdi)
+        if (result.get(result.size() - 1).getMd().doubleValue() == mdi.doubleValue() && result.size() == 1)
+            beforeMdiStation = result.get(0);
+        else if (result.get(result.size() - 1).getMd().doubleValue() == mdi.doubleValue())
             beforeMdiStation = result.get(result.size() - 2);
         else
             beforeMdiStation = result.get(result.size() - 1);
@@ -203,9 +204,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     private static TrajectoryStationOut afterMdi(Double mdi, List<TrajectoryStationOut> stationsList) {
         TrajectoryStationOut afterMdiStation;
         List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() >= mdi).collect(Collectors.toList());
-        if (mdi == result.get(0).getMd() && result.size() == 1)
+        if (mdi.doubleValue() == result.get(0).getMd().doubleValue() && result.size() == 1)
             afterMdiStation = result.get(0);
-        else if (mdi == result.get(0).getMd())
+        else if (mdi.doubleValue() == result.get(0).getMd().doubleValue())
             afterMdiStation = result.get(1);
         else
             afterMdiStation = result.get(0);
@@ -213,7 +214,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     private TrajectoryStationOut interpolateMdi(Double mdi, List<TrajectoryStationOut> stationsList, boolean flag_check_projected) {
         TrajectoryStationOut trajectoryStationOuti = new TrajectoryStationOut();
-        Double md_i_minus_md_1 = 0.0, md_2_minus_md_1 = 0.0;
+        Double md_i_minus_md_1;
+        Double md_2_minus_md_1;
         Object[] station = beforeAndAfterMdi(mdi, stationsList);
         TrajectoryStationOut stationOut1 = (TrajectoryStationOut) station[0];
         TrajectoryStationOut stationOut2 = (TrajectoryStationOut) station[1];
@@ -267,7 +269,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         trajectoryStationOuti.setDZ(stationOut1.getDZ() + d_i_minus_1);
         if (flag_check_projected) {
             trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
-        } else {
         }
         return trajectoryStationOuti;
     }
