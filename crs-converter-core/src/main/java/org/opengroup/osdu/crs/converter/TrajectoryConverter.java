@@ -99,7 +99,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
     @Override
-    public ConvertTrajectoryResponse convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag_check_projected) {
+    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, Boolean flag_check_projected) {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponseV4 response = new ConvertTrajectoryResponseV4();
@@ -202,7 +202,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     }
     private static TrajectoryStationOut afterMdi(Double mdi, List<TrajectoryStationOut> stationsList) {
         TrajectoryStationOut afterMdiStation;
-        List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() <= mdi).collect(Collectors.toList());
+        List<TrajectoryStationOut> result = stationsList.stream().filter(stationOut -> stationOut.getMd() >= mdi).collect(Collectors.toList());
         if (mdi == result.get(0).getMd() && result.size() == 1)
             afterMdiStation = result.get(0);
         else if (mdi == result.get(0).getMd())
@@ -225,7 +225,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double azi_GN1 = stationOut1.getAzimuthGN();
         md_i_minus_md_1 = mdi - stationOut1.getMd();
         md_2_minus_md_1 = md2 - stationOut1.getMd();
-        double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((inc_2 - inc_1) / 2), 2) + Math.sin(inc_1) * Math.sin(inc_2) * Math.pow(Math.sin((azi_TN2 - azi_TN1) / 2), 2)));
+        double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((Math.toRadians(inc_2) - Math.toRadians(inc_1)) / 2), 2) + Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(inc_2)) * Math.pow(Math.sin((Math.toRadians(azi_TN2) - Math.toRadians(azi_TN1)) / 2), 2)));
         double dl_i = dl * (md_i_minus_md_1 / md_2_minus_md_1);
         double inc_i;
         double azi_TN_i;
@@ -235,15 +235,15 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             azi_TN_i = azi_TN1;
             rf_i = 1;
         } else {
-            inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(inc_1) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(inc_2));
-            azi_TN_i = Math.atan2(Math.sin(inc_1) * Math.sin(azi_TN1) * Math.sin(dl - dl_i) + Math.sin(inc_2) * Math.sin(azi_TN2) * Math.sin(dl_i),
-                    Math.sin(inc_1) * Math.cos(azi_TN1) * Math.sin(dl - dl_i) + Math.sin(inc_2) * Math.cos(azi_TN2) * Math.sin(dl_i));
+            inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_1)) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_2)));
+            azi_TN_i = Math.atan2(Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(azi_TN1)) * Math.sin(dl - dl_i) + Math.sin(Math.toRadians(inc_2)) * Math.sin(Math.toRadians(azi_TN2)) * Math.sin(dl_i),
+                    Math.sin(Math.toRadians(inc_1)) * Math.cos(Math.toRadians(azi_TN1)) * Math.sin(dl - dl_i) + Math.sin(Math.toRadians(inc_2)) * Math.cos(Math.toRadians(azi_TN2)) * Math.sin(dl_i));
             rf_i = 2 * Math.tan(dl_i / 2) / dl_i;
         }
 
-        double n_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(inc_1) * Math.cos(azi_TN1) + Math.sin(inc_i) * Math.cos(azi_TN_i));
-        double e_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(inc_1) * Math.sin(azi_TN1) + Math.sin(inc_i) * Math.sin(azi_TN_i));
-        double d_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.cos(inc_1) + Math.cos(inc_i));
+        double n_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.cos(Math.toRadians(azi_TN1)) + Math.sin(Math.toRadians(inc_i)) * Math.cos(Math.toRadians(azi_TN_i)));
+        double e_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(azi_TN1)) + Math.sin(Math.toRadians(inc_i)) * Math.sin(Math.toRadians(azi_TN_i)));
+        double d_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.cos(Math.toRadians(inc_1)) + Math.cos(Math.toRadians(inc_i)));
         double convergence_deg = 0.0;
         double azi_GN_i = 0.0;
         if (flag_check_projected) {
@@ -259,9 +259,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double e_i_minus_1_GN = Math.cos(convergence) * e_i_minus_1 - Math.sin(convergence) * n_i_minus_1;
         double n_i_minus_1_GN = Math.sin(convergence) * e_i_minus_1 + Math.cos(convergence) * n_i_minus_1;
         trajectoryStationOuti.setMd(mdi);
-        trajectoryStationOuti.setInclination(inc_i);
-        trajectoryStationOuti.setAzimuthTN(azi_TN_i);
-        trajectoryStationOuti.setAzimuthGN(azi_GN_i);
+        trajectoryStationOuti.setInclination(Math.toDegrees(inc_i));
+        trajectoryStationOuti.setAzimuthTN(Math.toDegrees(azi_TN_i));
+        trajectoryStationOuti.setAzimuthGN(Math.toDegrees(azi_GN_i));
         trajectoryStationOuti.setDxTN(e_i_minus_1);
         trajectoryStationOuti.setDyTN(n_i_minus_1);
         trajectoryStationOuti.setDZ(stationOut1.getDZ() + d_i_minus_1);

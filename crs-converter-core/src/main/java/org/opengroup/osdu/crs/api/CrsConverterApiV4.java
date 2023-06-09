@@ -8,9 +8,9 @@ import org.opengroup.osdu.core.common.model.storage.Record;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
 import org.opengroup.osdu.crs.model.ErrorResponse;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
+import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
 import org.opengroup.osdu.crs.model.v4.MinimumDepthInterval;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
@@ -34,32 +34,30 @@ public class CrsConverterApiV4 {
     @Autowired
     private JaxRsDpsLog logger;
     @Autowired
-    private IStorageClient StorageClient;
-    private final ICRSConverter crsConverter;
+    private IStorageClient storageClient;
+
     private final ITrajectoryConverter crsTrajectoryConverter;
-    private final IPointConverter pointConverter;
+
     private RecordCache recordCache;
     private static final String BOUND_PROJECTED = "BoundProjected";
     private static final String PROJECTED = "Projected";
 
-    public CrsConverterApiV4(@NonNull ICRSConverter crsConverter,
-                             @NonNull ITrajectoryConverter crsTrajectoryConverter,
-                             @NonNull IPointConverter pointConverter) {
-        this.crsConverter = crsConverter;
+    private static final String UTF_8 ="UTF-8";
+    private  static final String RECORD_NOT_FOUND= "record not found:";
+    public CrsConverterApiV4(@NonNull ITrajectoryConverter crsTrajectoryConverter) {
         this.crsTrajectoryConverter = crsTrajectoryConverter;
-        this.pointConverter = pointConverter;
         this.recordCache = new RecordCache();
     }
     // parameter str could be a persistableReference string or recordID. mustID means parameter str must be a recordID
     private String getPersistableReferenceFromID(String str, boolean mustID){
         String temp;
         try {
-            temp = URLDecoder.decode(str, "UTF-8");
+            temp = URLDecoder.decode(str, UTF_8);
         } catch (Exception e) {
             return str; // try our best to return user input
         }
-        // persistableReference string starts with {....}
-        if (temp.startsWith("{") && mustID == false){
+        // persistableReference string starts with "{..}"
+        if (temp.startsWith("{") && mustID){
             return str;
         }
         // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
@@ -71,10 +69,10 @@ public class CrsConverterApiV4 {
         }
         // temp should have record:version format. change last : to be / for storage API call
         temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
-        Record record =  StorageClient.getRecord(temp);
-        if (record == null)
-            throw new ValidationException(String.join(" ", "record not found:", temp));
-        pr = record.getData().get("PersistableReference").toString();
+        Record dataRecord =  storageClient.getRecord(temp);
+        if (dataRecord == null)
+            throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
+        pr = dataRecord.getData().get("PersistableReference").toString();
         if(pr != null){
             recordCache.put(temp, pr);
             return pr;
@@ -86,33 +84,32 @@ public class CrsConverterApiV4 {
     private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
         String temp;
         try {
-            temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
+            temp = URLDecoder.decode(trajectoryCRS, UTF_8);
         } catch (Exception e) {
             return trajectoryCRS; // try our best to return user input
         }
         temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
-        Record record =  StorageClient.getRecord(temp);
-        if (record == null)
-            throw new ValidationException(String.join(" ", "record not found:", temp));
-        Map<String,Object> data = record.getData();
+        Record dataRecord =  storageClient.getRecord(temp);
+        if (dataRecord == null)
+            throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
+        Map<String,Object> data = dataRecord.getData();
         Map<String,Object> coordinateSystem = (Map<String, Object>) data.get("CoordinateSystem");
-        String horizontalAxisUnitID = (String) coordinateSystem.get("HorizontalAxisUnitID");
-        return horizontalAxisUnitID;
+        return (String) coordinateSystem.get("HorizontalAxisUnitID");
     }
 
     private boolean checkCRSType(String trajectoryCRS) {
         boolean flag = false;
         String temp;
         try {
-            temp = URLDecoder.decode(trajectoryCRS, "UTF-8");
+            temp = URLDecoder.decode(trajectoryCRS, UTF_8);
         } catch (Exception e) {
             return false; // try our best to return user input
         }
         temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
-        Record record = StorageClient.getRecord(temp);
-        if (record == null)
-            throw new ValidationException(String.join(" ", "record not found:", temp));
-        Map<String, Object> data = record.getData();
+        Record dataRecord = storageClient.getRecord(temp);
+        if (dataRecord == null)
+            throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
+        Map<String, Object> data = dataRecord.getData();
         if (data!=null && (data.get("Kind").toString().equalsIgnoreCase(BOUND_PROJECTED) || data.get("Kind").toString().equalsIgnoreCase(PROJECTED))) {
             flag = true;
         }
@@ -122,11 +119,11 @@ public class CrsConverterApiV4 {
     @PostMapping("/convertTrajectory")
     @ApiOperation(value = Constants.SWAGGER_TRJ_CONVERT_TITLE, notes = Constants.SWAGGER_TRJ_CONVERT_NOTES, tags = {Constants.SWAGGER_TAG_TRJ_CONVERSION})
     @ApiResponses({
-            @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponse.class),
+            @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponseV4.class),
             @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
             @ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
             @ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
-    public ConvertTrajectoryResponse convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
+    public ConvertTrajectoryResponseV4 convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
                                                        @NonNull @Valid @RequestBody ConvertTrajectoryRequestV4 request) {
         String message = String.format("Using trajectory: %s", "no");
         logger.info(message);
@@ -144,22 +141,20 @@ public class CrsConverterApiV4 {
         request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
 
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
-
-        if(minimumDepthInterval!=null && minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0 && minimumDepthInterval.getMd_i()!=null && minimumDepthInterval.getMd_i().size()>0 ){
+        if (minimumDepthInterval != null) {
+            if (minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0 && minimumDepthInterval.getMd_i() != null && minimumDepthInterval.getMd_i().isEmpty()) {
             throw new ValidationException("Both md_i array and md_interval values are provided in the input.");
-        }else if(minimumDepthInterval!=null && minimumDepthInterval.getMd_interval()!=null && minimumDepthInterval.getMd_interval()>0){
+            } else if (minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0) {
             List<Double> mdiList = computeMinimumDepthPointsUsingInterval(request.getInputStations().get(0).getMd(),
                     request.getInputStations().get(request.getInputStations().size()-1).getMd(),minimumDepthInterval.getMd_interval());
             mdiList.add(request.getInputStations().get(request.getInputStations().size()-1).getMd());
             minimumDepthInterval.setMd_i(mdiList);
-        }else if(minimumDepthInterval!=null && minimumDepthInterval.getMd_i()!=null && minimumDepthInterval.getMd_i().size()>0){
-            if(checkMdiListForRange(request.getInputStations().get(0).getMd(),request.getInputStations().get(request.getInputStations().size()-1).getMd(),
+            } else if (minimumDepthInterval.getMd_i() != null && minimumDepthInterval.getMd_i().isEmpty() && checkMdiListForRange(request.getInputStations().get(0).getMd(), request.getInputStations().get(request.getInputStations().size() - 1).getMd(),
                     minimumDepthInterval.getMd_i())){
                 throw new ValidationException("md_i array values provided are not in range of MD stations.");
             }
         }
-        ConvertTrajectoryResponse response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
-        return response;
+        return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
     }
 
     private boolean checkMdiListForRange(Double firstMd,Double lastMd,List<Double> mdiList){
