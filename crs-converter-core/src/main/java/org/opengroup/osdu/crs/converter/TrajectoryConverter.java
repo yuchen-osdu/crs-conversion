@@ -233,8 +233,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double azi_TN_i;
         double rf_i;
         if (dl_i == 0 || Double.isNaN(dl_i)) {
-            inc_i = inc_1;
-            azi_TN_i = azi_TN1;
+            inc_i = Math.toRadians(inc_1);
+            azi_TN_i = Math.toRadians(azi_TN1);
             rf_i = 1;
         } else {
             inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_1)) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_2)));
@@ -277,11 +277,11 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         List<TrajectoryStationOut> stationsList = response.getStations();
         double scaleFactor = response.getScaleConvergenceList().get(0).getScalefactor();
         int count=0;
+        Point firstStationPoint = stationsList.get(0).getPoint();
+        double y0 = firstStationPoint.getY();
+        double x0 = firstStationPoint.getX();
         for(count=0;count<stationsList.size();count++) {
             TrajectoryStationOut to = stationsList.get(count);
-            Point firstStationPoint = to.getPoint();
-            double y0 = firstStationPoint.getY();
-            double x0 = firstStationPoint.getX();
             double x = x0 + (to.getPoint().getX() - x0) / scaleFactor;
             double y = y0 + (to.getPoint().getY() - y0) / scaleFactor;
             response.getStations().get(count).setPoint(new Point(x, y, to.getPoint().getZ()));
@@ -604,7 +604,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             }
             double latlast = surfaceXY[1]; // now latitude
             double lonlast = surfaceXY[0]; // now longitude
-            for (int i = 1; i < response.getStations().size(); i++) {
+            for (int i = 0; i < response.getStations().size(); i++) {
                 station = response.getStations().get(i);
                 double LATRAD = latlast / rad; //% Degrees to radians
                 double sinLATRADsqared = Math.pow(Math.sin(LATRAD), 2);
