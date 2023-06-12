@@ -1,7 +1,6 @@
 package org.opengroup.osdu.crs.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "Response resulting of a failed CRS conversion operation")
+@Schema(description = "Response resulting of a failed CRS conversion operation")
 public class ErrorResponse {
 
-	@ApiModelProperty(value = "Error message", dataType = "String")
+	@Schema(description = "Error message", type = "string")
 	private String error;
 }

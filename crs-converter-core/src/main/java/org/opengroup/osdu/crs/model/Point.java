@@ -1,30 +1,32 @@
 package org.opengroup.osdu.crs.model;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.opengroup.osdu.crs.util.Constants;
 import javax.validation.constraints.NotNull;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_POINT_DESCR)
+@Schema(description = Constants.SWAGGER_POINT_DESCR)
 public class Point {
     public Point() {
         setNaN(this);
     }
     @NotNull
-    @ApiModelProperty(value = Constants.SWAGGER_X_COORDINATE, required = true, dataType = "Double", example = Constants.SWAGGER_X_COORDINATE_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_X_COORDINATE, type = "number", format = "double",example = Constants.SWAGGER_X_COORDINATE_EXAMPLE)
+    @Parameter(required = true)
     private Double x;
 
     @NotNull
-    @ApiModelProperty(value = Constants.SWAGGER_Y_COORDINATE, required = true, dataType = "Double", example = Constants.SWAGGER_Y_COORDINATE_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_Y_COORDINATE, type = "number", format = "double",example = Constants.SWAGGER_Y_COORDINATE_EXAMPLE)
+    @Parameter(required = true)
     private Double y;
 
     @NotNull
-    @ApiModelProperty(value = Constants.SWAGGER_Z_COORDINATE, required = true, dataType = "Double", example = Constants.SWAGGER_Z_COORDINATE_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_Z_COORDINATE, type = "number", format = "double",example = Constants.SWAGGER_Z_COORDINATE_EXAMPLE)
+    @Parameter(required = true)
     private Double z;
 
     public static boolean isValid(Point point) {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
 import org.opengroup.osdu.crs.middleware.AuthenticationService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -25,6 +26,7 @@ import java.io.PrintWriter;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@ConditionalOnProperty(value = "azure.istio.auth.enabled", havingValue = "false", matchIfMissing = false)
 public class SecurityConfig extends WebSecurityConfigurerAdapter  implements AccessDeniedHandler, AuthenticationEntryPoint {
 
     private AuthenticationRequestFilter authFilter;
@@ -35,6 +37,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
             "/",
             "/index.html",
             "/_ah/*",
+            "/api-docs.yaml",
+            "/api-docs/swagger-config",
+            "/api-docs/**",
+            "/swagger",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+
+/*            "/api-docs/swagger-config",
             "/v2/api-docs",
             "/v3/api-docs",
             "/configuration/ui",
@@ -47,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
             "/info",
             "/webjars/**",
             "/swagger.json",
-            "/csrf"
+            "/csrf"*/
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import javax.validation.constraints.NotEmpty;
@@ -18,7 +18,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
 public class ConvertTrajectoryRequest {
 	public ConvertTrajectoryRequest(){
 		interpolate = true;
@@ -26,58 +26,50 @@ public class ConvertTrajectoryRequest {
 	}
     @JsonProperty("trajectoryCRS")
 	@NotEmpty
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_CRS, required = true, dataType = "String",
-			example = Constants.SWAGGER_TARGET_CRS_EX)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_EX)
+	@Parameter(required = true)
 	private String trajectoryCRS;
 
     @JsonProperty("azimuthReference")
 	@NotEmpty
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF, required = true, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF, type = "string",example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
+	@Parameter(required = true)
 	private String azimuthReference;
 
     @JsonProperty("unitXY")
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_UNIT_XY, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_UNIT_XY, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE)
 	private String unitXY;
 
     @JsonProperty("unitZ")
 	@NotEmpty
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_UNIT_Z, required = true, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_UNIT_Z, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE)
+	@Parameter(required = true)
 	private String unitZ;
 
     @JsonProperty("referencePoint")
-	@ApiModelProperty(value = Constants.SWAGGER_TRF_REQ_REF_POINT, required = true)
+	@Schema(description = Constants.SWAGGER_TRF_REQ_REF_POINT)
+	@Parameter(required = true)
 	private Point referencePoint;
 
     @JsonProperty("inputStations")
 	@Valid
 	@NotEmpty
-	@ApiModelProperty(value = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS,
-			example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX, required = true)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS, type = "string",example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX)
+	@Parameter(required = true)
 	private List<TrajectoryStationIn> inputStations;
 
     @JsonProperty("method")
 	@NotEmpty
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_METHOD, required = true, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_METHOD, type = "string",example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
+	@Parameter(required = true)
 	private String method;
 
 	@JsonProperty("inputKind")
-	@ApiModelProperty(
-			value = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, dataType = "String",
-			example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, type = "string",example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
 	private String inputKind;
 
     @JsonProperty("interpolate")
-	@ApiModelProperty(value=Constants.SWAGGER_TRJ_REQ_INTERPOLATE,
-			example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX, dataType = "Boolean")
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_INTERPOLATE, type = "boolean",example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX)
 	private boolean interpolate;
 
     @Override
