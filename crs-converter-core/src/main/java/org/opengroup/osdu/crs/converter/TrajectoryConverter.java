@@ -243,9 +243,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             rf_i = 2 * Math.tan(dl_i / 2) / dl_i;
         }
 
-        double n_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.cos(Math.toRadians(azi_TN1)) + Math.sin(Math.toRadians(inc_i)) * Math.cos(Math.toRadians(azi_TN_i)));
-        double e_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(azi_TN1)) + Math.sin(Math.toRadians(inc_i)) * Math.sin(Math.toRadians(azi_TN_i)));
-        double d_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.cos(Math.toRadians(inc_1)) + Math.cos(Math.toRadians(inc_i)));
+            double n_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.cos(Math.toRadians(azi_TN1)) + Math.sin(inc_i) * Math.cos(azi_TN_i));
+        double e_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(azi_TN1)) + Math.sin(inc_i) * Math.sin(azi_TN_i));
+        double d_i_minus_1 = md_i_minus_md_1 * (rf_i / 2) * (Math.cos(Math.toRadians(inc_1)) + Math.cos(inc_i));
         double convergence_deg = 0.0;
         double azi_GN_i = 0.0;
         if (flag_check_projected) {
@@ -263,10 +263,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         trajectoryStationOuti.setMd(mdi);
         trajectoryStationOuti.setInclination(Math.toDegrees(inc_i));
         trajectoryStationOuti.setAzimuthTN(Math.toDegrees(azi_TN_i));
-        trajectoryStationOuti.setAzimuthGN(Math.toDegrees(azi_GN_i));
+        trajectoryStationOuti.setAzimuthGN(azi_GN_i);
         trajectoryStationOuti.setDxTN(e_i_minus_1);
         trajectoryStationOuti.setDyTN(n_i_minus_1);
-        trajectoryStationOuti.setDZ(stationOut1.getDZ() + d_i_minus_1);
+        trajectoryStationOuti.setDZ(d_i_minus_1);
         if (flag_check_projected) {
             trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
         }
