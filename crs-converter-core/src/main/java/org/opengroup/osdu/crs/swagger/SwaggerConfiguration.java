@@ -8,7 +8,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.*;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.springdoc.core.GroupedOpenApi;
@@ -19,6 +19,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import java.util.Arrays;
+import io.swagger.v3.oas.models.servers.ServerVariable;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.Collections;
 
 
 
@@ -31,9 +34,6 @@ public class SwaggerConfiguration {
     @Value("${api.description}")
     private String apiDescription;
 
-    @Value("${api.version}")
-    private String apiVersion;
-
     @Value("${api.contact.name}")
     private String contactName;
 
@@ -45,9 +45,6 @@ public class SwaggerConfiguration {
 
     @Value("${api.license.url}")
     private String licenseUrl;
-
-    @Value("${api.server.url}")
-    private String serverUrl;
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -101,12 +98,6 @@ public class SwaggerConfiguration {
                 .build();
     }
 
-/*    public OpenApiCustomiser redirectionCustomiser(String redirectUrl) {
-        return openApi -> {
-            openApi.getExtensions().put("x-redirect-url", redirectUrl);
-        };
-    }*/
-
     public OpenApiCustomiser buildV2OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("2.0.0"));
@@ -114,8 +105,6 @@ public class SwaggerConfiguration {
             openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
             openApi.addTagsItem(new Tag().name("crs-converter-api-v2").description("Converter related endpoints"));
             openApi.addTagsItem(new Tag().name("convert-trajectory-api-v2").description("Convert trajectory stations"));
-
-//            openApi.addServersItem(new Server().url("/api/crs/converter/v2"));
         };
     }
 
@@ -126,9 +115,6 @@ public class SwaggerConfiguration {
             openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
             openApi.addTagsItem(new Tag().name("crs-converter-api-v3").description("Converter related endpoints"));
             openApi.addTagsItem(new Tag().name("convert-trajectory-api-v3").description("Convert trajectory stations"));
-
-//            openApi.addServersItem(new Server().url("/api/crs/converter/v3"));
-
         };
     }
     // Describe the apis

@@ -43,21 +43,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  implements Acc
             "/swagger",
             "/swagger-ui.html",
             "/swagger-ui/**",
-
-/*            "/api-docs/swagger-config",
-            "/v2/api-docs",
-            "/v3/api-docs",
-            "/configuration/ui",
-            "/swagger-resources/**",
-            "/configuration/security",
-            "/swagger",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
             "/actuator/*",
-            "/info",
-            "/webjars/**",
-            "/swagger.json",
-            "/csrf"*/
+            "/csrf"
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually

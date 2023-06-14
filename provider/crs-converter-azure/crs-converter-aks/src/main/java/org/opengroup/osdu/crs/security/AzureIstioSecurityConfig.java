@@ -21,7 +21,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 
 
-@ConditionalOnProperty(value = "azure.istio.auth.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = "azure" +
+        ".istio.auth.enabled", havingValue = "true", matchIfMissing = true)
 public class AzureIstioSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
