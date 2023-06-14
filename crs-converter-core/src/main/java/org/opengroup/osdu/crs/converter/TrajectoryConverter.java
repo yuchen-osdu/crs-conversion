@@ -250,7 +250,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double azi_GN_i = 0.0;
         if (flag_check_projected) {
             convergence_deg = azi_TN1 - azi_GN1;
-            azi_GN_i = azi_TN_i - convergence_deg;
+            azi_GN_i = azi_TN_i - Math.toRadians(convergence_deg);
             if (azi_GN_i < 0) {
                 azi_GN_i += 360;
             } else if (azi_GN_i >= 360) {
@@ -263,10 +263,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         trajectoryStationOuti.setMd(mdi);
         trajectoryStationOuti.setInclination(Math.toDegrees(inc_i));
         trajectoryStationOuti.setAzimuthTN(Math.toDegrees(azi_TN_i));
-        trajectoryStationOuti.setAzimuthGN(azi_GN_i);
-        trajectoryStationOuti.setDxTN(e_i_minus_1);
-        trajectoryStationOuti.setDyTN(n_i_minus_1);
-        trajectoryStationOuti.setDZ(d_i_minus_1);
+        trajectoryStationOuti.setAzimuthGN(Math.toDegrees(azi_GN_i));
+        trajectoryStationOuti.setDxTN(e_i_minus_1 +stationOut1.getDxTN());
+        trajectoryStationOuti.setDyTN(n_i_minus_1+ stationOut1.getDyTN());
+        trajectoryStationOuti.setDZ(d_i_minus_1+stationOut1.getDZ());
         if (flag_check_projected) {
             trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
         }
