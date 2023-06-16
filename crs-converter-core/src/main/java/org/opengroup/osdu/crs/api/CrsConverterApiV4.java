@@ -152,7 +152,7 @@ public class CrsConverterApiV4 {
                 throw new ValidationException("md_i array values provided are not in range of MD stations.");
             }
         }
-        return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType);
+        return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request,checkCRSType,true);
     }
 
     private boolean checkMdiListForRange(Double firstMd,Double lastMd,List<Double> mdiList){
