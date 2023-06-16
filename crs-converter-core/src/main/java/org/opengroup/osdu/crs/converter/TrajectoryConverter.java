@@ -155,13 +155,13 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                         computeInterpolationForMDiInput(request, response, state,flag_check_projected);
                         state.getOperations().add("Interpolation for MD_i input stations completed");
                     }
-                    if (state.getMethod() == TrajectoryComputationMethod.GridNorthLocal && flag_check_scaleFactor){
-                        computeUnscaledValuesForXAndY(response);
-                    }
                 }
                 if (flag_check_projected && flag_check_scaleFactor) {
                     List<ScaleConvergence> scaleConvergenceList = computeScaleFactorAndConvergence(headers,dummyRequestForScaleCompute,flag_check_projected,response.getStations());
                     response.setScaleConvergenceList(scaleConvergenceList);
+                }
+                if (state.getMethod() == TrajectoryComputationMethod.GridNorthLocal && flag_check_scaleFactor){
+                    computeUnscaledValuesForXAndY(response);
                 }
                 response.setLocalCRS(correctionSet.getAzimuthalEquidistantCRS().createPersistableReference());
                 convertToWgs84(response, state);
