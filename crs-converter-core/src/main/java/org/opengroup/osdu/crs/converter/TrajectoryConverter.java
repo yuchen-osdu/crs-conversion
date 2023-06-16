@@ -313,7 +313,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         TrajectoryStationOut dummyFirstStation_pointLast = dummyStationsList.get(0);
         TrajectoryStationOut dummyLastStation_pointLast = dummyStationsList.get(dummyStationsList.size()-1);
 
-        double dGN = Math.sqrt(Math.pow(dummyFirstStation_pointFirst.getPoint().getY() - dummyFirstStation_pointFirst.getPoint().getY(), 2) + Math.pow(dummyLastStation_pointFirst.getPoint().getX() - dummyFirstStation_pointFirst.getPoint().getX(), 2));
+        double dGN = Math.sqrt(Math.pow(dummyLastStation_pointFirst.getPoint().getY() - dummyFirstStation_pointFirst.getPoint().getY(), 2) + Math.pow(dummyLastStation_pointFirst.getPoint().getX() - dummyFirstStation_pointFirst.getPoint().getX(), 2));
         double dTN = Math.sqrt(Math.pow(dummyLastStation_pointFirst.getDxTN() - dummyFirstStation_pointFirst.getDxTN(), 2) + Math.pow(dummyLastStation_pointFirst.getDyTN() - dummyFirstStation_pointFirst.getDyTN(), 2));
         DecimalFormat upto6decimal = new DecimalFormat("#.######");
         double scaleFactorPointFirst = Double.parseDouble(upto6decimal.format(dGN / dTN));
