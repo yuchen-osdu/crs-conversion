@@ -57,7 +57,7 @@ Similarly, when not using Postman but client code, set the configuration  ```ver
 * api-docs [All versions] (YAML) :https://host/context-path/api-docs.yaml
 * api-docs [Version V2] (JSON) : https://host/context-path/api-docs/v2
 * api-docs [Version V3] (JSON) : https://host/context-path/api-docs/v3   
-All the Swagger and OpenAPI related common properties are managed here [swagger.properties]   
+All the Swagger and OpenAPI related common properties are managed here swagger.properties
 Headers for Postman:
 
 | Key | Value |
