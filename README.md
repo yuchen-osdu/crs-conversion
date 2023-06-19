@@ -57,7 +57,7 @@ Similarly, when not using Postman but client code, set the configuration  ```ver
 * api-docs [All versions] (YAML) :https://host/context-path/api-docs.yaml
 * api-docs [Version V2] (JSON) : https://host/context-path/api-docs/v2
 * api-docs [Version V3] (JSON) : https://host/context-path/api-docs/v3   
-All the Swagger and OpenAPI related common properties are managed here [swagger.properties](https://community.opengroup.org/osdu/platform/system/reference/crs-conversion-service/-/blob/16ad7585a2e1fa9cdf7dea613243f47d31aeac2f/crs-converter-core/src/main/resources/swagger.properties)
+All the Swagger and OpenAPI related common properties are managed here [swagger.properties]   
 Headers for Postman:
 
 | Key | Value |
