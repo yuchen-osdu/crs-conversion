@@ -175,7 +175,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    private ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationState state,boolean flag_check_projected) {
+    public ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationState state,boolean flag_check_projected) {
 
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
@@ -281,7 +281,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return trajectoryStationOuti;
     }
 
-    private void computeUnscaledValuesForXAndY(ConvertTrajectoryResponseV4 response){
+    public void computeUnscaledValuesForXAndY(ConvertTrajectoryResponseV4 response){
         List<TrajectoryStationOut> stationsList = response.getStations();
         double scaleFactor = response.getScaleConvergenceList().get(0).getScalefactor();
         int count=0;
@@ -296,7 +296,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    private  List<ScaleConvergence> computeScaleFactorAndConvergence(DpsHeaders headers,ConvertTrajectoryRequestV4 dummyRequestForScaleCompute,boolean flag_check_projected,List<TrajectoryStationOut> stationsList) {
+    public  List<ScaleConvergence> computeScaleFactorAndConvergence(DpsHeaders headers,ConvertTrajectoryRequestV4 dummyRequestForScaleCompute,boolean flag_check_projected,List<TrajectoryStationOut> stationsList) {
         TrajectoryStationOut firstStation = stationsList.get(0);
         dummyRequestForScaleCompute.setReferencePoint(firstStation.getPoint());
         dummyRequestForScaleCompute.setInputStations(getDummyStationList());
@@ -402,7 +402,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return elevations;
     }
 
-    private ConvertTrajectoryResponse normalizeTrajectory(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
+    public ConvertTrajectoryResponse normalizeTrajectory(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
         ConvertTrajectoryResponse siResponse = new ConvertTrajectoryResponse();
         double xyFactor = state.getHorizontalUnit().scaleToSI();
         double z_Factor = state.getVerticalUnit().scaleToSI();
@@ -428,7 +428,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return siResponse;
     }
 
-    private void deNormalizeTrajectory(ConvertTrajectoryResponse siResponse, ConvertTrajectoryResponse response, TrajectoryComputationState state) {
+    public void deNormalizeTrajectory(ConvertTrajectoryResponse siResponse, ConvertTrajectoryResponse response, TrajectoryComputationState state) {
         double xyFactor = 1.0 / state.getHorizontalUnit().scaleToSI();
         double z_Factor = 1.0 / state.getVerticalUnit().scaleToSI();
         double dlFactor;
@@ -469,7 +469,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    private boolean callTrajectoryEngineService(
+    public boolean callTrajectoryEngineService(
             ConvertTrajectoryResponse response, Point referencePoint, TrajectoryComputationState state) {
         response.setInputKind(state.getInputKind().toString());
         if (state.isInterpolate()) {
@@ -486,7 +486,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return true;
     }
 
-    private void convertToWgs84(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
+    public void convertToWgs84(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
         double[] xyCoordinates = extractCoordinatesFromResponse(response);
         ICRSConverter crsConverter = new CRSConverter();
         double[] zCoordinates = extractElevationsFromResponse(response);
@@ -510,7 +510,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    private void convertToWgs84V4(ConvertTrajectoryResponseV4 response, TrajectoryComputationState state) {
+    public void convertToWgs84V4(ConvertTrajectoryResponseV4 response, TrajectoryComputationState state) {
         double[] xyCoordinates = extractCoordinatesFromResponseV4(response);
         ICRSConverter crsConverter = new CRSConverter();
         double[] zCoordinates = extractElevationsFromResponseV4(response);
@@ -608,7 +608,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         throw new IllegalArgumentException("Can't find axis from crs");
     }
 
-    private void convertPointsLmp(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
+    public void convertPointsLmp(ConvertTrajectoryResponse response, TrajectoryComputationState state) {
         try {
             int nofPoints = response.getStations().size();
             double[] posXY = new double[2 * nofPoints];
@@ -708,7 +708,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    private void convertPoints(ConvertTrajectoryResponse response, ISisCrs aziEqu, TrajectoryComputationState state) {
+    public void convertPoints(ConvertTrajectoryResponse response, ISisCrs aziEqu, TrajectoryComputationState state) {
         double[] xyCoordinates = extractCoordinatesFromResponse(response);
         int nofPoints = response.getStations().size();
         try {
@@ -747,7 +747,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return tos;
     }
 
-    boolean isRequestValid(ConvertTrajectoryRequest request, TrajectoryComputationState state) {
+    public boolean isRequestValid(ConvertTrajectoryRequest request, TrajectoryComputationState state) {
         if (request != null) {
             try {
                 IItem raw = parseSpatialReference(request.getTrajectoryCRS());
@@ -836,7 +836,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return state.getErrors().size() == 0;
     }
 
-    private void minimumCurvature(Point referencePoint, List<TrajectoryStationOut> stations) {
+    public void minimumCurvature(Point referencePoint, List<TrajectoryStationOut> stations) {
         TrajectoryStationOut to = stations.get(0);
         to.setMd(stations.get(0).getMd());
         to.setAzimuthTN(stations.get(0).getAzimuthTN());
@@ -851,7 +851,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    private Point minimumCurvaturePair(Point prf, List<TrajectoryStationOut> stations, int index) {
+    public Point minimumCurvaturePair(Point prf, List<TrajectoryStationOut> stations, int index) {
         // Taken from http://www.drillingformulas.com/minimum-curvature-method/
         // https://directionaldrillingart.blogspot.com/2015/09/directional-surveying-calculations.html
         double deg2rad = 1.0; // Math.PI / 180.0;
