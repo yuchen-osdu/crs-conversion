@@ -659,6 +659,24 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
+    def test_1612_LMP_trajectory(self):
+        request = self.__read_request('v3/data/Trajectory/1612-LMP-request.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        response_expected = self.__read_response('v3/data/Trajectory/1612-LMP-response.json')
+        self.assertIsNotNone(response_expected)
+        try:
+            # Convert a list of points
+            api_response = self.api_instance.convert_trajectory(body=request, data_partition_id=data_partition_header,  _request_timeout=180)
+            self.assertIsNotNone(api_response)
+            self.assertIsInstance(api_response, ConvertTrajectoryResponse)
+            self.assertIsNotNone(api_response.operations_applied)
+            c = CompareResponseWithExpectation(api_response, expected=response_expected)
+            ok = c.compare_convert_trajectory_response()
+            self.assertTrue(ok, 'Actual response is different from expected response.')
+        except ApiException as e:
+            self.fail(str(e))
+
 class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
     """Post deployment tests for crs-converter service"""
 
