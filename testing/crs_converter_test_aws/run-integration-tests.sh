@@ -34,6 +34,12 @@ if [[ "$OSTYPE" == "msys" ]]; then
   V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
+  # Run tests
+  echo ***RUNNING CRS Converter API V4 TESTS***
+  python run_test_api_v4.py
+  V4_TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V4 TESTS***
+
   # python -m pip freeze > requirements.txt
   python -m pip uninstall -r requirements.txt -y
 
@@ -394,6 +400,12 @@ else
   V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
+  # Run tests
+  echo ***RUNNING CRS Converter API V4 TESTS***
+  python3 run_test_api_v4.py
+  V4_TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V4 TESTS***
+
   # Deleting Records
   echo 'Deleting records after Integration Tests ...'
   curl --location --request DELETE "$STORAGE_URL"'/'"$MY_TENANT"':reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851' \
@@ -415,8 +427,9 @@ rm -rf env/
 echo ***TEST RESULTS***
 echo $V2_TEST_STATUS
 echo $V3_TEST_STATUS
+echo $V4_TEST_STATUS
 
-if [ $V2_TEST_STATUS -ne 0 ] || [ $V3_TEST_STATUS -ne 0 ]
+if [ $V2_TEST_STATUS -ne 0 ] || [ $V3_TEST_STATUS -ne 0 ] || [ $V4_TEST_STATUS -ne 0 ]
 then
     exit 1
 fi
