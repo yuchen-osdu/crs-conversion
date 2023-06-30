@@ -6,7 +6,7 @@ from os import listdir
 from os.path import isfile, join
 from time import sleep
 
-import jwt_client
+from crs_converter_test_aws import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
 from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
@@ -33,7 +33,7 @@ def convertString(str):
 
 
 class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
-    """Post deployment tests for trajectory-converter service"""
+    """Post deployment tests for v4 trajectory-converter service"""
 
     @classmethod
     def setUpClass(cls):
@@ -68,8 +68,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     def tearDownClass(cls):
         cls.test_records.teardown()
 
-    def convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
-        print('starting test case GN_WithSuccess')
+    def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
@@ -175,7 +174,6 @@ class TestRecords(unittest.TestCase):
 
     def delete_records(self):
         """test delete records"""
-        print('Request URL for delete records: ' + self.env.storage_url)
         for id in self.recordIDs:
             try:
                 delete_url = self.env.storage_url + '/' + id
@@ -187,14 +185,11 @@ class TestRecords(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    print('inside suite()')
     suite.addTest(
         TestTrajectoryConverterIntegrationV4('convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
     return suite
 
 
 if __name__ == '__main__':
-    print('starting test_crs_converter_v4.py')
     runner = unittest.TextTestRunner(failfast=True)
     runner.run(suite())
-    print('completed suite()')
