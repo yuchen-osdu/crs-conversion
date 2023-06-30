@@ -1,0 +1,45 @@
+{
+    "azimuthReference": "GN",
+    "interpolate": false,
+    "referencePoint": {
+        "y": 6500000,
+        "x": 400000,
+        "z": 0
+    },
+    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+    "inputStations": [
+        {
+            "md": 0,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 2000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 4000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 6000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 8000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 10000,
+            "azimuth": 90,
+            "inclination": 90
+        }
+    ],
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
+    "inputKind": "MD_Incl_Azim",
+    "method": "AzimuthalEquidistant"
+}

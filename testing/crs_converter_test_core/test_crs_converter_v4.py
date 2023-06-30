@@ -2,6 +2,9 @@ import json
 import os
 import unittest
 import warnings
+from os import listdir
+from os.path import isfile, join
+from time import sleep
 
 import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
@@ -13,6 +16,7 @@ import urllib3
 from crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
 
 urllib3.disable_warnings()
+
 
 def convertString(str):
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
@@ -26,6 +30,7 @@ def convertString(str):
     body_str = body_str.replace(TAG_TO_REPLACE, env.my_legal_tag)
     body_str = body_str.replace(TEST_ID_REPLACE, env.my_test_id)
     return body_str
+
 
 class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
@@ -64,7 +69,9 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         cls.test_records.teardown()
 
     def convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
-        request = self.__read_v4_convert_trajectory_request('v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
+        print('starting test case GN_WithSuccess')
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
         try:
@@ -75,6 +82,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             self.assertEquals(api_response.scaleConvergenceList[0].convergence, -1.47055)
             self.assertEquals(api_response.scaleConvergenceList[1].scalefactor, 0.999699)
             self.assertEquals(api_response.scaleConvergenceList[1].convergence, -1.32361)
+            print('ended test case GN_WithSuccess')
         except ApiException as e:
             self.fail(str(e))
 
@@ -102,7 +110,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             elif r_dict.get("MD_i") and r_dict.get("unitXY") is None:
                 return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
                                                   azimuth_reference=r_dict['azimuthReference'],
-                                                  unit_z=r_dict['unitZ'],reference_point=r_dict['referencePoint'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
                                                   md_i=r_dict['MD_i'])
@@ -112,12 +120,11 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
+
+
 class TestRecords(unittest.TestCase):
     """Test the info end-points"""
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
-    DOMAIN_TO_REPLACE = '{{DOMAIN}}'
-    TAG_TO_REPLACE = '{{LEGAL_TAG}}'
-    TEST_ID_REPLACE = '{{TEST_ID}}'
 
     def setup(self):
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
@@ -143,14 +150,51 @@ class TestRecords(unittest.TestCase):
         self.recordIDs = []
         self.put_records()
 
+    def teardown(self):
+        self.delete_records()
+
+    def put_records(self):
+        """test put records"""
+        dir_path = os.path.dirname(__file__)
+        mypath = os.path.join(dir_path, "v4/data/Storagerecords/")
+        files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
+        print('Request URL for upsert records: ' + self.env.storage_url)
+        for file_name in files:
+            body_str = open(file_name, 'r').read()
+            body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
+            temp = json.loads(body_str)
+            self.recordIDs.append(temp[0].get('id'))
+
+            try:
+                api_response = self.client.request(method='PUT', url=self.env.storage_url, body=json.loads(body_str),
+                                                   headers=self.header)
+                self.assertIsNotNone(api_response)
+            except ApiException as e:
+                self.fail(str(e))
+        sleep(30)  # Wait for the records to become searchable
+
+    def delete_records(self):
+        """test delete records"""
+        print('Request URL for delete records: ' + self.env.storage_url)
+        for id in self.recordIDs:
+            try:
+                delete_url = self.env.storage_url + '/' + id
+                api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
+                self.assertIsNotNone(api_response)
+            except ApiException as e:
+                self.fail(str(e))
+
 
 def suite():
     suite = unittest.TestSuite()
+    print('inside suite()')
     suite.addTest(
         TestTrajectoryConverterIntegrationV4('convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
     return suite
 
 
 if __name__ == '__main__':
+    print('starting test_crs_converter_v4.py')
     runner = unittest.TextTestRunner(failfast=True)
     runner.run(suite())
+    print('completed suite()')
