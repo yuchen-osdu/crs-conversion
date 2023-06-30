@@ -1,9 +1,11 @@
+import json
+import os
 import unittest
 import warnings
 
-import jwt_client
+from crs_converter_test_aws import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
-from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient
+from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
 
 import urllib3
@@ -12,6 +14,18 @@ from crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
 
 urllib3.disable_warnings()
 
+def convertString(str):
+    DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
+    DOMAIN_TO_REPLACE = '{{DOMAIN}}'
+    TAG_TO_REPLACE = '{{LEGAL_TAG}}'
+    TEST_ID_REPLACE = '{{TEST_ID}}'
+    env = TestEnvironment()
+    body_str = str
+    body_str = body_str.replace(DATA_PARTITION_TO_REPLACE, env.data_partition_id)
+    body_str = body_str.replace(DOMAIN_TO_REPLACE, env.my_replace_domain)
+    body_str = body_str.replace(TAG_TO_REPLACE, env.my_legal_tag)
+    body_str = body_str.replace(TEST_ID_REPLACE, env.my_test_id)
+    return body_str
 
 class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
@@ -50,7 +64,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         cls.test_records.teardown()
 
     def convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
-        request = self.test_conversion_only('v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
+        request = self.__read_v4_convert_trajectory_request('v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
         try:
@@ -64,7 +78,40 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
-
+    @staticmethod
+    def __read_v4_convert_trajectory_request(file_name):
+        dir_path = os.path.dirname(__file__)
+        dir_path = os.path.join(dir_path, file_name)
+        with open(dir_path) as json_file:
+            r_dict = json.loads(convertString(json_file.read()))
+            if r_dict.get("unitXY") and r_dict.get("MD_i") is None:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_xy=r_dict['unitXY'], unit_z=r_dict['unitZ'],
+                                                  reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
+            elif r_dict.get("MD_i") and r_dict.get("unitXY"):
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_xy=r_dict['unitXY'], unit_z=r_dict['unitZ'],
+                                                  reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
+                                                  md_i=r_dict['MD_i'])
+            elif r_dict.get("MD_i") and r_dict.get("unitXY") is None:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_z=r_dict['unitZ'],reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
+                                                  md_i=r_dict['MD_i'])
+            else:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
 class TestRecords(unittest.TestCase):
     """Test the info end-points"""
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
@@ -101,7 +148,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(
         TestTrajectoryConverterIntegrationV4('convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
-    return suite;
+    return suite
 
 
 if __name__ == '__main__':
