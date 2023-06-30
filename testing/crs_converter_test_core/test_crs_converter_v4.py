@@ -1,17 +1,15 @@
-import json
-import os
 import unittest
 import warnings
 
-from testing.crs_converter_test_aws import jwt_client
-from testing.crs_converter_test_core.test_crs_converter_v3 import TestRecords
-from testing.crs_converter_test_core.utility import TestEnvironment
-from testing.crs_converter_test_core.v4.swagger_client import Configuration, ApiClient
-from testing.crs_converter_test_core.v3.swagger_client.rest import ApiException
+import jwt_client
+from crs_converter_test_core.test_crs_converter_v4 import TestRecords
+from crs_converter_test_core.utility import TestEnvironment
+from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient
+from crs_converter_test_core.v3.swagger_client.rest import ApiException
 
 import urllib3
 
-from testing.crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
+from crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
 
 urllib3.disable_warnings()
 
