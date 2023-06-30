@@ -2,11 +2,8 @@ import json
 import os
 import unittest
 import warnings
-from os import listdir
-from os.path import isfile, join
-from time import sleep
 
-from crs_converter_test_aws import jwt_client
+import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
 from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
@@ -61,12 +58,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = Crsconverterapiv4Api(client)
-        cls.test_records = TestRecords()
-        cls.test_records.setup()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.test_records.teardown()
 
     def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
@@ -119,68 +111,6 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
-
-
-class TestRecords(unittest.TestCase):
-    """Test the info end-points"""
-    DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
-
-    def setup(self):
-        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
-        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
-        urllib3.disable_warnings()
-
-        self.env = TestEnvironment()
-        if not self.env.is_ok():
-            raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
-        # Configure API key authorization: api_key
-        configuration = Configuration()
-        # Set the bearer token; use a service account to do this
-        bearer = jwt_client.get_id_token()  # always create a proper bearer token, needed for calls to dps-trajectory
-        configuration.api_key['Authorization'] = 'Bearer ' + bearer
-        configuration.access_token = bearer
-        configuration.verify_ssl = False
-        self.header = {}
-        self.client = ApiClient(host=self.env.storage_url)
-        self.header['data-partition-id'] = self.env.data_partition_id
-        self.header['Content-Type'] = 'application/json'
-        self.header['Authorization'] = 'Bearer ' + bearer
-        self.client.user_agent = 'IntegrationTest'
-        self.recordIDs = []
-        self.put_records()
-
-    def teardown(self):
-        self.delete_records()
-
-    def put_records(self):
-        """test put records"""
-        dir_path = os.path.dirname(__file__)
-        mypath = os.path.join(dir_path, "v4/data/Storagerecords/")
-        files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
-        print('Request URL for upsert records: ' + self.env.storage_url)
-        for file_name in files:
-            body_str = open(file_name, 'r').read()
-            body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
-            temp = json.loads(body_str)
-            self.recordIDs.append(temp[0].get('id'))
-
-            try:
-                api_response = self.client.request(method='PUT', url=self.env.storage_url, body=json.loads(body_str),
-                                                   headers=self.header)
-                self.assertIsNotNone(api_response)
-            except ApiException as e:
-                self.fail(str(e))
-        sleep(30)  # Wait for the records to become searchable
-
-    def delete_records(self):
-        """test delete records"""
-        for id in self.recordIDs:
-            try:
-                delete_url = self.env.storage_url + '/' + id
-                api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
-                self.assertIsNotNone(api_response)
-            except ApiException as e:
-                self.fail(str(e))
 
 
 def suite():
