@@ -3,7 +3,7 @@ import os
 import unittest
 import warnings
 
-from crs_converter_test_aws import jwt_client
+import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
 from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
