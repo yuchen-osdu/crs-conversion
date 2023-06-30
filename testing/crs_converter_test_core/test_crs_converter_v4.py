@@ -4,7 +4,7 @@ import warnings
 import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
 from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient
-from crs_converter_test_core.v3.swagger_client.rest import ApiException
+from crs_converter_test_core.v4.swagger_client.rest import ApiException
 
 import urllib3
 
