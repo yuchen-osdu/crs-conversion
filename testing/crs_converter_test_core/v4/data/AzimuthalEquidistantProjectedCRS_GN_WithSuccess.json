@@ -39,7 +39,7 @@
             "inclination": 90
         }
     ],
-    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
     "inputKind": "MD_Incl_Azim",
     "method": "AzimuthalEquidistant"
 }
