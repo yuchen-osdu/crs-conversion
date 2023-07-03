@@ -779,7 +779,8 @@ class TestRecords(unittest.TestCase):
         self.put_records()
 
     def teardown(self):
-        self.delete_records()
+        print('teardown(self)')
+        #self.delete_records()
 
     def put_records(self):
         """test put records"""

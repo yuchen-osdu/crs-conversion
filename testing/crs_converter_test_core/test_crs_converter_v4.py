@@ -148,7 +148,7 @@ class TestRecords(unittest.TestCase):
         self.header['Authorization']='Bearer ' + bearer
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
-        self.put_records()
+        #self.put_records()
 
     def teardown(self):
         self.delete_records()
