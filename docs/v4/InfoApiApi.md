@@ -1,16 +1,16 @@
-# swagger_client.Crsconverterapiv4Api
+# swagger_client.InfoApiApi
 
 All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**convert_trajectory**](Crsconverterapiv4Api.md#convert_trajectory) | **POST** /v4/convertTrajectory | 
+[**info_using_get**](InfoApiApi.md#info_using_get) | **GET** /v4/info | info
 
 
-# **convert_trajectory**
-> ConvertTrajectoryResponseV4 convert_trajectory(body=body, data_partition_id=data_partition_id)
+# **info_using_get**
+> VersionInfo info_using_get(data_partition_id)
 
-
+info
 
 ### Example 
 ```python
@@ -26,27 +26,26 @@ swagger_client.configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 # swagger_client.configuration.api_key_prefix['Authorization'] = 'Bearer'
 
 # create an instance of the API class
-api_instance = swagger_client.Crsconverterapiv4Api()
-body = swagger_client.ConvertTrajectoryRequestV4() # ConvertTrajectoryRequestV4 |  (optional)
-data_partition_id = 'data_partition_id_example' # str | Tenant Id (optional)
+api_instance = swagger_client.InfoApiApi()
+data_partition_id = 'opendes' # str | tenant (default to opendes)
 
 try: 
-    api_response = api_instance.convert_trajectory(body=body, data_partition_id=data_partition_id)
+    # info
+    api_response = api_instance.info_using_get(data_partition_id)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling Crsconverterapiv4Api->convert_trajectory: %s\n" % e)
+    print("Exception when calling InfoApiApi->info_using_get: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **body** | [**ConvertTrajectoryRequestV4**](ConvertTrajectoryRequestV4.md)|  | [optional] 
- **data_partition_id** | **str**| Tenant Id | [optional] 
+ **data_partition_id** | **str**| tenant | [default to opendes]
 
 ### Return type
 
-[**ConvertTrajectoryResponseV4**](ConvertTrajectoryResponseV4.md)
+[**VersionInfo**](VersionInfo.md)
 
 ### Authorization
 
@@ -54,8 +53,8 @@ Name | Type | Description  | Notes
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -27,6 +27,7 @@ from .models.trajectory_station_out import TrajectoryStationOut
 
 # import apis into sdk package
 from .apis.crsconverterapiv4_api import Crsconverterapiv4Api
+from .apis.info_api_api import InfoApiApi
 
 # import ApiClient
 from .api_client import ApiClient

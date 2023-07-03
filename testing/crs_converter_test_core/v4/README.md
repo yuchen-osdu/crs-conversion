@@ -57,10 +57,12 @@ swagger_client.configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 # swagger_client.configuration.api_key_prefix['Authorization'] = 'Bearer'
 # create an instance of the API class
 api_instance = swagger_client.Crsconverterapiv4Api()
-data_partition_id = 'data_partition_id_example' # str | Tenant Id
+body = swagger_client.ConvertTrajectoryRequestV4() # ConvertTrajectoryRequestV4 |  (optional)
+data_partition_id = 'data_partition_id_example' # str | Tenant Id (optional)
 
 try:
-    api_instance.convert_trajectory(data_partition_id)
+    api_response = api_instance.convert_trajectory(body=body, data_partition_id=data_partition_id)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling Crsconverterapiv4Api->convert_trajectory: %s\n" % e)
 
@@ -73,6 +75,7 @@ All URIs are relative to *https://az-osdu1.evd.csp.slb.com/api/crs/v1*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *Crsconverterapiv4Api* | [**convert_trajectory**](docs/Crsconverterapiv4Api.md#convert_trajectory) | **POST** /v4/convertTrajectory | 
+*InfoApiApi* | [**info_using_get**](docs/InfoApiApi.md#info_using_get) | **GET** /v4/info | info
 
 
 ## Documentation For Models
