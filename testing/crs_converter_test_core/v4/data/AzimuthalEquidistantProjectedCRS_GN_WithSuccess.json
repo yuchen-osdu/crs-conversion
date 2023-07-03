@@ -6,7 +6,7 @@
         "x": 400000,
         "z": 0
     },
-    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}:",
     "inputStations": [
         {
             "md": 0,
@@ -39,7 +39,7 @@
             "inclination": 90
         }
     ],
-    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundCRS::{{DATA_PARTITION_ID}}::toCRStrajectory{{TEST_ID}}:",
     "inputKind": "MD_Incl_Azim",
     "method": "AzimuthalEquidistant"
 }
