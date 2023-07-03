@@ -17,9 +17,11 @@ package org.opengroup.osdu.crs;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
 @ComponentScan({"org.opengroup.osdu"})
+@PropertySource("classpath:swagger.properties")
 public class CrsApplicationAWS {
 
     public static void main(String[] args) {

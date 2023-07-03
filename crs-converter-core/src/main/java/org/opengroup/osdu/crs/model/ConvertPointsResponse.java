@@ -1,22 +1,21 @@
 package org.opengroup.osdu.crs.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@ApiModel(description = Constants.SWAGGER_CONVERSION_RESPONSE)
+@Schema(description = Constants.SWAGGER_CONVERSION_RESPONSE)
 public class ConvertPointsResponse {
 
-	@ApiModelProperty(value = Constants.SWAGGER_NOF_POINTS_CONVERTED, dataType = "Integer")
+	@Schema(description = Constants.SWAGGER_NOF_POINTS_CONVERTED, type = "integer")
 	private Integer successCount;
 
-	@ApiModelProperty(value = Constants.SWAGGER_CONVERTED_POINTS)
+	@Schema(description = Constants.SWAGGER_CONVERTED_POINTS)
 	private List<Point> points;
 
-	@ApiModelProperty(value = Constants.SWAGGER_CONVERT_AUDIT)
+	@Schema(description = Constants.SWAGGER_CONVERT_AUDIT)
 	private List<String> operationsApplied;
 }

@@ -1,8 +1,8 @@
 package org.opengroup.osdu.crs.model;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_STN_IN_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_STN_IN_DESCRIPTION)
 public class TrajectoryStationIn {
 	public TrajectoryStationIn(){
 		// set the optional values to NaN
@@ -20,35 +20,26 @@ public class TrajectoryStationIn {
 	}
 
 	@NotNull
-	@ApiModelProperty(
-			value = Constants.SWAGGER_MD, required = true, dataType = "Double",
-			example = Constants.SWAGGER_MD_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_MD, type = "number", format = "double",example = Constants.SWAGGER_MD_EXAMPLE)
+	@Parameter(required = true)
 	private Double md;
 
 	@NotNull
-	@ApiModelProperty(
-			value = Constants.SWAGGER_INC, required = true, dataType = "Double",
-			example = Constants.SWAGGER_INC_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_INC, type = "number", format = "double",example = Constants.SWAGGER_INC_EXAMPLE)
+	@Parameter(required = true)
 	private Double inclination;
 
 	@NotNull
-	@ApiModelProperty(
-			value = Constants.SWAGGER_AZI, required = true, dataType = "Double",
-			example = Constants.SWAGGER_AZI_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_AZI, type = "number", format = "double",example = Constants.SWAGGER_AZI_EXAMPLE)
+	@Parameter(required = true)
 	private Double azimuth;
 
-	@ApiModelProperty(
-			value = Constants.SWAGGER_DX, dataType = "Double",
-			example = Constants.SWAGGER_DX_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_DX, type = "number", format = "double",example = Constants.SWAGGER_DX_EXAMPLE)
 	private Double dx;
 
-	@ApiModelProperty(
-			value = Constants.SWAGGER_DY, dataType = "Double",
-			example = Constants.SWAGGER_DY_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_DY, type = "number", format = "double",example = Constants.SWAGGER_DY_EXAMPLE)
 	private Double dy;
 
-	@ApiModelProperty(
-			value = Constants.SWAGGER_DZ, dataType = "Double",
-			example = Constants.SWAGGER_DZ_EXAMPLE)
+	@Schema(description = Constants.SWAGGER_DZ, type = "number", format = "double",example = Constants.SWAGGER_DZ_EXAMPLE)
 	private Double dz;
 }
