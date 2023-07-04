@@ -9,6 +9,9 @@ from os.path import isfile, join
 from time import sleep
 
 import urllib3
+
+from crs_converter_test_core.v4.swagger_client import ConvertTrajectoryRequestV4, Crsconverterapiv4Api
+
 urllib3.disable_warnings()
 import warnings
 import logging
@@ -245,6 +248,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = CRSConversionApi(client)
+        cls.api_instance_v4 = Crsconverterapiv4Api(client)
         cls.test_records = TestRecords()
         cls.test_records.setup()
 
@@ -503,6 +507,23 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.assertTrue(400 == e.status)
             self.assertTrue(e.reason in ["Bad Request"])
 
+    def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
+        print(request)
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance_v4.convert_trajectory(body=request, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
+            self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
+            self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
+            self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
+        except ApiException as e:
+            self.fail(str(e))
+
     @staticmethod
     def __read_binGrid_request(file_name):
         dir_path = os.path.dirname(__file__)
@@ -514,6 +535,41 @@ class TestCrsConverterIntegration(unittest.TestCase):
                 return ConvertBinGridRequest(to_crs=r_dict['toCRS'], in_bin_grid=inBinGrid)
             else:
                 return ConvertBinGridRequest(to_crs=None, in_bin_grid=inBinGrid)
+
+    @staticmethod
+    def __read_v4_convert_trajectory_request(file_name):
+        dir_path = os.path.dirname(__file__)
+        dir_path = os.path.join(dir_path, file_name)
+        with open(dir_path) as json_file:
+            r_dict = json.loads(convertString(json_file.read()))
+            if r_dict.get("unitXY") and r_dict.get("MD_i") is None:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_xy=r_dict['unitXY'], unit_z=r_dict['unitZ'],
+                                                  reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
+            elif r_dict.get("MD_i") and r_dict.get("unitXY"):
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_xy=r_dict['unitXY'], unit_z=r_dict['unitZ'],
+                                                  reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
+                                                  md_i=r_dict['MD_i'])
+            elif r_dict.get("MD_i") and r_dict.get("unitXY") is None:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
+                                                  md_i=r_dict['MD_i'])
+            else:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  azimuth_reference=r_dict['azimuthReference'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
 
 
 class TestTrajectoryConverterIntegration(unittest.TestCase):
@@ -780,7 +836,7 @@ class TestRecords(unittest.TestCase):
 
     def teardown(self):
         print('teardown(self)')
-        #self.delete_records()
+        self.delete_records()
 
     def put_records(self):
         """test put records"""

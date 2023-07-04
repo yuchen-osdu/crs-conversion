@@ -61,15 +61,16 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = Crsconverterapiv4Api(client)
-        cls.test_records = TestRecords()
-        cls.test_records.setup()
+        # cls.test_records = TestRecords()
+        # cls.test_records.setup()
 
     @classmethod
     def tearDownClass(cls):
-        cls.test_records.teardown()
+        print('tearDownClass(cls)')
+        # cls.test_records.teardown()
 
 
-    def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
+    def convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
         print(request)    
