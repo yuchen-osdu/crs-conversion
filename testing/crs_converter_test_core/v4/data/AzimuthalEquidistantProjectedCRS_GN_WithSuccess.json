@@ -1,5 +1,5 @@
 {
-  "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::{{TEST_ID}}:",
+  "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
   "azimuthReference": "GN",
   "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
   "referencePoint": {
