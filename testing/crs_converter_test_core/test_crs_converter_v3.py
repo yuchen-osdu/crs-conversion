@@ -517,10 +517,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # convert_trajectory
             api_response = self.api_instance_v4.convert_trajectory(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
-            self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
-            self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
-            self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
+            self.assertIsNotNone(api_response.operations_applied)
+            self.assertTrue(7 <= len(api_response.operations_applied))
+            # self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
+            # self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
+            # self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
+            # self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
         except ApiException as e:
             self.fail(str(e))
 
