@@ -1,7 +1,7 @@
 {
   "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
   "azimuthReference": "GN",
-  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+  "unitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
   "referencePoint": {
     "x": 400000,
     "y": 6500000,
