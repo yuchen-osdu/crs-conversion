@@ -79,10 +79,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             # convert_trajectory
             api_response = self.api_instance.convert_trajectory(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.scaleConvergenceList[0].scalefactor, 0.999723)
-            self.assertEquals(api_response.scaleConvergenceList[0].convergence, -1.47055)
-            self.assertEquals(api_response.scaleConvergenceList[1].scalefactor, 0.999699)
-            self.assertEquals(api_response.scaleConvergenceList[1].convergence, -1.32361)
+            self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
+            self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
+            self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
+            self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
         except ApiException as e:
             self.fail(str(e))
 
