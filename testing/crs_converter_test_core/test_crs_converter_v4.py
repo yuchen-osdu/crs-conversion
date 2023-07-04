@@ -72,6 +72,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
+        print(request)    
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
         try:
