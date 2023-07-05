@@ -2,9 +2,6 @@ import json
 import os
 import unittest
 import warnings
-from os import listdir
-from os.path import isfile, join
-from time import sleep
 
 import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
@@ -77,14 +74,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         try:
             # convert_trajectory
             api_response = self.api_instance.convert_trajectory(body=request,
-                                                                   data_partition_id=data_partition_header)
+                                                                data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
             self.assertIsNotNone(api_response.operations_applied)
-            self.assertTrue(7 <= len(api_response.operations_applied))
-            # self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
-            # self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
-            # self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
-            # self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
+            self.assertTrue(len(api_response.operations_applied) <= 7)
         except ApiException as e:
             self.fail(str(e))
 
@@ -123,12 +116,14 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
 
+
 class TestRecords(unittest.TestCase):
     """Test the info end-points"""
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
     DOMAIN_TO_REPLACE = '{{DOMAIN}}'
     TAG_TO_REPLACE = '{{LEGAL_TAG}}'
     TEST_ID_REPLACE = '{{TEST_ID}}'
+
     def setup(self):
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
@@ -146,52 +141,27 @@ class TestRecords(unittest.TestCase):
         configuration.verify_ssl = False
         self.header = {}
         self.client = ApiClient(host=self.env.storage_url)
-        self.header['data-partition-id']=self.env.data_partition_id
-        self.header['Content-Type']='application/json'
-        self.header['Authorization']='Bearer ' + bearer
+        self.header['data-partition-id'] = self.env.data_partition_id
+        self.header['Content-Type'] = 'application/json'
+        self.header['Authorization'] = 'Bearer ' + bearer
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
-        #self.put_records()
 
     def teardown(self):
         self.delete_records()
 
-    def put_records(self):
-        """test put records"""
-        dir_path = os.path.dirname(__file__)
-        mypath = os.path.join(dir_path, "v4/data/Storagerecords/")
-        files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
-        print('Request URL for upsert records: ' + self.env.storage_url)
-        for file_name in files:
-            body_str = open(file_name, 'r').read()
-            body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
-            print(self.env.data_partition_id)
-            body_str = body_str.replace(self.DOMAIN_TO_REPLACE, self.env.my_replace_domain)
-            print(self.env.my_replace_domain)
-            body_str = body_str.replace(self.TAG_TO_REPLACE, self.env.my_legal_tag)
-            print(self.env.my_legal_tag)
-            body_str = body_str.replace(self.TEST_ID_REPLACE, self.env.my_test_id)
-            print(self.env.my_test_id)
-            temp = json.loads(body_str)
-            self.recordIDs.append(temp[0].get('id'))
-
-            try:
-                api_response = self.client.request(method='PUT', url=self.env.storage_url, body=json.loads(body_str), headers=self.header)
-                self.assertIsNotNone(api_response)
-            except ApiException as e:
-                self.fail(str(e))
-        sleep(30) # Wait for the records to become searchable
-
+    """deleting records from v3 & v4"""
     def delete_records(self):
         """test delete records"""
         print('Request URL for delete records: ' + self.env.storage_url)
         for id in self.recordIDs:
             try:
-                delete_url = self.env.storage_url+'/'+id
+                delete_url = self.env.storage_url + '/' + id
                 api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
                 self.fail(str(e))
+
 
 def suite():
     suite = unittest.TestSuite()

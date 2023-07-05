@@ -779,7 +779,7 @@ class TestRecords(unittest.TestCase):
         self.put_records()
 
     def teardown(self):
-        print('teardown(self)')
+        print('delete_records() will be called after v4 test cases complete in test_crs_converter_v4.py file.')
         #self.delete_records()
 
     def put_records(self):
