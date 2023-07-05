@@ -1,26 +1,45 @@
 {
- "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundGeographic2D:EPSG::4230_EPSG::1612:",
+  "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
   "azimuthReference": "GN",
-  "unitXY": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}:",
-  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:msTest{{TEST_ID}}:",
+  "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
   "referencePoint": {
-    "x": 4.0,
-    "y": 45.0,
-    "z": 100
+    "x": 400000,
+    "y": 6500000,
+    "z": 0
   },
-  "inputKind": "MD_Incl_Azim",
   "interpolate": false,
   "inputStations": [
-    {
-      "md": 0,
-      "azimuth": 0,
-      "inclination": 90
-    },
-    {
-      "md": 1000,
-      "azimuth": 0,
-      "inclination": 90
-    }
+         {
+            "md": 0,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 2000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 4000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 6000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 8000,
+            "azimuth": 90,
+            "inclination": 90
+        },
+        {
+            "md": 10000,
+            "azimuth": 90,
+            "inclination": 90
+        }
   ],
-  "method": "LMP"
+    "inputKind": "MD_Incl_Azim",
+  "method": "AzimuthalEquidistant"
 }

@@ -65,6 +65,21 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     def tearDownClass(cls):
         cls.test_records.teardown()
 
+    def test_convertTrajectoryForLMPGeographicCRS_GN_WithSuccess(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/LMPGeographicCRS_GN_WithSuccess.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertIsNotNone(api_response.operations_applied)
+            self.assertTrue(len(api_response.operations_applied) <= 7)
+        except ApiException as e:
+            self.fail(str(e))
+
     def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
@@ -76,8 +91,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertIsNotNone(api_response.operations_applied)
-            self.assertTrue(len(api_response.operations_applied) <= 7)
+            self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
+            self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
+            self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
+            self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
         except ApiException as e:
             self.fail(str(e))
 
@@ -150,7 +167,7 @@ class TestRecords(unittest.TestCase):
     def teardown(self):
         self.delete_records()
 
-    """deleting records from v3 & v4"""
+    """deleting records for v3 & v4 test cases"""
     def delete_records(self):
         """test delete records"""
         print('Request URL for delete records: ' + self.env.storage_url)
@@ -166,7 +183,9 @@ class TestRecords(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(
-        TestTrajectoryConverterIntegrationV4('convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
+        TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForLMPGeographicCRS_GN_WithSuccess'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
     return suite
 
 
