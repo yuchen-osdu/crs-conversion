@@ -313,6 +313,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double Edeplast = station.getDxTN();
             double Ndeplast = station.getDyTN();
             double[] surfaceXY = {state.getReferencePoint().getX(), state.getReferencePoint().getY()};
+            CoordinateReferenceSystem coordinateReferenceSystem = state.getGeogCS().getCoordinateReferenceSystem();
+            if (coordinateReferenceSystem instanceof GeodeticCRS) {
+                surfaceXY = new double[]{state.getReferencePoint().getX()/xyFactor, state.getReferencePoint().getY()/xyFactor};
+            }
             posXY[0] = surfaceXY[0];
             posXY[1] = surfaceXY[1];
             double refZ = state.getReferencePoint().getZ();
@@ -332,7 +336,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 double sinLATRADsqared = Math.pow(Math.sin(LATRAD), 2);
                 double R = A * (1.0 - E2) / (Math.pow(Math.sqrt(1.0 - E2 * sinLATRADsqared), 3)); // % Radius in the meridian
                 double N = A / Math.sqrt(1 - E2 * sinLATRADsqared); //% Radius in the prime vertical
-                double TVD = refZ - station.getPoint().getZ();             // data(dex,4); //% Grab the TVD
+                // TVD is the depth below MSL,it is positive downward
+                double TVD =  station.getDZ() - refZ; // data(dex,4); //% Grab the TVD
                 double Edep = station.getDxTN() * xyFactor; // data(dex,6);
                 double Ndep = station.getDyTN() * xyFactor; // data(dex,5); //% Grab the departures
                 double dEdep = Edep - Edeplast;  // % Difference the departures

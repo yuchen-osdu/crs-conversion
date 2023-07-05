@@ -2,9 +2,9 @@ package org.opengroup.osdu.crs.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,55 +16,49 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_RSP_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_RSP_DESCRIPTION)
 public class ConvertTrajectoryResponse {
     @NotEmpty
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_REQ_CRS, required = true, dataType = "String",
-            example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_REQ_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+    @Parameter(required = true)
     private String trajectoryCRS;
 
     @NotEmpty
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_RSP_UNIT_XY, dataType = "String",
-            example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_UNIT_XY, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
     private String unitXY;
 
     @NotEmpty
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_RSP_UNIT_Z, required = true, dataType = "String",
-            example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_UNIT_Z, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_EXAMPLE)
+    @Parameter(required = true)
     private String unitZ;
 
     @NotEmpty
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_RSP_UNIT_DLS, required = true, dataType = "String",
-            example = Constants.SWAGGER_TRJ_RSP_UNIT_DLS_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_UNIT_DLS, type = "string",example = Constants.SWAGGER_TRJ_RSP_UNIT_DLS_EXAMPLE)
+    @Parameter(required = true)
     private String unitDls;
 
     @Valid
     @NotEmpty
-    @ApiModelProperty(value = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS, required = true)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS)
+    @Parameter(required = true)
     private List<TrajectoryStationOut> stations;
 
     @Valid
     @NotEmpty
-    @ApiModelProperty(value = Constants.SWAGGER_TRJ_RSP_LOCAL_CRS, required = true, dataType = "String",
-            example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_LOCAL_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_EXAMPLE)
+    @Parameter(required = true)
     private String localCRS;
 
     @NotEmpty
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_RSP_METHOD, required = true, dataType = "String",
-            example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_METHOD, type = "string",example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
+    @Parameter(required = true)
     private String method;
 
     @JsonProperty("inputKind")
-    @ApiModelProperty(
-            value = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, dataType = "String",
-            example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, type = "string",example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
+
     private String inputKind;
 
-    @ApiModelProperty(value = Constants.SWAGGER_CONVERT_AUDIT)
+    @Schema(description = Constants.SWAGGER_CONVERT_AUDIT)
     private List<String> operationsApplied;
 }
