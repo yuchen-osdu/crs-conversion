@@ -76,7 +76,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         self.assertIsNotNone(request)
         try:
             # convert_trajectory
-            api_response = self.api_instance_v4.convert_trajectory(body=request,
+            api_response = self.api_instance.convert_trajectory(body=request,
                                                                    data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
             self.assertIsNotNone(api_response.operations_applied)
