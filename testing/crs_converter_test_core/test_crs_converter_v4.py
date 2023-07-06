@@ -83,7 +83,6 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     def test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/AzimuthalEquidistantProjectedCRS_GN_WithSuccess.json')
-        print(request)
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
         try:
@@ -97,7 +96,37 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
         except ApiException as e:
             self.fail(str(e))
-
+            
+    def test_convertTrajectoryForMDI(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/MDInterpolateRequest.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        error_msg = 'Both md_i array and md_interval values are provided in the input.'
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+        except ApiException as e:
+            self.assertTrue(400 == json.loads(e.body)['code'])
+            self.assertTrue(error_msg == json.loads(e.body)['message'])
+    
+    def test_convertTrajectoryForMDI_Out_Of_Range(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/MDValuesOutOfRange.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        error_msg = 'md_i array values provided are not in range of MD stations.'
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+        except ApiException as e:
+            self.assertTrue(400 == json.loads(e.body)['code'])
+            self.assertTrue(error_msg == json.loads(e.body)['message'])
+            
     @staticmethod
     def __read_v4_convert_trajectory_request(file_name):
         dir_path = os.path.dirname(__file__)
