@@ -18,13 +18,10 @@
   ],
   "tags": [
     {
-      "name": "CRS Conversion"
-    },
-    {
       "name": "Info Api"
     },
     {
-      "name": "Trajectory Computation and Conversion"
+      "name": "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
     }
   ],
   "schemes": [
@@ -34,7 +31,7 @@
     "/v4/convertTrajectory": {
       "post": {
         "tags": [
-          "crs-converter-api-v-4"
+          "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
         ],
         "operationId": "convertTrajectory",
         "parameters": [
@@ -762,6 +759,35 @@
         "point": {
           "$ref": "#/definitions/Point"
         }
+      }
+    }
+  },
+  "VersionInfo": {
+    "type": "object",
+    "properties": {
+      "artifactId": {
+        "type": "string"
+      },
+      "branch": {
+        "type": "string"
+      },
+      "buildTime": {
+        "type": "string"
+      },
+      "commitId": {
+        "type": "string"
+      },
+      "commitMessage": {
+        "type": "string"
+      },
+      "connectedOuterServices": {
+        "type": "array"
+      },
+      "groupId": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string"
       }
     }
   }
