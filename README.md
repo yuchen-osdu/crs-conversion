@@ -51,20 +51,13 @@ java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n -jar 
 In the Postman Settings / General, turn SSL certificate validation off when running locally.
 Similarly, when not using Postman but client code, set the configuration  ```verify_ssl``` false (see [instructions](https://github.com/swagger-api/swagger-codegen/issues/7778))
 
-Run application using debug mode and use [Postman](https://www.getpostman.com/)
-to send a GET request to obtaining the Swagger API documentation
-```
-http://localhost:8080/api/crs/converter/v2/api-docs
-```
-or send a POST request to convert points.
-```
-http://localhost:8080/api/crs/converter/v2/convert
-```
-Open the Swagger-UI:
-```
-http://localhost:8080/api/crs/converter/swagger-ui.html
-```
-
+## Open API 3.0 - Swagger
+* Swagger UI : https://host/context-path/swagger (will redirect to https://host/context-path/swagger-ui/index.html)
+* api-docs [All Versions] (JSON) : https://host/context-path/api-docs
+* api-docs [All versions] (YAML) :https://host/context-path/api-docs.yaml
+* api-docs [Version V2] (JSON) : https://host/context-path/api-docs/v2
+* api-docs [Version V3] (JSON) : https://host/context-path/api-docs/v3   
+All the Swagger and OpenAPI related common properties are managed here [swagger.properties](https://community.opengroup.org/osdu/platform/system/reference/crs-conversion-service/-/blob/16ad7585a2e1fa9cdf7dea613243f47d31aeac2f/crs-converter-core/src/main/resources/swagger.properties)
 Headers for Postman:
 
 | Key | Value |
