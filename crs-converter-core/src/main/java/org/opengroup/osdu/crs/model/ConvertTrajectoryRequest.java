@@ -66,11 +66,11 @@ public class ConvertTrajectoryRequest {
 
 	@JsonProperty("inputKind")
 	@Schema(description = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, type = "string",example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
-	private String inputKind;
+	public String inputKind;
 
     @JsonProperty("interpolate")
 	@Schema(description = Constants.SWAGGER_TRJ_REQ_INTERPOLATE, type = "boolean",example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX)
-	private boolean interpolate;
+	public boolean interpolate;
 
     @Override
     public String toString() {

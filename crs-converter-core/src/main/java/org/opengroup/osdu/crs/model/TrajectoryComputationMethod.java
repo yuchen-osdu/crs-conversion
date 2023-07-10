@@ -5,7 +5,9 @@ import com.google.common.base.Strings;
 public enum TrajectoryComputationMethod {
 
     AzimuthalEquidistant("AzimuthalEquidistant"),
-    LeesModifiedProposal("LeesModifiedProposal");
+    LeesModifiedProposal("LeesModifiedProposal"),
+    GridNorthLocal("GridNorthLocal");
+
     TrajectoryComputationMethod(final String method) {
         this.method = method;
     }
@@ -17,6 +19,7 @@ public enum TrajectoryComputationMethod {
             String method = hint.toLowerCase();
             if (method.contains("lmp") || method.contains("lee")) return LeesModifiedProposal;
             if (method.contains("azi")) return AzimuthalEquidistant;
+            if (method.contains("gnl")) return GridNorthLocal;
         }
         return null;
     }

@@ -9,6 +9,7 @@ from os.path import isfile, join
 from time import sleep
 
 import urllib3
+
 urllib3.disable_warnings()
 import warnings
 import logging
@@ -515,7 +516,6 @@ class TestCrsConverterIntegration(unittest.TestCase):
             else:
                 return ConvertBinGridRequest(to_crs=None, in_bin_grid=inBinGrid)
 
-
 class TestTrajectoryConverterIntegration(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
 
@@ -797,7 +797,8 @@ class TestRecords(unittest.TestCase):
         self.put_records()
 
     def teardown(self):
-        self.delete_records()
+        print('delete_records() will be called after v4 test cases complete in test_crs_converter_v4.py file.')
+        #self.delete_records()
 
     def put_records(self):
         """test put records"""

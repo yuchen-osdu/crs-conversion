@@ -34,6 +34,12 @@ if [[ "$OSTYPE" == "msys" ]]; then
   V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
+  # Run tests
+  echo ***RUNNING CRS Converter API V4 TESTS***
+  python run_test_api_v4.py
+  V4_TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V4 TESTS***
+
   # python -m pip freeze > requirements.txt
   python -m pip uninstall -r requirements.txt -y
 
@@ -240,6 +246,218 @@ else
             }
           },
           {
+            "id": "'"$MY_TENANT"':reference-data--UnitOfMeasure:m",
+            "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
+            "acl": {
+              "owners": [
+                "data.default.owners@'"$MY_TENANT"'.'"$MY_REPLACE_DOMAIN"'"
+              ],
+              "viewers": [
+                "data.default.viewers@'"$MY_TENANT"'.'"$MY_REPLACE_DOMAIN"'"
+              ]
+            },
+            "legal": {
+              "legaltags": [
+                "'"$MY_LEGAL_TAG"'"
+              ],
+              "otherRelevantDataCountries": [
+                "US"
+              ]
+            },
+            "data":  {
+        "Name": "metre",
+        "NameAlias": [
+            {
+                "AliasName": "9001",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.EPSG:"
+            },
+            {
+                "AliasName": "m",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.OpenSpirit:"
+            },
+            {
+                "AliasName": "sm",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.OpenSpirit:"
+            },
+            {
+                "AliasName": "m",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.POSC:"
+            },
+            {
+                "AliasName": "m",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.RP66_V1:"
+            },
+            {
+                "AliasName": "m",
+                "AliasNameTypeID": "osdu:reference-data--AliasNameType:IndustryCode:",
+                "DefinitionOrganisationID": "osdu:reference-data--StandardsOrganisation:Energistics.RP66_V2:"
+            }
+        ],
+        "ID": "m",
+        "InactiveIndicator": false,
+        "Description": "The metre is the length equal to 1 650 763.73 wavelengths in vacuum of the radiation corresponding \n\t\t\t\tto the transition between the levels 2p10 and 5d5 of the krypton-86 atom. \n\t\t\t\tIn the US, this is called a meter.\n\t\t\t",
+        "Code": "m",
+        "AttributionAuthority": "Energistics",
+        "AttributionPublication": "Energistics Unit of Measure Dictionary V1.0",
+        "AttributionRevision": "1.0",
+        "CoefficientA": 0,
+        "CoefficientB": 1,
+        "CoefficientC": 1,
+        "CoefficientD": 0,
+        "IsBaseUnit": true,
+        "PersistableReference": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+        "UnitDimensionCode": "L",
+        "UnitDimensionName": "length",
+        "UnitQuantityID": "osdu:reference-data--UnitQuantity:L:",
+        "Source": "Workbook Published/UnitOfMeasure.1.0.0.xlsx; commit SHA 4b3c8e86.",
+        "CommitDate": "2021-10-30T16:40:06+02:00"
+    }
+          },
+          {
+            "id": "'"$MY_TENANT"':reference-data--CoordinateReferenceSystem:BoundGeographic2D:EPSG::4230_EPSG::1612",
+            "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
+            "acl": {
+              "owners": [
+                "data.default.owners@'"$MY_TENANT"'.'"$MY_REPLACE_DOMAIN"'"
+              ],
+              "viewers": [
+                "data.default.viewers@'"$MY_TENANT"'.'"$MY_REPLACE_DOMAIN"'"
+              ]
+            },
+            "legal": {
+              "legaltags": [
+                "'"$MY_LEGAL_TAG"'"
+              ],
+              "otherRelevantDataCountries": [
+                "US"
+              ]
+            },
+            "data": {
+        "Code": "4230023",
+        "CodeAsNumber": 4230023,
+        "CodeSpace": "OSDU",
+        "CoordinateReferenceSystemType": "BoundCRS",
+        "CoordinateSystem": {
+            "AuthorityCode": {
+                "Authority": "EPSG",
+                "Code": 6422
+            },
+            "Name": "Ellipsoidal 2D CS. Axes: latitude, longitude. Orientations: north, east. UoM: degree",
+            "HorizontalAxisUnitID": "osdu:reference-data--UnitOfMeasure:dega:"
+        },
+        "ID": "BoundGeographic2D:EPSG::4230_EPSG::1612",
+        "Kind": "BoundGeographic2D",
+        "Name": "ED50 * EPSG-Nor N62 2001 [4230,1612]",
+        "PersistableReference": "{\"authCode\":{\"auth\":\"OSDU\",\"code\":\"4230023\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4230\"},\"name\":\"GCS_European_1950\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4230]]\"},\"name\":\"ED50 * EPSG-Nor N62 2001 [4230,1612]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1612\"},\"name\":\"ED_1950_To_WGS_1984_23\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"ED_1950_To_WGS_1984_23\\\",GEOGCS[\\\"GCS_European_1950\\\",DATUM[\\\"D_European_1950\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-116.641],PARAMETER[\\\"Y_Axis_Translation\\\",-56.931],PARAMETER[\\\"Z_Axis_Translation\\\",-110.559],PARAMETER[\\\"X_Axis_Rotation\\\",0.893],PARAMETER[\\\"Y_Axis_Rotation\\\",0.921],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.917],PARAMETER[\\\"Scale_Difference\\\",-3.52],OPERATIONACCURACY[1.0],AUTHORITY[\\\"EPSG\\\",1612]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+        "PreferredUsage": {
+            "Extent": {
+                "AuthorityCode": {
+                    "Authority": "EPSG",
+                    "Code": 2601
+                },
+                "BoundingBoxEastBoundLongitude": 38.01,
+                "BoundingBoxNorthBoundLatitude": 84.73,
+                "BoundingBoxSouthBoundLatitude": 62,
+                "BoundingBoxWestBoundLongitude": -3.35,
+                "Description": "Norway - offshore north of 62°N. Also Svalbard - onshore and offshore.",
+                "Name": "Norway - offshore north of 62°N; Svalbard"
+            },
+            "Name": "Norway - offshore north of 62°N; Svalbard (from bound transformation)",
+            "Scope": {
+                "AuthorityCode": {
+                    "Authority": "EPSG",
+                    "Code": 1027
+                },
+                "Name": "Geodesy."
+            }
+        },
+        "RevisionDate": "2023-01-21T13:19:59+00:00",
+        "SourceCRS": {
+            "AuthorityCode": {
+                "Authority": "EPSG",
+                "Code": 4230
+            },
+            "Name": "ED50",
+            "SourceCRSID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4230:"
+        },
+        "Transformation": {
+            "AuthorityCode": {
+                "Authority": "EPSG",
+                "Code": 1612
+            },
+            "Name": "ED50 to WGS 84 (23)",
+            "TransformationID": "osdu:reference-data--CoordinateTransformation:EPSG::1612:"
+        },
+        "Usages": [
+            {
+                "Extent": {
+                    "AuthorityCode": {
+                        "Authority": "EPSG",
+                        "Code": 2601
+                    },
+                    "BoundingBoxEastBoundLongitude": 38.01,
+                    "BoundingBoxNorthBoundLatitude": 84.73,
+                    "BoundingBoxSouthBoundLatitude": 62,
+                    "BoundingBoxWestBoundLongitude": -3.35,
+                    "Description": "Norway - offshore north of 62°N. Also Svalbard - onshore and offshore.",
+                    "Name": "Norway - offshore north of 62°N; Svalbard"
+                },
+                "Name": "Norway - offshore north of 62°N; Svalbard (from bound transformation)",
+                "Scope": {
+                    "AuthorityCode": {
+                        "Authority": "EPSG",
+                        "Code": 1027
+                    },
+                    "Name": "Geodesy."
+                }
+            }
+        ],
+        "Wgs84Coordinates": {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [
+                                    -3.35,
+                                    62
+                                ],
+                                [
+                                    38.01,
+                                    62
+                                ],
+                                [
+                                    38.01,
+                                    84.73
+                                ],
+                                [
+                                    -3.35,
+                                    84.73
+                                ],
+                                [
+                                    -3.35,
+                                    62
+                                ]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        },
+        "Source": "Workbook Resources/IOGP/Manifests/reference-data/CoordinateReferenceSystem.1.1.0.json; commit SHA ad1bf0bf.",
+        "CommitDate": "2022-12-21T08:41:03+01:00"
+    }
+          },
+          {
             "id": "'"$MY_TENANT"':reference-data--CoordinateReferenceSystem:Projected:EPSG::32615",
             "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
             "acl": {
@@ -394,6 +612,12 @@ else
   V3_TEST_STATUS=$?
   echo ***FINISHED CRS Converter API V3 TESTS***
 
+  # Run tests
+  echo ***RUNNING CRS Converter API V4 TESTS***
+  python3 run_test_api_v4.py
+  V4_TEST_STATUS=$?
+  echo ***FINISHED CRS Converter API V4 TESTS***
+
   # Deleting Records
   echo 'Deleting records after Integration Tests ...'
   curl --location --request DELETE "$STORAGE_URL"'/'"$MY_TENANT"':reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851' \
@@ -415,8 +639,9 @@ rm -rf env/
 echo ***TEST RESULTS***
 echo $V2_TEST_STATUS
 echo $V3_TEST_STATUS
+echo $V4_TEST_STATUS
 
-if [ $V2_TEST_STATUS -ne 0 ] || [ $V3_TEST_STATUS -ne 0 ]
+if [ $V2_TEST_STATUS -ne 0 ] || [ $V3_TEST_STATUS -ne 0 ] || [ $V4_TEST_STATUS -ne 0 ]
 then
     exit 1
 fi
