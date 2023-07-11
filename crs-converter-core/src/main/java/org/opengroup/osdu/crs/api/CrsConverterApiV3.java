@@ -1,26 +1,15 @@
 package org.opengroup.osdu.crs.api;
 
-import java.lang.reflect.Type;
-import java.net.URLDecoder;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppError;
@@ -34,15 +23,7 @@ import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.ConvertBinGridRequest;
-import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonRequest;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
-import org.opengroup.osdu.crs.model.ConvertPointsRequest;
-import org.opengroup.osdu.crs.model.ConvertPointsResponse;
-import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
-import org.opengroup.osdu.crs.model.ConvertTrajectoryResponse;
-import org.opengroup.osdu.crs.model.ErrorResponse;
+import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
@@ -50,20 +31,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.ValidationException;
+import java.lang.reflect.Type;
+import java.net.URLDecoder;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/v3")
-@Tag(name = "crs-converter-api-v3", description = "Converter related endpoints")
 public class CrsConverterApiV3 {
 
 	@Autowired

@@ -1,13 +1,14 @@
 package org.opengroup.osdu.crs.api;
+
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
 import org.opengroup.osdu.crs.interfaces.IPointConverter;
@@ -19,14 +20,13 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
-import org.opengroup.osdu.core.common.model.http.AppError;
 
 
 @CrossOrigin
 @RestController
 @RequestMapping("/v2")
-@Tag(name = "crs-converter-api-v2", description = "Converter related endpoints")
 public class CrsConverterApiV2 {
 
 	@Autowired
