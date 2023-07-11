@@ -8,7 +8,6 @@ public enum TrajectoryInputKind {
     MD_DX_DY_DZ("MD_dX_dY_dZ"),
     X_Y_Z("X_Y_Z"),
     DX_DY_DZ("dX_dY_dZ");
-
     private final String kind;
     TrajectoryInputKind(final String method) {
         this.kind = method;

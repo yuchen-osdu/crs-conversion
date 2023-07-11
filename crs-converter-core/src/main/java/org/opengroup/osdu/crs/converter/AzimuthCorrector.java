@@ -129,7 +129,7 @@ public class AzimuthCorrector implements IAzimuthCorrector {
         return done;
     }
 
-    ProjectionCorrectionSet createProjectionCorrectionSet(String crs, Point referencePoint, IUnit horizontalUnit) {
+    public ProjectionCorrectionSet createProjectionCorrectionSet(String crs, Point referencePoint, IUnit horizontalUnit) {
         ProjectionCorrectionSet result = new ProjectionCorrectionSet();
         if (validateArguments(crs, referencePoint, horizontalUnit)) {
             double convergenceAngle = 0.0;

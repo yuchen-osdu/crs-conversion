@@ -1,0 +1,794 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Provides conversion/transformation services from a source to a target CRS. A coordinate operation is a conversion if the source and target CRS share the same datum; the operation is called transformation if datum transformations are involved, i.e. source and target CRS do not share the same datum.",
+    "version": "1.0.0",
+    "title": "CRS Conversion Service"
+  },
+  "host": "az-osdu1.evd.csp.slb.com",
+  "x-google-allow": "all",
+  "basePath": "/api/crs/v1",
+  "security": [
+    {
+      "Bearer": []
+    },
+    {
+      "google_id_token": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Info Api"
+    },
+    {
+      "name": "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/v4/convertTrajectory": {
+      "post": {
+        "tags": [
+          "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
+        ],
+        "operationId": "convertTrajectory",
+        "parameters": [
+		{
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ConvertTrajectoryRequestV4"
+            }
+          },
+          {
+            "name": "data-partition-id",
+            "in": "header",
+            "description": "Tenant Id",
+            "required": false
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/ConvertTrajectoryRequestV4"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+                "schema": {
+                  "$ref": "#/definitions/ConvertTrajectoryResponseV4"
+                }
+          },
+		 "400": {
+            "description": "Bad input format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+		 "503": {
+            "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+	"/v4/info": {
+      "get": {
+          "tags": [
+              "Info Api"
+          ],
+          "summary": "info",
+          "operationId": "infoUsingGET",
+          "consumes": [
+              "application/json"
+          ],
+          "produces": [
+              "application/json"
+          ],
+          "parameters": [
+              {
+                  "name": "data-partition-id",
+                  "in": "header",
+                  "description": "tenant",
+                  "required": true,
+                  "type": "string",
+                  "default": "opendes"
+              }
+          ],
+          "responses": {
+              "200": {
+                  "description": "OK",
+                  "schema": {
+                      "$ref": "#/definitions/VersionInfo"
+                  }
+              },
+              "401": {
+                  "description": "Unauthorized"
+              },
+              "403": {
+                  "description": "Forbidden"
+              },
+              "404": {
+                  "description": "Not Found"
+              }
+          }
+      }
+  }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "ConvertTrajectoryResponse": {
+      "type": "object",
+      "required": [
+        "localCRS",
+        "method",
+        "stations",
+        "trajectoryCRS",
+        "unitDls",
+        "unitZ"
+      ],
+      "properties": {
+        "trajectoryCRS": {
+          "type": "string",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+          "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth."
+        },
+        "unitXY": {
+          "type": "string",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
+          "description": "The horizontal unit of the dx, dy in the output trajectory stations."
+        },
+        "unitZ": {
+          "type": "string",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
+          "description": "The vertical unit of the dz in the output trajectory stations."
+        },
+        "unitDls": {
+          "type": "string",
+          "example": "{\"scaleOffset\":{\"scale\":5.72614583987641E-4,\"offset\":0.0},\"symbol\":\"deg/100ft\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+          "description": "The unit of the dog leg severity (DLS) in the output trajectory stations."
+        },
+        "stations": {
+          "type": "array",
+          "description": "Computed trajectory stations.",
+          "items": {
+            "$ref": "#/definitions/TrajectoryStationOut"
+          }
+        },
+        "localCRS": {
+          "type": "string",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+            "description": "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location."
+        },
+        "method": {
+          "type": "string",
+          "example": "AzimuthalEquidistant",
+          "description": "The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)."
+        },
+        "operationsApplied": {
+          "type": "array",
+          "description": "The list of operations, which have been applied to the points",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "example": {
+        "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
+        "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+        "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+        "unitDls": "{\"scaleOffset\":{\"scale\":5.81776417331443E-4,\"offset\":0.0},\"symbol\":\"deg/30m\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+        "stations": [
+          {
+            "md": 0.0,
+            "inclination": 0.0,
+            "azimuthTN": 18.529449533844627,
+            "azimuthGN": 20.0,
+            "dxTN": 0.0,
+            "dyTN": 0.0,
+            "point": {
+              "x": 399999.99999999936,
+              "y": 6499999.999999927,
+              "z": 0.0
+            },
+            "wgs84Longitude": 1.2778067531835464,
+            "wgs84Latitude": 58.62877104865894,
+            "dls": 0.0,
+            "original": true,
+            "dz": 0.0
+          },
+          {
+            "md": 100.0,
+            "inclination": 10.0,
+            "azimuthTN": 38.52944953384463,
+            "azimuthGN": 40.0,
+            "dxTN": 5.422189533665295,
+            "dyTN": 6.809439428156647,
+            "point": {
+              "x": 400005.59360307665,
+              "y": 6500006.666196379,
+              "z": -99.4930770045299
+            },
+            "wgs84Longitude": 1.2779000901442394,
+            "wgs84Latitude": 58.62883218086717,
+            "dls": 3.000000000000004,
+            "original": true,
+            "dz": 99.4930770045299
+          },
+          {
+            "md": 150.0,
+            "inclination": 20.0,
+            "azimuthTN": 58.52944953384462,
+            "azimuthGN": 59.99999999999999,
+            "dxTN": 15.450694491703864,
+            "dyTN": 14.694154320922365,
+            "point": {
+              "x": 400015.8183142198,
+              "y": 6500014.288835904,
+              "z": -147.7571745971745
+            },
+            "wgs84Longitude": 1.2780727202384188,
+            "wgs84Latitude": 58.628902966231905,
+            "dls": 6.671888495594808,
+            "original": true,
+            "dz": 147.7571745971745
+          },
+          {
+            "md": 200.0,
+            "inclination": 40.0,
+            "azimuthTN": 78.52944953384463,
+            "azimuthGN": 80.0,
+            "dxTN": 38.78259483297414,
+            "dyTN": 22.45024540348219,
+            "point": {
+              "x": 400039.3350486971,
+              "y": 6500021.441616548,
+              "z": -190.93799689959891
+            },
+            "wgs84Longitude": 1.278474355086862,
+            "wgs84Latitude": 58.62897259565018,
+            "dls": 13.26861992489263,
+            "original": true,
+            "dz": 190.93799689959891
+          }
+        ],
+        "localCRS": "{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=1.27780675;Lat=58.62877105\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",1.2778067531835273],PARAMETER[\\\"Latitude_Of_Origin\\\",58.62877104865958],UNIT[\\\"Meter\\\",1.0]]\"}",
+        "method": "AzimuthalEquidistant",
+        "operationsApplied": [
+          "derived TN from GN azimuth by grid convergence 358.529450",
+          "computed deflections via minimum curvature method",
+          "computation method: AzimuthalEquidistant",
+          "conversion from 'Azimuthal Equidistant' to 'GCS_WGS_1984'",
+          "conversion from 'GCS_WGS_1984' to 'WGS_1984_UTM_Zone_31N'",
+          "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 3 points converted",
+          "Interpolation for MD_i input stations completed",
+          "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 4 points converted"
+        ],
+        "stations_i": [
+          {
+            "md": 50.0,
+            "inclination": 4.999999999999992,
+            "azimuthTN": 38.52944953384463,
+            "azimuthGN": 40.0,
+            "dxTN": 1.35813143348407,
+            "dyTN": 1.7056050280731863,
+            "point": {
+              "x": 400001.40145529207,
+              "y": 6500001.670189307,
+              "z": -49.936562197687465
+            },
+            "wgs84Longitude": 1.2778301383620794,
+            "wgs84Latitude": 58.628786365100225,
+            "dls": 0.0,
+            "original": false,
+            "dz": 49.936562197687465
+          },
+          {
+            "md": 125.0,
+            "inclination": 14.80557056496059,
+            "azimuthTN": 51.82449626326137,
+            "azimuthGN": 53.29504672941675,
+            "dxTN": 9.288393756697761,
+            "dyTN": 10.484635825636039,
+            "point": {
+              "x": 400009.55285099795,
+              "y": 6500010.240963441,
+              "z": -123.90731684984351
+            },
+            "wgs84Longitude": 1.2779666611674094,
+            "wgs84Latitude": 58.62886518430379,
+            "dls": 0.0,
+            "original": false,
+            "dz": 123.90731684984351
+          },
+          {
+            "md": 175.0,
+            "inclination": 29.657310048104343,
+            "azimuthTN": 71.6119383678796,
+            "azimuthGN": 73.08248883403496,
+            "dxTN": 24.996075985416436,
+            "dyTN": 18.89023535878777,
+            "point": {
+              "x": 400025.46823649155,
+              "y": 6500018.23857059,
+              "z": -170.43626776626326
+            },
+            "wgs84Longitude": 1.2782370797587084,
+            "wgs84Latitude": 58.628940646870596,
+            "dls": 0.0,
+            "original": false,
+            "dz": 170.43626776626326
+          }
+        ],
+        "scaleConvergenceList": [
+          {
+            "scalefactor": 0.999723,
+            "convergence": -1.47055,
+            "point": {
+              "x": 399999.99999999936,
+              "y": 6499999.999999927,
+              "z": 0.0
+            }
+          },
+          {
+            "scalefactor": 0.999722,
+            "convergence": -1.46998,
+            "point": {
+              "x": 400039.3350486971,
+              "y": 6500021.441616548,
+              "z": -190.93799689959891
+            }
+          }
+        ],
+        "inputKind": "MD_Incl_Azim"
+      },
+      "description": "Trajectory response data structure; contains the context (crs, units)."
+    },
+    "Point": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "format": "double",
+          "example": 484074.5862320617,
+          "description": "x coordinate or longitude"
+        },
+        "y": {
+          "type": "number",
+          "format": "double",
+          "example": 5499819.191561815,
+          "description": "y coordinate or latitude"
+        },
+        "z": {
+          "type": "number",
+          "format": "double",
+          "example": 0,
+          "description": "z coordinate"
+        }
+      },
+      "description": "Point representation for CRS operations"
+    },
+    "TrajectoryStationOut": {
+      "type": "object",
+      "required": [
+        "azimuthGN",
+        "azimuthTN",
+        "dxTN",
+        "dyTN",
+        "inclination",
+        "md",
+        "point"
+      ],
+      "properties": {
+        "md": {
+          "type": "number",
+          "format": "double",
+          "example": 2563.56,
+          "description": "MD (measured depth) from vertical reference point in 'unitZ'."
+        },
+        "inclination": {
+          "type": "number",
+          "format": "double",
+          "example": 15,
+          "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal."
+        },
+        "azimuthTN": {
+          "type": "number",
+          "format": "double",
+          "example": 355.96,
+          "description": "True North azimuth angle in degrees of arc, 0.0/360.0 is North."
+        },
+        "azimuthGN": {
+          "type": "number",
+          "format": "double",
+          "example": 355,
+          "description": "Grid North azimuth angle in degrees of arc, 0.0/360.0 is North."
+        },
+        "dxTN": {
+          "type": "number",
+          "format": "double",
+          "example": 55.9,
+          "description": "True E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY'."
+        },
+        "dyTN": {
+          "type": "number",
+          "format": "double",
+          "example": -145.3,
+          "description": "True N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with TrueNorth; unit is given by container's 'unitXY'."
+        },
+        "point": {
+          "description": "Trajectory station point in trajectoryCRS and vertical unit as defined in container's 'unitZ'.",
+          "$ref": "#/definitions/Point"
+        },
+        "wgs84Longitude": {
+          "type": "number",
+          "format": "double",
+          "description": "WGS 84 longitude in dega"
+        },
+        "wgs84Latitude": {
+          "type": "number",
+          "format": "double",
+          "description": "WGS 84 latitude in dega"
+        },
+        "dls": {
+          "type": "number",
+          "format": "double",
+          "description": "Curvature, Dog Leg Severity, measured in 'unitDls'."
+        },
+        "original": {
+          "type": "boolean",
+          "description": "Original trajectory station if true, interpolated trajectory station if false."
+        },
+        "dz": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "description": "Output trajectory station record; context is provided by the container."
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error message"
+        }
+      },
+      "description": "Response resulting of a failed CRS convertion operation"
+    },
+    "ConvertTrajectoryRequest": {
+      "type": "object",
+      "required": [
+        "azimuthReference",
+        "inputStations",
+        "method",
+        "referencePoint",
+        "trajectoryCRS",
+        "unitZ"
+      ],
+      "properties": {
+        "trajectoryCRS": {
+          "type": "string",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
+          "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TrueNorth. The property value could be a persistable reference string or a record ID"
+        },
+        "azimuthReference": {
+          "type": "string",
+          "example": "TrueNorth",
+          "description": "Azimuth reference for the input trajectory station azimuth values (TrueNorth or GridNorth)"
+        },
+        "unitXY": {
+          "type": "string",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
+          "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in persistable reference or a record ID, see example."
+        },
+        "unitZ": {
+          "type": "string",
+          "example": "osdu:reference-data--UnitOfMeasure:m:",
+          "description": "The vertical unit of the dz in the input trajectory stations; the unit could be a persistable reference or a record ID"
+        },
+        "referencePoint": {
+          "description": "The 3D reference point in the 'trajectoryCRS' where MD==0.",
+          "$ref": "#/definitions/Point"
+        },
+        "inputStations": {
+          "type": "array",
+          "description": "The array of input trajectory stations",
+          "items": {
+            "$ref": "#/definitions/TrajectoryStationIn"
+          }
+        },
+        "method": {
+          "type": "string",
+          "example": "AzimuthalEquidistant",
+          "description": "The computation method - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)"
+        },
+        "inputKind": {
+          "type": "string",
+          "example": "MD_Incl_Azim",
+          "description": "The kind of input; one of MD_Incl_Azim (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point."
+        },
+        "interpolate": {
+          "type": "boolean",
+          "description": "Perform trajectory interpolation on demand; default is true."
+        }
+      },
+      "description": "Input trajectory data structure; contains the context (crs, units, azimuth reference, method)",
+      "example": {
+        "azimuthReference": "GN",
+        "interpolate": false,
+        "referencePoint": {
+          "y": 6500000,
+          "x": 400000,
+          "z": 0
+        },
+        "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
+        "inputStations": [
+          {
+            "md": 0,
+            "azimuth": 20,
+            "inclination": 0
+          },
+          {
+            "md": 100,
+            "azimuth": 40,
+            "inclination": 10
+          },
+          {
+            "md": 150,
+            "azimuth": 60,
+            "inclination": 20
+          },
+          {
+            "md": 200,
+            "azimuth": 80,
+            "inclination": 40
+          }
+        ],
+        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
+        "inputKind": "MD_Incl_Azim",
+        "MD_i": {
+          "md_i": [
+            50,
+            125,
+            175
+          ]
+        },
+        "method": "AzimuthalEquidistant"
+      }
+    },
+    "TrajectoryStationIn": {
+      "type": "object",
+      "required": [
+        "azimuth",
+        "inclination",
+        "md"
+      ],
+      "properties": {
+        "md": {
+          "type": "number",
+          "format": "double",
+          "example": 1000,
+          "description": "MD (measured depth) from vertical reference point in 'unitZ'."
+        },
+        "inclination": {
+          "type": "number",
+          "format": "double",
+          "example": 10,
+          "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal."
+        },
+        "azimuth": {
+          "type": "number",
+          "format": "double",
+          "example": 100,
+          "description": "Azimuth angle in degrees of arc, 0.0/360.0 is North; reference given by azimuthReference (TrueNorth or GridNorth)."
+        },
+        "dx": {
+          "type": "number",
+          "format": "double",
+          "example": 55.9,
+          "description": "E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY' or projected 'trajectoryCRS'."
+        },
+        "dy": {
+          "type": "number",
+          "format": "double",
+          "example": -145.3,
+          "description": "N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with azimuth reference (TrueNorth or projected GridNorth); unit is given by container's 'unitXY' or projected 'trajectoryCRS'."
+        },
+        "dz": {
+          "type": "number",
+          "format": "double",
+          "example": 1965.6,
+          "description": "True vertical deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's unitZ; downwards positive."
+        }
+      },
+      "description": "Input trajectory station record; context is provided by the container."
+    },
+    "ConvertTrajectoryRequestV4": {
+      "required": [
+        "azimuthReference",
+        "inputStations",
+        "method",
+        "trajectoryCRS",
+        "unitZ"
+      ],
+      "type": "object",
+      "properties": {
+        "trajectoryCRS": {
+          "type": "string"
+        },
+        "azimuthReference": {
+          "type": "string"
+        },
+        "unitXY": {
+          "type": "string"
+        },
+        "unitZ": {
+          "type": "string"
+        },
+        "referencePoint": {
+          "$ref": "#/definitions/Point"
+        },
+        "inputStations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TrajectoryStationIn"
+          }
+        },
+        "method": {
+          "type": "string"
+        },
+        "inputKind": {
+          "type": "string"
+        },
+        "interpolate": {
+          "type": "boolean"
+        },
+        "MD_i": {
+          "$ref": "#/definitions/MinimumDepthInterval"
+        }
+      }
+    },
+    "MinimumDepthInterval": {
+      "type": "object",
+      "properties": {
+        "md_i": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "md_interval": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "ConvertTrajectoryResponseV4": {
+      "required": [
+        "localCRS",
+        "method",
+        "stations",
+        "trajectoryCRS",
+        "unitDls",
+        "unitXY",
+        "unitZ"
+      ],
+      "type": "object",
+      "properties": {
+        "trajectoryCRS": {
+          "type": "string"
+        },
+        "unitXY": {
+          "type": "string"
+        },
+        "unitZ": {
+          "type": "string"
+        },
+        "unitDls": {
+          "type": "string"
+        },
+        "stations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TrajectoryStationOut"
+          }
+        },
+        "localCRS": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "operationsApplied": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stations_i": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TrajectoryStationOut"
+          }
+        },
+        "scaleConvergenceList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScaleConvergence"
+          }
+        },
+        "inputKind": {
+          "type": "string"
+        }
+      }
+    },
+    "ScaleConvergence": {
+      "type": "object",
+      "properties": {
+        "scalefactor": {
+          "type": "number",
+          "format": "double"
+        },
+        "convergence": {
+          "type": "number",
+          "format": "double"
+        },
+        "point": {
+          "$ref": "#/definitions/Point"
+        }
+      }
+    }
+  },
+  "VersionInfo": {
+    "type": "object",
+    "properties": {
+      "artifactId": {
+        "type": "string"
+      },
+      "branch": {
+        "type": "string"
+      },
+      "buildTime": {
+        "type": "string"
+      },
+      "commitId": {
+        "type": "string"
+      },
+      "commitMessage": {
+        "type": "string"
+      },
+      "connectedOuterServices": {
+        "type": "array"
+      },
+      "groupId": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string"
+      }
+    }
+  }
+}
