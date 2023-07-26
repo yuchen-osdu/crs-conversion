@@ -28,4 +28,7 @@ public class ConvertTrajectoryResponseV4 extends ConvertTrajectoryResponse {
     @ApiModelProperty(value = Constants.SWAGGER_TRJ_SCALE_CONVERGENCE, required = true)
     private List<ScaleConvergence> scaleConvergenceList;
 
+    @Valid
+    @ApiModelProperty(value = Constants.SWAGGER_TRJ_UNIT_MD)
+    private String unitMD;
 }

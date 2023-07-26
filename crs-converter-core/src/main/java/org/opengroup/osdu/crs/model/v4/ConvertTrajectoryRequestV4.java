@@ -28,6 +28,12 @@ public class ConvertTrajectoryRequestV4 extends ConvertTrajectoryRequest {
 			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
 	private MinimumDepthInterval MD_i;
 
+    @JsonProperty("unitMD")
+    @ApiModelProperty(value=Constants.SWAGGER_TRJ_UNIT_MD,
+            example = Constants.SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE)
+    private String unitMD;
+
+
     public static ConvertTrajectoryRequestV4 createInstance(String json) {
         ConvertTrajectoryRequestV4 result = null;
         try {

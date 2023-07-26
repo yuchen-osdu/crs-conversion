@@ -171,6 +171,8 @@ public final class Constants {
     public static final String SWAGGER_TRJ_SCALE_FACTOR = "Scalefactor";
     public static final String SWAGGER_TRJ_CONVERGENCE = "convergence";
     public static final String SWAGGER_TRJ_MD_I = "MD_i";
+    public static final String SWAGGER_TRJ_UNIT_MD = "unitMD";
+    public static final String SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE = "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\"";
     public static final String SWAGGER_TRJ_REQ_MD_I_EX =  "{\n" +
             "    \"MD_i\": {\n" +
             "        \"md_i\": [\n" +

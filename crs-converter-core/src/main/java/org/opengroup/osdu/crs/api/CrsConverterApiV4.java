@@ -137,7 +137,9 @@ public class CrsConverterApiV4 {
         Boolean checkCRSType = checkCRSType(request.getTrajectoryCRS());
         request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
         request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
-
+        if(!Strings.isNullOrEmpty(request.getUnitMD())){
+            request.setUnitMD(getPersistableReferenceFromID(request.getUnitMD(), false));
+        }
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         if (minimumDepthInterval != null) {
             if (minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0 && minimumDepthInterval.getMd_i() != null && !minimumDepthInterval.getMd_i().isEmpty()) {
