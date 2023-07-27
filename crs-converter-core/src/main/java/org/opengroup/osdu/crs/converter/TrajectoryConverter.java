@@ -154,7 +154,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     // add method to compute interpolation based on MD_i input
                     if(request.getMD_i()!=null && !request.getMD_i().getMd_i().isEmpty() && flag_check_scaleFactor) {
                         computeInterpolationForMDiInput(request, response, state,flag_check_projected);
-                        state.getOperations().add("Interpolation for MD_i input stations completed");
+                        state.getOperations().add("Interpolation for MD_i input stations;" +request.getMD_i().getMd_i().size()+ ", points interpolated");
                     }
                 }
                 ConvertTrajectoryRequestV4 dummyRequestForScaleCompute = prepareDummyPayload(request);
@@ -422,6 +422,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
              unitMD_Factor = state.getUnitMD().scaleToSI();
              checkUnitMD =  true;
              state.getOperations().add(String.format("unitMD Factor value: %s is used for computation of MD", unitMD_Factor));
+        }else{
+             state.getOperations().add(String.format("UnitMD set to be equal to unitZ:",state.getVerticalUnit().getSymbol()));
         }
         siResponse.setInputKind(response.getInputKind());
         siResponse.setUnitXY(METER);
