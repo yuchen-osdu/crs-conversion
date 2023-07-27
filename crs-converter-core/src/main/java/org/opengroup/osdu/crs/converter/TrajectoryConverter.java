@@ -423,7 +423,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
              checkUnitMD =  true;
              state.getOperations().add(String.format("unitMD Factor value: %s is used for computation of MD", unitMD_Factor));
         }else{
-             state.getOperations().add(String.format("UnitMD set to be equal to unitZ:",state.getVerticalUnit().getSymbol()));
+             state.getOperations().add(String.format("UnitMD set to be equal to unitZ %s:",state.getVerticalUnit().getSymbol()));
         }
         siResponse.setInputKind(response.getInputKind());
         siResponse.setUnitXY(METER);
