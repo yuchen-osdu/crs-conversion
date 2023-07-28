@@ -22,6 +22,7 @@
   </prerequisites>
 
   <artifactId>crs-converter-gke</artifactId>
+  <version>0.23.0-SNAPSHOT</version>
   <name>crs-converter-gke</name>
   <description>CRS converter service Google Kubernetes Engine deployment</description>
 
