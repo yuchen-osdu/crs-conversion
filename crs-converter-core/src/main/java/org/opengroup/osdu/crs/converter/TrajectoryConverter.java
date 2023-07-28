@@ -154,7 +154,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     // add method to compute interpolation based on MD_i input
                     if(request.getMD_i()!=null && !request.getMD_i().getMd_i().isEmpty() && flag_check_scaleFactor) {
                         computeInterpolationForMDiInput(request, response, state,flag_check_projected);
-                        state.getOperations().add("Interpolation for MD_i input stations;" +request.getMD_i().getMd_i().size()+ ", points interpolated");
+                        state.getOperations().add("Interpolation for MD_i input stations;" +request.getMD_i().getMd_i().size()+ " points interpolated");
                     }
                 }
                 ConvertTrajectoryRequestV4 dummyRequestForScaleCompute = prepareDummyPayload(request);
@@ -282,6 +282,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         trajectoryStationOuti.setDxTN(e_i_minus_1 +stationOut1.getDxTN());
         trajectoryStationOuti.setDyTN(n_i_minus_1+ stationOut1.getDyTN());
         trajectoryStationOuti.setDZ(d_i_minus_1+stationOut1.getDZ());
+        trajectoryStationOuti.setDls(Math.toDegrees(dl_i));
         if (flag_check_projected) {
             trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
             //call LMP method
