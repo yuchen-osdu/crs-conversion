@@ -240,6 +240,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         md_i_minus_md_1 = mdi - stationOut1.getMd();
         md_2_minus_md_1 = md2 - stationOut1.getMd();
         double dl = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((Math.toRadians(inc_2) - Math.toRadians(inc_1)) / 2), 2) + Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(inc_2)) * Math.pow(Math.sin((Math.toRadians(azi_TN2) - Math.toRadians(azi_TN1)) / 2), 2)));
+        if (dl < -1.0)
+            dl = -1.0;
+        else if(dl > 1.0)
+            dl = 1.0;
         double dl_i = dl * (md_i_minus_md_1 / md_2_minus_md_1);
         double inc_i;
         double azi_TN_i;
@@ -250,6 +254,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             rf_i = 1;
         } else {
             inc_i = Math.acos((Math.sin(dl - dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_1)) + (Math.sin(dl_i) / Math.sin(dl)) * Math.cos(Math.toRadians(inc_2)));
+            if (inc_i < -1.0)
+                inc_i = -1.0;
+            else if (inc_i > 1.0)
+                inc_i = 1.0;
             azi_TN_i = Math.atan2(Math.sin(Math.toRadians(inc_1)) * Math.sin(Math.toRadians(azi_TN1)) * Math.sin(dl - dl_i) + Math.sin(Math.toRadians(inc_2)) * Math.sin(Math.toRadians(azi_TN2)) * Math.sin(dl_i),
                     Math.sin(Math.toRadians(inc_1)) * Math.cos(Math.toRadians(azi_TN1)) * Math.sin(dl - dl_i) + Math.sin(Math.toRadians(inc_2)) * Math.cos(Math.toRadians(azi_TN2)) * Math.sin(dl_i));
             rf_i = 2 * Math.tan(dl_i / 2) / dl_i;
@@ -853,7 +861,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double i2 = t2.getInclination() * deg2rad;
         double a1 = t1.getAzimuthTN() * deg2rad; // we always compute TN
         double a2 = t2.getAzimuthTN() * deg2rad; // we always compute TN
-        double b = Math.acos(Math.cos(i2 - i1) - Math.sin(i1) * Math.sin(i2) * (1.0 - Math.cos(a2 - a1)));
+        double tmp_acos_argument = Math.cos(i2 - i1) - Math.sin(i1) * Math.sin(i2) * (1.0 - Math.cos(a2 - a1));
+        if (tmp_acos_argument < -1.0)
+            tmp_acos_argument = -1.0;
+        else if (tmp_acos_argument > +1.0)
+            tmp_acos_argument = +1.0;
+
+        //double b = Math.acos(Math.cos(i2 - i1) - Math.sin(i1) * Math.sin(i2) * (1.0 - Math.cos(a2 - a1)));
+        double b = Math.acos(tmp_acos_argument);
         double rf = 1.0;
         if (b != 0.0) {
             rf = 2.0 * Math.tan(b / 2.0) / b;
@@ -869,7 +884,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         // taken from http://www.drillingformulas.com/dogleg-severity-calculationbased-on-radius-of-curvature-method/
         // https://directionaldrillingart.blogspot.com/2015/09/directional-surveying-calculations.html
         // {cos-1 [(cos I1 x cos I2) + (sin I1 x sin I2) x cos (Az2 – Az1)]} x (100 ÷ MD)
-        double dls = rad2deg * Math.acos(Math.cos(i1) * Math.cos(i2) + Math.sin(i1) * Math.sin(i2) * Math.cos(a2 - a1)) / dmd;
+        //double dls = rad2deg * Math.acos(Math.cos(i1) * Math.cos(i2) + Math.sin(i1) * Math.sin(i2) * Math.cos(a2 - a1)) / dmd;
+        double dls = rad2deg*b / dmd;
         t2.setDls(dls);
         return p;
     }
