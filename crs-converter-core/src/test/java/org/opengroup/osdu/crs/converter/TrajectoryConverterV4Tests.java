@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.api.exception.BadRequestException;
 import org.opengroup.osdu.crs.model.*;
@@ -19,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.lenient;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TrajectoryConverterV4Tests {
 
     @Mock
@@ -33,16 +36,16 @@ public class TrajectoryConverterV4Tests {
         state.setMethod(TrajectoryComputationMethod.LeesModifiedProposal);
         state.setAzimuthReference(AzimuthReferenceType.GRID_NORTH);
 
-        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequest.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
-        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
-        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
         lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
-        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
-        lenient().doNothing().when(trajectoryConverter).convertPointsLmp(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPointsLmp(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
         lenient().when(trajectoryConverter.computeScaleFactorAndConvergence(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.any())).thenReturn(new ScaleConvergence());
-        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
         lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
 
         assertNotNull(ConvertTrajectoryResponseV4.class);
@@ -54,14 +57,14 @@ public class TrajectoryConverterV4Tests {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setMethod(TrajectoryComputationMethod.GridNorthLocal);
 
-        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequest.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
-        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
-        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
         lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
-        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
-        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
         lenient().when(trajectoryConverter.computeInterpolationForMDiInput(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
         lenient().doNothing().when(trajectoryConverter).convertToWgs84V4(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
         lenient().when(trajectoryConverter.computeScaleFactorAndConvergence(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.any())).thenReturn(new ScaleConvergence());
@@ -77,15 +80,15 @@ public class TrajectoryConverterV4Tests {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
 
-        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequest.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
-        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
-        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
         lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
-        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
-        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
-        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
         lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
 
         assertNotNull(ConvertTrajectoryResponseV4.class);
@@ -97,10 +100,10 @@ public class TrajectoryConverterV4Tests {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
 
-        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequest.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
         lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
-        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
-        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.FALSE.booleanValue());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.FALSE.booleanValue());
         try {
             lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(BadRequestException.class);
         }catch (Exception e) {
@@ -116,7 +119,7 @@ public class TrajectoryConverterV4Tests {
         TrajectoryComputationState state = new TrajectoryComputationState();
         state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
 
-        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequest.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.FALSE.booleanValue());
+        lenient().when(trajectoryConverter.isRequestValid(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.FALSE.booleanValue());
 
         try {
             lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(BadRequestException.class);
