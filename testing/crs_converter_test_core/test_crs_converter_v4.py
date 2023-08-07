@@ -97,6 +97,20 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
             
+    def test_dls_convertTrajectory(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/Dls_InputRequest.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.stations[len(api_response.stations)-1].dls, 0.0)
+            self.assertEquals(api_response.stations_i[len(api_response.stations_i)-1].dls, 0.0)
+        except ApiException as e:
+            self.fail(str(e))
+            
     def test_convertTrajectoryForMDI(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/MDInterpolateRequest.json')
@@ -214,7 +228,15 @@ def suite():
     suite.addTest(
         TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForLMPGeographicCRS_GN_WithSuccess'))
     suite.addTest(
-        TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
+        TestTrajectoryConverterIntegrationV4(
+            'test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
+    suite.addTest(TestTrajectoryConverterIntegrationV4(
+                        'test_convertTrajectoryForMDI'))
+    suite.addTest(TestTrajectoryConverterIntegrationV4(
+                            'test_convertTrajectoryForMDI_Out_Of_Range'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4(
+            'test_dls_convertTrajectory'))
     return suite
 
 
