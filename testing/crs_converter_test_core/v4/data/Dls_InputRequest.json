@@ -10,7 +10,7 @@
         ]
     },
     "method": "AzimuthalEquidistant",
-    "trajectoryCRS": "{{DATA_PARTITION_ID}}::reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
     "interpolate": false,
     "inputStations": [
         {
