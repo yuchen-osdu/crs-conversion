@@ -521,7 +521,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             for (int i = 0; i < siResponse.getStations().size(); i++) {
                 TrajectoryStationOut si = siResponse.getStations().get(i);
                 TrajectoryStationOut dn = new TrajectoryStationOut();
-                if(unitMD_Factor!=0.0){
+                if(unitMD_Factor!=1.0){
                     dn.setMd(si.getMd() * unitMD_Factor);
                 }else{
                     dn.setMd(si.getMd() * z_Factor);
