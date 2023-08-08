@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.opengroup.osdu.crs.model.ConvertTrajectoryRequest;
@@ -16,7 +15,7 @@ import java.io.IOException;
 
 @Data
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
 public class ConvertTrajectoryRequestV4 extends ConvertTrajectoryRequest {
 	public ConvertTrajectoryRequestV4(){
 		super.interpolate = true;
@@ -24,9 +23,8 @@ public class ConvertTrajectoryRequestV4 extends ConvertTrajectoryRequest {
 	}
 
 	@JsonProperty("MD_i")
-	@ApiModelProperty(value=Constants.SWAGGER_TRJ_MD_I,
-			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
-	private MinimumDepthInterval MD_i;
+    @Schema(description = Constants.SWAGGER_TRJ_MD_I, example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
+    private MinimumDepthInterval MD_i;
 
     public static ConvertTrajectoryRequestV4 createInstance(String json) {
         ConvertTrajectoryRequestV4 result = null;
