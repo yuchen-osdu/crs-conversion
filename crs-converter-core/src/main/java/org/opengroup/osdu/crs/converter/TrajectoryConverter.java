@@ -2,6 +2,7 @@ package org.opengroup.osdu.crs.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeodeticCRS;
 import org.opengis.referencing.datum.Ellipsoid;
@@ -157,9 +158,10 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                         state.getOperations().add("Interpolation for MD_i input stations;" +request.getMD_i().getMd_i().size()+ " points interpolated");
                     }
                 }
-                ConvertTrajectoryRequestV4 dummyRequestForScaleCompute = prepareDummyPayload(request);
+                ConvertTrajectoryRequestV4 dummyRequestForScaleCompute = null;
                 List<ScaleConvergence> scaleConvergenceList = new ArrayList<>();
                 if (flag_check_projected && flag_check_scaleFactor) {
+                    dummyRequestForScaleCompute = prepareDummyPayload(request);
                     ScaleConvergence scaleConvergenceFirst = computeScaleFactorAndConvergence(headers,dummyRequestForScaleCompute,flag_check_projected,response.getStations().get(0));
                     scaleConvergenceList.add(scaleConvergenceFirst);
                     response.setScaleConvergenceList(scaleConvergenceList);
@@ -329,7 +331,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     }
 
     public  ScaleConvergence computeScaleFactorAndConvergence(DpsHeaders headers,ConvertTrajectoryRequestV4 dummyRequestForScaleCompute,boolean flag_check_projected,TrajectoryStationOut trajectoryStationOut) {
-        dummyRequestForScaleCompute.setReferencePoint(trajectoryStationOut.getPoint());
+        Gson gson = new Gson();
+        Point deepCopy = gson.fromJson(gson.toJson(trajectoryStationOut.getPoint()), Point.class);
+        dummyRequestForScaleCompute.setReferencePoint(deepCopy);
         ConvertTrajectoryResponseV4 dummyResponseFirst = convertTrajectoryV4(headers,dummyRequestForScaleCompute,flag_check_projected,false);
         List<TrajectoryStationOut> dummyStationsList = dummyResponseFirst.getStations();
         TrajectoryStationOut dummyFirstStation_pointFirst = dummyStationsList.get(0);
