@@ -508,12 +508,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
     public void deNormalizeTrajectoryV4(ConvertTrajectoryResponseV4 siResponse, ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state) {
         double xyFactor = 1.0 / state.getHorizontalUnit().scaleToSI();
         double z_Factor = 1.0 / state.getVerticalUnit().scaleToSI();
-        double unitMD_Factor = 1.0;
+        Double unitMD_Factor = null;
         if(state.getUnitMD()!=null) {
             unitMD_Factor = 1.0 / state.getUnitMD().scaleToSI();
         }
         double dlFactor;
-        if (z_Factor != 1.0 || unitMD_Factor != 1.0) {
+        if (z_Factor != 1.0 || unitMD_Factor != null) {
             dlFactor = 30.48; // non-metric: deg/100ft
             response.setUnitDls(DEGPFT);
         } else { //              metric:     deg/30m
@@ -525,7 +525,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             for (int i = 0; i < siResponse.getStations().size(); i++) {
                 TrajectoryStationOut si = siResponse.getStations().get(i);
                 TrajectoryStationOut dn = new TrajectoryStationOut();
-                if(unitMD_Factor!=1.0){
+                if(unitMD_Factor!= null){
                     dn.setMd(si.getMd() * unitMD_Factor);
                 }else{
                     dn.setMd(si.getMd() * z_Factor);
