@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.opengroup.osdu.crs.model.Point;
+import org.opengroup.osdu.crs.model.TrajectoryInputKind;
 import org.opengroup.osdu.crs.util.Constants;
 
 import javax.validation.Valid;
@@ -24,6 +25,11 @@ import java.util.List;
 @AllArgsConstructor
 @ApiModel(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
 public class ConvertTrajectoryRequestV4 {
+
+    public ConvertTrajectoryRequestV4(){
+        this.interpolate = true;
+        this.inputKind = TrajectoryInputKind.MD_INCL_AZIM.toString();
+    }
 
     @JsonProperty("trajectoryCRS")
     @NotEmpty

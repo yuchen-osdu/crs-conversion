@@ -64,7 +64,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
             gridConvergence = correctionSet.getConvergenceAngleInDeg();
-            if(state.getAzimuthReference() != null) {
                 if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
                     to_tn = gridConvergence;
                     to_gn = 0.0;
@@ -82,7 +81,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     to.setAzimuthGN(gn);
                     to.setDls(Double.NaN);
                 }
-            }
 
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
@@ -128,21 +126,23 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
             gridConvergence = correctionSet.getConvergenceAngleInDeg();
-            if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
-                to_tn = gridConvergence;
-                to_gn = 0.0;
-                state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
-            } else {
-                to_tn = 0.0;
-                to_gn = -gridConvergence;
-                state.getOperations().add(String.format("derived GN from TN azimuth by grid convergence %f", (to_gn + 360) % 360.0));
-            }
-            for (TrajectoryStationOut to : response.getStations()) {
-                double tn = (to.getAzimuthTN() + to_tn + 360) % 360.0;
-                double gn = (to.getAzimuthGN() + to_gn + 360) % 360.0;
-                to.setAzimuthTN(tn);
-                to.setAzimuthGN(gn);
-                to.setDls(Double.NaN);
+            if(state.getAzimuthReference() != null) {
+                if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
+                    to_tn = gridConvergence;
+                    to_gn = 0.0;
+                    state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
+                } else {
+                    to_tn = 0.0;
+                    to_gn = -gridConvergence;
+                    state.getOperations().add(String.format("derived GN from TN azimuth by grid convergence %f", (to_gn + 360) % 360.0));
+                }
+                for (TrajectoryStationOut to : response.getStations()) {
+                    double tn = (to.getAzimuthTN() + to_tn + 360) % 360.0;
+                    double gn = (to.getAzimuthGN() + to_gn + 360) % 360.0;
+                    to.setAzimuthTN(tn);
+                    to.setAzimuthGN(gn);
+                    to.setDls(Double.NaN);
+                }
             }
 
             ConvertTrajectoryResponseV4 siResponse = normalizeTrajectoryV4(response, state);
@@ -1031,10 +1031,6 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 }
             }
 
-            /*state.setAzimuthReference(AzimuthReferenceType.getAzimuthReference(request.getAzimuthReference()));
-            if (state.getAzimuthReference() == null) {
-                state.getErrors().add("Invalid azimuth reference.");
-            }*/
             state.setMethod(TrajectoryComputationMethod.getTrajectoryComputationMethod(request.getMethod()));
             if (state.getMethod() == null) {
                 String m = "null";
