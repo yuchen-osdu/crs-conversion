@@ -27,7 +27,7 @@ public class CrsConverterApiV4Tests {
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess() {
         ConvertTrajectoryResponseV4 convertTrajectoryResponseV4 = new ConvertTrajectoryResponseV4();
         convertTrajectoryResponseV4 = TrajectoryConverterV4Tests.createResponse(RES_AZI_PROJ_CRS_GN);
-        lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(convertTrajectoryResponseV4);
+        lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(convertTrajectoryResponseV4);
         assertEquals(6, convertTrajectoryResponseV4.getStations().size());
     }
 
@@ -35,7 +35,7 @@ public class CrsConverterApiV4Tests {
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Failure_mdi_md_interval_present() {
         final String errorMsg = "Both md_i array and md_interval values are provided in the input.";
         try {
-            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
+            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
         } catch (ValidationException exception) {
             Assertions.assertEquals(exception.getMessage(), errorMsg);
         }
@@ -45,7 +45,7 @@ public class CrsConverterApiV4Tests {
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Failure_mdi_not_in_range() {
         final String errorMsg = "md_i array values provided are not in range of MD stations.";
         try {
-            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
+            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
         } catch (ValidationException exception) {
             Assertions.assertEquals(exception.getMessage(), errorMsg);
         }

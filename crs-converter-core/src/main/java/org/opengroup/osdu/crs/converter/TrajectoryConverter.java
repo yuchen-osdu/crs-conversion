@@ -15,6 +15,7 @@ import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
 import org.opengroup.osdu.crs.model.v4.MinimumDepthInterval;
+import org.opengroup.osdu.crs.model.v4.TrajectoryStationInV4;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.SisTransformations;
 import org.opengroup.osdu.crs.util.Constants;
@@ -63,21 +64,24 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
             gridConvergence = correctionSet.getConvergenceAngleInDeg();
-            if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
-                to_tn = gridConvergence;
-                to_gn = 0.0;
-                state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
-            } else {
-                to_tn = 0.0;
-                to_gn = -gridConvergence;
-                state.getOperations().add(String.format("derived GN from TN azimuth by grid convergence %f", (to_gn + 360) % 360.0));
-            }
-            for (TrajectoryStationOut to : response.getStations()) {
-                double tn = (to.getAzimuthTN() + to_tn + 360) % 360.0;
-                double gn = (to.getAzimuthGN() + to_gn + 360) % 360.0;
-                to.setAzimuthTN(tn);
-                to.setAzimuthGN(gn);
-                to.setDls(Double.NaN);
+            if(state.getAzimuthReference() != null) {
+                if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
+                    to_tn = gridConvergence;
+                    to_gn = 0.0;
+                    state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
+                } else {
+                    to_tn = 0.0;
+                    to_gn = -gridConvergence;
+                    state.getOperations().add(String.format("derived GN from TN azimuth by grid convergence %f", (to_gn + 360) % 360.0));
+                }
+
+                for (TrajectoryStationOut to : response.getStations()) {
+                    double tn = (to.getAzimuthTN() + to_tn + 360) % 360.0;
+                    double gn = (to.getAzimuthGN() + to_gn + 360) % 360.0;
+                    to.setAzimuthTN(tn);
+                    to.setAzimuthGN(gn);
+                    to.setDls(Double.NaN);
+                }
             }
 
             ConvertTrajectoryResponse siResponse = normalizeTrajectory(response, state);
@@ -104,7 +108,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
     @Override
-    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected, boolean flag_check_scaleFactor) {
+    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected, boolean flag_check_scaleFactor, boolean inclOnlyCheck) {
         TrajectoryComputationStateV4 state = new TrajectoryComputationStateV4();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponseV4 response = new ConvertTrajectoryResponseV4();
@@ -119,7 +123,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double to_gn;
             double to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
-            response.setStations(populateResponseFromRequest(request));
+            response.setStations(populateResponseFromRequestV4(request));
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
@@ -182,6 +186,17 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             throw new BadRequestException(String.join(" ", state.getErrors()));
         }
         response.setOperationsApplied(state.getOperations());
+
+        if (inclOnlyCheck) {
+
+            TrajectoryStationOut lastStationOut = response.getStations().get(response.getStations().size() - 1);
+            double max_horizontal_error = lastStationOut.getDyTN();
+            double tvd_correction = lastStationOut.getDZ() - lastStationOut.getMd();
+            response.getOperationsApplied().add("max_horizontal_error = " + max_horizontal_error + " " + state.getHorizontalUnit().getSymbol());
+            response.getOperationsApplied().add("TVD_correction applied = " + tvd_correction + " " + state.getVerticalUnit().getSymbol());
+            return response;
+        }
+
         return response;
     }
 
@@ -334,7 +349,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         Gson gson = new Gson();
         Point deepCopy = gson.fromJson(gson.toJson(trajectoryStationOut.getPoint()), Point.class);
         dummyRequestForScaleCompute.setReferencePoint(deepCopy);
-        ConvertTrajectoryResponseV4 dummyResponseFirst = convertTrajectoryV4(headers,dummyRequestForScaleCompute,flag_check_projected,false);
+        ConvertTrajectoryResponseV4 dummyResponseFirst = convertTrajectoryV4(headers,dummyRequestForScaleCompute,flag_check_projected,false, false);
         List<TrajectoryStationOut> dummyStationsList = dummyResponseFirst.getStations();
         TrajectoryStationOut dummyFirstStation_pointFirst = dummyStationsList.get(0);
         TrajectoryStationOut dummyLastStation_pointFirst = dummyStationsList.get(dummyStationsList.size()-1);
@@ -854,6 +869,23 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return tos;
     }
 
+    private List<TrajectoryStationOut> populateResponseFromRequestV4(ConvertTrajectoryRequestV4 request) {
+        List<TrajectoryStationOut> tos = new ArrayList<>();
+        for (TrajectoryStationInV4 ti : request.getInputStations()) {
+            TrajectoryStationOut to = new TrajectoryStationOut();
+            to.setMd(ti.getMd());
+            to.setInclination(ti.getInclination());
+            to.setAzimuthTN(ti.getAzimuth());
+            to.setAzimuthGN(ti.getAzimuth());
+            to.setOriginal(true); // this is original by definition
+            if (tos.size() == 0) {
+                to.setPoint(request.getReferencePoint()); // copy the reference point into first sample
+            }
+            tos.add(to);
+        }
+        return tos;
+    }
+
     public boolean isRequestValid(ConvertTrajectoryRequest request, TrajectoryComputationState state) {
         if (request != null) {
             try {
@@ -991,10 +1023,18 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     state.getErrors().add("Invalid unitMD.");
                 }
             }
-            state.setAzimuthReference(AzimuthReferenceType.getAzimuthReference(request.getAzimuthReference()));
+
+            if(request.getAzimuthReference() != null){
+                state.setAzimuthReference(AzimuthReferenceType.getAzimuthReference(request.getAzimuthReference()));
+                if (state.getAzimuthReference() == null && !request.getInputKind().equals(Constants.MD_INCL)) {
+                    state.getErrors().add("Invalid azimuth reference.");
+                }
+            }
+
+            /*state.setAzimuthReference(AzimuthReferenceType.getAzimuthReference(request.getAzimuthReference()));
             if (state.getAzimuthReference() == null) {
                 state.getErrors().add("Invalid azimuth reference.");
-            }
+            }*/
             state.setMethod(TrajectoryComputationMethod.getTrajectoryComputationMethod(request.getMethod()));
             if (state.getMethod() == null) {
                 String m = "null";
@@ -1024,7 +1064,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 state.getErrors().add("Null or empty input trajectory survey stations.");
             } else {
                 boolean ok = true;
-                for (TrajectoryStationIn s : request.getInputStations()) {
+                for (TrajectoryStationInV4 s : request.getInputStations()) {
                     ok = ok && !(s.getMd() == null || s.getAzimuth() == null || s.getInclination() == null);
                     ok = ok && !(Double.isNaN(s.getMd()) || Double.isNaN(s.getAzimuth()) || Double.isNaN(s.getInclination()));
                 }

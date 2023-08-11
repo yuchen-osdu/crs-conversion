@@ -218,8 +218,8 @@ public final class Constants {
 	public static final String SWAGGER_BIN_GRID_CONVERT_REQUEST_DESCR = "The input and output of this method use the AbstractBinGrid:1.0.0  definition.  On input a minimum required properties can be given, which are enriched on output as indicated ";
 	public static final String SWAGGER_BIN_GRID_CONVERSION_RESPONSE = "The response is essentially a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, and an output BinGrid which is essentially a copy of the input, but augmented with the derived P6 parameters filled out, and optionally (if a toCrs was given in the request) converted global coordinates that are “squared up” in the new geometry (which can be used in applications that require a square grid in a project CRS geometry; if the “squaring error” is small enough";
 	public static final String SWAGGER_BIN_GRID_CONVERTED = " ";
-
-
-
+    public static final String MD_INCL = "MD_Incl";
+    public static final String MD_INCL_AZIM = "MD_Incl_Azim";
+    public static final String AZIMUTHAL_EQUIDISTANT = "AzimuthalEquidistant";
 
 }
