@@ -191,7 +191,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
             TrajectoryStationOut lastStationOut = response.getStations().get(response.getStations().size() - 1);
             double max_horizontal_error = lastStationOut.getDyTN();
-            double tvd_correction = lastStationOut.getDZ() - lastStationOut.getMd();
+            double tvd_correction = lastStationOut.getMd() - lastStationOut.getDZ();
             response.getOperationsApplied().add("max_horizontal_error = " + max_horizontal_error + " " + state.getHorizontalUnit().getSymbol());
             response.getOperationsApplied().add("TVD_correction applied = " + tvd_correction + " " + state.getVerticalUnit().getSymbol());
             return response;
@@ -200,7 +200,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    public ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationState state,boolean flag_check_projected) {
+    public ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state,boolean flag_check_projected) {
 
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
@@ -394,7 +394,28 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return coordinates;
     }
 
+    private double[] extractCoordinatesFromResponse(ConvertTrajectoryResponseV4 response) {
+        double[] coordinates = new double[2 * response.getStations().size()];
+        int i = 0;
+        for (TrajectoryStationOut item : response.getStations()) {
+            coordinates[i] = item.getPoint().getX();
+            coordinates[i + 1] = item.getPoint().getY();
+            i += 2;
+        }
+        return coordinates;
+    }
+
     private double[] extractElevationsFromResponse(ConvertTrajectoryResponse response) {
+        double[] elevations = new double[response.getStations().size()];
+        int i = 0;
+        for (TrajectoryStationOut item : response.getStations()) {
+            elevations[i] = item.getPoint().getZ();
+            i++;
+        }
+        return elevations;
+    }
+
+    private double[] extractElevationsFromResponse(ConvertTrajectoryResponseV4 response) {
         double[] elevations = new double[response.getStations().size()];
         int i = 0;
         for (TrajectoryStationOut item : response.getStations()) {
@@ -627,7 +648,31 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
-    public void convertToWgs84V4(ConvertTrajectoryResponseV4 response, TrajectoryComputationState state) {
+    public void convertToWgs84(ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state) {
+        double[] xyCoordinates = extractCoordinatesFromResponse(response);
+        ICRSConverter crsConverter = new CRSConverter();
+        double[] zCoordinates = extractElevationsFromResponse(response);
+        try {
+            ConvertPointsResponse rsp
+                    = crsConverter.convertPoint(state.getSourceCRSAsPersistableReference(), Constants.WGS84, xyCoordinates, zCoordinates);
+            int i = 0;
+            for (TrajectoryStationOut to : response.getStations()) {
+                to.setWgs84Latitude(xyCoordinates[2 * i + 1]);
+                to.setWgs84Longitude(xyCoordinates[2 * i]);
+                i++;
+            }
+            for (String op : rsp.getOperationsApplied()) {
+                state.getOperations().add("to WGS 84: " + op);
+            }
+        } catch (IllegalArgumentException e) {
+            for (TrajectoryStationOut to : response.getStations()) {
+                to.setWgs84Latitude(Double.NaN);
+                to.setWgs84Longitude(Double.NaN);
+            }
+        }
+    }
+
+    public void convertToWgs84V4(ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state) {
         double[] xyCoordinates = extractCoordinatesFromResponseV4(response);
         ICRSConverter crsConverter = new CRSConverter();
         double[] zCoordinates = extractElevationsFromResponseV4(response);
