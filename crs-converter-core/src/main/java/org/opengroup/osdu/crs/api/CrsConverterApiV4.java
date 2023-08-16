@@ -178,7 +178,7 @@ public class CrsConverterApiV4 {
 
             AtomicInteger index = new AtomicInteger(0);
                 dummyRequest.getInputStations().stream().limit(dummyResponse.getStations().size()).forEach(data -> {
-                    data.setMd(dummyResponse.getStations().get(index.getAndIncrement()).getPoint().getZ());
+                    data.setMd(dummyResponse.getStations().get(index.getAndIncrement()).getDZ());
                     data.setAzimuth(data.getInclination());
                     data.setInclination(0.0);
                 });
