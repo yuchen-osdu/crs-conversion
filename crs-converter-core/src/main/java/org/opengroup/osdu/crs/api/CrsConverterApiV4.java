@@ -24,6 +24,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
@@ -158,7 +159,9 @@ public class CrsConverterApiV4 {
             }
         }
 
+
         if (request.getInputKind().equals(Constants.MD_INCL)) {
+
             request.getInputStations().stream().forEach(station -> {
                 if (station.getAzimuth() != null)
                     throw new ValidationException("Azimuth data shouldn't be provided for input kind : " + request.getInputKind());
@@ -171,7 +174,19 @@ public class CrsConverterApiV4 {
             dummyRequest.setInputKind(Constants.MD_INCL_AZIM);
             dummyRequest.setMethod(Constants.AZIMUTHAL_EQUIDISTANT);
 
-            return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, true);
+            ConvertTrajectoryResponseV4 dummyResponse = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, true);
+
+            AtomicInteger index = new AtomicInteger(0);
+                dummyRequest.getInputStations().stream().limit(dummyResponse.getStations().size()).forEach(data -> {
+                    data.setMd(dummyResponse.getStations().get(index.getAndIncrement()).getPoint().getZ());
+                    data.setAzimuth(data.getInclination());
+                    data.setInclination(0.0);
+                });
+
+            ConvertTrajectoryResponseV4 response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, false);
+            response.getOperationsApplied().add(dummyResponse.getOperationsApplied().get(dummyResponse.getOperationsApplied().size() - 1));
+            response.getOperationsApplied().add(dummyResponse.getOperationsApplied().get(dummyResponse.getOperationsApplied().size() - 2));
+            return response;
         }
 
         return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request, checkCRSType, true, false);
