@@ -22,6 +22,7 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -177,13 +178,14 @@ public class CrsConverterApiV4 {
             ConvertTrajectoryResponseV4 dummyResponse = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, true);
 
             AtomicInteger index = new AtomicInteger(0);
-                dummyRequest.getInputStations().stream().limit(dummyResponse.getStations().size()).forEach(data -> {
+                dummyRequest.getInputStations().stream().forEach(data -> {
                     data.setMd(dummyResponse.getStations().get(index.getAndIncrement()).getDZ());
                     data.setAzimuth(data.getInclination());
                     data.setInclination(0.0);
                 });
-
             ConvertTrajectoryResponseV4 response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, false);
+            response.getStations().stream().forEach(station -> station.setOriginal(false));
+            response.getOperationsApplied().add(0,Constants.INC_ONLY_OPERTN_APPL);
             response.getOperationsApplied().add(dummyResponse.getOperationsApplied().get(dummyResponse.getOperationsApplied().size() - 1));
             response.getOperationsApplied().add(dummyResponse.getOperationsApplied().get(dummyResponse.getOperationsApplied().size() - 2));
             return response;

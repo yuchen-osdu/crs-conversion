@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +107,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
     @Override
-    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected, boolean flag_check_scaleFactor, boolean inclOnlyCheck) {
+    public ConvertTrajectoryResponseV4 convertTrajectoryV4(DpsHeaders headers, ConvertTrajectoryRequestV4 request, boolean flag_check_projected, boolean flag_check_scaleFactor, boolean isInclOnly) {
         TrajectoryComputationStateV4 state = new TrajectoryComputationStateV4();
         state.setDpsHeaders(headers);
         ConvertTrajectoryResponseV4 response = new ConvertTrajectoryResponseV4();
@@ -121,7 +122,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             double to_gn;
             double to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
-            response.setStations(populateResponseFromRequestV4(request));
+            response.setStations(populateResponseFromRequestV4(request, isInclOnly));
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
                             state.getSourceCRSAsPersistableReference(), request.getReferencePoint(), state.getHorizontalUnit());
@@ -187,13 +188,13 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
         response.setOperationsApplied(state.getOperations());
 
-        if (inclOnlyCheck) {
-
+        if (isInclOnly) {
+            DecimalFormat upto1decimal = new DecimalFormat("#.#");
             TrajectoryStationOut lastStationOut = response.getStations().get(response.getStations().size() - 1);
-            double max_horizontal_error = lastStationOut.getDyTN();
-            double tvd_correction = lastStationOut.getMd() - lastStationOut.getDZ();
+            Integer max_horizontal_error = new Double(lastStationOut.getDyTN()).intValue();
+            Double tvd_correction = lastStationOut.getMd() - lastStationOut.getDZ();
             response.getOperationsApplied().add("max_horizontal_error = " + max_horizontal_error + " " + state.getHorizontalUnit().getSymbol());
-            response.getOperationsApplied().add("TVD_correction applied = " + tvd_correction + " " + state.getVerticalUnit().getSymbol());
+            response.getOperationsApplied().add("TVD_correction applied = " + Double.parseDouble(upto1decimal.format(tvd_correction)) + " " + state.getVerticalUnit().getSymbol());
             return response;
         }
 
@@ -914,7 +915,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return tos;
     }
 
-    private List<TrajectoryStationOut> populateResponseFromRequestV4(ConvertTrajectoryRequestV4 request) {
+    private List<TrajectoryStationOut> populateResponseFromRequestV4(ConvertTrajectoryRequestV4 request, boolean isInclOnly) {
         List<TrajectoryStationOut> tos = new ArrayList<>();
         for (TrajectoryStationInV4 ti : request.getInputStations()) {
             TrajectoryStationOut to = new TrajectoryStationOut();
