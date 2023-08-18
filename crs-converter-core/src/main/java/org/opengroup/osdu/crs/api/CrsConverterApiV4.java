@@ -51,7 +51,7 @@ public class CrsConverterApiV4 {
     }
 
     // parameter str could be a persistableReference string or recordID. mustID means parameter str must be a recordID
-    private String getPersistableReferenceFromID(String str, boolean mustID) {
+    public String getPersistableReferenceFromID(String str, boolean mustID) {
         String temp;
         try {
             temp = URLDecoder.decode(str, UTF_8);
@@ -83,7 +83,7 @@ public class CrsConverterApiV4 {
         }
     }
 
-    private String getUnitFromTrajectoryCRS(String trajectoryCRS) {
+    public String getUnitFromTrajectoryCRS(String trajectoryCRS) {
         String temp;
         try {
             temp = URLDecoder.decode(trajectoryCRS, UTF_8);
@@ -99,7 +99,7 @@ public class CrsConverterApiV4 {
         return (String) coordinateSystem.get("HorizontalAxisUnitID");
     }
 
-    private boolean checkCRSType(String trajectoryCRS) {
+    public boolean checkCRSType(String trajectoryCRS) {
         boolean flag = false;
         String temp;
         try {
@@ -193,7 +193,7 @@ public class CrsConverterApiV4 {
         return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request, checkCRSType, true, false);
     }
 
-    private boolean checkMdiListForRange(Double firstMd, Double lastMd, List<Double> mdiList) {
+    public boolean checkMdiListForRange(Double firstMd, Double lastMd, List<Double> mdiList) {
         boolean checkRange = false;
         for (int count = 0; count < mdiList.size(); count++) {
             if (mdiList.get(count) < firstMd || mdiList.get(count) > lastMd) {
@@ -204,7 +204,7 @@ public class CrsConverterApiV4 {
         return checkRange;
     }
 
-    private List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd, Double lastMd, Double mdInterval) {
+    public List<Double> computeMinimumDepthPointsUsingInterval(Double firstMd, Double lastMd, Double mdInterval) {
         List<Double> mdiList = new ArrayList<>();
         while (lastMd > firstMd && lastMd > mdInterval) {
             mdiList.add(firstMd);

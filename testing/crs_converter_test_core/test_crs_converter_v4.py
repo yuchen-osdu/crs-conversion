@@ -140,6 +140,24 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.assertTrue(400 == json.loads(e.body)['code'])
             self.assertTrue(error_msg == json.loads(e.body)['message'])
+
+    def test_convertTrajectoryFor_INC_ONLY_Success(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/ConvertTrajectoryFor_INC_ONLY.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.stations[0].dxTN, 0.0)
+            self.assertEquals(api_response.stations[0].dyTN, 0.0)
+            self.assertEquals(api_response.stations[0].points.x, 400000.0000000034)
+            self.assertEquals(api_response.stations[0].points.x, 2999999.9999999115)
+        except ApiException as e:
+            self.fail(str(e))
+
             
     @staticmethod
     def __read_v4_convert_trajectory_request(file_name):
