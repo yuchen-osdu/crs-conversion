@@ -392,40 +392,40 @@
           "unitMD": {
             "type": "string"
           }
-      }
+      },
+	  "example":{
+		"azimuthReference": "GN",
+		"interpolate": false,
+		"referencePoint": {
+			"x": 400000,
+			"y": 6500000,
+			"z": 100
+		},
+		"unitZ": "osdu:reference-data--UnitOfMeasure:m:",
+		"unitMD": "osdu:reference-data--UnitOfMeasure:m:",
+		"inputStations": [
+			{
+				"md": 0,
+				"inclination": 0,
+				"azimuth": 20
+			},
+			{
+				"md": 100,
+				"inclination": 10,
+				"azimuth": 40
+			}
+		],
+		"MD_i": {
+			"md_i": [
+				50,
+				75
+			]
+		},
+		"trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
+		"inputKind": "MD_Incl_Azim",
+		"method": "AzimuthalEquidistant"
+}
     },
-	"example":{
-    "azimuthReference": "GN",
-    "interpolate": false,
-    "referencePoint": {
-        "x": 400000,
-        "y": 6500000,
-        "z": 100
-    },
-    "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
-    "unitMD": "osdu:reference-data--UnitOfMeasure:m:",
-    "inputStations": [
-        {
-            "md": 0,
-            "inclination": 0,
-            "azimuth": 20
-        },
-        {
-            "md": 100,
-            "inclination": 10,
-            "azimuth": 40
-        }
-    ],
-    "MD_i": {
-        "md_i": [
-            50,
-            75
-        ]
-    },
-    "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
-    "inputKind": "MD_Incl_Azim",
-    "method": "AzimuthalEquidistant"
-},
     "MinimumDepthInterval": {
       "type": "object",
       "properties": {
@@ -597,9 +597,8 @@
             "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.",
             "example": "MD_Inclination_Azimuth"
         }
-      }
-    },
-	"example":{
+      },
+	  "example":{
     "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
     "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
     "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
@@ -715,7 +714,8 @@
     ],
     "unitMD": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
     "inputKind": "MD_Incl_Azim"
-},
+}
+    },
     "ScaleConvergence": {
       "type": "object",
       "properties": {
