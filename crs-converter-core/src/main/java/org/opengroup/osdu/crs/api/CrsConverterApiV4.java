@@ -2,6 +2,9 @@ package org.opengroup.osdu.crs.api;
 
 import com.google.common.base.Strings;
 import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.storage.Record;
@@ -119,12 +122,14 @@ public class CrsConverterApiV4 {
     }
 
     @PostMapping("/convertTrajectory")
-    @ApiOperation(value = Constants.SWAGGER_TRJ_CONVERT_TITLE, notes = Constants.SWAGGER_TRJ_CONVERT_NOTES, tags = {Constants.SWAGGER_TAG_TRJ_CONVERSION})
+    @Operation(summary = "${CrsConverterApi.convertTrajectoryV4.summary}", description = "${CrsConverterApi.convertTrajectoryV4.description}",
+            security = {@SecurityRequirement(name = "Authorization")},tags = {"Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"})
     @ApiResponses({
             @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponseV4.class),
             @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
             @ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
             @ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
+    @Parameter(hidden = true)
     public ConvertTrajectoryResponseV4 convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
                                                          @NonNull @Valid @RequestBody ConvertTrajectoryRequestV4 request) {
         String message = String.format("Using trajectory: %s", "no");

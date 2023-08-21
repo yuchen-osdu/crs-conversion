@@ -98,6 +98,17 @@ public class SwaggerConfiguration {
                 .build();
     }
 
+    @Bean
+    public GroupedOpenApi apiV4() {
+        String[] paths = {"/v4/**"};
+        return GroupedOpenApi.builder()
+                .group("v4")
+                .pathsToMatch(paths)
+                .addOpenApiCustomiser(buildV4OpenAPI())
+                .addOperationCustomizer(operationCustomizer())
+                .build();
+    }
+
     public OpenApiCustomiser buildV2OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("2.0.0"));
@@ -115,6 +126,16 @@ public class SwaggerConfiguration {
             openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
             openApi.addTagsItem(new Tag().name("crs-converter-api-v3").description("Converter related endpoints"));
             openApi.addTagsItem(new Tag().name("convert-trajectory-api-v3").description("Convert trajectory stations"));
+
+        };
+    }
+
+    public OpenApiCustomiser buildV4OpenAPI() {
+        return openApi -> {
+            openApi.info(openApi.getInfo().version("4.0.0"));
+            openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
+            openApi.addTagsItem(new Tag().name("Trajectory Computation and Conversion (v4) (EXPERIMENTAL)").description("Convert trajectory stations"));
+
         };
     }
     // Describe the apis

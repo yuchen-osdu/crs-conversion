@@ -59,7 +59,7 @@ public class ConvertTrajectoryRequestV4 {
     @JsonProperty("inputStations")
     @Valid
     @NotEmpty
-    @Schema(description = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS, type = "string",example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX)
+    @Schema(description = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS)
     @Parameter(required = true)
     private List<TrajectoryStationInV4> inputStations;
 
