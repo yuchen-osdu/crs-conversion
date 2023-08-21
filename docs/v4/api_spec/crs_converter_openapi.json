@@ -253,53 +253,6 @@
       },
       "description": "Response resulting of a failed CRS convertion operation"
     },
-    "TrajectoryStationIn": {
-      "type": "object",
-      "required": [
-        "azimuth",
-        "inclination",
-        "md"
-      ],
-      "properties": {
-        "md": {
-          "type": "number",
-          "format": "double",
-          "example": 1000,
-          "description": "MD (measured depth) from vertical reference point in 'unitZ'."
-        },
-        "inclination": {
-          "type": "number",
-          "format": "double",
-          "example": 10,
-          "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal."
-        },
-        "azimuth": {
-          "type": "number",
-          "format": "double",
-          "example": 100,
-          "description": "Azimuth angle in degrees of arc, 0.0/360.0 is North; reference given by azimuthReference (TrueNorth or GridNorth)."
-        },
-        "dx": {
-          "type": "number",
-          "format": "double",
-          "example": 55.9,
-          "description": "E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY' or projected 'trajectoryCRS'."
-        },
-        "dy": {
-          "type": "number",
-          "format": "double",
-          "example": -145.3,
-          "description": "N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with azimuth reference (TrueNorth or projected GridNorth); unit is given by container's 'unitXY' or projected 'trajectoryCRS'."
-        },
-        "dz": {
-          "type": "number",
-          "format": "double",
-          "example": 1965.6,
-          "description": "True vertical deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's unitZ; downwards positive."
-        }
-      },
-      "description": "Input trajectory station record; context is provided by the container."
-    },
     "ConvertTrajectoryRequestV4": {
       "required": [
         "inputStations",
