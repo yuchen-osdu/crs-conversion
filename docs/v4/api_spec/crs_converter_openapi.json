@@ -1,17 +1,9 @@
 {
-  "openapi": "3.0.1",
+  "swagger": "2.0",
   "info": {
-    "title": "CRS Conversion Service",
     "description": "Provides conversion/transformation services from a source to a target CRS. A coordinate operation is a conversion if the source and target CRS share the same datum; the operation is called transformation if datum transformations are involved, i.e. source and target CRS do not share the same datum.",
-    "contact": {
-      "name": "OSDU Data Platform Team",
-      "email": "dps@OSDU.org"
-    },
-    "license": {
-      "name": "Apache 2.0",
-      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-    },
-    "version": "4.0.0"
+    "version": "1.0.0",
+    "title": "CRS Conversion Service"
   },
   "host": "az-osdu1.evd.csp.slb.com",
   "x-google-allow": "all",
