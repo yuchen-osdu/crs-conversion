@@ -5,7 +5,8 @@ import warnings
 
 import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
-from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
+from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4, \
+    TrajectoryComputationAndConversionv4EXPERIMENTALApi
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
 
 import urllib3
@@ -57,7 +58,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         client = ApiClient(host=url)
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
-        cls.api_instance = Crsconverterapiv4Api(client)
+        cls.api_instance = TrajectoryComputationAndConversionv4EXPERIMENTALApi(client)
         cls.test_records = TestRecords()
         cls.test_records.setup()
 
@@ -151,10 +152,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.stations[0].dxTN, 0.0)
-            self.assertEquals(api_response.stations[0].dyTN, 0.0)
-            self.assertEquals(api_response.stations[0].points.x, 400000.0000000034)
-            self.assertEquals(api_response.stations[0].points.x, 2999999.9999999115)
+            self.assertEquals(api_response.stations[0].dx_tn, 0.0)
+            self.assertEquals(api_response.stations[0].dy_tn, 0.0)
+            self.assertEquals(api_response.stations[0].point.x, 400000.0000000041)
+            self.assertEquals(api_response.stations[0].point.y, 2999999.9999999115)
         except ApiException as e:
             self.fail(str(e))
 
@@ -187,6 +188,11 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
                                                   md_i=r_dict['MD_i'])
+            elif r_dict.get('inputKind') == 'MD_Incl':
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
             else:
                 return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
                                                   azimuth_reference=r_dict['azimuthReference'],
@@ -255,6 +261,9 @@ def suite():
     suite.addTest(
         TestTrajectoryConverterIntegrationV4(
             'test_dls_convertTrajectory'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4(
+            'test_convertTrajectoryFor_INC_ONLY_Success'))        
     return suite
 
 

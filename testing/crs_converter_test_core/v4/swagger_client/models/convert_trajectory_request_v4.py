@@ -36,11 +36,12 @@ class ConvertTrajectoryRequestV4(object):
         'unit_xy': 'str',
         'unit_z': 'str',
         'reference_point': 'Point',
-        'input_stations': 'list[TrajectoryStationIn]',
+        'input_stations': 'list[TrajectoryStationInV4]',
         'method': 'str',
         'input_kind': 'str',
         'interpolate': 'bool',
-        'md_i': 'MinimumDepthInterval'
+        'md_i': 'MinimumDepthInterval',
+        'unit_md': 'str'
     }
 
     attribute_map = {
@@ -53,10 +54,11 @@ class ConvertTrajectoryRequestV4(object):
         'method': 'method',
         'input_kind': 'inputKind',
         'interpolate': 'interpolate',
-        'md_i': 'MD_i'
+        'md_i': 'MD_i',
+        'unit_md': 'unitMD'
     }
 
-    def __init__(self, trajectory_crs=None, azimuth_reference=None, unit_xy=None, unit_z=None, reference_point=None, input_stations=None, method=None, input_kind=None, interpolate=None, md_i=None):
+    def __init__(self, trajectory_crs=None, azimuth_reference=None, unit_xy=None, unit_z=None, reference_point=None, input_stations=None, method=None, input_kind=None, interpolate=None, md_i=None, unit_md=None):
         """
         ConvertTrajectoryRequestV4 - a model defined in Swagger
         """
@@ -71,9 +73,11 @@ class ConvertTrajectoryRequestV4(object):
         self._input_kind = None
         self._interpolate = None
         self._md_i = None
+        self._unit_md = None
 
         self.trajectory_crs = trajectory_crs
-        self.azimuth_reference = azimuth_reference
+        if azimuth_reference is not None:
+          self.azimuth_reference = azimuth_reference
         if unit_xy is not None:
           self.unit_xy = unit_xy
         self.unit_z = unit_z
@@ -87,11 +91,14 @@ class ConvertTrajectoryRequestV4(object):
           self.interpolate = interpolate
         if md_i is not None:
           self.md_i = md_i
+        if unit_md is not None:
+          self.unit_md = unit_md
 
     @property
     def trajectory_crs(self):
         """
         Gets the trajectory_crs of this ConvertTrajectoryRequestV4.
+        Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.
 
         :return: The trajectory_crs of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -102,6 +109,7 @@ class ConvertTrajectoryRequestV4(object):
     def trajectory_crs(self, trajectory_crs):
         """
         Sets the trajectory_crs of this ConvertTrajectoryRequestV4.
+        Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.
 
         :param trajectory_crs: The trajectory_crs of this ConvertTrajectoryRequestV4.
         :type: str
@@ -115,6 +123,7 @@ class ConvertTrajectoryRequestV4(object):
     def azimuth_reference(self):
         """
         Gets the azimuth_reference of this ConvertTrajectoryRequestV4.
+        azimuth reference for the input trajectory station azimuth values (TRUE_NORTH or GridNorth)
 
         :return: The azimuth_reference of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -125,12 +134,11 @@ class ConvertTrajectoryRequestV4(object):
     def azimuth_reference(self, azimuth_reference):
         """
         Sets the azimuth_reference of this ConvertTrajectoryRequestV4.
+        azimuth reference for the input trajectory station azimuth values (TRUE_NORTH or GridNorth)
 
         :param azimuth_reference: The azimuth_reference of this ConvertTrajectoryRequestV4.
         :type: str
         """
-        if azimuth_reference is None:
-            raise ValueError("Invalid value for `azimuth_reference`, must not be `None`")
 
         self._azimuth_reference = azimuth_reference
 
@@ -138,6 +146,7 @@ class ConvertTrajectoryRequestV4(object):
     def unit_xy(self):
         """
         Gets the unit_xy of this ConvertTrajectoryRequestV4.
+        The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.
 
         :return: The unit_xy of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -148,6 +157,7 @@ class ConvertTrajectoryRequestV4(object):
     def unit_xy(self, unit_xy):
         """
         Sets the unit_xy of this ConvertTrajectoryRequestV4.
+        The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.
 
         :param unit_xy: The unit_xy of this ConvertTrajectoryRequestV4.
         :type: str
@@ -159,6 +169,7 @@ class ConvertTrajectoryRequestV4(object):
     def unit_z(self):
         """
         Gets the unit_z of this ConvertTrajectoryRequestV4.
+        The vertical unit of the dz in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.
 
         :return: The unit_z of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -169,6 +180,7 @@ class ConvertTrajectoryRequestV4(object):
     def unit_z(self, unit_z):
         """
         Sets the unit_z of this ConvertTrajectoryRequestV4.
+        The vertical unit of the dz in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.
 
         :param unit_z: The unit_z of this ConvertTrajectoryRequestV4.
         :type: str
@@ -203,9 +215,10 @@ class ConvertTrajectoryRequestV4(object):
     def input_stations(self):
         """
         Gets the input_stations of this ConvertTrajectoryRequestV4.
+        The array of input trajectory stations
 
         :return: The input_stations of this ConvertTrajectoryRequestV4.
-        :rtype: list[TrajectoryStationIn]
+        :rtype: list[TrajectoryStationInV4]
         """
         return self._input_stations
 
@@ -213,9 +226,10 @@ class ConvertTrajectoryRequestV4(object):
     def input_stations(self, input_stations):
         """
         Sets the input_stations of this ConvertTrajectoryRequestV4.
+        The array of input trajectory stations
 
         :param input_stations: The input_stations of this ConvertTrajectoryRequestV4.
-        :type: list[TrajectoryStationIn]
+        :type: list[TrajectoryStationInV4]
         """
         if input_stations is None:
             raise ValueError("Invalid value for `input_stations`, must not be `None`")
@@ -226,6 +240,7 @@ class ConvertTrajectoryRequestV4(object):
     def method(self):
         """
         Gets the method of this ConvertTrajectoryRequestV4.
+        The computation method - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)
 
         :return: The method of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -236,6 +251,7 @@ class ConvertTrajectoryRequestV4(object):
     def method(self, method):
         """
         Sets the method of this ConvertTrajectoryRequestV4.
+        The computation method - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)
 
         :param method: The method of this ConvertTrajectoryRequestV4.
         :type: str
@@ -249,6 +265,7 @@ class ConvertTrajectoryRequestV4(object):
     def input_kind(self):
         """
         Gets the input_kind of this ConvertTrajectoryRequestV4.
+        The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.
 
         :return: The input_kind of this ConvertTrajectoryRequestV4.
         :rtype: str
@@ -259,6 +276,7 @@ class ConvertTrajectoryRequestV4(object):
     def input_kind(self, input_kind):
         """
         Sets the input_kind of this ConvertTrajectoryRequestV4.
+        The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.
 
         :param input_kind: The input_kind of this ConvertTrajectoryRequestV4.
         :type: str
@@ -270,6 +288,7 @@ class ConvertTrajectoryRequestV4(object):
     def interpolate(self):
         """
         Gets the interpolate of this ConvertTrajectoryRequestV4.
+        Perform trajectory interpolation on demand; default is true.
 
         :return: The interpolate of this ConvertTrajectoryRequestV4.
         :rtype: bool
@@ -280,6 +299,7 @@ class ConvertTrajectoryRequestV4(object):
     def interpolate(self, interpolate):
         """
         Sets the interpolate of this ConvertTrajectoryRequestV4.
+        Perform trajectory interpolation on demand; default is true.
 
         :param interpolate: The interpolate of this ConvertTrajectoryRequestV4.
         :type: bool
@@ -307,6 +327,27 @@ class ConvertTrajectoryRequestV4(object):
         """
 
         self._md_i = md_i
+
+    @property
+    def unit_md(self):
+        """
+        Gets the unit_md of this ConvertTrajectoryRequestV4.
+
+        :return: The unit_md of this ConvertTrajectoryRequestV4.
+        :rtype: str
+        """
+        return self._unit_md
+
+    @unit_md.setter
+    def unit_md(self, unit_md):
+        """
+        Sets the unit_md of this ConvertTrajectoryRequestV4.
+
+        :param unit_md: The unit_md of this ConvertTrajectoryRequestV4.
+        :type: str
+        """
+
+        self._unit_md = unit_md
 
     def to_dict(self):
         """

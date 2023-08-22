@@ -19,11 +19,11 @@ import unittest
 
 import swagger_client
 from swagger_client.rest import ApiException
-from swagger_client.models.convert_trajectory_request import ConvertTrajectoryRequest
+from swagger_client.models.trajectory_station_in_v4 import TrajectoryStationInV4
 
 
-class TestConvertTrajectoryRequest(unittest.TestCase):
-    """ ConvertTrajectoryRequest unit test stubs """
+class TestTrajectoryStationInV4(unittest.TestCase):
+    """ TrajectoryStationInV4 unit test stubs """
 
     def setUp(self):
         pass
@@ -31,12 +31,12 @@ class TestConvertTrajectoryRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testConvertTrajectoryRequest(self):
+    def testTrajectoryStationInV4(self):
         """
-        Test ConvertTrajectoryRequest
+        Test TrajectoryStationInV4
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.convert_trajectory_request.ConvertTrajectoryRequest()
+        #model = swagger_client.models.trajectory_station_in_v4.TrajectoryStationInV4()
         pass
 
 

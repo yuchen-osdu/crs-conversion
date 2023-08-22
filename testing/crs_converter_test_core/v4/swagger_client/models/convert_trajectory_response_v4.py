@@ -41,6 +41,7 @@ class ConvertTrajectoryResponseV4(object):
         'operations_applied': 'list[str]',
         'stations_i': 'list[TrajectoryStationOut]',
         'scale_convergence_list': 'list[ScaleConvergence]',
+        'unit_md': 'str',
         'input_kind': 'str'
     }
 
@@ -55,10 +56,11 @@ class ConvertTrajectoryResponseV4(object):
         'operations_applied': 'operationsApplied',
         'stations_i': 'stations_i',
         'scale_convergence_list': 'scaleConvergenceList',
+        'unit_md': 'unitMD',
         'input_kind': 'inputKind'
     }
 
-    def __init__(self, trajectory_crs=None, unit_xy=None, unit_z=None, unit_dls=None, stations=None, local_crs=None, method=None, operations_applied=None, stations_i=None, scale_convergence_list=None, input_kind=None):
+    def __init__(self, trajectory_crs=None, unit_xy=None, unit_z=None, unit_dls=None, stations=None, local_crs=None, method=None, operations_applied=None, stations_i=None, scale_convergence_list=None, unit_md=None, input_kind=None):
         """
         ConvertTrajectoryResponseV4 - a model defined in Swagger
         """
@@ -73,6 +75,7 @@ class ConvertTrajectoryResponseV4(object):
         self._operations_applied = None
         self._stations_i = None
         self._scale_convergence_list = None
+        self._unit_md = None
         self._input_kind = None
 
         self.trajectory_crs = trajectory_crs
@@ -88,6 +91,8 @@ class ConvertTrajectoryResponseV4(object):
           self.stations_i = stations_i
         if scale_convergence_list is not None:
           self.scale_convergence_list = scale_convergence_list
+        if unit_md is not None:
+          self.unit_md = unit_md
         if input_kind is not None:
           self.input_kind = input_kind
 
@@ -95,6 +100,7 @@ class ConvertTrajectoryResponseV4(object):
     def trajectory_crs(self):
         """
         Gets the trajectory_crs of this ConvertTrajectoryResponseV4.
+        Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.
 
         :return: The trajectory_crs of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -105,6 +111,7 @@ class ConvertTrajectoryResponseV4(object):
     def trajectory_crs(self, trajectory_crs):
         """
         Sets the trajectory_crs of this ConvertTrajectoryResponseV4.
+        Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.
 
         :param trajectory_crs: The trajectory_crs of this ConvertTrajectoryResponseV4.
         :type: str
@@ -118,6 +125,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_xy(self):
         """
         Gets the unit_xy of this ConvertTrajectoryResponseV4.
+        The horizontal unit of the dx, dy in the output trajectory stations.
 
         :return: The unit_xy of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -128,6 +136,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_xy(self, unit_xy):
         """
         Sets the unit_xy of this ConvertTrajectoryResponseV4.
+        The horizontal unit of the dx, dy in the output trajectory stations.
 
         :param unit_xy: The unit_xy of this ConvertTrajectoryResponseV4.
         :type: str
@@ -141,6 +150,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_z(self):
         """
         Gets the unit_z of this ConvertTrajectoryResponseV4.
+        The vertical unit of the dz in the output trajectory stations.
 
         :return: The unit_z of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -151,6 +161,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_z(self, unit_z):
         """
         Sets the unit_z of this ConvertTrajectoryResponseV4.
+        The vertical unit of the dz in the output trajectory stations.
 
         :param unit_z: The unit_z of this ConvertTrajectoryResponseV4.
         :type: str
@@ -164,6 +175,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_dls(self):
         """
         Gets the unit_dls of this ConvertTrajectoryResponseV4.
+        The unit of the dog leg severity (DLS) in the output trajectory stations.
 
         :return: The unit_dls of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -174,6 +186,7 @@ class ConvertTrajectoryResponseV4(object):
     def unit_dls(self, unit_dls):
         """
         Sets the unit_dls of this ConvertTrajectoryResponseV4.
+        The unit of the dog leg severity (DLS) in the output trajectory stations.
 
         :param unit_dls: The unit_dls of this ConvertTrajectoryResponseV4.
         :type: str
@@ -187,6 +200,7 @@ class ConvertTrajectoryResponseV4(object):
     def stations(self):
         """
         Gets the stations of this ConvertTrajectoryResponseV4.
+        Computed trajectory stations.
 
         :return: The stations of this ConvertTrajectoryResponseV4.
         :rtype: list[TrajectoryStationOut]
@@ -197,6 +211,7 @@ class ConvertTrajectoryResponseV4(object):
     def stations(self, stations):
         """
         Sets the stations of this ConvertTrajectoryResponseV4.
+        Computed trajectory stations.
 
         :param stations: The stations of this ConvertTrajectoryResponseV4.
         :type: list[TrajectoryStationOut]
@@ -210,6 +225,7 @@ class ConvertTrajectoryResponseV4(object):
     def local_crs(self):
         """
         Gets the local_crs of this ConvertTrajectoryResponseV4.
+        Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location.
 
         :return: The local_crs of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -220,6 +236,7 @@ class ConvertTrajectoryResponseV4(object):
     def local_crs(self, local_crs):
         """
         Sets the local_crs of this ConvertTrajectoryResponseV4.
+        Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location.
 
         :param local_crs: The local_crs of this ConvertTrajectoryResponseV4.
         :type: str
@@ -233,6 +250,7 @@ class ConvertTrajectoryResponseV4(object):
     def method(self):
         """
         Gets the method of this ConvertTrajectoryResponseV4.
+        The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813).
 
         :return: The method of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -243,6 +261,7 @@ class ConvertTrajectoryResponseV4(object):
     def method(self, method):
         """
         Sets the method of this ConvertTrajectoryResponseV4.
+        The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813).
 
         :param method: The method of this ConvertTrajectoryResponseV4.
         :type: str
@@ -256,6 +275,7 @@ class ConvertTrajectoryResponseV4(object):
     def operations_applied(self):
         """
         Gets the operations_applied of this ConvertTrajectoryResponseV4.
+        The list of operations performed on the points as a list of strings
 
         :return: The operations_applied of this ConvertTrajectoryResponseV4.
         :rtype: list[str]
@@ -266,6 +286,7 @@ class ConvertTrajectoryResponseV4(object):
     def operations_applied(self, operations_applied):
         """
         Sets the operations_applied of this ConvertTrajectoryResponseV4.
+        The list of operations performed on the points as a list of strings
 
         :param operations_applied: The operations_applied of this ConvertTrajectoryResponseV4.
         :type: list[str]
@@ -316,9 +337,31 @@ class ConvertTrajectoryResponseV4(object):
         self._scale_convergence_list = scale_convergence_list
 
     @property
+    def unit_md(self):
+        """
+        Gets the unit_md of this ConvertTrajectoryResponseV4.
+
+        :return: The unit_md of this ConvertTrajectoryResponseV4.
+        :rtype: str
+        """
+        return self._unit_md
+
+    @unit_md.setter
+    def unit_md(self, unit_md):
+        """
+        Sets the unit_md of this ConvertTrajectoryResponseV4.
+
+        :param unit_md: The unit_md of this ConvertTrajectoryResponseV4.
+        :type: str
+        """
+
+        self._unit_md = unit_md
+
+    @property
     def input_kind(self):
         """
         Gets the input_kind of this ConvertTrajectoryResponseV4.
+        The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.
 
         :return: The input_kind of this ConvertTrajectoryResponseV4.
         :rtype: str
@@ -329,6 +372,7 @@ class ConvertTrajectoryResponseV4(object):
     def input_kind(self, input_kind):
         """
         Sets the input_kind of this ConvertTrajectoryResponseV4.
+        The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.
 
         :param input_kind: The input_kind of this ConvertTrajectoryResponseV4.
         :type: str
