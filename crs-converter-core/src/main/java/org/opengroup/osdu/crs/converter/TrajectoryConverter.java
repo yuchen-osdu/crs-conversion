@@ -116,11 +116,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         response.setMethod(request.getMethod());
         response.setInputKind(request.getInputKind());
         response.setUnitMD(request.getUnitMD());
+
+        //validate request payload and initialize TrajectoryComputationState
         if (isRequestValidV4(request, state)) {
             double gridConvergence;
             double to_gn;
             double to_tn;
             AzimuthCorrector azimuthCorrector = new AzimuthCorrector();
+            // populate TrajectoryStationOut from request payload
             response.setStations(populateResponseFromRequestV4(request, isInclOnly));
             ProjectionCorrectionSet correctionSet
                     = azimuthCorrector.createProjectionCorrectionSet(
@@ -145,13 +148,17 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 }
             }
 
+            // original request payload units are converted to METER unit
             ConvertTrajectoryResponseV4 siResponse = normalizeTrajectoryV4(response, state);
             Point referencePoint = new Point(0.0, 0.0, siResponse.getStations().get(0).getPoint().getZ());
+            // compute minimum curvature
             if (callTrajectoryEngineServiceV4(siResponse, referencePoint, state)) {
+                // The converted request payload units are converted back from METER unit to original units passed from payload
                 deNormalizeTrajectoryV4(siResponse, response, state);
 
                 state.getOperations().add(String.format("computation method: %s", state.getMethod().toString()));
                 if (state.getMethod() == TrajectoryComputationMethod.LeesModifiedProposal) {
+                    // This function does LMP computation when method passed from payload is LMP
                     convertPointsLmp(response, state);
                 } else {
                     // convert from local azimuthal equidistant CRS to requested CRS
@@ -165,19 +172,28 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 ConvertTrajectoryRequestV4 dummyRequestForScaleCompute = null;
                 List<ScaleConvergence> scaleConvergenceList = new ArrayList<>();
                 if (flag_check_projected && flag_check_scaleFactor) {
+                    //a dummy (fake/artificial) directional survey at the desired
+                    //referencePoint location, creating a "path", going due north (GN) with
+                    //a (true) horizontal length of 100m (i.e., set inclination=90 and
+                    //azimuth=0).
                     dummyRequestForScaleCompute = prepareDummyPayload(request);
+                    // this function uses dummy payload prepared above to compute scale factor & convergence for first station
                     ScaleConvergence scaleConvergenceFirst = computeScaleFactorAndConvergence(headers,dummyRequestForScaleCompute,flag_check_projected,response.getStations().get(0));
                     scaleConvergenceList.add(scaleConvergenceFirst);
                     response.setScaleConvergenceList(scaleConvergenceList);
                 }
                 if (state.getMethod() == TrajectoryComputationMethod.GridNorthLocal && flag_check_scaleFactor){
+                    // calculated when method is GNL
+                    // demonstrates how to “back out” the applied point scale factor
                     computeUnscaledValuesForXAndY(response);
                 }
                 if (flag_check_projected && flag_check_scaleFactor) {
+                    // this function uses dummy payload prepared above to compute scale factor & convergence for last station
                     ScaleConvergence scaleConvergenceLast = computeScaleFactorAndConvergence(headers, dummyRequestForScaleCompute, flag_check_projected, response.getStations().get(response.getStations().size() - 1));
                     scaleConvergenceList.add(scaleConvergenceLast);
                 }
                 response.setLocalCRS(correctionSet.getAzimuthalEquidistantCRS().createPersistableReference());
+                // converts original coordinates to WGS84 coordinates
                 convertToWgs84(response, state);
             } else {
                 throw new BadRequestException(String.join(" ", state.getErrors()));
@@ -187,6 +203,9 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
         response.setOperationsApplied(state.getOperations());
 
+        // returning max_horizontal_error & TVD_correction applied for inclination only scenario
+        //Inclination-only data, also known as INC-ONLY or TOTCO, are survey stations that do not
+        // have azimuth observables.
         if (isInclOnly) {
             DecimalFormat upto1decimal = new DecimalFormat("#.#");
             TrajectoryStationOut lastStationOut = response.getStations().get(response.getStations().size() - 1);
@@ -467,6 +486,8 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double z_Factor = state.getVerticalUnit().scaleToSI();
         double unitMD_Factor = 0.0;
         boolean checkUnitMD = false;
+
+        // unitMD_Factor takes precedence if unitMD passed from payload, else z_Factor
         if(state.getUnitMD()!=null){
              unitMD_Factor = state.getUnitMD().scaleToSI();
              checkUnitMD =  true;
