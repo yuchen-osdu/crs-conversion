@@ -1,8 +1,8 @@
 package org.opengroup.osdu.crs.model.v4;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,15 +17,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_RSP_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_RSP_DESCRIPTION)
 public class ConvertTrajectoryResponseV4 extends ConvertTrajectoryResponse {
 
     @Valid
-    @ApiModelProperty(value = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I, required = true)
+    @Schema(description = Constants.SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I)
+    @Parameter(required = true)
     private List<TrajectoryStationOut> stations_i;
 
     @Valid
-    @ApiModelProperty(value = Constants.SWAGGER_TRJ_SCALE_CONVERGENCE, required = true)
+    @Schema(description = Constants.SWAGGER_TRJ_SCALE_CONVERGENCE)
+    @Parameter(required = true)
     private List<ScaleConvergence> scaleConvergenceList;
 
     @Valid
