@@ -1180,6 +1180,20 @@
               "type": "string"
           }
       }
-  }
+  },
+    "ConnectedOuterService": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "name of connected outer service"
+        },
+        "version": {
+          "type": "string",
+          "description": "version of connected outer version"
+        }
+      },
+      "description": "Connected outer services names and versions"
+    }
   }
 }
