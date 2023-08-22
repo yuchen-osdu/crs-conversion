@@ -1,5 +1,4 @@
 package org.opengroup.osdu.crs.swagger;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -9,7 +8,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.*;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.springdoc.core.GroupedOpenApi;
@@ -20,6 +19,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import java.util.Arrays;
+import io.swagger.v3.oas.models.servers.ServerVariable;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.Collections;
+
 
 
 @Configuration
@@ -56,6 +59,7 @@ public class SwaggerConfiguration {
                         .name("Authorization")))
                 .info(apiInfo())
                 .servers(Arrays.asList(new Server().url("/api/crs/converter/")));
+
     }
 
     @Bean
@@ -73,14 +77,13 @@ public class SwaggerConfiguration {
     }
 
     @Bean
-    public GroupedOpenApi apiV4() {
-        String[] paths = {"/v4/**"};
+    public GroupedOpenApi apiV2() {
+        String[] paths = {"/v2/**"};
         return GroupedOpenApi.builder()
-                .group("v4")
+                .group("v2")
                 .pathsToMatch(paths)
-                .addOpenApiCustomiser(buildV4OpenAPI())
+                .addOpenApiCustomiser(buildV2OpenAPI())
                 .addOperationCustomizer(operationCustomizer())
-                .displayName("v4")
                 .build();
     }
 
@@ -92,38 +95,20 @@ public class SwaggerConfiguration {
                 .pathsToMatch(paths)
                 .addOpenApiCustomiser(buildV3OpenAPI())
                 .addOperationCustomizer(operationCustomizer())
-                .displayName("v3")
-                .build();
-    }
-    @Bean
-    public GroupedOpenApi apiV2() {
-        String[] paths = {"/v2/**"};
-        return GroupedOpenApi.builder()
-                .group("v2")
-                .pathsToMatch(paths)
-                .addOpenApiCustomiser(buildV2OpenAPI())
-                .addOperationCustomizer(operationCustomizer())
-                .displayName("v2")
                 .build();
     }
 
-    public OpenApiCustomiser buildV4OpenAPI() {
-        return openApi -> {
-            openApi.info(openApi.getInfo().version("4.0.0"));
-            openApi.addTagsItem(new Tag().name("health-check-api").description("Health related endpoints"));
-            openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
-            openApi.addTagsItem(new Tag().name("crs-converter-api-v4").description("Converter related endpoints"));
-        };
+    @Bean
+    public GroupedOpenApi apiV4() {
+        String[] paths = {"/v4/**"};
+        return GroupedOpenApi.builder()
+                .group("v4")
+                .pathsToMatch(paths)
+                .addOpenApiCustomiser(buildV4OpenAPI())
+                .addOperationCustomizer(operationCustomizer())
+                .build();
     }
-    public OpenApiCustomiser buildV3OpenAPI() {
-        return openApi -> {
-            openApi.info(openApi.getInfo().version("3.0.0"));
-            openApi.addTagsItem(new Tag().name("health-check-api").description("Health related endpoints"));
-            openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
-            openApi.addTagsItem(new Tag().name("crs-converter-api-v3").description("Converter related endpoints"));
-            openApi.addTagsItem(new Tag().name("convert-trajectory-api-v3").description("Convert trajectory stations"));
-        };
-    }
+
     public OpenApiCustomiser buildV2OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("2.0.0"));
@@ -134,6 +119,25 @@ public class SwaggerConfiguration {
         };
     }
 
+    public OpenApiCustomiser buildV3OpenAPI() {
+        return openApi -> {
+            openApi.info(openApi.getInfo().version("3.0.0"));
+            openApi.addTagsItem(new Tag().name("health-check-api").description("Health related endpoints"));
+            openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
+            openApi.addTagsItem(new Tag().name("crs-converter-api-v3").description("Converter related endpoints"));
+            openApi.addTagsItem(new Tag().name("convert-trajectory-api-v3").description("Convert trajectory stations"));
+
+        };
+    }
+
+    public OpenApiCustomiser buildV4OpenAPI() {
+        return openApi -> {
+            openApi.info(openApi.getInfo().version("4.0.0"));
+            openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
+            openApi.addTagsItem(new Tag().name("crs-converter-api-v4").description("Convert trajectory stations"));
+
+        };
+    }
     // Describe the apis
     private Info apiInfo() {
         return new Info()

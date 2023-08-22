@@ -30,4 +30,7 @@ public class ConvertTrajectoryResponseV4 extends ConvertTrajectoryResponse {
     @Parameter(required = true)
     private List<ScaleConvergence> scaleConvergenceList;
 
+    @Valid
+    @Schema(description = Constants.SWAGGER_TRJ_UNIT_MD)
+    private String unitMD;
 }

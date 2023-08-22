@@ -1,5 +1,6 @@
 package org.opengroup.osdu.crs.api;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -8,12 +9,18 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opengroup.osdu.crs.converter.TrajectoryConverterV4Tests;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
+import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
+import org.springframework.util.MultiValueMap;
 
 import javax.validation.ValidationException;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CrsConverterApiV4Tests {
@@ -23,11 +30,19 @@ public class CrsConverterApiV4Tests {
     @Mock
     private ITrajectoryConverter crsTrajectoryConverter;
 
+    @Mock
+    private CrsConverterApiV4 crsConverterApiV4;
+
     @Test
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess() {
-        ConvertTrajectoryResponseV4 convertTrajectoryResponseV4 = new ConvertTrajectoryResponseV4();
-        convertTrajectoryResponseV4 = TrajectoryConverterV4Tests.createResponse(RES_AZI_PROJ_CRS_GN);
-        lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(convertTrajectoryResponseV4);
+        ConvertTrajectoryResponseV4 convertTrajectoryResponseV4 = TrajectoryConverterV4Tests.createResponse(RES_AZI_PROJ_CRS_GN);
+        lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.any(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+        lenient().when(crsConverterApiV4.checkCRSType(Mockito.anyString())).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.any(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+        lenient().when(crsConverterApiV4.computeMinimumDepthPointsUsingInterval(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(new ArrayList<>());
+        lenient().when(crsConverterApiV4.checkMdiListForRange(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyList())).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(convertTrajectoryResponseV4);
+        lenient().when(crsConverterApiV4.convertTrajectory(Mockito.any(MultiValueMap.class), Mockito.any(ConvertTrajectoryRequestV4.class))).thenReturn(convertTrajectoryResponseV4);
         assertEquals(6, convertTrajectoryResponseV4.getStations().size());
     }
 
@@ -35,7 +50,10 @@ public class CrsConverterApiV4Tests {
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Failure_mdi_md_interval_present() {
         final String errorMsg = "Both md_i array and md_interval values are provided in the input.";
         try {
-            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
+            lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.any(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+            lenient().when(crsConverterApiV4.checkCRSType(Mockito.any())).thenReturn(Boolean.TRUE.booleanValue());
+            lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.anyString(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+            lenient().when(crsConverterApiV4.convertTrajectory(Mockito.any(MultiValueMap.class), Mockito.any(ConvertTrajectoryRequestV4.class))).thenReturn(new ConvertTrajectoryResponseV4());
         } catch (ValidationException exception) {
             Assertions.assertEquals(exception.getMessage(), errorMsg);
         }
@@ -45,7 +63,12 @@ public class CrsConverterApiV4Tests {
     public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Failure_mdi_not_in_range() {
         final String errorMsg = "md_i array values provided are not in range of MD stations.";
         try {
-            lenient().when(crsTrajectoryConverter.convertTrajectoryV4(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(ValidationException.class);
+            lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.any(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+            lenient().when(crsConverterApiV4.checkCRSType(Mockito.any())).thenReturn(Boolean.TRUE.booleanValue());
+            lenient().when(crsConverterApiV4.getPersistableReferenceFromID(Mockito.anyString(), Mockito.anyBoolean())).thenReturn("PersistableReference");
+            lenient().when(crsConverterApiV4.computeMinimumDepthPointsUsingInterval(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(new ArrayList<>());
+            lenient().when(crsConverterApiV4.checkMdiListForRange(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyList())).thenThrow(new ValidationException());
+            lenient().when(crsConverterApiV4.convertTrajectory(Mockito.any(MultiValueMap.class), Mockito.any(ConvertTrajectoryRequestV4.class))).thenReturn(new ConvertTrajectoryResponseV4());
         } catch (ValidationException exception) {
             Assertions.assertEquals(exception.getMessage(), errorMsg);
         }

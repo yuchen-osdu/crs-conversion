@@ -62,6 +62,7 @@ class ScaleConvergence(object):
     def scalefactor(self):
         """
         Gets the scalefactor of this ScaleConvergence.
+        Multiplier to correct a distance along the ellipsoid (“geodetic distance”) to the grid plane of the map projection (“grid distance”). Note: only a conformal map projection has the same point scale factor in all directions at a given location
 
         :return: The scalefactor of this ScaleConvergence.
         :rtype: float
@@ -72,6 +73,7 @@ class ScaleConvergence(object):
     def scalefactor(self, scalefactor):
         """
         Sets the scalefactor of this ScaleConvergence.
+        Multiplier to correct a distance along the ellipsoid (“geodetic distance”) to the grid plane of the map projection (“grid distance”). Note: only a conformal map projection has the same point scale factor in all directions at a given location
 
         :param scalefactor: The scalefactor of this ScaleConvergence.
         :type: float
@@ -83,6 +85,7 @@ class ScaleConvergence(object):
     def convergence(self):
         """
         Gets the convergence of this ScaleConvergence.
+        Grid convergence is important in wellbore positioning if azimuth angles are reported referenced to Grid North and observations need to be corrected. 
 
         :return: The convergence of this ScaleConvergence.
         :rtype: float
@@ -93,6 +96,7 @@ class ScaleConvergence(object):
     def convergence(self, convergence):
         """
         Sets the convergence of this ScaleConvergence.
+        Grid convergence is important in wellbore positioning if azimuth angles are reported referenced to Grid North and observations need to be corrected. 
 
         :param convergence: The convergence of this ScaleConvergence.
         :type: float
