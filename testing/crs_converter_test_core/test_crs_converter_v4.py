@@ -11,7 +11,6 @@ from crs_converter_test_core.v4.swagger_client.rest import ApiException
 
 import urllib3
 
-from crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
 
 urllib3.disable_warnings()
 
