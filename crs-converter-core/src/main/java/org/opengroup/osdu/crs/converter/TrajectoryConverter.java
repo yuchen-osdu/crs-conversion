@@ -570,7 +570,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             unitMD_Factor = 1.0 / state.getUnitMD().scaleToSI();
         }
         double dlFactor;
-        if (z_Factor != 1.0 || unitMD_Factor != null) {
+        if (z_Factor != 1.0 || (unitMD_Factor != null && unitMD_Factor != 1.0)) {
             dlFactor = 30.48; // non-metric: deg/100ft
             response.setUnitDls(DEGPFT);
         } else { //              metric:     deg/30m
