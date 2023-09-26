@@ -662,6 +662,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 state.getOperations().add("to WGS 84: " + op);
             }
         } catch (IllegalArgumentException e) {
+            state.getOperations().add(e.getMessage());
             for (TrajectoryStationOut to : response.getStations()) {
                 to.setWgs84Latitude(Double.NaN);
                 to.setWgs84Longitude(Double.NaN);
@@ -686,6 +687,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 state.getOperations().add("to WGS 84: " + op);
             }
         } catch (IllegalArgumentException e) {
+            state.getOperations().add(e.getMessage());
             for (TrajectoryStationOut to : response.getStations()) {
                 to.setWgs84Latitude(Double.NaN);
                 to.setWgs84Longitude(Double.NaN);

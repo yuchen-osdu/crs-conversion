@@ -1,5 +1,6 @@
 package org.opengroup.osdu.crs.GeoJson;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -7,10 +8,14 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class GeoJsonFeature extends GeoJsonBase {
     @JsonProperty("geometry")
+    @NotNull
+    @Parameter(required = true)
     private GeoJsonBase geometry;
 
     @JsonProperty("properties")
