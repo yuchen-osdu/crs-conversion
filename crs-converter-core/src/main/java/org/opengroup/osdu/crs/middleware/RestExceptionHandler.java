@@ -28,12 +28,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     private JaxRsDpsLog jaxRsDpsLog;
 
-    @ExceptionHandler(value = { BadRequestException.class, IllegalArgumentException.class })
+    @ExceptionHandler(value = { BadRequestException.class})
     public ResponseEntity<AppError> handleBadRequest(Exception  e) {
         AppError appError = AppError.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .message("Bad request")
                 .reason("Error")
+                .build();
+        jaxRsDpsLog.error(e.getMessage(), e);
+        return ResponseEntity.badRequest().body(appError);
+    }
+
+    @ExceptionHandler(value = {IllegalArgumentException.class })
+    public ResponseEntity<AppError> handleIllegalRequest(Exception  e) {
+        AppError appError = AppError.builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message("Bad request")
+                .reason(e.getMessage())
                 .build();
         jaxRsDpsLog.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body(appError);
@@ -118,6 +129,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         jaxRsDpsLog.error(e.getMessage(), e);
         return ResponseEntity.badRequest().body(appError);
     }
+
 
     private ResponseEntity<AppError> getResponse(AppException appException) {
         if (appException.getCause() instanceof Exception) {
