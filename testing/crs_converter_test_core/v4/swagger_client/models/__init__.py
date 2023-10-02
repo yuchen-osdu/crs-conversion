@@ -14,13 +14,11 @@
 from __future__ import absolute_import
 
 # import models into model package
-from .convert_trajectory_request import ConvertTrajectoryRequest
 from .convert_trajectory_request_v4 import ConvertTrajectoryRequestV4
-from .convert_trajectory_response import ConvertTrajectoryResponse
 from .convert_trajectory_response_v4 import ConvertTrajectoryResponseV4
 from .error_response import ErrorResponse
 from .minimum_depth_interval import MinimumDepthInterval
 from .point import Point
 from .scale_convergence import ScaleConvergence
-from .trajectory_station_in import TrajectoryStationIn
+from .trajectory_station_in_v4 import TrajectoryStationInV4
 from .trajectory_station_out import TrajectoryStationOut

@@ -31,6 +31,7 @@ from .models.any_crs_geo_json_multi_polygon import AnyCrsGeoJsonMultiPolygon
 from .models.any_crs_geo_json_point import AnyCrsGeoJsonPoint
 from .models.any_crs_geo_json_polygon import AnyCrsGeoJsonPolygon
 from .models.any_property import AnyProperty
+from .models.connected_outer_service import ConnectedOuterService
 from .models.convert_bin_grid_request import ConvertBinGridRequest
 from .models.convert_bin_grid_response import ConvertBinGridResponse
 from .models.convert_geo_json_request import ConvertGeoJsonRequest

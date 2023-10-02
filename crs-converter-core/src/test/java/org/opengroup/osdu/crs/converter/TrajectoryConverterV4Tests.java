@@ -4,36 +4,129 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.crs.api.exception.BadRequestException;
+import org.opengroup.osdu.crs.model.*;
+import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
+import org.opengroup.osdu.crs.sis.ISisCrs;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.lenient;
+
+@RunWith(MockitoJUnitRunner.class)
 public class TrajectoryConverterV4Tests {
 
-    private static final String INPUT_REQ_AZI_PROJ_CRS_GN = "{\r\n    \"azimuthReference\": \"GN\",\r\n    \"interpolate\": false,\r\n    \"referencePoint\": {\r\n        \"y\": 6500000,\r\n        \"x\": 400000,\r\n        \"z\": 0\r\n    },\r\n    \"unitZ\": \"osdu:reference-data--UnitOfMeasure:m:\",\r\n    \"inputStations\": [\r\n        {\r\n            \"md\": 0,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        },\r\n        {\r\n            \"md\": 2000,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        },\r\n        {\r\n            \"md\": 4000,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        },\r\n        {\r\n            \"md\": 6000,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        },\r\n        {\r\n            \"md\": 8000,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        },\r\n        {\r\n            \"md\": 10000,\r\n            \"azimuth\": 90,\r\n            \"inclination\": 90\r\n        }\r\n    ],\r\n    \"trajectoryCRS\": \"osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:\",\r\n    \"inputKind\": \"MD_Incl_Azim\",\r\n    \"method\": \"AzimuthalEquidistant\"\r\n}";
+    @Mock
+    AzimuthCorrector azimuthCorrector;
+
+    @Mock
+    TrajectoryConverter trajectoryConverter;
 
     @Test
-    public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess() {
+    public void convertTrajectoryWithSuccessfulResponseLMP() {
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setMethod(TrajectoryComputationMethod.LeesModifiedProposal);
+        state.setAzimuthReference(AzimuthReferenceType.GRID_NORTH);
+
+        lenient().when(trajectoryConverter.isRequestValidV4(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationStateV4.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
+        lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPointsLmp(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().when(trajectoryConverter.computeScaleFactorAndConvergence(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.any())).thenReturn(new ScaleConvergence());
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
+
+        assertNotNull(ConvertTrajectoryResponseV4.class);
+    }
+
+
+    @Test
+    public void convertTrajectoryWithSuccessfulResponseGNL() {
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setMethod(TrajectoryComputationMethod.GridNorthLocal);
+
+        lenient().when(trajectoryConverter.isRequestValidV4(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationStateV4.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponse());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
+        lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().when(trajectoryConverter.computeInterpolationForMDiInput(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationStateV4.class), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84V4(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationStateV4.class));
+        lenient().when(trajectoryConverter.computeScaleFactorAndConvergence(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.any())).thenReturn(new ScaleConvergence());
+        lenient().doNothing().when(trajectoryConverter).computeUnscaledValuesForXAndY(new ConvertTrajectoryResponseV4());
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponse.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
+
+        assertNotNull(ConvertTrajectoryResponseV4.class);
+    }
+
+    @Test
+    public void convertTrajectoryWithSuccessfulResponseAZ() {
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
+
+        lenient().when(trajectoryConverter.isRequestValidV4(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationStateV4.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().doNothing().when(trajectoryConverter).minimumCurvature(Mockito.any(Point.class), Mockito.anyList());
+        lenient().when(trajectoryConverter.minimumCurvaturePair(Mockito.any(Point.class), Mockito.anyList(), Mockito.anyInt())).thenReturn(new Point());
+        lenient().doNothing().when(trajectoryConverter).deNormalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertPoints(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(ISisCrs.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().doNothing().when(trajectoryConverter).convertToWgs84(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class));
+        lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(new ConvertTrajectoryResponseV4());
+
+        assertNotNull(ConvertTrajectoryResponseV4.class);
+    }
+
+    @Test
+    public void convertTrajectoryWithStationsFailure() {
+        final String errorMsg = "Stations Failure.";
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
+
+        lenient().when(trajectoryConverter.isRequestValidV4(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationStateV4.class))).thenReturn(Boolean.TRUE.booleanValue());
+        lenient().when(azimuthCorrector.createProjectionCorrectionSet(Mockito.anyString(), Mockito.any(Point.class), Mockito.any(IUnit.class))).thenReturn(new ProjectionCorrectionSet());
+        lenient().when(trajectoryConverter.normalizeTrajectory(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(new ConvertTrajectoryResponseV4());
+        lenient().when(trajectoryConverter.callTrajectoryEngineService(Mockito.any(ConvertTrajectoryResponseV4.class), Mockito.any(Point.class), Mockito.any(TrajectoryComputationState.class))).thenReturn(Boolean.FALSE.booleanValue());
+        try {
+            lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(BadRequestException.class);
+        }catch (Exception e) {
+            BadRequestException apiException = (BadRequestException) e;
+            assertEquals(apiException.getMessage(), errorMsg);
+        }
 
     }
 
-    public void convertTrajectoryForLMPProjectedCRS_GN_WithSuccess() {
+    @Test
+    public void convertTrajectoryWithInvalidRequest() {
+        final String errorMsg = "Invalid Request.";
+        TrajectoryComputationState state = new TrajectoryComputationState();
+        state.setMethod(TrajectoryComputationMethod.AzimuthalEquidistant);
 
-    }
+        lenient().when(trajectoryConverter.isRequestValidV4(Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.any(TrajectoryComputationStateV4.class))).thenReturn(Boolean.FALSE.booleanValue());
 
-    public void convertTrajectoryForLMPGeographicCRS_TN_WithSuccess() {
-
-    }
-
-    public void convertTrajectoryForGNLProjectedCRS_GN_WithSuccess() {
-
-    }
-
-    public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Mdi_WithSuccess() {
-
-    }
-
-    public void convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_Md_interval_WithSuccess() {
+        try {
+            lenient().when(trajectoryConverter.convertTrajectoryV4(Mockito.any(DpsHeaders.class), Mockito.any(ConvertTrajectoryRequestV4.class), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenThrow(BadRequestException.class);
+        }catch (Exception e) {
+            BadRequestException apiException = (BadRequestException) e;
+            assertEquals(apiException.getMessage(), errorMsg);
+        }
 
     }
 

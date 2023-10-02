@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotEmpty;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 @Data
+@NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = GeoJsonPoint.class, name = "Point"),
@@ -45,7 +48,6 @@ public abstract class GeoJsonBase {
 
     private int dimension;
     boolean valid;
-
     GeoJsonBase(String type) {
         this.type = type;
         this.dimension = -1;

@@ -776,7 +776,6 @@
       "example": {
         "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
         "azimuthReference": "TN",
-        "unitXY": "osdu:reference-data--UnitOfMeasure:m:",
         "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
         "referencePoint": {
           "x": 400000,
@@ -2034,6 +2033,21 @@
               "type": "string"
           }
       }
-  }
+    },
+    "ConnectedOuterService": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "name of connected outer service"
+        },
+        "version": {
+          "type": "string",
+          "description": "version of connected outer version"
+        }
+      },
+      "description": "Connected outer services names and versions"
+    }
   }
 }
+

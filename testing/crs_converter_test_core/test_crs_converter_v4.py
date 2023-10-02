@@ -5,12 +5,12 @@ import warnings
 
 import jwt_client
 from crs_converter_test_core.utility import TestEnvironment
-from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4
+from crs_converter_test_core.v4.swagger_client import Configuration, ApiClient, ConvertTrajectoryRequestV4, \
+    TrajectoryComputationAndConversionv4EXPERIMENTALApi
 from crs_converter_test_core.v4.swagger_client.rest import ApiException
 
 import urllib3
 
-from crs_converter_test_core.v4.swagger_client import Crsconverterapiv4Api
 
 urllib3.disable_warnings()
 
@@ -57,7 +57,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         client = ApiClient(host=url)
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
-        cls.api_instance = Crsconverterapiv4Api(client)
+        cls.api_instance = TrajectoryComputationAndConversionv4EXPERIMENTALApi(client)
         cls.test_records = TestRecords()
         cls.test_records.setup()
 
@@ -97,6 +97,20 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
             
+    def test_dls_convertTrajectory(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/Dls_InputRequest.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.stations[len(api_response.stations)-1].dls, 0.0)
+            self.assertEquals(api_response.stations_i[len(api_response.stations_i)-1].dls, 0.0)
+        except ApiException as e:
+            self.fail(str(e))
+            
     def test_convertTrajectoryForMDI(self):
         request = self.__read_v4_convert_trajectory_request(
             'v4/data/MDInterpolateRequest.json')
@@ -126,6 +140,24 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.assertTrue(400 == json.loads(e.body)['code'])
             self.assertTrue(error_msg == json.loads(e.body)['message'])
+
+    def test_convertTrajectoryFor_INC_ONLY_Success(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/ConvertTrajectoryFor_INC_ONLY.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+        try:
+            # convert_trajectory
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertEquals(api_response.stations[0].dx_tn, 0.0)
+            self.assertEquals(api_response.stations[0].dy_tn, 0.0)
+            self.assertEquals(api_response.stations[0].point.x, 400000.0000000041)
+            self.assertEquals(api_response.stations[0].point.y, 2999999.9999999115)
+        except ApiException as e:
+            self.fail(str(e))
+
             
     @staticmethod
     def __read_v4_convert_trajectory_request(file_name):
@@ -155,6 +187,11 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'],
                                                   md_i=r_dict['MD_i'])
+            elif r_dict.get('inputKind') == 'MD_Incl':
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
             else:
                 return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
                                                   azimuth_reference=r_dict['azimuthReference'],
@@ -214,7 +251,18 @@ def suite():
     suite.addTest(
         TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForLMPGeographicCRS_GN_WithSuccess'))
     suite.addTest(
-        TestTrajectoryConverterIntegrationV4('test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
+        TestTrajectoryConverterIntegrationV4(
+            'test_convertTrajectoryForAzimuthalEquidistantProjectedCRS_GN_WithSuccess'))
+    suite.addTest(TestTrajectoryConverterIntegrationV4(
+                        'test_convertTrajectoryForMDI'))
+    suite.addTest(TestTrajectoryConverterIntegrationV4(
+                            'test_convertTrajectoryForMDI_Out_Of_Range'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4(
+            'test_dls_convertTrajectory'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4(
+            'test_convertTrajectoryFor_INC_ONLY_Success'))        
     return suite
 
 

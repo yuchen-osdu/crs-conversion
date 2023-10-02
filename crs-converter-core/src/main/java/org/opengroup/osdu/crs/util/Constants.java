@@ -171,6 +171,8 @@ public final class Constants {
     public static final String SWAGGER_TRJ_SCALE_FACTOR = "Scalefactor";
     public static final String SWAGGER_TRJ_CONVERGENCE = "convergence";
     public static final String SWAGGER_TRJ_MD_I = "MD_i";
+    public static final String SWAGGER_TRJ_UNIT_MD = "unitMD";
+    public static final String SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE = "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\"";
     public static final String SWAGGER_TRJ_REQ_MD_I_EX =  "{\n" +
             "    \"MD_i\": {\n" +
             "        \"md_i\": [\n" +
@@ -216,8 +218,10 @@ public final class Constants {
 	public static final String SWAGGER_BIN_GRID_CONVERT_REQUEST_DESCR = "The input and output of this method use the AbstractBinGrid:1.0.0  definition.  On input a minimum required properties can be given, which are enriched on output as indicated ";
 	public static final String SWAGGER_BIN_GRID_CONVERSION_RESPONSE = "The response is essentially a measure of the computed “non-squareness” (dI,dJ) of the input BinGrid, and an output BinGrid which is essentially a copy of the input, but augmented with the derived P6 parameters filled out, and optionally (if a toCrs was given in the request) converted global coordinates that are “squared up” in the new geometry (which can be used in applications that require a square grid in a project CRS geometry; if the “squaring error” is small enough";
 	public static final String SWAGGER_BIN_GRID_CONVERTED = " ";
+    public static final String MD_INCL = "MD_Incl";
+    public static final String MD_INCL_AZIM = "MD_Incl_Azim";
+    public static final String AZIMUTHAL_EQUIDISTANT = "AzimuthalEquidistant";
 
-
-
+    public static final String INC_ONLY_OPERTN_APPL = "Original survey was inclination-only, change to Md_Incl_Az. The original inclination values were copied into the azimuth and then set to zero to force a vertical path.";
 
 }

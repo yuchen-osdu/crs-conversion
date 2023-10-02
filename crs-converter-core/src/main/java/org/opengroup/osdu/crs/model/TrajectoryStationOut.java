@@ -2,15 +2,16 @@ package org.opengroup.osdu.crs.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.opengroup.osdu.crs.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengroup.osdu.crs.util.Constants;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = Constants.SWAGGER_TRJ_STN_OUT_DESCRIPTION)
+
 public class TrajectoryStationOut {
     @Schema(description = Constants.SWAGGER_MD, type = "number", format = "double",example = Constants.SWAGGER_MD_EXAMPLE)
     @Parameter(required = true)

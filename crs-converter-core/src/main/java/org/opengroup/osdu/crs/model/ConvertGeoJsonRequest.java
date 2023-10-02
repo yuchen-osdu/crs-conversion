@@ -1,16 +1,23 @@
 package org.opengroup.osdu.crs.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.util.Constants;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Schema(description = Constants.SWAGGER_GEO_JSON_CONVERT_REQUEST_DESCR)
 public class ConvertGeoJsonRequest {
+
+
+	@JsonProperty("featureCollection")
+	@NotNull
 	@Schema(description = Constants.SWAGGER_GEO_JSON_FEATURE_COLLECTION)
 	@Parameter(required = true)
 	private GeoJsonFeatureCollection featureCollection;

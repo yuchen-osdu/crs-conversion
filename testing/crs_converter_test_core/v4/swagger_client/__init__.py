@@ -14,20 +14,18 @@
 from __future__ import absolute_import
 
 # import models into sdk package
-from .models.convert_trajectory_request import ConvertTrajectoryRequest
 from .models.convert_trajectory_request_v4 import ConvertTrajectoryRequestV4
-from .models.convert_trajectory_response import ConvertTrajectoryResponse
 from .models.convert_trajectory_response_v4 import ConvertTrajectoryResponseV4
 from .models.error_response import ErrorResponse
 from .models.minimum_depth_interval import MinimumDepthInterval
 from .models.point import Point
 from .models.scale_convergence import ScaleConvergence
-from .models.trajectory_station_in import TrajectoryStationIn
+from .models.trajectory_station_in_v4 import TrajectoryStationInV4
 from .models.trajectory_station_out import TrajectoryStationOut
 
 # import apis into sdk package
-from .apis.crsconverterapiv4_api import Crsconverterapiv4Api
 from .apis.info_api_api import InfoApiApi
+from .apis.trajectory_computation_and_conversionv4_experimental_api import TrajectoryComputationAndConversionv4EXPERIMENTALApi
 
 # import ApiClient
 from .api_client import ApiClient

@@ -19,24 +19,24 @@ import unittest
 
 import swagger_client
 from swagger_client.rest import ApiException
-from swagger_client.models.convert_trajectory_response import ConvertTrajectoryResponse
+from swagger_client.apis.trajectory_computation_and_conversionv4_experimental_api import TrajectoryComputationAndConversionv4EXPERIMENTALApi
 
 
-class TestConvertTrajectoryResponse(unittest.TestCase):
-    """ ConvertTrajectoryResponse unit test stubs """
+class TestTrajectoryComputationAndConversionv4EXPERIMENTALApi(unittest.TestCase):
+    """ TrajectoryComputationAndConversionv4EXPERIMENTALApi unit test stubs """
 
     def setUp(self):
-        pass
+        self.api = swagger_client.apis.trajectory_computation_and_conversionv4_experimental_api.TrajectoryComputationAndConversionv4EXPERIMENTALApi()
 
     def tearDown(self):
         pass
 
-    def testConvertTrajectoryResponse(self):
+    def test_convert_trajectory(self):
         """
-        Test ConvertTrajectoryResponse
+        Test case for convert_trajectory
+
+        
         """
-        # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.convert_trajectory_response.ConvertTrajectoryResponse()
         pass
 
 

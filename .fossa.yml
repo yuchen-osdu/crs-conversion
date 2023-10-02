@@ -20,10 +20,6 @@ analyze:
       type: mvn
       target: provider/crs-converter-azure/crs-converter-aks/pom.xml
       path: .
-    - name: crs-converter-gae
-      type: mvn
-      target: provider/crs-converter-gc/crs-converter-gae/pom.xml
-      path: .
     - name: crs-converter-gke
       type: mvn
       target: provider/crs-converter-gc/crs-converter-gke/pom.xml
