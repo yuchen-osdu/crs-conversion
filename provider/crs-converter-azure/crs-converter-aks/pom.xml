@@ -13,7 +13,7 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
-        <osdu.corelibazure.version>0.23.1</osdu.corelibazure.version>
+        <osdu.corelibazure.version>0.23.2</osdu.corelibazure.version>
         <jackson-databind.version>2.13.4.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <spring-webmvc.version>5.3.22</spring-webmvc.version>
