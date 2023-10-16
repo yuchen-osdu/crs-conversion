@@ -134,7 +134,7 @@ public class SwaggerConfiguration {
         return openApi -> {
             openApi.info(openApi.getInfo().version("4.0.0"));
             openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));
-            openApi.addTagsItem(new Tag().name("crs-converter-api-v4").description("Convert trajectory stations"));
+            openApi.addTagsItem(new Tag().name("crs-converter-api-v4 (Experimental)").description("Convert trajectory stations"));
 
         };
     }
