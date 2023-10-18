@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.conf.appName | quote }}
-  replicas: 1
+  replicas: {{ .Values.conf.replicas }}
   template:
     metadata:
       labels:
@@ -33,6 +33,13 @@ spec:
             runAsNonRoot: true
           ports:
             - containerPort: 8080
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/crs/converter/_ah/liveness_check
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 10
           resources:
             requests:
               cpu: {{ .Values.data.requestsCpu | quote }}
