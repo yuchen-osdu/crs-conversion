@@ -17,6 +17,7 @@ import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -121,9 +122,9 @@ public class CrsConverterApiV4 {
         return flag;
     }
 
-    @PostMapping("/convertTrajectory")
+    @PostMapping(value ="/convertTrajectory", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "${CrsConverterApi.convertTrajectoryV4.summary}", description = "${CrsConverterApi.convertTrajectoryV4.description}",
-            security = {@SecurityRequirement(name = "Authorization")},tags = {"crs-converter-api-v4"})
+            security = {@SecurityRequirement(name = "Authorization")},tags = {"crs-converter-api-v4 (Experimental)"})
     @ApiResponses({
             @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponseV4.class),
             @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
