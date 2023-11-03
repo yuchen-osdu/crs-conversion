@@ -55,11 +55,32 @@
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>
             <artifactId>crs-converter-core</artifactId>
             <version>${project.version}</version>
+             <exclusions>
+                 <exclusion>
+                 <groupId>org.springframework</groupId>
+                 <artifactId>spring-web</artifactId>
+                 </exclusion>
+             </exclusions>
         </dependency>
-
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-autoconfigure</artifactId>
+             <version>2.7.12</version>
+         </dependency>
+         <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+             <version>2.7.11</version>
+         </dependency>
+         <dependency>
+             <groupId>org.springframework</groupId>
+             <artifactId>spring-web</artifactId>
+             <version>5.3.27</version>
+         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
+             <version>5.6.12</version>
         </dependency>
 
         <dependency>
@@ -70,6 +91,7 @@
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+             <version>2.7.11</version>
 		</dependency>
 
         <dependency>
