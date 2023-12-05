@@ -1,6 +1,7 @@
 package org.opengroup.osdu.crs.model.v4;
 
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = Constants.SWAGGER_TRJ_RSP_DESCRIPTION)
+@JsonPropertyOrder({"unitMD"})
 public class ConvertTrajectoryResponseV4 extends ConvertTrajectoryResponse {
 
     @Valid

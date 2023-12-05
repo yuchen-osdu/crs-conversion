@@ -13,6 +13,7 @@ import org.opengroup.osdu.crs.model.ErrorResponse;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
 import org.opengroup.osdu.crs.model.v4.MinimumDepthInterval;
+import org.opengroup.osdu.crs.model.v4.TrajectoryStationInV4;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.net.URLDecoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,19 +37,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequestMapping("/v4")
 public class CrsConverterApiV4 {
+    private static final String BOUND_PROJECTED = "BoundProjected";
+    private static final String PROJECTED = "Projected";
+    private static final String UTF_8 = "UTF-8";
+    private static final String RECORD_NOT_FOUND = "record not found:";
+    private final ITrajectoryConverter crsTrajectoryConverter;
     @Autowired
     private JaxRsDpsLog logger;
     @Autowired
     private IStorageClient storageClient;
-
-    private final ITrajectoryConverter crsTrajectoryConverter;
-
     private RecordCache recordCache;
-    private static final String BOUND_PROJECTED = "BoundProjected";
-    private static final String PROJECTED = "Projected";
-
-    private static final String UTF_8 = "UTF-8";
-    private static final String RECORD_NOT_FOUND = "record not found:";
 
     public CrsConverterApiV4(@NonNull ITrajectoryConverter crsTrajectoryConverter) {
         this.crsTrajectoryConverter = crsTrajectoryConverter;
@@ -136,7 +135,9 @@ public class CrsConverterApiV4 {
         String message = String.format("Using trajectory: %s", "no");
         logger.info(message);
         DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
-        if (request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED)) {
+        String trajectorycrs = request.getTrajectoryCRS();
+
+        if (!request.getInputKind().equals(Constants.DX_DY_DZ) && (request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED))) {
             if (!Strings.isNullOrEmpty(request.getUnitXY())) {
                 throw new ValidationException("unitXY should not be provided for BoundProjected and Projected CRS.");
             }
@@ -164,8 +165,6 @@ public class CrsConverterApiV4 {
                 throw new ValidationException("md_i array values provided are not in range of MD stations.");
             }
         }
-
-
         if (request.getInputKind().equals(Constants.MD_INCL)) {
 
             request.getInputStations().stream().forEach(station -> {
@@ -196,6 +195,37 @@ public class CrsConverterApiV4 {
             return response;
         }
 
+        if (request.getInputKind().equals(Constants.DX_DY_DZ)) {
+            request.getInputStations().stream().forEach(station -> {
+                if (station.getAzimuth() != null || station.getInclination()!= null || station.getMd()!= null)
+                    throw new ValidationException("Azimuth / Inclination / Minimum Depth data shouldn't be provided for input kind : " + request.getInputKind());
+            });
+            List<TrajectoryStationInV4> calculatedAzIncMdInputStations =this.crsTrajectoryConverter.populateMdInclAziFromRequestV4ForInverseMinimumCurvature(request);
+
+            ConvertTrajectoryRequestV4 dummyRequest = request;
+            if (trajectorycrs.contains(BOUND_PROJECTED) || trajectorycrs.contains(PROJECTED)) {
+                String unit = getUnitFromTrajectoryCRS(trajectorycrs);
+                dummyRequest.setUnitXY(getPersistableReferenceFromID(unit, false));
+            }
+            dummyRequest.setInputKind(Constants.MD_INCL_AZIM);
+            AtomicInteger index = new AtomicInteger(0);
+            dummyRequest.getInputStations().stream().forEach(data -> {
+                data.setMd(calculatedAzIncMdInputStations.get(index.get()).getMd());
+                data.setAzimuth(calculatedAzIncMdInputStations.get(index.get()).getAzimuth());
+                data.setInclination(calculatedAzIncMdInputStations.get(index.getAndIncrement()).getInclination());
+            });
+            ConvertTrajectoryResponseV4 response = this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, dummyRequest, checkCRSType, true, false);
+            response.getOperationsApplied().add(0, "Input dX_dY_dZ .  Applying inverse minimum curvature to compute Md_Incl_Azim");
+            DecimalFormat upto3decimal = new DecimalFormat("#.###");
+            response.getStations().stream().forEach(station -> {
+                station.setOriginal(false);
+                station.setMd(Double.parseDouble(upto3decimal.format(station.getMd())));
+                station.setInclination(Double.parseDouble(upto3decimal.format(station.getInclination())));
+                station.setAzimuthTN(Double.parseDouble(upto3decimal.format(station.getAzimuthTN())));
+                station.setAzimuthGN(Double.parseDouble(upto3decimal.format(station.getAzimuthGN())));
+            });
+            return response;
+        }
         return this.crsTrajectoryConverter.convertTrajectoryV4(dpsHeaders, request, checkCRSType, true, false);
     }
 

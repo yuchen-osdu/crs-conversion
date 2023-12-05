@@ -221,7 +221,7 @@ public final class Constants {
     public static final String MD_INCL = "MD_Incl";
     public static final String MD_INCL_AZIM = "MD_Incl_Azim";
     public static final String AZIMUTHAL_EQUIDISTANT = "AzimuthalEquidistant";
-
+    public static final String DX_DY_DZ = "dX_dY_dZ";
     public static final String INC_ONLY_OPERTN_APPL = "Original survey was inclination-only, change to Md_Incl_Az. The original inclination values were copied into the azimuth and then set to zero to force a vertical path.";
 
 }

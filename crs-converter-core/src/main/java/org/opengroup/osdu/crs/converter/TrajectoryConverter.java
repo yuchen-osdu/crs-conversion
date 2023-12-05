@@ -133,7 +133,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                 if (state.getAzimuthReference() == AzimuthReferenceType.GRID_NORTH) { // correct GN to TN first
                     to_tn = gridConvergence;
                     to_gn = 0.0;
-                    state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", (to_tn + 360) % 360.0));
+                    if(to_tn>180){
+                        to_tn = to_tn-360;
+                    }else{
+                        to_tn=(to_tn + 360) % 360.0;
+                    }
+                    state.getOperations().add(String.format("derived TN from GN azimuth by grid convergence %f", to_tn));
                 } else {
                     to_tn = 0.0;
                     to_gn = -gridConvergence;
@@ -570,7 +575,17 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             unitMD_Factor = 1.0 / state.getUnitMD().scaleToSI();
         }
         double dlFactor;
-        if (z_Factor != 1.0 || (unitMD_Factor != null && unitMD_Factor != 1.0)) {
+
+
+        if (unitMD_Factor != null) {
+            if (unitMD_Factor != 1.0) {
+                dlFactor = 30.48; // non-metric: deg/100ft
+                response.setUnitDls(DEGPFT);
+            } else {
+                dlFactor = 30; // metric: deg/30m
+                response.setUnitDls(DEGPM);
+            }
+        } else if (z_Factor != 1.0 &&unitMD_Factor == null) {
             dlFactor = 30.48; // non-metric: deg/100ft
             response.setUnitDls(DEGPFT);
         } else { //              metric:     deg/30m
@@ -1110,7 +1125,7 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             TrajectoryInputKind k = TrajectoryInputKind.getTrajectoryInputKind(request.getInputKind());
             if (k == null) {
                 state.getErrors().add("Invalid input kind specification.");
-            } else if (k != TrajectoryInputKind.MD_INCL_AZIM) {
+            } else if (k!= TrajectoryInputKind.MD_INCL_AZIM && k!=TrajectoryInputKind.DX_DY_DZ) {
                 state.getErrors().add(k.toString() + " is not yet supported as input kind.");
             } else {
                 state.setInputKind(k);
@@ -1198,5 +1213,110 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         double dls = rad2deg*b / dmd;
         t2.setDls(dls);
         return p;
+    }
+    public List<TrajectoryStationInV4> normalizeInverseTrajectoryStations(ConvertTrajectoryRequestV4 request, TrajectoryComputationStateV4 state) {
+        IUnit unit = parseUnitReference(request.getUnitXY());
+        state.setHorizontalUnit(unit);
+        if (!unit.isValid() || !unit.isLength()) {
+            state.getErrors().add("Invalid horizontal unit.");
+        }
+        unit = parseUnitReference(request.getUnitZ());
+        state.setVerticalUnit(unit);
+        if (!unit.isValid() || !unit.isLength()) {
+            state.getErrors().add("Invalid vertical unit.");
+        }
+        if (request.getUnitMD() != null) {
+            unit = parseUnitReference(request.getUnitMD());
+            state.setUnitMD(unit);
+            if (!unit.isValid() || !unit.isLength()) {
+                state.getErrors().add("Invalid unitMD.");
+            }
+        }
+        double xyFactor = state.getHorizontalUnit().scaleToSI();
+        double z_Factor = state.getVerticalUnit().scaleToSI();
+        for (TrajectoryStationInV4 item : request.getInputStations()) {
+            item.setDz(item.getDz() * z_Factor);
+            item.setDx(item.getDx() * xyFactor);
+            item.setDy(item.getDy() * xyFactor);
+        }
+        return request.getInputStations();
+    }
+    public List<TrajectoryStationInV4> populateMdInclAziFromRequestV4ForInverseMinimumCurvature(ConvertTrajectoryRequestV4 request) {
+        TrajectoryComputationStateV4 state = new TrajectoryComputationStateV4();
+        List<TrajectoryStationInV4> normalizedinputstations = normalizeInverseTrajectoryStations(request, state);
+        List<TrajectoryStationInV4> trajectoryStationInV4sList = new ArrayList<>();
+        TrajectoryStationInV4 ti = normalizedinputstations.get(0);
+        ti.setMd(0.0);
+        ti.setAzimuth(0.0);
+        ti.setInclination(0.0);
+        for (int i = 1; i < normalizedinputstations.size(); i++) {
+            trajectoryStationInV4sList = populateMdInclAziFromRequestV4ForInverseMinimumCurvaturePair(normalizedinputstations, i);
+        }
+        List<TrajectoryStationInV4> denormalizedInputRequest = deNormalizeInverseTrajectory(trajectoryStationInV4sList, state);
+        return denormalizedInputRequest;
+    }
+    public List<TrajectoryStationInV4> deNormalizeInverseTrajectory(List<TrajectoryStationInV4> trajectoryStationInV4sList, TrajectoryComputationStateV4 state) {
+        Double unitMD_Factor = null;
+        if (state.getUnitMD() != null) {
+            unitMD_Factor = 1.0 / state.getUnitMD().scaleToSI();
+        }
+        double z_Factor = 1.0 / state.getVerticalUnit().scaleToSI();
+        for (TrajectoryStationInV4 item : trajectoryStationInV4sList) {
+            if(unitMD_Factor!=null){
+                item.setMd(item.getMd() * unitMD_Factor);
+            }else{
+            item.setMd(item.getMd() * z_Factor);
+            }
+        }
+        return trajectoryStationInV4sList;
+    }
+    public List<TrajectoryStationInV4> populateMdInclAziFromRequestV4ForInverseMinimumCurvaturePair(List<TrajectoryStationInV4> stations, int index) {
+        double deg2rad = 1.0; // Math.PI / 180.0;
+        double rad2deg = 1.0; // 180.0 / Math.PI;
+        TrajectoryStationInV4 t1 = stations.get(index - 1);
+        TrajectoryStationInV4 t2 = stations.get(index);
+        double delta_e = t2.getDx() - t1.getDx();
+        double delta_n = t2.getDy() - t1.getDy();
+        double delta_d = t2.getDz() - t1.getDz();
+        double r = Math.sqrt(Math.pow(delta_n, 2) + Math.pow(delta_e, 2) + Math.pow(delta_d, 2));
+        double ratioFactor = 0.0;
+        double delta_m = 0.0;
+        double dogLeg = 2 * Math.acos(Math.max(-1, Math.min(1, (delta_n * Math.sin(Math.toRadians(t1.getInclination())) * Math.cos(Math.toRadians(t1.getAzimuth())) +
+                delta_e * Math.sin(Math.toRadians(t1.getInclination())) * Math.sin(Math.toRadians(t1.getAzimuth())) +
+                delta_d * Math.cos(Math.toRadians(t1.getInclination()))) / r)));
+        if (dogLeg == 0.0) {
+            ratioFactor = 1;
+            delta_m = r;
+        } else {
+            ratioFactor = 2 * Math.tan(dogLeg / 2) / dogLeg;
+            delta_m = 0.5 * dogLeg * r / Math.sin(dogLeg / 2);
+        }
+        double m2 = t1.getMd() + delta_m;
+        double i2 = Math.acos(Math.max(-1, Math.min(1, delta_d / (0.5 * delta_m * ratioFactor) - Math.cos(Math.toRadians(t1.getInclination())))));
+        double a2 = 0.0;
+        double a2_decimal=0.0;
+        double a2n = 0.0;
+        double a2e = 0.0;
+        t2.setInclination(i2);
+        double i2_deg = Math.toDegrees(i2);
+        DecimalFormat upto3decimal = new DecimalFormat("#.###");
+        if (i2_deg < 0.00001) {
+            a2 = 0.0;
+        } else {
+            a2n = Math.acos(Math.max(-1, Math.min(1, (delta_n / (0.5 * delta_m * ratioFactor) - Math.sin(Math.toRadians(t1.getInclination())) * Math.cos(Math.toRadians(t1.getAzimuth()))) / Math.sin(t2.getInclination()))));
+            a2e = Math.asin(Math.max(-1, Math.min(1, (delta_e / (0.5 * delta_m * ratioFactor) - Math.sin(Math.toRadians(t1.getInclination())) * Math.sin(Math.toRadians(t1.getAzimuth()))) / Math.sin(t2.getInclination()))));
+            a2 = Math.toDegrees(a2n * Math.signum(a2e));
+            a2_decimal=Double.parseDouble(upto3decimal.format(a2));
+        }
+
+        if (a2_decimal < 0) {
+            a2_decimal += 360;
+        } else if (a2_decimal >= 360) {
+            a2_decimal -= 360;
+        }
+        t2.setInclination(i2_deg);
+        t2.setAzimuth(a2_decimal);
+        t2.setMd(m2);
+        return stations;
     }
 }
