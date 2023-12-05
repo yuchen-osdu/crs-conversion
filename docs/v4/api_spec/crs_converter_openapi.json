@@ -35,6 +35,8 @@
         "tags": [
           "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
         ],
+        "summary": "Convert trajectory stations",
+        "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. For survey MD, Incl, Azi input, minimum curvature is used to calculate the local deviations and absolute coordinates. For MD_dX,dY,dZ, the inverse minimum curvature is first applied to compute Inc and Azi, which then are used as input to compute the trajectory.",
         "operationId": "convertTrajectory",
         "parameters": [
 		{
@@ -64,7 +66,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Trajectory conversion performed successfully",
                 "schema": {
                   "$ref": "#/definitions/ConvertTrajectoryResponseV4"
                 }
@@ -273,7 +275,7 @@
         },
         "unitXY": {
             "type": "string",
-            "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.",
+            "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example. And the UnitXY is required (for the input dx,dy) ",
             "example": "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\""
         },
         "unitZ": {
@@ -330,7 +332,7 @@
         },
         "inputKind": {
             "type": "string",
-            "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.",
+            "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point. MD_Incl for Handling inclination-only surveys",
             "example": "MD_Inclination_Azimuth"
         },
         "interpolate": {

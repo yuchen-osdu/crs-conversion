@@ -158,7 +158,22 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
-            
+    def test_convertTrajectoryFor_InverseMinimumCurvature_ONLY_Success(self):
+        request = self.__read_v4_convert_trajectory_request(
+            'v4/data/ConvertTrajectoryFor_InverseMinimumCurvature.json')
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        self.assertIsNotNone(request)
+
+        try:
+            api_response = self.api_instance.convert_trajectory(body=request,
+                                                                data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertIsNotNone(api_response.operations_applied)
+            self.assertTrue(
+                api_response.operations_applied[0] == "Input dX_dY_dZ .  Applying inverse minimum curvature "
+                                                      "to compute Md_Incl_Azim")
+        except ApiException as e:
+            self.fail(str(e))
     @staticmethod
     def __read_v4_convert_trajectory_request(file_name):
         dir_path = os.path.dirname(__file__)
@@ -190,6 +205,13 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             elif r_dict.get('inputKind') == 'MD_Incl':
                 return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
                                                   unit_z=r_dict['unitZ'], reference_point=r_dict['referencePoint'],
+                                                  input_stations=r_dict['inputStations'], method=r_dict['method'],
+                                                  input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
+            elif r_dict.get('inputKind') == 'dX_dY_dZ' and r_dict.get("unit_xy") is not None:
+                return ConvertTrajectoryRequestV4(trajectory_crs=r_dict['trajectoryCRS'],
+                                                  unit_xy=r_dict['unitXY'],
+                                                  unit_z=r_dict['unitZ'],
+                                                  unit_md=r_dict['unitMD'], reference_point=r_dict['referencePoint'],
                                                   input_stations=r_dict['inputStations'], method=r_dict['method'],
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
             else:
@@ -262,7 +284,10 @@ def suite():
             'test_dls_convertTrajectory'))
     suite.addTest(
         TestTrajectoryConverterIntegrationV4(
-            'test_convertTrajectoryFor_INC_ONLY_Success'))        
+            'test_convertTrajectoryFor_INC_ONLY_Success'))
+    suite.addTest(
+        TestTrajectoryConverterIntegrationV4(
+            'test_convertTrajectoryFor_InverseMinimumCurvature_ONLY_Success'))        
     return suite
 
 

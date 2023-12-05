@@ -1,12 +1,10 @@
 package org.opengroup.osdu.crs.model.v4;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.opengroup.osdu.crs.util.Constants;
 
-import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @Schema(description = Constants.SWAGGER_TRJ_STN_IN_DESCRIPTION)
@@ -19,14 +17,10 @@ public class TrajectoryStationInV4 {
         dz = Double.NaN;
     }
 
-    @NotNull
     @Schema(description = Constants.SWAGGER_MD, type = "number", format = "double",example = Constants.SWAGGER_MD_EXAMPLE)
-    @Parameter(required = true)
     private Double md;
 
-    @NotNull
     @Schema(description = Constants.SWAGGER_INC, type = "number", format = "double",example = Constants.SWAGGER_INC_EXAMPLE)
-    @Parameter(required = true)
     private Double inclination;
 
     @Schema(description = Constants.SWAGGER_AZI, type = "number", format = "double",example = Constants.SWAGGER_AZI_EXAMPLE)
