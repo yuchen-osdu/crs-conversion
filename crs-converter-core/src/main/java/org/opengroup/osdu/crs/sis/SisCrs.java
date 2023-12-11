@@ -84,6 +84,16 @@ public class SisCrs implements ISisCrs {
     }
 
     @Override
+    public boolean isEqual(CoordinateReferenceSystem otherCoordinateReferenceSystem) {
+        Identifier identifier = IdentifiedObjects.getIdentifier(coordianteReferenceSystem, Citations.EPSG);
+        Identifier otherIdentifier = IdentifiedObjects.getIdentifier(otherCoordinateReferenceSystem, Citations.EPSG);
+        if (identifier != null && otherIdentifier != null) {
+            return identifier.getCode().equals(otherIdentifier.getCode());
+        }
+        return coordianteReferenceSystem.equals(otherCoordinateReferenceSystem);
+    }
+
+    @Override
     public String toString() {
         return getWkt();
     }

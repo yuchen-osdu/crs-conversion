@@ -29,14 +29,7 @@ import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonPoint;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
-import org.opengroup.osdu.crs.model.CRSType;
-import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
-import org.opengroup.osdu.crs.model.ConvertOperationState;
-import org.opengroup.osdu.crs.model.ConvertPointsResponse;
-import org.opengroup.osdu.crs.model.ICrs;
-import org.opengroup.osdu.crs.model.IItem;
-import org.opengroup.osdu.crs.model.ILateBoundCrs;
+import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.sis.operation.CRSCoordinateOperationFactory;
 import org.opengroup.osdu.crs.sis.operation.ICRSCoordinateOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
@@ -419,7 +412,71 @@ public class CRSConverter implements ICRSConverter {
 
 		return geoJsonFeatureCollection;
 	}
-	
+
+	@Override
+	public ConvertPointsResponseV4 convertPointV4(String from, String to, String transform, double[] xyCoordinates, double[] zCoordinates) {
+		if ((from == null) || (from.isEmpty())
+				|| (to == null) || (to.isEmpty())
+				|| (xyCoordinates == null) || (xyCoordinates.length == 0)
+				|| (zCoordinates == null) || (zCoordinates.length == 0)) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_BAD_INPUT);
+		}
+		if (xyCoordinates.length / 2 != zCoordinates.length) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_INPUT_ARRAY_MISMATCH);
+		}
+		ICrs sourceCRS = null;
+		ICrs targetCRS = null;
+		ITrf explicitTransform = null;
+		IItem raw = parseSpatialReference(from);
+		if (raw instanceof ICrs) {
+			sourceCRS = (ICrs) raw;
+		}
+		raw = parseSpatialReference(to);
+		if (raw instanceof ICrs) {
+			targetCRS = (ICrs) raw;
+		}
+		if (sourceCRS == null || targetCRS == null || !sourceCRS.isValid() || !targetCRS.isValid()) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_CRS_SPECIFICATION);
+		}
+		if (transform != null && !transform.isEmpty()) {
+			raw = parseSpatialReference(transform);
+			if (raw instanceof ITrf) {
+				explicitTransform = (ITrf) raw;
+			}
+			if (explicitTransform == null || !explicitTransform.isValid()) {
+				throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
+			}
+		}
+
+		ConvertOperationState opState = new ConvertOperationState(sourceCRS, targetCRS, xyCoordinates, zCoordinates);
+		int successCount = zCoordinates.length;
+		CRSCoordinateOperationFactory opFactory = new CRSCoordinateOperationFactory();
+		List<ICRSCoordinateOperation> operations = opFactory.createOperationsV4(sourceCRS, targetCRS, explicitTransform);
+		boolean shouldEnable3DConversion = shouldEnable3DConversion(operations);
+		double[] initialZCoordinates = new double[zCoordinates.length];
+		System.arraycopy(zCoordinates, 0, initialZCoordinates, 0, zCoordinates.length);
+		for (ICRSCoordinateOperation currentOperation : operations) {
+			if (shouldEnable3DConversion) {
+				currentOperation.enable3DPointConversion(true);
+			}
+			OperationResponse response = currentOperation.convertPoints(xyCoordinates, zCoordinates);
+			opState.getOperations().addAll(response.getOperationsApplied());
+			successCount = response.getSuccessCount();
+		}
+
+		if (shouldEnable3DConversion) {
+			System.arraycopy(initialZCoordinates, 0, zCoordinates, 0, initialZCoordinates.length);
+		}
+
+		ConvertPointsResponseV4 response = new ConvertPointsResponseV4();
+		response.setSuccessCount(successCount);
+		if (opState.getOperations().size() == 0) {
+			opState.getOperations().add("no operation applied");
+		}
+		response.setOperationsApplied(opState.getOperations());
+		return response;
+	}
+
 	private static GeoJsonPoint getGeoJsonPoint(Double dx, Double dy, Double dz) {
         GeoJsonPoint g_pt = new GeoJsonPoint();
         g_pt.setGeoJsonVariant(GeoJsonBase.GeoJsonVariant.GEO_JSON);

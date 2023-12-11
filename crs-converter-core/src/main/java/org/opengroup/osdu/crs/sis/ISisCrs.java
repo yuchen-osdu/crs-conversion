@@ -15,6 +15,8 @@ public interface ISisCrs {
 
     public boolean isEqual(ISisCrs otherSISCrs);
 
+    public boolean isEqual(CoordinateReferenceSystem crs);
+
     public AuthorityCode getAuthorityCode();
 
     public String getWkt();

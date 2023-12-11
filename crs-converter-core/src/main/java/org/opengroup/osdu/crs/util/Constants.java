@@ -22,6 +22,9 @@ public final class Constants {
     public static final String ERROR_MSG_JSON_PARSE = "Error parsing spatial model; details: ";
     public static final String ERROR_MSG_SPATIAL_ENGINE_ERROR = "Spatial engine error; details: ";
     public static final String ERROR_MSG_UNIT_ERROR = "Unsupported or inconsistent unit.";
+    public static final String ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION = "Invalid transform specification";
+    public static final String ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH = "Invalid transform specification; transform is incompatible with source and target CRS";
+
 
     // Swagger
     public static final String JSON_TYPE = "application/json";
@@ -78,6 +81,9 @@ public final class Constants {
             "      \"z\": 0\n" +
             "    }\n" +
             "  ]";
+    public static final String SWAGGER_TRANSFORM = "CRS Transform";
+    public static final String SWAGGER_TRANSFORM_EXAMPLE = "\"{\"wkt\":\"GEOGTRAN[\\\"PSAD_1956_To_WGS_1984_9\\\",GEOGCS[\\\"GCS_Provisional_S_American_1956\\\",DATUM[\\\"D_Provisional_S_American_1956\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-295.0],PARAMETER[\\\"Y_Axis_Translation\\\",173.0],PARAMETER[\\\"Z_Axis_Translation\\\",-371.0],AUTHORITY[\\\"EPSG\\\",1209]]\",\"ver\":\"PE_10_3_1\",\"name\":\"PSAD_1956_To_WGS_1984_9\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1209\"},\"type\":\"ST\"}\"";
+
 
     public static final String SWAGGER_TRJ_CONVERT_TITLE = "Convert trajectory stations";
     public static final String SWAGGER_TRJ_CONVERT_NOTES = "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0.";

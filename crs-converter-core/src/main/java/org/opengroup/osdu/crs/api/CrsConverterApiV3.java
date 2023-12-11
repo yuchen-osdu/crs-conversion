@@ -362,4 +362,28 @@ public class CrsConverterApiV3 {
 		}
 		return convertBinGrid;
 	}
+
+	@PostMapping(value = "/convertV4", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "${CrsConverterApi.convertPoint.summary}", description = "${CrsConverterApi.convertPoint.description}",
+			security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v3"},
+			requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)))
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
+			@ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+			@ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+			@ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
+	})
+	public ConvertPointsResponseV4 convertPointV4(@NonNull @Valid @RequestBody ConvertPointsRequestV4 request) {
+		String transform = getPersistableReferenceFromID(request.getCrsTransform(), false);
+		String fromCrs = getPersistableReferenceFromID(request.getFromCRS(), false);
+		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+
+		double[] xyCoordinates = this.pointConverter.mergeXYCoordinates(request.getPoints());
+		double[] zCoordinates = this.pointConverter.mergeZCoordinates(request.getPoints());
+		ConvertPointsResponseV4 response = this.crsConverter.convertPointV4(fromCrs, toCrs,transform, xyCoordinates,
+				zCoordinates);
+		response.setPoints(this.pointConverter.convertValuesToPoints(xyCoordinates, zCoordinates));
+		return response;
+	}
+
 }
