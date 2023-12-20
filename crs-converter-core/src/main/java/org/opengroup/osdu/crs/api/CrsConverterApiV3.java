@@ -374,6 +374,7 @@ public class CrsConverterApiV3 {
 			@ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
 	})
 	public ConvertPointsResponseV4 convertPointV4(@NonNull @Valid @RequestBody ConvertPointsRequestV4 request) {
+		//Added new optional parameter transform for explicit transfrom
 		String transform = getPersistableReferenceFromID(request.getCrsTransform(), false);
 		String fromCrs = getPersistableReferenceFromID(request.getFromCRS(), false);
 		String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
