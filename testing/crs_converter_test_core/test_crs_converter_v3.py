@@ -880,7 +880,7 @@ def suite():
     suite.addTest(TestUnAuthorizedCrsConverterIntegration('test_transformation_with_unAuthorized_token'))
     suite.addTest(TestInfo('test_info_using_get'))
     suite.addTest(TestCrsConverterIntegration('test_conversion_only_ID'))
-	suite.addTest(TestCrsConverterIntegration('test_convert_check_WGS84_to_case'))
+    suite.addTest(TestCrsConverterIntegration('test_convert_check_WGS84_to_case'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json_ID'))
     suite.addTest(TestCrsConverterIntegration('test_bin_grid_without_TOCRS'))
     suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_TOCRS'))
