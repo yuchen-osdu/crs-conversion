@@ -1,4 +1,5 @@
 package org.opengroup.osdu.crs.swagger;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -8,48 +9,30 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.*;
+import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springdoc.core.customizers.OperationCustomizer;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
 import java.util.Arrays;
-import io.swagger.v3.oas.models.servers.ServerVariable;
-import io.swagger.v3.oas.models.servers.Server;
-import java.util.Collections;
-
-
 
 @Configuration
 @Profile("!noswagger")
 public class SwaggerConfiguration {
-    @Value("${api.title}")
-    private String apiTitle;
-
-    @Value("${api.description}")
-    private String apiDescription;
-
-    @Value("${api.contact.name}")
-    private String contactName;
-
-    @Value("${api.contact.email}")
-    private String contactEmail;
-
-    @Value("${api.license.name}")
-    private String licenseName;
-
-    @Value("${api.license.url}")
-    private String licenseUrl;
+    
+    @Autowired
+    private SwaggerConfigurationProperties configurationProperties;
 
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "Authorization";
-        return new OpenAPI()
+        OpenAPI openAPI = new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components().addSecuritySchemes(securitySchemeName, new SecurityScheme()
                         .type(SecurityScheme.Type.HTTP)
@@ -57,7 +40,10 @@ public class SwaggerConfiguration {
                         .bearerFormat("Authorization")
                         .in(SecurityScheme.In.HEADER)
                         .name("Authorization")))
-                .info(apiInfo())
+                .info(apiInfo());
+        if (configurationProperties.isApiServerFullUrlEnabled())
+            return openAPI;
+        return openAPI
                 .servers(Arrays.asList(new Server().url("/api/crs/converter/")));
 
     }
@@ -138,12 +124,13 @@ public class SwaggerConfiguration {
 
         };
     }
+    
     // Describe the apis
     private Info apiInfo() {
         return new Info()
-                .title(apiTitle)
-                .description(apiDescription)
-                .license(new License().name(licenseName).url(licenseUrl))
-                .contact(new Contact().name(contactName).email(contactEmail));
+                .title(configurationProperties.getApiTitle())
+                .description(configurationProperties.getApiDescription())
+                .license(new License().name(configurationProperties.getApiLicenseName()).url(configurationProperties.getApiLicenseUrl()))
+                .contact(new Contact().name(configurationProperties.getApiContactName()).email(configurationProperties.getApiContactEmail()));
     }
-    }
+}
