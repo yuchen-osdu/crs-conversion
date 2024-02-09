@@ -273,7 +273,6 @@ The following software have components provided under the terms of this license:
 - Jackson module: Afterburner (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-modules-base)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
-- Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
 - Microsoft Application Insights Java Agent (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Application Insights Java SDK Spring Boot starter (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Application Insights Java SDK Web Module (from https://github.com/Microsoft/ApplicationInsights-Java)
@@ -336,6 +335,7 @@ The following software have components provided under the terms of this license:
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Netty/Common (from https://repo1.maven.org/maven2/io/netty/netty-common)
 - reactive-streams (from http://www.reactive-streams.org/)
+- Hibernate Validator (from https://repo1.maven.org/maven2/org/hibernate/hibernate-validator, https://repo1.maven.org/maven2/org/hibernate/validator/hibernate-validator)
 
 ========================================================================
 CDDL-1.0
