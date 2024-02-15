@@ -15,6 +15,7 @@ public interface ICRSConverter {
 	ConvertPointsResponse convertPoint(String from, String to, double[] xyCoordinates, double[] zCoordinates);
 
 	ConvertGeoJsonResponse convertGeoJson(GeoJsonFeatureCollection featureCollection, String toCrs, String toUnitZ);
+	ConvertGeoJsonResponse convertGeoJsonV4(GeoJsonFeatureCollection featureCollection, String toCrs, String toUnitZ,String transform);
 	
 	ConvertBinGridResponse squaring(String toCrs, AbstractBinGrid inBinGrid, ConvertBinGridResponse outBinGrid);
 

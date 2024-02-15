@@ -159,6 +159,50 @@ public class CRSConverter implements ICRSConverter {
 		return response;
 	}
 
+	@Override
+	public ConvertGeoJsonResponse convertGeoJsonV4(GeoJsonFeatureCollection featureCollection, String toCrs, String requestedToUnitZ, String transform) {
+		ConvertGeoJsonResponse response = new ConvertGeoJsonResponse();
+		if (featureCollection.isValid()) {
+			String fromCrs, fromUnitZ, toUnitZ = requestedToUnitZ;
+			GeoJsonBase.GeoJsonVariant targetVariant;
+			GeoJsonCoordinates coordinates = featureCollection.extractCoordinates();
+			if (featureCollection.getGeoJsonVariant() == GeoJsonBase.GeoJsonVariant.GEO_JSON) {
+				fromCrs = Constants.WGS84;
+				fromUnitZ = METER;
+			} else {
+				fromCrs = featureCollection.getPersistableReferenceCrs();
+				fromUnitZ = featureCollection.getPersistableReferenceUnitZ();
+			}
+			ConvertPointsResponseV4 internal_response = convertPointV4(fromCrs, toCrs, transform,coordinates.getXys(),
+					coordinates.getZ_s());
+			if (targetIsWGS84(toCrs)) {
+				targetVariant = GeoJsonBase.GeoJsonVariant.GEO_JSON;
+				featureCollection.setPersistableReferenceCrs(null);
+				toUnitZ = METER;
+			} else {
+				targetVariant = GeoJsonBase.GeoJsonVariant.ANY_CRS_GEO_JSON;
+				featureCollection.setPersistableReferenceCrs(toCrs);
+			}
+			String any_unit_conversion = coordinates.convertUnits(fromUnitZ, toUnitZ);
+			coordinates.setIndex(0);
+			featureCollection.replaceCoordinates(coordinates);
+			featureCollection.setGeoJsonVariant(targetVariant);
+			response.setSuccessCount(internal_response.getSuccessCount());
+			response.setTotalCount(coordinates.getLength());
+			response.setFeatureCollection(featureCollection);
+			if (featureCollection.getDimension() > 2) {
+				internal_response.getOperationsApplied().add(any_unit_conversion);
+				featureCollection.setPersistableReferenceUnitZ(toUnitZ);
+			}
+			featureCollection.updateBbox();
+			response.setOperationsApplied(internal_response.getOperationsApplied());
+		} else {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_BAD_INPUT);
+		}
+		return response;
+	}
+
+
 	private boolean targetIsWGS84(String toCrs) {
 		ILateBoundCrs wgs84 = (ILateBoundCrs) parseSpatialReference(Constants.WGS84);
 		wgs84.isValid();

@@ -32,5 +32,5 @@ public class ConvertPointsRequestV4 {
 	@Schema(description = Constants.SWAGGER_TRANSFORM,
 			example = Constants.SWAGGER_TRANSFORM_EXAMPLE)
 	@Parameter(required = false)
-	private String crsTransform;
+	private String transformation;
 }
