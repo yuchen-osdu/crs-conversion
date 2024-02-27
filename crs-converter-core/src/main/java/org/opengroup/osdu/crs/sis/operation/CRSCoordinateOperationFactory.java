@@ -224,16 +224,27 @@ public class CRSCoordinateOperationFactory {
         ISingleTrf singleExplicitTransform = (ISingleTrf) explicitTransform;
         ISisMathTransform sisTransform = singleExplicitTransform.getTransformOperation();
         CoordinateOperation transformCoordinateOperation = sisTransform.getFromWGS84Operation();
-        CoordinateReferenceSystem fromTransformCoorindateReferenceSystem = transformCoordinateOperation.getSourceCRS();
+        //CoordinateReferenceSystem fromTransformCoorindateReferenceSystem = transformCoordinateOperation.getSourceCRS();
+        ISisCrs iSisCrs = fromCrs.getBaseGeographicCrs();
         ISisCrs fromBaseCrs = fromCrs.getBaseGeographicCrs();
         ISisCrs toBaseCrs = toCrs.getBaseGeographicCrs();
-        if (fromBaseCrs.isEqual(fromTransformCoorindateReferenceSystem)) {
+
+        CoordinateReferenceSystem transformSourceCRS = transformCoordinateOperation.getSourceCRS();
+        CoordinateReferenceSystem transformTargetCRS = transformCoordinateOperation.getTargetCRS();
+
+        if (iSisCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs)) {
+            operations.add(new ExplicitInverseTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
+        }else{
+            operations.add(new ExplicitTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
+        }
+
+        /*if (fromBaseCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs)) {
             operations.add(new ExplicitTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
         } else if (toBaseCrs.isEqual(fromTransformCoorindateReferenceSystem)) {
             operations.add(new ExplicitInverseTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
         } else {
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
-        }
+        }*/
     }
 
     private boolean needFromProjection(ICrs fromCrs, ICrs toCrs, boolean fromTransformNeeded, boolean toTransformNeeded) {
@@ -347,7 +358,7 @@ public class CRSCoordinateOperationFactory {
         return true;
     }
 
-    private void validateExplicitTransform(ICrs fromCRS, ICrs toCRS, ITrf explicitTransform) {
+    private boolean validateExplicitTransform(ICrs fromCRS, ICrs toCRS, ITrf explicitTransform) {
         if (!(explicitTransform instanceof ISingleTrf)) {
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
         }
@@ -357,18 +368,20 @@ public class CRSCoordinateOperationFactory {
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
         }
         CoordinateOperation transformCoordinateOperation = transformOperation.getFromWGS84Operation();
-        CoordinateReferenceSystem transformFromCRS = transformCoordinateOperation.getSourceCRS();
-        CoordinateReferenceSystem transformToCRS = transformCoordinateOperation.getTargetCRS();
+        CoordinateReferenceSystem transformSourceCRS = transformCoordinateOperation.getSourceCRS();
+        CoordinateReferenceSystem transformTargetCRS = transformCoordinateOperation.getTargetCRS();
 
+        ISisCrs iSisCrs = fromCRS.getBaseGeographicCrs();
         ISisCrs fromBaseCrs = fromCRS.getBaseGeographicCrs();
         ISisCrs toBaseCrs = toCRS.getBaseGeographicCrs();
-        if (fromBaseCrs.isEqual(transformFromCRS) && toBaseCrs.isEqual(transformToCRS)) {
+        /*if (fromBaseCrs.isEqual(transformFromCRS) && toBaseCrs.isEqual(transformToCRS)) {
             return;
         }
         if (fromBaseCrs.isEqual(transformToCRS) && toBaseCrs.isEqual(transformFromCRS)) {
             return;
-        }
-        throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
+        }*/
+        return iSisCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs);
+        //throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
     }
 
     private void validateRoute(ICrs fromCRS, ICrs toCRS) {
