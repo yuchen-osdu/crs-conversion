@@ -23,6 +23,7 @@ import java.util.Collection;
 
 public class AuthenticationToken extends AbstractAuthenticationToken {
 
+    private static final long serialVersionUID = -2531838910695905049L;
     private final Object principal;
 
     public AuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
