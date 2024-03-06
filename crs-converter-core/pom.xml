@@ -14,9 +14,6 @@
   <properties>
     <app.version>1</app.version>
     <app.id>crs-converter-core</app.id>
-    <jackson-databind.version>2.13.4.2</jackson-databind.version>
-    <jackson.version>2.13.2</jackson.version>
-    <spring-webmvc.version>5.3.22</spring-webmvc.version>
   </properties>
 
   <prerequisites>
@@ -31,7 +28,8 @@
     <!-- osdu dependencies -->
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
-      <artifactId>os-core-common</artifactId>
+      <artifactId>os-core-common-spring6</artifactId>
+      <version>0.26.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -42,7 +40,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.26</version>
+      <version>1.18.28</version>
       <scope>provided</scope>
     </dependency>
 
@@ -89,7 +87,7 @@
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.14.2.0</version>
+      <version>10.17.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.opengis</groupId>
@@ -97,14 +95,21 @@
       <version>3.0.1</version>
     </dependency>
     <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>2.3.2</version>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-    </dependency>
+  <!--  <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>-->
+<!--    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>2.1.1</version>
+    </dependency>-->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
@@ -115,33 +120,26 @@
 	    <artifactId>json-simple</artifactId>
 	    <version>1.1.1</version>
 	</dependency>
-      
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
+<!--    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>2.0.1.Final</version>
+    </dependency>-->
+    <!--<dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>${spring-webmvc.version}</version>
-    </dependency>
-    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>3.0.0</version>
+    </dependency>-->
+<!--    <dependency>
 	    <groupId>org.apache.tomcat.embed</groupId>
 	    <artifactId>tomcat-embed-core</artifactId>
 	    <version>9.0.68</version>
-	</dependency>
+	</dependency>-->
   </dependencies>
    <build>
        <plugins>

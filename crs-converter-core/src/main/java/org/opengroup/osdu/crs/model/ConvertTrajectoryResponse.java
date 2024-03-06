@@ -8,7 +8,7 @@ import org.opengroup.osdu.crs.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import java.util.List;

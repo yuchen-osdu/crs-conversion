@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
 import lombok.Data;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Data

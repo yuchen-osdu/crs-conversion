@@ -23,7 +23,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 
 import java.lang.reflect.Executable;
 
