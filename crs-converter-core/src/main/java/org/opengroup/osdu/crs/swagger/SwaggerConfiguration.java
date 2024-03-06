@@ -12,9 +12,9 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
-import org.springdoc.core.GroupedOpenApi;
-import org.springdoc.core.customizers.OpenApiCustomiser;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,7 +68,7 @@ public class SwaggerConfiguration {
         return GroupedOpenApi.builder()
                 .group("v2")
                 .pathsToMatch(paths)
-                .addOpenApiCustomiser(buildV2OpenAPI())
+                .addOpenApiCustomizer(buildV2OpenAPI())
                 .addOperationCustomizer(operationCustomizer())
                 .build();
     }
@@ -79,7 +79,7 @@ public class SwaggerConfiguration {
         return GroupedOpenApi.builder()
                 .group("v3")
                 .pathsToMatch(paths)
-                .addOpenApiCustomiser(buildV3OpenAPI())
+                .addOpenApiCustomizer(buildV3OpenAPI())
                 .addOperationCustomizer(operationCustomizer())
                 .build();
     }
@@ -90,12 +90,12 @@ public class SwaggerConfiguration {
         return GroupedOpenApi.builder()
                 .group("v4")
                 .pathsToMatch(paths)
-                .addOpenApiCustomiser(buildV4OpenAPI())
+                .addOpenApiCustomizer(buildV4OpenAPI())
                 .addOperationCustomizer(operationCustomizer())
                 .build();
     }
 
-    public OpenApiCustomiser buildV2OpenAPI() {
+    public OpenApiCustomizer buildV2OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("2.0.0"));
             openApi.addTagsItem(new Tag().name("health-check-api").description("Health related endpoints"));
@@ -105,7 +105,7 @@ public class SwaggerConfiguration {
         };
     }
 
-    public OpenApiCustomiser buildV3OpenAPI() {
+    public OpenApiCustomizer buildV3OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("3.0.0"));
             openApi.addTagsItem(new Tag().name("health-check-api").description("Health related endpoints"));
@@ -116,7 +116,7 @@ public class SwaggerConfiguration {
         };
     }
 
-    public OpenApiCustomiser buildV4OpenAPI() {
+    public OpenApiCustomizer buildV4OpenAPI() {
         return openApi -> {
             openApi.info(openApi.getInfo().version("4.0.0"));
             openApi.addTagsItem(new Tag().name("info-api").description("Version info endpoint"));

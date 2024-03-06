@@ -1,6 +1,6 @@
 package org.opengroup.osdu.crs;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.logging.Logger;
 
 public class CRSApplicationBase {
