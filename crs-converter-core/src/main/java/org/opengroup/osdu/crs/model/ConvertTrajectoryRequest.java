@@ -11,8 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 

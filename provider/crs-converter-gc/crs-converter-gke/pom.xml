@@ -13,7 +13,6 @@
   <properties>
     <app.version>1</app.version>
     <app.id>crs-converter-gke</app.id>
-    <spring-webmvc.version>5.3.22</spring-webmvc.version>
     <jackson-databind.version>2.13.4.2</jackson-databind.version>
   </properties>
 
@@ -43,7 +42,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>${spring-webmvc.version}</version>
     </dependency>
 
     <dependency>
@@ -64,7 +62,6 @@
     <dependency>
 	    <groupId>org.apache.tomcat.embed</groupId>
 	    <artifactId>tomcat-embed-core</artifactId>
-	    <version>9.0.68</version>
 	</dependency>
   </dependencies>
 
@@ -73,7 +70,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.7.4</version>
       </plugin>
     </plugins>
   </build>

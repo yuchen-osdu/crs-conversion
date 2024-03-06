@@ -16,8 +16,8 @@ import org.opengroup.osdu.crs.model.Point;
 import org.opengroup.osdu.crs.model.TrajectoryInputKind;
 import org.opengroup.osdu.crs.util.Constants;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.List;
 

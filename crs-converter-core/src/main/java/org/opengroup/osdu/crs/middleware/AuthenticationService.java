@@ -1,6 +1,8 @@
 package org.opengroup.osdu.crs.middleware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 import org.apache.http.HttpStatus;
 import org.opengroup.osdu.core.common.entitlements.EntitlementsAPIConfig;
 import org.opengroup.osdu.core.common.entitlements.EntitlementsFactory;
@@ -21,9 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
