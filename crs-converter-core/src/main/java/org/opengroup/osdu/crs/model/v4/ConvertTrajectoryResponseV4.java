@@ -12,7 +12,7 @@ import org.opengroup.osdu.crs.model.ScaleConvergence;
 import org.opengroup.osdu.crs.model.TrajectoryStationOut;
 import org.opengroup.osdu.crs.util.Constants;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Data

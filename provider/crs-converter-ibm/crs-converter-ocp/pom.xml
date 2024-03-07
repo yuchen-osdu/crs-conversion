@@ -14,8 +14,6 @@
         <app.version>1</app.version>
         <app.id>crs-converter-ocp</app.id>
         <os-core-lib-ibm.version>0.26.0-rc8</os-core-lib-ibm.version>
-        <spring-webmvc.version>5.3.22</spring-webmvc.version>
-        <jackson-databind.version>2.13.4.2</jackson-databind.version>
     </properties>
 
     <prerequisites>
@@ -39,7 +37,6 @@
         <dependency>
     		<groupId>com.fasterxml.jackson.core</groupId>
     		<artifactId>jackson-databind</artifactId>
-   		 	<version>${jackson-databind.version}</version>
 		</dependency>
         <dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,7 +69,7 @@
             <plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.4</version>
+                <version>3.2.2</version>
 				  <executions>
                     <execution>
                         <goals>
