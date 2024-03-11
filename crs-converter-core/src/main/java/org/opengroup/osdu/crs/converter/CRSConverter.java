@@ -366,7 +366,7 @@ public class CRSConverter implements ICRSConverter {
 		//Sort the features based on PointProperties InLine.
 		features.sort(Comparator.comparing(feature -> {
 			PointProperties pointProperties = feature.getProperties().getPointPropertiesList().get(0);
-			return pointProperties.getInline()* 10000+pointProperties.getCrossline();
+			return pointProperties.getInline()* 10000 + pointProperties.getCrossline();
 		}));
 		//Update PointProperties Label
 		int countLabelVal = 0;
@@ -379,9 +379,7 @@ public class CRSConverter implements ICRSConverter {
 				break;
 			}
 		}
-
 		return inBinGrid;
-
 	}
 
 	private ConvertBinGridResponse binGridComputation(AbstractBinGrid inBinGrid,

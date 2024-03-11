@@ -15,6 +15,7 @@ import org.opengroup.osdu.crs.model.Impl.AuthorityCode;
 import org.opengroup.osdu.crs.sis.AuthorityCodeUtils;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.SisCrsUtils;
+import org.opengroup.osdu.crs.sis.SisTransformations;
 import org.opengroup.osdu.crs.sis.transform.CompoundFallbackWGS84TransformWithCode;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
 import org.opengroup.osdu.crs.sis.transform.IWGS84Transform;
@@ -224,27 +225,17 @@ public class CRSCoordinateOperationFactory {
         ISingleTrf singleExplicitTransform = (ISingleTrf) explicitTransform;
         ISisMathTransform sisTransform = singleExplicitTransform.getTransformOperation();
         CoordinateOperation transformCoordinateOperation = sisTransform.getFromWGS84Operation();
-        //CoordinateReferenceSystem fromTransformCoorindateReferenceSystem = transformCoordinateOperation.getSourceCRS();
-        ISisCrs iSisCrs = fromCrs.getBaseGeographicCrs();
         ISisCrs fromBaseCrs = fromCrs.getBaseGeographicCrs();
         ISisCrs toBaseCrs = toCrs.getBaseGeographicCrs();
 
         CoordinateReferenceSystem transformSourceCRS = transformCoordinateOperation.getSourceCRS();
         CoordinateReferenceSystem transformTargetCRS = transformCoordinateOperation.getTargetCRS();
 
-        if (iSisCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs)) {
+        if (SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs)) {
             operations.add(new ExplicitInverseTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
         }else{
             operations.add(new ExplicitTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
         }
-
-        /*if (fromBaseCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs)) {
-            operations.add(new ExplicitTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
-        } else if (toBaseCrs.isEqual(fromTransformCoorindateReferenceSystem)) {
-            operations.add(new ExplicitInverseTransformFromCode(fromBaseCrs, toBaseCrs, singleExplicitTransform));
-        } else {
-            throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
-        }*/
     }
 
     private boolean needFromProjection(ICrs fromCrs, ICrs toCrs, boolean fromTransformNeeded, boolean toTransformNeeded) {
@@ -374,14 +365,8 @@ public class CRSCoordinateOperationFactory {
         ISisCrs iSisCrs = fromCRS.getBaseGeographicCrs();
         ISisCrs fromBaseCrs = fromCRS.getBaseGeographicCrs();
         ISisCrs toBaseCrs = toCRS.getBaseGeographicCrs();
-        /*if (fromBaseCrs.isEqual(transformFromCRS) && toBaseCrs.isEqual(transformToCRS)) {
-            return;
-        }
-        if (fromBaseCrs.isEqual(transformToCRS) && toBaseCrs.isEqual(transformFromCRS)) {
-            return;
-        }*/
-        return iSisCrs.isEqual(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs);
-        //throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
+
+        return SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs);
     }
 
     private void validateRoute(ICrs fromCRS, ICrs toCRS) {

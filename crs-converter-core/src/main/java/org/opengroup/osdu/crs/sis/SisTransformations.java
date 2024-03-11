@@ -1,11 +1,21 @@
 package org.opengroup.osdu.crs.sis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.sis.metadata.iso.citation.Citations;
+import org.apache.sis.referencing.IdentifiedObjects;
+import org.opengis.metadata.Identifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengroup.osdu.crs.sis.operation.CRSProjectionOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
+import org.opengroup.osdu.crs.util.Constants;
 
 public class SisTransformations {
 
@@ -71,4 +81,119 @@ public class SisTransformations {
             throw new IllegalArgumentException("Can't convert from geog to proj", ex);
         }
     }
+
+    /**
+     * Returns do_reverse=true based on the score i.e. means do reverse direction else forward direction.
+     * @param transformSourceCRS - sourceCRS
+     * @param transformTargetCRS - targetCRS
+     * @param fromBaseCrs - fromBaseCrs
+     * @param toBaseCrs - toBaseCrs
+     * @return - boolean
+     */
+    public static boolean checkInverseTransformationFromScore(CoordinateReferenceSystem transformSourceCRS, CoordinateReferenceSystem transformTargetCRS, ISisCrs fromBaseCrs, ISisCrs toBaseCrs) {
+        Identifier identifier = IdentifiedObjects.getIdentifier(transformSourceCRS, Citations.EPSG);
+        Identifier otherIdentifier = IdentifiedObjects.getIdentifier(transformTargetCRS, Citations.EPSG);
+        if (identifier != null && otherIdentifier != null) {
+            return identifier.getCode().equals(otherIdentifier.getCode());
+        } else {
+            boolean do_reverse = false;
+            String fromCRS = fromBaseCrs.getName();
+            String toCRS = toBaseCrs.getName();
+            String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
+            String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
+            //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
+            // characters and getting score. By using the score we are deciding to reverse or forword the transformation
+            //Compare and get the score for fromCRS, sourceCRS
+            int score_CTsource_is_fromCRS = compareCharacters(fromCRS, sourceCRS);
+            //Compare and get the score for toCRS, sourceCRS
+            int score_CTsource_is_toCRS = compareCharacters(toCRS, sourceCRS);
+            //Compare and get the score for fromCRS, targetCRS
+            int score_CTtarget_is_fromCRS = compareCharacters(fromCRS, targetCRS);
+            //Compare and get the score for toCRS, targetCRS
+            int score_CTtarget_is_toCRS = compareCharacters(toCRS, targetCRS);
+
+            //Added all the score values to temp_map to find the reverse or forward direction
+            LinkedHashMap<String, Integer> temp_map = new LinkedHashMap<String, Integer>();
+            temp_map.put("score_CTsource_is_fromCRS", score_CTsource_is_fromCRS);
+            temp_map.put("score_CTsource_is_toCRS", score_CTsource_is_toCRS);
+            temp_map.put("score_CTtarget_is_fromCRS", score_CTtarget_is_fromCRS);
+            temp_map.put("score_CTtarget_is_toCRS", score_CTtarget_is_toCRS);
+
+            do_reverse = findDirection(temp_map);//This method is used to do_reverse boolean value true or false.
+
+            return do_reverse;
+        }
+    }
+
+    private static int compareCharacters(String crsname, String othercrsname){
+        //Step1- Remove all the spaces and underscores(special characters)(- and /)GCS
+        String formattedinput =removingSpacesFromName(crsname);
+        String Otherformattedinput =removingSpacesFromName(othercrsname);
+        //Step2- score equal the number of characters match from left to right
+        int left_right_score= characterMatchLefttoRight(formattedinput,Otherformattedinput);
+        //Score + equals the number of characters match from right to left
+        int right_left_score= characterMatchRighttoLeft(formattedinput,Otherformattedinput);
+        //return the total score
+        //sum the charactersmatching from left to right
+        int score = left_right_score +right_left_score;
+        return score;
+    }
+
+    private static boolean findDirection(LinkedHashMap<String, Integer> temp_map) {
+        boolean do_reverse_flag = false;
+        ArrayList<Integer> tempList = (ArrayList<Integer>) temp_map.values().stream().collect(Collectors.toList());
+        int max_score = tempList.stream().mapToInt(Integer::intValue).max().getAsInt();
+        //if max_score is < 3 then throw an exception.
+        if (max_score < 3) {
+            throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
+        }
+        // based on the score it will check the below if-else conditions
+        if (temp_map.get("score_CTtarget_is_toCRS") > temp_map.get("score_CTtarget_is_fromCRS")
+                && temp_map.get("score_CTsource_is_fromCRS") > temp_map.get("score_CTsource_is_toCRS")) {
+            do_reverse_flag = false;// forward direction
+        } else if (temp_map.get("score_CTtarget_is_fromCRS") > temp_map.get("score_CTtarget_is_toCRS")
+                && temp_map.get("score_CTsource_is_toCRS") > temp_map.get("score_CTsource_is_fromCRS")) {
+            do_reverse_flag = true;// reverse direction
+        } else {// It will work to throw an exception
+            throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
+        }
+        return do_reverse_flag;
+    }
+    private static int characterMatchLefttoRight(String formattedinput, String otherformattedinput) {
+        int otherformattedinputLength = otherformattedinput.length();
+        int formattedinputLength = formattedinput.length();
+        int count = 0;
+        // start iterating from the beginning of both
+        int i = 0;
+        int j = 0;
+        while (i < formattedinputLength && j < otherformattedinputLength
+                && formattedinput.charAt(i) == otherformattedinput.charAt(j)) {
+            count++;
+            i++;
+            j++;
+        }
+        return count;
+    }
+    private static int characterMatchRighttoLeft(String formattedinput, String otherformattedinput) {
+        int count = 0;
+        // start iterating from the beginning of both
+        int i = formattedinput.length() - 1;
+        int j = otherformattedinput.length() - 1;
+        while (i >= 0 && j >= 0 && formattedinput.charAt(i) == otherformattedinput.charAt(j)) {
+            count++;
+            i--;
+            j--;
+        }
+        return count;
+    }
+    private static String removingSpacesFromName(String input) {
+        String regex = "GCS_|[-_ /\\\\[\\\\]()]";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher match = pattern.matcher(input);
+        String updatedName = match.replaceAll("");
+        updatedName = updatedName.replaceAll("\\s+", "");
+        return updatedName.toUpperCase();
+    }
+
+
 }
