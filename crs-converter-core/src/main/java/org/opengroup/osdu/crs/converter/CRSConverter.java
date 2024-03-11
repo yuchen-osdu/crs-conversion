@@ -363,21 +363,16 @@ public class CRSConverter implements ICRSConverter {
 
 		//List Of features
 		List<AbstractFeature> features = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures();
-		//Sort the features based on PointProperties InLine.
+		//Sort the features based on PointProperties InLine and CrossLine.
 		features.sort(Comparator.comparing(feature -> {
 			PointProperties pointProperties = feature.getProperties().getPointPropertiesList().get(0);
 			return pointProperties.getInline()* 10000 + pointProperties.getCrossline();
 		}));
 		//Update PointProperties Label
-		int countLabelVal = 0;
 		char label ='A';
 		for(AbstractFeature feature: features){
 			feature.getProperties().getPointPropertiesList().get(0).setLabel(String.valueOf(label));
 			label++;
-			countLabelVal++;
-			if(countLabelVal==4){
-				break;
-			}
 		}
 		return inBinGrid;
 	}
