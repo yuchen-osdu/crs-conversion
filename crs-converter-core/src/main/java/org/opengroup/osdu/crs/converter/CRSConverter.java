@@ -4,15 +4,17 @@ import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialRefere
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.stream.Stream;
+
 
 import javax.validation.ValidationException;
 
@@ -23,6 +25,7 @@ import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
+import org.opengroup.osdu.crs.BinGrid.PointProperties;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
@@ -350,71 +353,34 @@ public class CRSConverter implements ICRSConverter {
 
 	}
 
+	/**
+	 * Returns AbstractBinGrid object and It will update the (min, min), (min, max), (max,min), (max,max)
+	 * and also will update the PointProperties Label.	 *
+	 * @param - AbstractBinGrid - inBinGrid
+	 * @return - AbstractBinGrid - inBinGrid
+	 */
 	private AbstractBinGrid sortAnyCRSFeature(AbstractBinGrid inBinGrid) {
 
-		Integer inLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-
-		Integer crossLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-
-		Integer maxInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-		Integer maxCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-
-		if (!minInLine.equals(maxInLine) && !minCrossLine.equals(maxCrossLine)) {
-
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_A);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_B);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_C);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_D);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-
-			return inBinGrid;
-		} else {
-			logger.info(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
-			throw new ValidationException(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
+		//List Of features
+		List<AbstractFeature> features = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures();
+		//Sort the features based on PointProperties InLine.
+		features.sort(Comparator.comparing(feature -> {
+			PointProperties pointProperties = feature.getProperties().getPointPropertiesList().get(0);
+			return pointProperties.getInline()* 10000+pointProperties.getCrossline();
+		}));
+		//Update PointProperties Label
+		int countLabelVal = 0;
+		char label ='A';
+		for(AbstractFeature feature: features){
+			feature.getProperties().getPointPropertiesList().get(0).setLabel(String.valueOf(label));
+			label++;
+			countLabelVal++;
+			if(countLabelVal==4){
+				break;
+			}
 		}
+
+		return inBinGrid;
 
 	}
 
