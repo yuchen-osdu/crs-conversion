@@ -68,7 +68,7 @@ Check that maven is installed:
 $ mvn --version
 Apache Maven 3.6.0
 Maven home: /usr/share/maven
-Java version: 1.8.0_212, vendor: AdoptOpenJDK, runtime: /usr/lib/jvm/jdk8u212-b04/jre
+Java version: 17.0.7, vendor: AdoptOpenJDK, runtime: /usr/lib/jvm/jdk17*/jre
 ...
 ```
 

@@ -13,11 +13,12 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
-        <osdu.corelibazure.version>0.24.0</osdu.corelibazure.version>
+        <osdu.corelibazure.version>0.26.0-rc5</osdu.corelibazure.version>
         <jackson-databind.version>2.13.4.2</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <spring-webmvc.version>5.3.22</spring-webmvc.version>
-        <netty.version>4.1.96.Final</netty.version>
+        <netty.version>4.1.101.Final</netty.version>
+        <reactor-netty.version>1.1.14</reactor-netty.version>
     </properties>
 
     <prerequisites>
@@ -157,6 +158,11 @@
 		    <artifactId>tomcat-embed-core</artifactId>
 		    <version>9.0.68</version>
 		</dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <version>${reactor-netty.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -164,7 +170,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.10</version>
                 <executions>
                     <execution>
                         <goals>
