@@ -8,7 +8,7 @@ import org.opengroup.osdu.crs.util.Constants;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @Schema(description = Constants.SWAGGER_GEO_JSON_CONVERT_REQUEST_DESCR)
