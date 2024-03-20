@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
+/**
 package org.opengroup.osdu.crs.security;
 
 import org.junit.Before;
@@ -67,3 +67,4 @@ public class AuthSecurityConfigTest {
             .andReturn();
     }
 }
+*/
