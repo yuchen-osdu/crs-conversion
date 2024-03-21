@@ -71,9 +71,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @NonNull
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @Override
     public ResponseEntity<Object> handleNoHandlerFoundException(@NonNull NoHandlerFoundException ex, @NonNull HttpHeaders headers,
-                                                                @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         AppError appError = AppError.builder()
                 .code(HttpStatus.NOT_FOUND.value())
                 .message("Resource not found.")
@@ -84,16 +84,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @NonNull
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                  @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         return getBadInputResponse(ex);
     }
 
     @NonNull
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(@NonNull HttpMessageNotReadableException ex, @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                  @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         return getBadInputResponse(ex);
     }
 
