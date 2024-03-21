@@ -13,6 +13,7 @@ import org.opengroup.osdu.crs.api.exception.BadRequestException;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -132,7 +133,7 @@ public class RestExceptionHandlerTest {
     public void shouldReturnNotFoundResponse() {
         NoHandlerFoundException exception = new NoHandlerFoundException("Any method", "Any requestURL", new HttpHeaders());
 
-        ResponseEntity<Object> response = restExceptionHandler.handleNoHandlerFoundException(exception, new HttpHeaders(), HttpStatus.NOT_FOUND, mock(WebRequest.class));
+        ResponseEntity<Object> response = restExceptionHandler.handleNoHandlerFoundException(exception, new HttpHeaders(), HttpStatusCode.valueOf(404), mock(WebRequest.class));
 
         assertEquals(404, response.getStatusCodeValue());
         assertNotNull(response.getBody());
@@ -150,7 +151,7 @@ public class RestExceptionHandlerTest {
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter, mock(BindingResult.class));
 
         ResponseEntity<Object> response = restExceptionHandler
-                .handleMethodArgumentNotValid(exception, new HttpHeaders(), HttpStatus.NOT_FOUND, mock(WebRequest.class));
+                .handleMethodArgumentNotValid(exception, new HttpHeaders(), HttpStatusCode.valueOf(404), mock(WebRequest.class));
 
         assertEquals(400, response.getStatusCodeValue());
         assertNotNull(response.getBody());
@@ -165,7 +166,7 @@ public class RestExceptionHandlerTest {
         HttpMessageNotReadableException exception = new HttpMessageNotReadableException("error");
 
         ResponseEntity<Object> response = restExceptionHandler
-                .handleHttpMessageNotReadable(exception, new HttpHeaders(), HttpStatus.NOT_FOUND, mock(WebRequest.class));
+                .handleHttpMessageNotReadable(exception, new HttpHeaders(), HttpStatusCode.valueOf(404), mock(WebRequest.class));
 
         assertEquals(400, response.getStatusCodeValue());
         assertNotNull(response.getBody());

@@ -29,10 +29,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.opengroup.osdu.crs.api.CrsConverterApiV4;
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 
 @RunWith(SpringRunner.class)
@@ -60,10 +60,9 @@ public class AuthSecurityConfigTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
-    @Test
+    @Test(expected = NoHandlerFoundException.class)
     public void testConfigureHttpSecurity() throws Exception {
         mockMvc.perform(get("/"))
-            .andExpect(status().isNotFound())
             .andReturn();
     }
 }
