@@ -3,6 +3,7 @@ package org.opengroup.osdu.crs.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.opengroup.osdu.crs.middleware.AuthenticationRequestFilter;
 import org.opengroup.osdu.crs.middleware.AuthenticationService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,6 +18,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
+@ConditionalOnProperty(value = "azure.istio.auth.enabled", havingValue = "false", matchIfMissing = false)
 public class SecurityConfig {
 
     private AuthenticationRequestFilter authFilter;
@@ -48,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                .antMatchers(AUTH_WHITELIST).permitAll())
+                .requestMatchers(AUTH_WHITELIST).permitAll())
                 .httpBasic(withDefaults());
         return http.build();
     }
