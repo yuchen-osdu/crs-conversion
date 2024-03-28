@@ -29,9 +29,8 @@ public class ConvertGeoJsonRequestV4 {
 	@Schema(description = Constants.SWAGGER_TARGET_Z_UNIT, type = "string",example = Constants.SWAGGER_TARGET_Z_UNIT_EXAMPLE)
 	@Parameter(required = true)
 	private String toUnitZ;
-
-	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TARGET_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_GEO_EXAMPLE)
-	@Parameter(required = true)
+	
+	@Schema(description = Constants.SWAGGER_TRANSFORMATION, type = "string",example = Constants.SWAGGER_TRANSFORMATION_EXAMPLE)
+	@Parameter(required = false)
 	private String transformation;
 }

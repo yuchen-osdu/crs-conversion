@@ -3,6 +3,8 @@ package org.opengroup.osdu.crs.sis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,10 +16,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengroup.osdu.crs.sis.operation.CRSProjectionOperation;
+import org.opengroup.osdu.crs.sis.operation.CRSTransformToWGS84Operation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
 import org.opengroup.osdu.crs.util.Constants;
 
 public class SisTransformations {
+
+    private static final Logger LOGGER = Logger.getLogger(SisTransformations.class.getName());
 
     public static void projToGeog(ISisCrs projectionSISCrs, int numberOfPoints, double[] xyPoints) {
         try {
@@ -90,39 +95,57 @@ public class SisTransformations {
      * @param toBaseCrs - toBaseCrs
      * @return - boolean
      */
-    public static boolean checkInverseTransformationFromScore(CoordinateReferenceSystem transformSourceCRS, CoordinateReferenceSystem transformTargetCRS, ISisCrs fromBaseCrs, ISisCrs toBaseCrs) {
-        Identifier identifier = IdentifiedObjects.getIdentifier(transformSourceCRS, Citations.EPSG);
-        Identifier otherIdentifier = IdentifiedObjects.getIdentifier(transformTargetCRS, Citations.EPSG);
-        if (identifier != null && otherIdentifier != null) {
-            return identifier.getCode().equals(otherIdentifier.getCode());
-        } else {
-            boolean do_reverse = false;
-            String fromCRS = fromBaseCrs.getName();
-            String toCRS = toBaseCrs.getName();
-            String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
-            String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
-            //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
-            // characters and getting score. By using the score we are deciding to reverse or forword the transformation
-            //Compare and get the score for fromCRS, sourceCRS
-            int score_CTsource_is_fromCRS = compareCharacters(fromCRS, sourceCRS);
-            //Compare and get the score for toCRS, sourceCRS
-            int score_CTsource_is_toCRS = compareCharacters(toCRS, sourceCRS);
-            //Compare and get the score for fromCRS, targetCRS
-            int score_CTtarget_is_fromCRS = compareCharacters(fromCRS, targetCRS);
-            //Compare and get the score for toCRS, targetCRS
-            int score_CTtarget_is_toCRS = compareCharacters(toCRS, targetCRS);
 
-            //Added all the score values to temp_map to find the reverse or forward direction
-            LinkedHashMap<String, Integer> temp_map = new LinkedHashMap<String, Integer>();
-            temp_map.put("score_CTsource_is_fromCRS", score_CTsource_is_fromCRS);
-            temp_map.put("score_CTsource_is_toCRS", score_CTsource_is_toCRS);
-            temp_map.put("score_CTtarget_is_fromCRS", score_CTtarget_is_fromCRS);
-            temp_map.put("score_CTtarget_is_toCRS", score_CTtarget_is_toCRS);
-
-            do_reverse = findDirection(temp_map);//This method is used to do_reverse boolean value true or false.
-
-            return do_reverse;
+    public static boolean checkInverseTransformationFromScore(CoordinateReferenceSystem transformSourceCRS,
+                                                              CoordinateReferenceSystem transformTargetCRS,
+                                                              ISisCrs fromBaseCrs, ISisCrs toBaseCrs) {
+        Identifier identifierSource = IdentifiedObjects.getIdentifier(transformSourceCRS, Citations.EPSG);
+        Identifier identifierTarget = IdentifiedObjects.getIdentifier(transformTargetCRS, Citations.EPSG);
+        boolean do_reverse = false;
+        // First check if reverse can be determined from codes
+        // for example, Source=4267, target=4326, and from=4326, to=32065= NAD27/BLM15, with BaseGeog 4267
+        if (identifierSource != null && identifierTarget != null) {
+            int sourceCode = Integer.parseInt(identifierSource.getCode());
+            int targetCode = Integer.parseInt(identifierTarget.getCode());
+            int fromCRSCode = Integer.parseInt(fromBaseCrs.getAuthorityCode().getCode());
+            int toCRSCode = Integer.parseInt(toBaseCrs.getAuthorityCode().getCode());
+            if (sourceCode==fromCRSCode && targetCode==toCRSCode){
+                do_reverse=false;
+                return do_reverse;
+            }
+            if (sourceCode==toCRSCode && targetCode==fromCRSCode){
+                do_reverse=true;
+                return do_reverse;
+            }
         }
+
+        // If not by code, attempt string matching of GEOGCS string
+        String fromCRS = fromBaseCrs.getName();
+        String toCRS = toBaseCrs.getName();
+        String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
+        String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
+        //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
+        // characters and getting score. By using the score we are deciding to reverse or forword the transformation
+        //Compare and get the score for fromCRS, sourceCRS
+        int score_CTsource_is_fromCRS = compareCharacters(fromCRS, sourceCRS);
+        //Compare and get the score for toCRS, sourceCRS
+        int score_CTsource_is_toCRS = compareCharacters(toCRS, sourceCRS);
+        //Compare and get the score for fromCRS, targetCRS
+        int score_CTtarget_is_fromCRS = compareCharacters(fromCRS, targetCRS);
+        //Compare and get the score for toCRS, targetCRS
+        int score_CTtarget_is_toCRS = compareCharacters(toCRS, targetCRS);
+
+        //Added all the score values to temp_map to find the reverse or forward direction
+        LinkedHashMap<String, Integer> temp_map = new LinkedHashMap<String, Integer>();
+        temp_map.put("score_CTsource_is_fromCRS", score_CTsource_is_fromCRS);
+        temp_map.put("score_CTsource_is_toCRS", score_CTsource_is_toCRS);
+        temp_map.put("score_CTtarget_is_fromCRS", score_CTtarget_is_fromCRS);
+        temp_map.put("score_CTtarget_is_toCRS", score_CTtarget_is_toCRS);
+
+        do_reverse = findDirection(temp_map);//This method is used to do_reverse boolean value true or false.
+
+        return do_reverse;
+
     }
 
     private static int compareCharacters(String crsname, String othercrsname){
