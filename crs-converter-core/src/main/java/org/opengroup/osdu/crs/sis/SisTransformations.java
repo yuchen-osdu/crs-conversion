@@ -127,6 +127,7 @@ public class SisTransformations {
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
         // characters and getting score. By using the score we are deciding to reverse or forword the transformation
         //Compare and get the score for fromCRS, sourceCRS
+        LOGGER.info("Compare and get the score...");
         int score_CTsource_is_fromCRS = compareCharacters(fromCRS, sourceCRS);
         //Compare and get the score for toCRS, sourceCRS
         int score_CTsource_is_toCRS = compareCharacters(toCRS, sourceCRS);
@@ -168,6 +169,7 @@ public class SisTransformations {
         int max_score = tempList.stream().mapToInt(Integer::intValue).max().getAsInt();
         //if max_score is < 3 then throw an exception.
         if (max_score < 3) {
+            LOGGER.info("max_score is less than 3 and and it will be invalid transformation crs match");
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
         }
         // based on the score it will check the below if-else conditions
@@ -178,6 +180,7 @@ public class SisTransformations {
                 && temp_map.get("score_CTsource_is_toCRS") > temp_map.get("score_CTsource_is_fromCRS")) {
             do_reverse_flag = true;// reverse direction
         } else {// It will work to throw an exception
+            LOGGER.info("Invalid transformation crs match");
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_TRANSFORM_CRS_MATCH);
         }
         return do_reverse_flag;
