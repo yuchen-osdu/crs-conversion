@@ -58,15 +58,20 @@ include:
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/core-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/pages.yml"
 
   - local: "devops/gc/pipeline/override-stages.yml"
 
   - local: "devops/aws/pipeline/override-stages.yml"
 
+  - local: "devops/core-plus/pipeline/override-stages.yml"
+
 .maven:
   image: maven:3.8.3-openjdk-17-slim
-  tags: ['osdu-medium']
+  tags: ["osdu-medium"]
   variables:
     MAVEN_REPO_PATH: "$CI_PROJECT_DIR/.m2/repository"
     MAVEN_CLI_OPTS: "--batch-mode --settings=$CI_PROJECT_DIR/.mvn/community-maven.settings.xml"
