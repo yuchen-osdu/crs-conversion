@@ -1652,6 +1652,8 @@ Specifying an explicit transformation will override any early binding transforma
 
 .The explicit transformation can be specified by setting the optional "transformation" parameter of a CRS conversion request.
 
+. The "transformation" parameter as well as "fromCRS" & "toCRS" params will be able to accept both recordId and PR string formats in payload.
+
 **Request**
 ```
 {
