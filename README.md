@@ -64,6 +64,11 @@ Headers for Postman:
 |----------|----------|
 | Authorization | Bearer `<token>` |
 | data-partition-id | $MY_TENANT (see [testing\README.md](testing/README.md)) |
+#### Server Url(full path vs relative path) configuration
+- `api.server.fullUrl.enabled=true` It will generate full server url in the OpenAPI swagger
+- `api.server.fullUrl.enabled=false` It will generate only the contextPath only
+- default value is false (Currently only in Azure it is enabled)
+[Reference]:(https://springdoc.org/faq.html#_how_is_server_url_generated)
 
 ### Build and run the Docker container locally
 1. Run the `maven run` command to have the .jar file generated.

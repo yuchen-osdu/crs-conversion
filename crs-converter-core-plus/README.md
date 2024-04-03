@@ -31,8 +31,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 * Java 8
 * [Maven 3.6.0+](https://maven.apache.org/download.cgi)
-* GCloud command line tool
-* GCloud access to opendes project
+* Deployment environment command line tool: Example GCloud command line tool, AWS command line tool etc ...
+* Deployment cloud environment access: Example GCloud access to opendes project, AWS EDI project etc ...
 
 ### General Tips
 
@@ -91,24 +91,6 @@ $ cat ~/.m2/settings.xml
 </settings>
 ```
 
-* Update the Google cloud SDK to the latest version:
-
-```bash
-gcloud components update
-```
-
-* Set Google Project Id:
-
-```bash
-gcloud config set project <YOUR-PROJECT-ID>
-```
-
-* Perform a basic authentication in the selected project:
-
-```bash
-gcloud auth application-default login
-```
-
 * Navigate to CRS conversion service root folder and run:
 
 ```bash
@@ -131,7 +113,7 @@ mvn clean install -DskipTests
 After configuring your environment as specified above, you can follow these steps to build and run the application. These steps should be invoked from the *repository root.*
 
 ```bash
-cd provider/crs-converte-gc/crs-converter-gke/ && mvn spring-boot:run
+cd crs-converte-core-plus/crs-converter-core-plus/ && mvn spring-boot:run
 ```
 
 ## Testing
@@ -149,17 +131,17 @@ After the service has started it should be accessible via a web browser by visit
 
 ### Running E2E Tests
 
-This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_gc).
+This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_core_plus).
 
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
-| `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
+| `INTEGRATION_TESTER` | `********` | A base64 encoded deployment provider, example google, service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
 
 This section describes how to run cloud OSDU E2E tests (testing/crs_converter_test_baremetal).
 
 | name | value | description | sensitive? | source |
 | ---  | ---   | ---         | ---        | ---    |
-| `INTEGRATION_TESTER` | `********` | A base64 encoded google service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
+| `INTEGRATION_TESTER` | `********` | A base64 encoded deployment provider, example google, service service account json credentials authorization for OSDU services | yes | output of infrastructure deployment |
 
 ## Tests core (crs_converter_test_core/constants.py)
 
@@ -183,7 +165,7 @@ Execute following command to build code and run all the integration tests:
 Go to the provider folder:
 
 ```bash
-cd crs_converter_test_$PROVIDER_NAME/
+cd crs_converter_test_core_plus/
 ```
 
 To set up a virtual environment:
@@ -313,12 +295,14 @@ python test_suite.py
 
 ## Deployment
 
-See Google Documentation: <https://cloud.google.com/cloud-build/docs/deploying-builds/deploy-gke>
+See deployment provider specific documentation
+Example: Google Documentation - <https://cloud.google.com/cloud-build/docs/deploying-builds/deploy-gke>
 
 ## Licence
 
 Copyright © Google LLC
 Copyright © EPAM Systems
+Copyright © Amazon Web Services
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

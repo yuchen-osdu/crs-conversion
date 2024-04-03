@@ -1,0 +1,8 @@
+variables:
+  CORE_SERVICE: crs-converter
+  CORE_INT_TEST_TYPE: python
+  CORE_BAREMETAL_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_baremetal
+
+core-containerize-gitlab:
+  needs:
+    - "compile-and-unit-test"

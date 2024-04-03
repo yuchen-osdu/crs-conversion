@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <java.version>1.8</java.version>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <java.version>17</java.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <powermock.version>2.0.6</powermock.version>
         <docker.image.prefix>org.opengroup.osdu</docker.image.prefix>
@@ -34,6 +34,7 @@
 
     <modules>
         <module>crs-converter-core</module>
+        <module>crs-converter-core-plus</module>
         <module>provider/crs-converter-azure/crs-converter-aks</module>
         <module>provider/crs-converter-gc/crs-converter-gke</module>
         <module>provider/crs-converter-aws</module>
