@@ -258,7 +258,7 @@ public class CrsConverterApiV4 {
 
     @PostMapping(value = "/convert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "${CrsConverterApi.convertPoint.summary}", description = "${CrsConverterApi.convertPoint.description}",
-            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v3"},
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)))
     @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
@@ -282,7 +282,7 @@ public class CrsConverterApiV4 {
 
     @PostMapping("/convertGeoJson")
     @Operation(summary = "${CrsConverterApi.geo_json_convert.summary}", description = "${CrsConverterApi.geo_json_convert.description}",
-            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v3"})
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"})
     @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertGeoJsonResponse.class)) }),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
