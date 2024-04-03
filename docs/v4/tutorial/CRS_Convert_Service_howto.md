@@ -19,7 +19,7 @@ application developers accomplish typical tasks using the "`CRS Convert`" endpoi
 	*[3.4.2 Interpolation at a regular MD interval](342-interpolation-at-a-regular-MD-interval)
   * [3.5 inclination-only surveys (stations have no azimuth)](#35-inclination-only-survey(stations have no azimuth))  
   * [3.6 inverse minimum curvature](#36-inverse-minimum-curvature)
-
+* [4. Explicit Transform](#4-explicit-transform)
 
 # 1. Introduction
 
@@ -1638,6 +1638,50 @@ Finally on output unitXY is set to projCRS unit, and the stations.XYZ and the ou
         }
     ],
     "inputKind": "MD_Incl_Azim"
+}
+```
+
+# 4. Explicit Transform
+
+CRS Converter service will now support explicit transformations (overriding any bound transformations) for convert and convertGeoJson apis.
+
+· OSDU Geomatics wants to be able to support on demand transformation-bindings (late-bindings) for projects and work maps using local, static datums.
+
+· Both SIS and Esri support this in principle, however, the CRS Converter’s API has been designed to support early-bindings or BoundCRSs.
+Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.
+
+.The explicit transformation can be specified by setting the optional "transformation" parameter of a CRS conversion request.
+
+**Request**
+```
+{
+    "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4283:",
+    "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::7844:",
+    "transformation": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8048\"},\"name\":\"GDA94 to GDA2020 (1)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"GDA94 to GDA2020 (1)\\\",GEOGCS[\\\"GCS_GDA_1994\\\",DATUM[\\\"D_GDA_1994\\\",SPHEROID[\\\"GRS_1980\\\",6378137,298.257222101,AUTHORITY[\\\"EPSG\\\",\\\"7019\\\"]],AUTHORITY[\\\"EPSG\\\",\\\"6283\\\"]],PRIMEM[\\\"Greenwich\\\",0,AUTHORITY[\\\"EPSG\\\",\\\"8901\\\"]],UNIT[\\\"degree\\\",0.0174532925199433,AUTHORITY[\\\"EPSG\\\",\\\"9102\\\"]],AXIS[\\\"Lat\\\",north],AXIS[\\\"Lon\\\",east],AUTHORITY[\\\"EPSG\\\",\\\"4283\\\"]],GEOGCS[\\\"GDA2020\\\",DATUM[\\\"GDA2020\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",7844]],METHOD[\\\"Coordinate_Frame\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.06155],PARAMETER[\\\"Y_Axis_Translation\\\",-0.01087],PARAMETER[\\\"Z_Axis_Translation\\\",-0.04019],PARAMETER[\\\"X_Axis_Rotation\\\",-0.0394924],PARAMETER[\\\"Y_Axis_Rotation\\\",-0.0327221],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.0328979],PARAMETER[\\\"Scale_Difference\\\",-9.994],AUTHORITY[\\\"EPSG\\\",\\\"8048\\\"]]\"}",
+    "points": [
+        {
+            "x": 120,
+            "y": -20,
+            "z": 0
+        }
+    ]
+}
+```
+
+**Response**
+```
+{
+    "successCount": 1,
+    "points": [
+        {
+            "x": 120.00000954373071,
+            "y": -19.999986348895753,
+            "z": 0.0
+        }
+    ],
+    "operationsApplied": [
+        "transformation GCS_GDA_1994 to GDA2020 using GDA94 to GDA2020 (1); 1 points successfully transformed"
+    ]
 }
 ```
 
