@@ -520,7 +520,7 @@
         "method": "AzimuthalEquidistant"
       }
     },
-    "ConvertGeoJsonRequest": {
+    "ConvertGeoJsonRequestV4": {
       "title": "Convert GeoJson/AnyCrsGeoJson Request",
       "description": "Request to convert a GeoJSON FeatureCollection or AnyCrsFeatureCollection from WGS 84 or AnyCrsFeatureCollection.persistableReferenceCrs to a target CRS.",
       "type": "object",
@@ -536,6 +536,11 @@
           "title": "GeoJson Request",
           "type": "string",
           "description": "The GeoJSON FeatureCollection or AnyCrsFeatureCollection structure to be converted/transformed. GeoJSON is always based on WGS 84; AnyCrsFeatureCollection carries the CRS context in the persistableReferenceCrs property. This value could be persistable reference string or a record ID"
+        },
+        "transformation": {
+          "title": "Explicit Transformation",
+          "type": "string",
+          "description": "Explicit Transformation as persistable reference string or record id, its optional and if given it will override Bound Transformation."
         },
         "toUnitZ": {
           "type": "string",
