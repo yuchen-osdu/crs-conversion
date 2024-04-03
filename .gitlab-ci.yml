@@ -168,7 +168,7 @@ include:
     - echo 'xargs -0rI {} $MAVEN_BUILD {} "$@" < $ALL_MAVEN_BUILD_DIRS_Z' >> $MAVEN_FOREACH
 
 gemnasium-maven-dependency_scanning:
- variables:
+  variables:
     DS_JAVA_VERSION: 17
 
 azure_containerize:
@@ -176,7 +176,7 @@ azure_containerize:
     AZURE_CONTAINERIZE_REPOSITORY: "-b jdk-17 https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
 
 fossa-analyze:
- image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
- 
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
 fossa-check-notice:
- image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17

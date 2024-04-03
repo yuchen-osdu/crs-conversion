@@ -4,16 +4,19 @@ import com.google.common.base.Strings;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.storage.Record;
+import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
+import org.opengroup.osdu.crs.interfaces.ICRSConverter;
+import org.opengroup.osdu.crs.interfaces.IPointConverter;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
-import org.opengroup.osdu.crs.model.ErrorResponse;
-import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
-import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
-import org.opengroup.osdu.crs.model.v4.MinimumDepthInterval;
-import org.opengroup.osdu.crs.model.v4.TrajectoryStationInV4;
+import org.opengroup.osdu.crs.model.*;
+import org.opengroup.osdu.crs.model.v4.*;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
@@ -49,9 +52,13 @@ public class CrsConverterApiV4 {
     @Autowired
     private IStorageClient storageClient;
     private RecordCache recordCache;
+    private final IPointConverter pointConverter;
+    private final ICRSConverter crsConverter;
 
-    public CrsConverterApiV4(@NonNull ITrajectoryConverter crsTrajectoryConverter) {
+    public CrsConverterApiV4(@NonNull ITrajectoryConverter crsTrajectoryConverter, @NonNull IPointConverter pointConverter,@NonNull ICRSConverter crsConverter) {
         this.crsTrajectoryConverter = crsTrajectoryConverter;
+        this.pointConverter = pointConverter;
+        this.crsConverter = crsConverter;
         this.recordCache = new RecordCache();
     }
 
@@ -64,7 +71,7 @@ public class CrsConverterApiV4 {
             return str; // try our best to return user input
         }
         // persistableReference string starts with "{..}"
-        if (temp.startsWith("{") && mustID) {
+        if (temp.startsWith("{") && mustID == false) {
             return str;
         }
         // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
@@ -250,6 +257,66 @@ public class CrsConverterApiV4 {
             firstMd += mdInterval;
         }
         return mdiList;
+    }
+
+    @PostMapping(value = "/convert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "${CrsConverterApi.convertPoint.summary}", description = "${CrsConverterApi.convertPoint.description}",
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"},
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
+    })
+    public ConvertPointsResponseV4 convertPointV4(@NonNull @Valid @RequestBody ConvertPointsRequestV4 request) {
+        //Added new optional parameter transform for explicit transfrom
+        String transform = getPersistableReferenceFromID(request.getTransformation(), false);
+        String fromCrs = getPersistableReferenceFromID(request.getFromCRS(), false);
+        String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+
+        double[] xyCoordinates = this.pointConverter.mergeXYCoordinates(request.getPoints());
+        double[] zCoordinates = this.pointConverter.mergeZCoordinates(request.getPoints());
+        ConvertPointsResponseV4 response = this.crsConverter.convertPointV4(fromCrs, toCrs,transform, xyCoordinates,
+                zCoordinates);
+        response.setPoints(this.pointConverter.convertValuesToPoints(xyCoordinates, zCoordinates));
+        return response;
+    }
+
+    @PostMapping("/convertGeoJson")
+    @Operation(summary = "${CrsConverterApi.geo_json_convert.summary}", description = "${CrsConverterApi.geo_json_convert.description}",
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"})
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertGeoJsonResponse.class)) }),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
+    })
+    public ConvertGeoJsonResponse convertGeoJsonV4(@NonNull @Valid @RequestBody ConvertGeoJsonRequestV4 request) {
+        GeoJsonFeatureCollection features = request.getFeatureCollection();
+        String toCrs = getPersistableReferenceFromID(request.getToCRS(), false);
+        String toUnitZ = getPersistableReferenceFromID(request.getToUnitZ(), false);
+        String transform = getPersistableReferenceFromID(request.getTransformation(), false);
+        // The CRS reference as persistableReference string. If populated, the CoordinateReferenceSystemID takes precedence
+        if( features.getCoordinateReferenceSystemID() != null){
+            String temp = getPersistableReferenceFromID(features.getCoordinateReferenceSystemID(), true);
+            if(temp != null)
+                features.setPersistableReferenceCrs(temp);
+            features.setCoordinateReferenceSystemID(null);
+        }
+        // The VerticalUnitID definition overrides any self-contained definition in persistableReferenceUnitZ.
+        if( features.getVerticalUnitID() != null){
+            String temp = getPersistableReferenceFromID(features.getVerticalUnitID(), true);
+            if(temp != null)
+                features.setPersistableReferenceUnitZ(temp);
+            features.setVerticalUnitID(null);
+        }
+
+        ConvertGeoJsonResponse response = this.crsConverter.convertGeoJsonV4(
+                features,
+                toCrs,
+                toUnitZ,transform);
+        return response;
     }
 
 }

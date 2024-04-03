@@ -13,13 +13,13 @@ application developers accomplish typical tasks using the "`CRS Convert`" endpoi
   * [3.1 Basic example](#31-basic-example)   
   * [3.2 Return point scale factor and grid convergence](#32-return-point-scale-factor-and-grid-convergence)  
   * [3.3 GNL Method](#33-gnl-method)
-    *[3.3.1 Unscaling” the calculated wellbore path](#331-unscaling-the-calculated-wellbore-path)
+    * [3.3.1 Unscaling” the calculated wellbore path](#331-unscaling-the-calculated-wellbore-path)
   * [3.4 Wellbore interpolation on MD](#34-wellbore-interpolation-on-md)   
-    *[3.4.1 Interpolation at a list of MD](#341-interpolation-at-a-list-of-MD)
-	*[3.4.2 Interpolation at a regular MD interval](342-interpolation-at-a-regular-MD-interval)
+    * [3.4.1 Interpolation at a list of MD](#341-interpolation-at-a-list-of-MD)
+	* [3.4.2 Interpolation at a regular MD interval](342-interpolation-at-a-regular-MD-interval)
   * [3.5 inclination-only surveys (stations have no azimuth)](#35-inclination-only-survey(stations have no azimuth))  
   * [3.6 inverse minimum curvature](#36-inverse-minimum-curvature)
-
+* [4. Explicit Transform](#4-explicit-transform)
 
 # 1. Introduction
 
@@ -1638,6 +1638,155 @@ Finally on output unitXY is set to projCRS unit, and the stations.XYZ and the ou
         }
     ],
     "inputKind": "MD_Incl_Azim"
+}
+```
+
+# 4. Explicit Transform
+
+CRS Converter service will now support explicit transformations (overriding any bound transformations) for convert and convertGeoJson apis.
+
+· OSDU Geomatics wants to be able to support on demand transformation-bindings (late-bindings) for projects and work maps using local, static datums.
+
+· Both SIS and Esri support this in principle, however, the CRS Converter’s API has been designed to support early-bindings or BoundCRSs.
+Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.
+
+.The explicit transformation can be specified by setting the optional "transformation" parameter of a CRS conversion request.
+
+. The "transformation" parameter as well as "fromCRS" & "toCRS" params will be able to accept both recordId and PR string formats in payload.
+
+**Request for v4/convert**
+```
+{
+    "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4283:",
+    "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::7844:",
+    "transformation": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8048\"},\"name\":\"GDA94 to GDA2020 (1)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"GDA94 to GDA2020 (1)\\\",GEOGCS[\\\"GCS_GDA_1994\\\",DATUM[\\\"D_GDA_1994\\\",SPHEROID[\\\"GRS_1980\\\",6378137,298.257222101,AUTHORITY[\\\"EPSG\\\",\\\"7019\\\"]],AUTHORITY[\\\"EPSG\\\",\\\"6283\\\"]],PRIMEM[\\\"Greenwich\\\",0,AUTHORITY[\\\"EPSG\\\",\\\"8901\\\"]],UNIT[\\\"degree\\\",0.0174532925199433,AUTHORITY[\\\"EPSG\\\",\\\"9102\\\"]],AXIS[\\\"Lat\\\",north],AXIS[\\\"Lon\\\",east],AUTHORITY[\\\"EPSG\\\",\\\"4283\\\"]],GEOGCS[\\\"GDA2020\\\",DATUM[\\\"GDA2020\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",7844]],METHOD[\\\"Coordinate_Frame\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.06155],PARAMETER[\\\"Y_Axis_Translation\\\",-0.01087],PARAMETER[\\\"Z_Axis_Translation\\\",-0.04019],PARAMETER[\\\"X_Axis_Rotation\\\",-0.0394924],PARAMETER[\\\"Y_Axis_Rotation\\\",-0.0327221],PARAMETER[\\\"Z_Axis_Rotation\\\",-0.0328979],PARAMETER[\\\"Scale_Difference\\\",-9.994],AUTHORITY[\\\"EPSG\\\",\\\"8048\\\"]]\"}",
+    "points": [
+        {
+            "x": 120,
+            "y": -20,
+            "z": 0
+        }
+    ]
+}
+```
+
+**Response for v4/convert**
+```
+{
+    "successCount": 1,
+    "points": [
+        {
+            "x": 120.00000954373071,
+            "y": -19.999986348895753,
+            "z": 0.0
+        }
+    ],
+    "operationsApplied": [
+        "transformation GCS_GDA_1994 to GDA2020 using GDA94 to GDA2020 (1); 1 points successfully transformed"
+    ]
+}
+```
+
+**Request for v4/convertGeoJson**
+```
+{
+  "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
+  "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+  "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
+  "featureCollection": {
+    "type": "AnyCrsFeatureCollection",
+    "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+    "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+    "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+    "features": [
+      {
+        "type": "AnyCrsFeature",
+        "properties": {},
+        "geometry": {
+          "type": "AnyCrsPolygon",
+          "coordinates": [
+            [
+              [
+                697339.525,
+                7239989.403,
+                0
+              ],
+              [
+                697339.525,
+                7239989.5,
+                0
+              ],
+              [
+                697339.525,
+                7239989.6,
+                0
+              ],
+              [
+                697339.525,
+                7239989.403,
+                0
+              ]
+            ]
+          ],
+          "bbox": null
+        },
+        "bbox": null
+      }
+    ],
+    "bbox": null,
+    "properties": {}
+  }
+}
+```
+
+**Response for v4/convertGeoJson**
+```
+{
+  "successCount": 4,
+  "totalCount": 4,
+  "featureCollection": {
+    "type": "AnyCrsFeatureCollection",
+    "features": [
+      {
+        "type": "AnyCrsFeature",
+        "geometry": {
+          "type": "AnyCrsPolygon",
+          "coordinates": [
+            [
+              [
+                697339.5244002484,
+                7239989.402995734,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.499995734,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.599995733,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.402995734,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {}
+      }
+    ],
+    "properties": {},
+    "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"GCS_North_American_1927\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4267]]\"}",
+    "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
+  },
+  "operationsApplied": [
+    "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 4 points successfully transformed",
+    "No unit conversion for Z-axis"
+  ]
 }
 ```
 
