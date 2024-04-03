@@ -27,6 +27,7 @@ import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
+import org.opengroup.osdu.crs.util.RecordIdNormalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.opengroup.osdu.crs.util.RecordIdNormalizer;
 
 @CrossOrigin
 @RestController
@@ -94,8 +97,9 @@ public class CrsConverterApiV3 {
         if (pr != null){
 			return pr; 
 		}
-		// temp should have record:version format. change last : to be / for storage API call
-		temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+
+		temp = RecordIdNormalizer.normalizeRecordID(temp);
+
 		Record record =  StorageClient.getRecord(temp);
 		if (record == null)
 			throw new ValidationException(String.join(" ", "record not found:", temp));
@@ -116,7 +120,9 @@ public class CrsConverterApiV3 {
 		} catch (Exception e) {
 			return trajectoryCRS; // try our best to return user input
 		}
-		temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+
+		temp = RecordIdNormalizer.normalizeRecordID(temp);
+
 		Record record =  StorageClient.getRecord(temp);
 		if (record == null)
 			throw new ValidationException(String.join(" ", "record not found:", temp));

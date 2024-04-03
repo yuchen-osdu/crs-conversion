@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.opengroup.osdu.crs.util.RecordIdNormalizer;
+
 @Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
 @RestController
@@ -79,8 +81,9 @@ public class CrsConverterApiV4 {
         if (pr != null) {
             return pr;
         }
-        // temp should have record:version format. change last : to be / for storage API call
-        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+
+        temp = RecordIdNormalizer.normalizeRecordID(temp);
+
         Record dataRecord = storageClient.getRecord(temp);
         if (dataRecord == null)
             throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
@@ -100,7 +103,7 @@ public class CrsConverterApiV4 {
         } catch (Exception e) {
             return trajectoryCRS; // try our best to return user input
         }
-        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+        temp = RecordIdNormalizer.normalizeRecordID(temp);
         Record dataRecord = storageClient.getRecord(temp);
         if (dataRecord == null)
             throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
@@ -117,7 +120,7 @@ public class CrsConverterApiV4 {
         } catch (Exception e) {
             return false; // try our best to return user input
         }
-        temp = temp.substring(0, temp.lastIndexOf(":")) + "/" + temp.substring(temp.lastIndexOf(":") + 1);
+        temp = RecordIdNormalizer.normalizeRecordID(temp);
         Record dataRecord = storageClient.getRecord(temp);
         if (dataRecord == null)
             throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
