@@ -24,6 +24,10 @@
     
     "name": "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)",
       "description": "Convert trajectory stations"
+    },
+    {
+      "name": "Convert",
+      "description": "Convert a list of points"
     }
   ],
   "schemes": [
@@ -78,6 +82,71 @@
             }
           },
 		 "503": {
+            "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v4/convert": {
+      "post": {
+        "tags": [
+          "Convert"
+        ],
+        "summary": "Convert a list of points",
+        "description": "Convert a list of points",
+        "operationId": "convertPointV4",
+        "parameters": [
+          {
+            "name": "data-partition-id",
+            "in": "header",
+            "description": "Tenant Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/ConvertPointsRequestV4"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Conversion performed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ConvertPointsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "503": {
             "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
             "schema": {
               "$ref": "#/definitions/ErrorResponse"
@@ -379,6 +448,102 @@
 		"inputKind": "MD_Incl_Azim",
 		"method": "AzimuthalEquidistant"
 }
+    },
+    "ConvertPointsRequestV4": {
+      "required": [
+        "fromCRS",
+        "points",
+        "toCRS"
+      ],
+      "type": "object",
+      "properties": {
+        "fromCRS": {
+          "type": "string",
+          "description": "Source CRS as persistable reference string or recordId.",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:"
+        },
+        "toCRS": {
+          "type": "string",
+          "description": "Target CRS as persistable reference string or recordId.",
+          "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:"
+        },
+        "points": {
+          "type": "array",
+          "description": "List of points to be converted",
+          "example": [
+            {
+              "x": -90,
+              "y": 30,
+              "z": 0
+            }
+          ],
+          "items": {
+            "$ref": "#/definitions/Points"
+          }
+        },
+        "transformation": {
+          "type": "string",
+          "description": "CRS Transform",
+          "example": "osdu:reference-data--CoordinateTransformation:EPSG::15851:"
+        }
+      },
+      "description": "Request to convert a set of points from a source CRS to a target CRS"
+    },
+    "Points": {
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "x coordinate or longitude",
+          "format": "double",
+          "example": -90
+        },
+        "y": {
+          "type": "number",
+          "description": "y coordinate or latitude",
+          "format": "double",
+          "example": 30
+        },
+        "z": {
+          "type": "number",
+          "description": "z coordinate",
+          "format": "double",
+          "example": 0.0
+        }
+      },
+      "description": "Point representation for CRS operations"
+    },
+    "ConvertPointsResponse": {
+      "type": "object",
+      "properties": {
+        "successCount": {
+          "type": "integer",
+          "description": "Number of points successfully converted. If the number is less than the request array length conversion/transformation failures occurred.",
+          "example": "1"
+        },
+        "points": {
+          "type": "array",
+          "description": "Converted points; length and order of the array is the same as in the request. Points, which failed to convert, are returned as NaN.",
+          "example": [
+            {
+              "x": -89.99993037859349,
+              "y": 29.999797886559996,
+              "z": 0.0
+            }
+          ]
+        },
+        "operationsApplied": {
+          "type": "array",
+          "description": "The list of operations performed on the points as a list of strings",
+          "example": ["transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"]
+        }
+      },
+      "description": "Response of a CRS conversion/transformation operation"
     },
     "MinimumDepthInterval": {
       "type": "object",
