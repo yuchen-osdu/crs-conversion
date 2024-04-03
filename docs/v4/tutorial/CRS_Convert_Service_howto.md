@@ -1654,7 +1654,7 @@ Specifying an explicit transformation will override any early binding transforma
 
 . The "transformation" parameter as well as "fromCRS" & "toCRS" params will be able to accept both recordId and PR string formats in payload.
 
-**Request**
+**Request for v4/convert**
 ```
 {
     "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4283:",
@@ -1670,7 +1670,7 @@ Specifying an explicit transformation will override any early binding transforma
 }
 ```
 
-**Response**
+**Response for v4/convert**
 ```
 {
     "successCount": 1,
@@ -1684,6 +1684,109 @@ Specifying an explicit transformation will override any early binding transforma
     "operationsApplied": [
         "transformation GCS_GDA_1994 to GDA2020 using GDA94 to GDA2020 (1); 1 points successfully transformed"
     ]
+}
+```
+
+**Request for v4/convertGeoJson**
+```
+{
+  "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
+  "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+  "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
+  "featureCollection": {
+    "type": "AnyCrsFeatureCollection",
+    "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+    "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+    "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+    "features": [
+      {
+        "type": "AnyCrsFeature",
+        "properties": {},
+        "geometry": {
+          "type": "AnyCrsPolygon",
+          "coordinates": [
+            [
+              [
+                697339.525,
+                7239989.403,
+                0
+              ],
+              [
+                697339.525,
+                7239989.5,
+                0
+              ],
+              [
+                697339.525,
+                7239989.6,
+                0
+              ],
+              [
+                697339.525,
+                7239989.403,
+                0
+              ]
+            ]
+          ],
+          "bbox": null
+        },
+        "bbox": null
+      }
+    ],
+    "bbox": null,
+    "properties": {}
+  }
+}
+```
+
+**Response for v4/convertGeoJson**
+```
+{
+  "successCount": 4,
+  "totalCount": 4,
+  "featureCollection": {
+    "type": "AnyCrsFeatureCollection",
+    "features": [
+      {
+        "type": "AnyCrsFeature",
+        "geometry": {
+          "type": "AnyCrsPolygon",
+          "coordinates": [
+            [
+              [
+                697339.5244002484,
+                7239989.402995734,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.499995734,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.599995733,
+                0
+              ],
+              [
+                697339.5244002484,
+                7239989.402995734,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {}
+      }
+    ],
+    "properties": {},
+    "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"GCS_North_American_1927\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4267]]\"}",
+    "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
+  },
+  "operationsApplied": [
+    "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 4 points successfully transformed",
+    "No unit conversion for Z-axis"
+  ]
 }
 ```
 
