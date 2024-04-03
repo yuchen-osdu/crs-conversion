@@ -22,7 +22,7 @@
     },
     {
 
-      "name": "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)",
+      "name": "Trajectory Computation and Conversion",
       "description": "Convert trajectory stations"
     },
     {
@@ -41,7 +41,7 @@
     "/v4/convertTrajectory": {
       "post": {
         "tags": [
-          "Trajectory Computation and Conversion (v4) (EXPERIMENTAL)"
+          "Trajectory Computation and Conversion"
         ],
         "summary": "Convert trajectory stations",
         "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. For survey MD, Incl, Azi input, minimum curvature is used to calculate the local deviations and absolute coordinates. For MD_dX,dY,dZ, the inverse minimum curvature is first applied to compute Inc and Azi, which then are used as input to compute the trajectory.",
@@ -549,12 +549,13 @@
         }
       },
       "example": {
-        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
         "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+        "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
         "featureCollection": {
           "type": "AnyCrsFeatureCollection",
-          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
-          "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+          "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
           "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
           "features": [
             {
@@ -848,32 +849,32 @@
         "successCount": 4,
         "totalCount": 4,
         "featureCollection": {
-          "type": "FeatureCollection",
+          "type": "AnyCrsFeatureCollection",
           "features": [
             {
-              "type": "Feature",
+              "type": "AnyCrsFeature",
               "geometry": {
-                "type": "Polygon",
+                "type": "AnyCrsPolygon",
                 "coordinates": [
                   [
                     [
-                      -43.04597676303939,
-                      -24.94299718370678,
+                      697339.5244002484,
+                      7239989.402995734,
                       0.0
                     ],
                     [
-                      -43.04597677685517,
-                      -24.942996308196268,
+                      697339.5244002484,
+                      7239989.499995734,
                       0.0
                     ],
                     [
-                      -43.04597679109822,
-                      -24.942995405608062,
+                      697339.5244002484,
+                      7239989.599995733,
                       0.0
                     ],
                     [
-                      -43.04597676303939,
-                      -24.94299718370678,
+                      697339.5244002484,
+                      7239989.402995734,
                       0.0
                     ]
                   ]
@@ -883,11 +884,11 @@
             }
           ],
           "properties": {},
-          "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+          "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"GCS_North_American_1927\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4267]]\"}",
+          "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
         },
         "operationsApplied": [
-          "conversion from SAD_1969_UTM_Zone_23S to GCS_South_American_1969; 4 points converted",
-          "transformation GCS_South_American_1969 to GCS_WGS_1984 using SAD_1969_To_WGS_1984_4; 4 points successfully transformed",
+          "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 4 points successfully transformed",
           "No unit conversion for Z-axis"
         ]
       }
