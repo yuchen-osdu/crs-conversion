@@ -28,6 +28,10 @@
     {
       "name": "Convert",
       "description": "Convert a list of points"
+    },
+    {
+      "name": "ConvertGeoJson",
+      "description": "Convert a GeoJSON or AnyCrsGeoJson structure"
     }
   ],
   "schemes": [
@@ -96,7 +100,7 @@
           "Convert"
         ],
         "summary": "Convert a list of points",
-        "description": "Convert a set of points from a source CRS to a target CRS as it is or by providing explicit transformation.Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.",
+        "description": "Convert a set of points from a source CRS to a target CRS. The v4 version has benefit of providing explicit transformation.Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.",
         "operationId": "convertPointV4",
         "parameters": [
           {
@@ -129,6 +133,72 @@
             "description": "Conversion performed successfully",
             "schema": {
               "$ref": "#/definitions/ConvertPointsResponse"
+            }
+          },
+          "500": {
+            "description": "Unknown error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input format",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "503": {
+            "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v4/convertGeoJson": {
+      "post": {
+        "tags": [
+          "ConvertGeoJson"
+        ],
+        "summary": "Convert a GeoJSON or AnyCrsGeoJson structure",
+        "description": "Convert a GeoJSON or AnyCrsGeoJson structure to a specified target CRS. GeoJSON is declared - by definition - to be in the context of WGS 84. The v4 version has benefit of providing explicit transformation as an optional field. Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.",
+        "operationId": "convertGeoJsonV4",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ConvertGeoJsonRequestV4"
+            }
+          },
+          {
+            "name": "data-partition-id",
+            "in": "header",
+            "description": "Tenant Id",
+            "required": false
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/ConvertGeoJsonRequestV4"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Conversion performed successfully",
+            "schema": {
+              "$ref": "#/definitions/ConvertGeoJsonResponse"
             }
           },
           "500": {
@@ -450,6 +520,182 @@
         "method": "AzimuthalEquidistant"
       }
     },
+    "ConvertGeoJsonRequest": {
+      "title": "Convert GeoJson/AnyCrsGeoJson Request",
+      "description": "Request to convert a GeoJSON FeatureCollection or AnyCrsFeatureCollection from WGS 84 or AnyCrsFeatureCollection.persistableReferenceCrs to a target CRS.",
+      "type": "object",
+      "required": [
+        "featureCollection",
+        "toCRS"
+      ],
+      "properties": {
+        "featureCollection": {
+          "$ref": "#/definitions/AnyCrsGeoJsonFeatureCollection"
+        },
+        "toCRS": {
+          "title": "GeoJson Request",
+          "type": "string",
+          "description": "The GeoJSON FeatureCollection or AnyCrsFeatureCollection structure to be converted/transformed. GeoJSON is always based on WGS 84; AnyCrsFeatureCollection carries the CRS context in the persistableReferenceCrs property. This value could be persistable reference string or a record ID"
+        },
+        "toUnitZ": {
+          "type": "string",
+          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string or a record ID)",
+          "title": "Vertical Unit"
+        }
+      },
+      "example": {
+        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+        "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+        "featureCollection": {
+          "type": "AnyCrsFeatureCollection",
+          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
+          "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::29193_EPSG::1867:",
+          "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+          "features": [
+            {
+              "type": "AnyCrsFeature",
+              "properties": {},
+              "geometry": {
+                "type": "AnyCrsPolygon",
+                "coordinates": [
+                  [
+                    [697339.525, 7239989.403, 0],
+                    [697339.525, 7239989.500, 0],
+                    [697339.525, 7239989.600, 0],
+                    [697339.525, 7239989.403, 0]
+                  ]
+                ],
+                "bbox": null
+              },
+              "bbox": null
+            }
+          ],
+          "bbox": null,
+          "properties": {}
+        }
+      }
+    },
+    "AnyCrsGeoJsonFeatureCollection": {
+      "title": "AnyCrsGeoJSON FeatureCollection",
+      "type": "object",
+      "required": [
+        "type",
+        "features"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "FeatureCollection",
+            "AnyCrsFeatureCollection"
+          ]
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AnyCrsGeoJsonFeature"
+          }
+        },
+        "bbox": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "number"
+          }
+        },
+        "persistableReferenceCrs": {
+          "type": "string",
+          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
+          "title": "Spatial Reference"
+        },
+        "CoordinateReferenceSystemID": {
+          "type": "string",
+          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.",
+          "title": "Spatial Reference"
+        },
+        "VerticalUnitID": {
+          "type": "string",
+          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.",
+          "title": "Vertical Unit"
+        },
+        "persistableReferenceUnitZ": {
+          "type": "string",
+          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
+          "title": "Vertical Unit"
+        }
+      }
+    },
+    "AnyCrsGeoJsonFeature": {
+      "title": "AnyCrsGeoJSON Feature",
+      "type": "object",
+      "required": [
+        "type",
+        "properties",
+        "geometry"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Feature",
+            "AnyCrsFeature"
+          ]
+        },
+        "properties": {
+          "$ref": "#/definitions/AnyProperty"
+        },
+        "geometry": {
+          "$ref": "#/definitions/AnyCrsGeoJsonFeatureGeometry"
+        },
+        "bbox": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "AnyProperty": {
+      "title": "Any property extension",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "AnyCrsGeoJsonFeatureGeometry": {
+      "type": "object",
+      "description": "AnyCrsGeoJSon feature geometry",
+      "discriminator": "type",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPoint",
+            "MultiLineString",
+            "MultiPolygon",
+            "GeometryCollection",
+            "AnyCrsPoint",
+            "AnyCrsLineString",
+            "AnyCrsPolygon",
+            "AnyCrsMultiPoint",
+            "AnyCrsMultiLineString",
+            "AnyCrsMultiPolygon",
+            "AnyCrsGeometryCollection"
+          ],
+          "description": "the geometry type"
+        },
+        "coordinates": {
+          "type": "object"
+        }
+      }
+    },
     "ConvertPointsRequestV4": {
       "required": [
         "fromCRS",
@@ -566,6 +812,78 @@
         ],
         "operationsApplied": [
           "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"
+        ]
+      }
+    },
+    "ConvertGeoJsonResponse": {
+      "title": "Convert GeoJSON/AnyCrsGeoJson response",
+      "description": "Response of a CRS conversion/transformation operation involving GeoJSON FeatureCollection or AnyCrsFeatureCollection.",
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "description": "The total number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection."
+        },
+        "successCount": {
+          "type": "integer",
+          "description": "The number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection successfully converted/transformed. If this number is less than totalCount then conversion/transformation errors have occurred."
+        },
+        "featureCollection": {
+          "$ref": "#/definitions/AnyCrsGeoJsonFeatureCollection"
+        },
+        "operationsApplied": {
+          "type": "array",
+          "description": "The list of operations, which have been applied to the points",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "example": {
+        "successCount": 4,
+        "totalCount": 4,
+        "featureCollection": {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [
+                      -43.04597676303939,
+                      -24.94299718370678,
+                      0.0
+                    ],
+                    [
+                      -43.04597677685517,
+                      -24.942996308196268,
+                      0.0
+                    ],
+                    [
+                      -43.04597679109822,
+                      -24.942995405608062,
+                      0.0
+                    ],
+                    [
+                      -43.04597676303939,
+                      -24.94299718370678,
+                      0.0
+                    ]
+                  ]
+                ]
+              },
+              "properties": {}
+            }
+          ],
+          "properties": {},
+          "persistableReferenceUnitZ": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+        },
+        "operationsApplied": [
+          "conversion from SAD_1969_UTM_Zone_23S to GCS_South_American_1969; 4 points converted",
+          "transformation GCS_South_American_1969 to GCS_WGS_1984 using SAD_1969_To_WGS_1984_4; 4 points successfully transformed",
+          "No unit conversion for Z-axis"
         ]
       }
     },
