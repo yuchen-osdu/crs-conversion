@@ -37,7 +37,8 @@
           "Trajectory Computation and Conversion"
         ],
         "summary": "Convert trajectory stations",
-        "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0.",
+        "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. \n\
+		+ Note: To get WGS 84 output the trajectoryCRS needs to be a BoundCRS (unless it is WGS 84 based)",
         "operationId": "convertTrajectory",
         "consumes": [
           "application/json"
