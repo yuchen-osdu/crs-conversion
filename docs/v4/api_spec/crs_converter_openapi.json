@@ -127,12 +127,8 @@
         "responses": {
           "200": {
             "description": "Conversion performed successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/definitions/ConvertPointsResponse"
-                }
-              }
+            "schema": {
+              "$ref": "#/definitions/ConvertPointsResponse"
             }
           },
           "500": {
