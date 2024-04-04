@@ -361,70 +361,27 @@ public class CRSConverter implements ICRSConverter {
 	 */
 	private AbstractBinGrid sortAnyCRSFeature(AbstractBinGrid inBinGrid) {
 
-		Integer inLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-
-		Integer crossLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-
-		Integer maxInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-		Integer maxCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-
-		if (!minInLine.equals(maxInLine) && !minCrossLine.equals(maxCrossLine)) {
-
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_A);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_B);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_C);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_D);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-
-			return inBinGrid;
-		} else {
-			logger.info(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
-			throw new ValidationException(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
+		//List Of features
+		List<AbstractFeature> features = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures();
+		//Custom comparator to compare based on min inline and cross line values.
+		Comparator<AbstractFeature> customComparator = (feature1, feature2) -> {
+			PointProperties pointProperties1 = feature1.getProperties().getPointPropertiesList().get(0);
+			PointProperties pointProperties2 = feature2.getProperties().getPointPropertiesList().get(0);
+			if(pointProperties1.getInline().equals(pointProperties2.getInline())){
+				return pointProperties1.getCrossline().compareTo(pointProperties2.getCrossline());
+			}else{
+				return pointProperties1.getInline().compareTo(pointProperties2.getInline());
+			}
+		};
+		//Finally, Sort the features using custom comparator.
+		features.sort(customComparator);
+		//Update PointProperties Label
+		char label ='A';
+		for(AbstractFeature feature: features){
+			feature.getProperties().getPointPropertiesList().get(0).setLabel(String.valueOf(label));
+			label++;
 		}
-
+		return inBinGrid;
 	}
 
 	private ConvertBinGridResponse binGridComputation(AbstractBinGrid inBinGrid,
