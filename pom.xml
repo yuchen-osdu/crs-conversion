@@ -43,11 +43,6 @@
 
     <repositories>
         <repository>
-            <id>geotoolkit.org</id>
-            <name>Geotoolkit.org repository</name>
-            <url>https://maven.geotoolkit.org</url>
-        </repository>
-        <repository>
             <id>${repo.releases.id}</id>
             <url>${repo.releases.url}</url>
         </repository>
