@@ -43,11 +43,6 @@
 
     <repositories>
         <repository>
-            <id>geotoolkit.org</id>
-            <name>Geotoolkit.org repository</name>
-            <url>https://maven.geotoolkit.org</url>
-        </repository>
-        <repository>
             <id>${repo.releases.id}</id>
             <url>${repo.releases.url}</url>
         </repository>
@@ -169,9 +164,9 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.5</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>8.0.2</version>
                 <executions>
                     <execution>
                         <goals>
