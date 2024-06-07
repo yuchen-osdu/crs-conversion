@@ -52,13 +52,19 @@ This project uses [Lombok](https://projectlombok.org/) for code generation. You 
 
 In order to run the service locally or remotely, you will need to have the following environment variables defined.
 
-| name | value | description | sensitive? | source |
-| ---  | ---   | ---         | ---        | ---    |
- | `LOG_PREFIX` | `service` | Logging prefix | no | - |
- | `SERVER_SERVLET_CONTEXPATH` | `/api/crs/converter/v2` | CRS conversion service context path | no | - |
- | `ENTITLEMENTS_API` | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint | no | output of infrastructure deployment |
- | `SIS_DATA` | ex `E:\crs-converter\apachesis_setup\` | Apache SIS setup | no | [apachesis](../../../apachesis_setup/README.md) |
- | `STORAGE_API` | ex `https://storage.com//api/storage/v2` | Storage service API endpoint | no | output of infrastructure deployment |
+| name                            | value                                         | description                         | sensitive? | source                                          |
+|---------------------------------|-----------------------------------------------|-------------------------------------|------------|-------------------------------------------------|
+| `LOG_PREFIX`                    | `service`                                     | Logging prefix                      | no         | -                                               |
+| `SERVER_SERVLET_CONTEXPATH`     | `/api/crs/converter/v2`                       | CRS conversion service context path | no         | -                                               |
+| `ENTITLEMENTS_API`              | ex `https://entitlements.com/entitlements/v1` | Entitlements API endpoint           | no         | output of infrastructure deployment             |
+| `SIS_DATA`                      | ex `E:\crs-converter\apachesis_setup\`        | Apache SIS setup                    | no         | [apachesis](../../../apachesis_setup/README.md) |
+
+Defined in default application property file but possible to override:
+
+| name                              | value                                        | description                         | sensitive? | source        |
+|-----------------------------------|----------------------------------------------|-------------------------------------|------------|---------------|
+| `MANAGEMENT_ENDPOINTS_WEB_BASE`   | ex `/`                                       | Web base for Actuator               | no         | -             |
+| `MANAGEMENT_SERVER_PORT`          | ex `8081`                                    | Port for Actuator                   | no         | -             |
 
 ### Run Locally
 
