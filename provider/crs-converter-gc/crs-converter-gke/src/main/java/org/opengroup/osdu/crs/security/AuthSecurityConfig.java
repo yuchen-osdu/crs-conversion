@@ -67,6 +67,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter implements 
         "/api/crs/converter/actuator",
         "/api/crs/converter/actuator/**",
         "/api/crs/converter/actuator/health",
+         "/health/**"
     };
 
     //AuthenticationRequestFilter is not a recognized bean, so construct it manually
