@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.sis.internal.system.DefaultFactories;
+import org.apache.sis.metadata.iso.citation.Citations;
 import org.apache.sis.referencing.CRS;
+import org.apache.sis.referencing.IdentifiedObjects;
 import org.apache.sis.referencing.crs.AbstractCRS;
 import org.apache.sis.referencing.cs.AxesConvention;
 import org.apache.sis.referencing.operation.matrix.Matrices;
 import org.apache.sis.referencing.operation.transform.MathTransforms;
 import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.metadata.Identifier;
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
@@ -317,7 +320,40 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
         return new OperationResponse(operations, successfulConversionCount);
     }
 
-    private void initializeXYtoWGS84Transform() throws MismatchedDimensionException, FactoryException {
+    //This method will create the transformation from XY to WGS84
+    private void initializeXYtoWGS84Transform() throws MismatchedDimensionException, FactoryException, NoninvertibleTransformException {
+//       The if part is added becasue in osdu BoundCRS convention assumes CT is "to WGS 84". The if condition is added to work when the CT is not "to WGS 84". Check if the sourceCRS is wgs84 or not. If the sourceCRS is Wgs84 we need to implement the below steps in reverse.
+        if(isTransformfromWgs84(datumOperation)){
+            CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getTargetCRS(), null);
+
+            if (checkAreaOfUse) {
+                transformToWGS84BoundingBox = AreaOfUseUtils.getTransformBoundingBox(datumOperation);
+            }
+            if (use3DPointConversion) {
+                try {
+                    xyToWGS84Transform = create3DPointXYToWGS84Transformation(xyToDatumOperation);
+                    return;
+                } catch (Exception ex) {
+                    LOGGER.log(Level.WARNING, "Can't create 3d transformation", ex);
+                }
+            }
+            /*
+             * We have two operations: from my source CRS to the CRS expected
+             * by the operation as inputs, then the operation itself. We want
+             * the concatenation of those two steps:
+             */
+            MathTransform step1 = datumOperation.getMathTransform().inverse();
+            MathTransform step2 = xyToDatumOperation.getMathTransform();
+
+
+            xyToWGS84Transform = MathTransforms.concatenate(step1, step2);
+            if (!longLatOrder) {
+                Matrix swapMatrix = Matrices.createTransform(
+                        new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
+                        new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
+                xyToWGS84Transform = MathTransforms.concatenate(xyToWGS84Transform, MathTransforms.linear(swapMatrix));
+            }
+        }else{
         CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getSourceCRS(), null);
         if (checkAreaOfUse) {
             transformToWGS84BoundingBox = AreaOfUseUtils.getTransformBoundingBox(datumOperation);
@@ -345,6 +381,18 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
 
             xyToWGS84Transform = MathTransforms.concatenate(xyToWGS84Transform, MathTransforms.linear(swapMatrix));
         }
+        }
+    }
+    public boolean isTransformfromWgs84(CoordinateOperation transform) throws FactoryException {
+        CoordinateReferenceSystem sourceCrs= transform.getSourceCRS();
+        CoordinateReferenceSystem wgs84 = CRS.forCode("EPSG:4326");
+        Identifier identifier = IdentifiedObjects.getIdentifier(sourceCrs, Citations.EPSG);
+        Identifier otherIdentifier = IdentifiedObjects.getIdentifier(wgs84, Citations.EPSG);
+        if (identifier != null && otherIdentifier != null) {
+            return identifier.getCode().equals(otherIdentifier.getCode());
+        }
+
+        return wgs84.equals(wgs84);
     }
 
     private void initializeWGS84ToXYTransform() throws MismatchedDimensionException, FactoryException, NoninvertibleTransformException {

@@ -35,6 +35,23 @@ TO___CRS = "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"30200002\"},\"type\":\"EB
 
 WGS84 = "{\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\",\"ver\":\"PE_10_3_1\",\"name\":\"GCS_WGS_1984\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"type\":\"LBC\"}"
 LAS = "{\"lateBoundCRS\":{\"wkt\":\"PROJCS[\\\"NAD_1927_StatePlane_Louisiana_South_FIPS_1702\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Lambert_Conformal_Conic\\\"],PARAMETER[\\\"False_Easting\\\",2000000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",-91.3333333333333],PARAMETER[\\\"Standard_Parallel_1\\\",29.3],PARAMETER[\\\"Standard_Parallel_2\\\",30.7],PARAMETER[\\\"Latitude_Of_Origin\\\",28.6666666666667],UNIT[\\\"Foot_US\\\",0.304800609601219],AUTHORITY[\\\"EPSG\\\",26782]]\",\"ver\":\"PE_10_3_1\",\"name\":\"NAD_1927_StatePlane_Louisiana_South_FIPS_1702\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"26782\"},\"type\":\"LBC\"},\"singleCT\":{\"wkt\":\"GEOGTRAN[\\\"NAD_1927_To_WGS_1984_79_CONUS\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],AUTHORITY[\\\"EPSG\\\",15851]]\",\"ver\":\"PE_10_3_1\",\"name\":\"NAD_1927_To_WGS_1984_79_CONUS\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"15851\"},\"type\":\"ST\"},\"ver\":\"PE_10_3_1\",\"name\":\"NAD27 * OGP-Usa Conus / Louisiana South [26782,15851]\",\"authCode\":{\"auth\":\"SLB\",\"code\":\"26782079\"},\"type\":\"EBC\"}"
+FROM_CRS_7844003 = "{\"authCode\":{\"auth\":\"OSDU\",\"code\":\"7844003\"},\"lateBoundCRS\":{\"authCode\":{" \
+                   "\"auth\":\"EPSG\",\"code\":\"7844\"},\"name\":\"GDA2020\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\"," \
+                   "\"wkt\":\"GEOGCS[\\\"GDA2020\\\",DATUM[\\\"GDA2020\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0," \
+                   "298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]," \
+                   "AUTHORITY[\\\"EPSG\\\",7844]]\"},\"name\":\"GDA2020 * ICSM-Aus Conf [7844,9690]\",\"singleCT\":{" \
+                   "\"authCode\":{\"auth\":\"EPSG\",\"code\":\"9690\"},\"name\":\"WGS_1984_To_GDA2020_3\"," \
+                   "\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1984_To_GDA2020_3\\\"," \
+                   "GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0," \
+                   "298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]," \
+                   "GEOGCS[\\\"GDA2020\\\",DATUM[\\\"GDA2020\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]]," \
+                   "PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]," \
+                   "METHOD[\\\"Coordinate_Frame\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.06155],PARAMETER[" \
+                   "\\\"Y_Axis_Translation\\\",-0.01087],PARAMETER[\\\"Z_Axis_Translation\\\",-0.04019]," \
+                   "PARAMETER[\\\"X_Axis_Rotation\\\",-0.0394924],PARAMETER[\\\"Y_Axis_Rotation\\\",-0.0327221]," \
+                   "PARAMETER[\\\"Z_Axis_Rotation\\\",-0.0328979],PARAMETER[\\\"Scale_Difference\\\",-0.009994]," \
+                   "OPERATIONACCURACY[3.1],AUTHORITY[\\\"EPSG\\\",9690]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"} "
+
 
 def is_close(a, b, rel_tol=1e-09, abs_tol=0.0):
     """Compare a double
@@ -354,6 +371,25 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.assertEquals(api_response.success_count, 1)
             self.assertTrue(is_close(api_response.points[0].x, 586399.4230309083))
             self.assertTrue(is_close(api_response.points[0].y, 448578.26031172264))
+            self.assertTrue(is_close(api_response.points[0].z, 0))
+            # pprint(api_response)
+        except ApiException as e:
+            self.fail(str(e))
+
+    def test_convert_check_WGS84_to_case(self):
+        """Simple point conversion request like in the Swagger default data"""
+        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
+        points = list()
+        points.append(Point(130.0, -30.0, 0.0))
+        body = ConvertPointsRequest(from_crs=FROM_CRS_7844003, to_crs=WGS84, points=points)
+        try:
+            # Convert a list of points
+            api_response = self.api_instance.convert_point(body=body, data_partition_id=data_partition_header)
+            self.assertIsNotNone(api_response)
+            self.assertIsInstance(api_response, ConvertPointsResponse)
+            self.assertEquals(api_response.success_count, 1)
+            self.assertTrue(is_close(api_response.points[0].x, 129.99999132871014))
+            self.assertTrue(is_close(api_response.points[0].y, -30.000013761762506))
             self.assertTrue(is_close(api_response.points[0].z, 0))
             # pprint(api_response)
         except ApiException as e:
@@ -844,6 +880,7 @@ def suite():
     suite.addTest(TestUnAuthorizedCrsConverterIntegration('test_transformation_with_unAuthorized_token'))
     suite.addTest(TestInfo('test_info_using_get'))
     suite.addTest(TestCrsConverterIntegration('test_conversion_only_ID'))
+    suite.addTest(TestCrsConverterIntegration('test_convert_check_WGS84_to_case'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json_ID'))
     suite.addTest(TestCrsConverterIntegration('test_bin_grid_without_TOCRS'))
     suite.addTest(TestCrsConverterIntegration('test_bin_grid_with_TOCRS'))

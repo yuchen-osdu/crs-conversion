@@ -4,13 +4,14 @@ import static org.opengroup.osdu.crs.model.ReferenceConverter.parseSpatialRefere
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 
@@ -23,20 +24,14 @@ import org.opengroup.osdu.crs.BinGrid.AbstractBinGrid;
 import org.opengroup.osdu.crs.BinGrid.AbstractFeature;
 import org.opengroup.osdu.crs.BinGrid.AbstractSpatialLocation;
 import org.opengroup.osdu.crs.BinGrid.MaxMisLocation;
+import org.opengroup.osdu.crs.BinGrid.PointProperties;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonBase;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonCoordinates;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeature;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonPoint;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
-import org.opengroup.osdu.crs.model.CRSType;
-import org.opengroup.osdu.crs.model.ConvertBinGridResponse;
-import org.opengroup.osdu.crs.model.ConvertGeoJsonResponse;
-import org.opengroup.osdu.crs.model.ConvertOperationState;
-import org.opengroup.osdu.crs.model.ConvertPointsResponse;
-import org.opengroup.osdu.crs.model.ICrs;
-import org.opengroup.osdu.crs.model.IItem;
-import org.opengroup.osdu.crs.model.ILateBoundCrs;
+import org.opengroup.osdu.crs.model.*;
 import org.opengroup.osdu.crs.sis.operation.CRSCoordinateOperationFactory;
 import org.opengroup.osdu.crs.sis.operation.ICRSCoordinateOperation;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
@@ -165,6 +160,50 @@ public class CRSConverter implements ICRSConverter {
 		}
 		return response;
 	}
+
+	@Override
+	public ConvertGeoJsonResponse convertGeoJsonV4(GeoJsonFeatureCollection featureCollection, String toCrs, String requestedToUnitZ, String transform) {
+		ConvertGeoJsonResponse response = new ConvertGeoJsonResponse();
+		if (featureCollection.isValid()) {
+			String fromCrs, fromUnitZ, toUnitZ = requestedToUnitZ;
+			GeoJsonBase.GeoJsonVariant targetVariant;
+			GeoJsonCoordinates coordinates = featureCollection.extractCoordinates();
+			if (featureCollection.getGeoJsonVariant() == GeoJsonBase.GeoJsonVariant.GEO_JSON) {
+				fromCrs = Constants.WGS84;
+				fromUnitZ = METER;
+			} else {
+				fromCrs = featureCollection.getPersistableReferenceCrs();
+				fromUnitZ = featureCollection.getPersistableReferenceUnitZ();
+			}
+			ConvertPointsResponseV4 internal_response = convertPointV4(fromCrs, toCrs, transform,coordinates.getXys(),
+					coordinates.getZ_s());
+			if (targetIsWGS84(toCrs)) {
+				targetVariant = GeoJsonBase.GeoJsonVariant.GEO_JSON;
+				featureCollection.setPersistableReferenceCrs(null);
+				toUnitZ = METER;
+			} else {
+				targetVariant = GeoJsonBase.GeoJsonVariant.ANY_CRS_GEO_JSON;
+				featureCollection.setPersistableReferenceCrs(toCrs);
+			}
+			String any_unit_conversion = coordinates.convertUnits(fromUnitZ, toUnitZ);
+			coordinates.setIndex(0);
+			featureCollection.replaceCoordinates(coordinates);
+			featureCollection.setGeoJsonVariant(targetVariant);
+			response.setSuccessCount(internal_response.getSuccessCount());
+			response.setTotalCount(coordinates.getLength());
+			response.setFeatureCollection(featureCollection);
+			if (featureCollection.getDimension() > 2) {
+				internal_response.getOperationsApplied().add(any_unit_conversion);
+				featureCollection.setPersistableReferenceUnitZ(toUnitZ);
+			}
+			featureCollection.updateBbox();
+			response.setOperationsApplied(internal_response.getOperationsApplied());
+		} else {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_BAD_INPUT);
+		}
+		return response;
+	}
+
 
 	private boolean targetIsWGS84(String toCrs) {
 		ILateBoundCrs wgs84 = (ILateBoundCrs) parseSpatialReference(Constants.WGS84);
@@ -313,72 +352,35 @@ public class CRSConverter implements ICRSConverter {
 
 	}
 
+	/**
+	 * Returns AbstractBinGrid object and It will update the (min, min), (min, max), (max,min), (max,max)
+	 * and also will update the PointProperties Label.	 *
+	 * @param - AbstractBinGrid - inBinGrid
+	 * @return - AbstractBinGrid - inBinGrid
+	 */
 	private AbstractBinGrid sortAnyCRSFeature(AbstractBinGrid inBinGrid) {
 
-		Integer inLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-		Integer inLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getInline();
-
-		Integer crossLineA = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineB = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineC = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-		Integer crossLineD = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3)
-				.getProperties().getPointPropertiesList().get(0).getCrossline();
-
-		Integer maxInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minInLine = Stream.of(Arrays.asList(inLineA, inLineB, inLineC, inLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-		Integer maxCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).max().getAsInt();
-		Integer minCrossLine = Stream
-				.of(Arrays.asList(crossLineA, crossLineB, crossLineC, crossLineD).toArray(new Integer[4]))
-				.mapToInt(Integer::valueOf).min().getAsInt();
-
-		if (!minInLine.equals(maxInLine) && !minCrossLine.equals(maxCrossLine)) {
-
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_A);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(0).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_B);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setInline(minInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(1).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_C);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(2).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(minCrossLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setLabel(LABEL_D);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setInline(maxInLine);
-			inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures().get(3).getProperties()
-					.getPointPropertiesList().get(0).setCrossline(maxCrossLine);
-
-			return inBinGrid;
-		} else {
-			logger.info(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
-			throw new ValidationException(
-					"MaxInLine should always be greater then MinInLine and MaxCrossLine should always be greater then MinCrossLine.");
+		//List Of features
+		List<AbstractFeature> features = inBinGrid.getABCDBinGridSpatialLocation().getAsIngestedcoordinates().getFeatures();
+		//Custom comparator to compare based on min inline and cross line values.
+		Comparator<AbstractFeature> customComparator = (feature1, feature2) -> {
+			PointProperties pointProperties1 = feature1.getProperties().getPointPropertiesList().get(0);
+			PointProperties pointProperties2 = feature2.getProperties().getPointPropertiesList().get(0);
+			if(pointProperties1.getInline().equals(pointProperties2.getInline())){
+				return pointProperties1.getCrossline().compareTo(pointProperties2.getCrossline());
+			}else{
+				return pointProperties1.getInline().compareTo(pointProperties2.getInline());
+			}
+		};
+		//Finally, Sort the features using custom comparator.
+		features.sort(customComparator);
+		//Update PointProperties Label
+		char label ='A';
+		for(AbstractFeature feature: features){
+			feature.getProperties().getPointPropertiesList().get(0).setLabel(String.valueOf(label));
+			label++;
 		}
-
+		return inBinGrid;
 	}
 
 	private ConvertBinGridResponse binGridComputation(AbstractBinGrid inBinGrid,
@@ -419,7 +421,71 @@ public class CRSConverter implements ICRSConverter {
 
 		return geoJsonFeatureCollection;
 	}
-	
+
+	@Override
+	public ConvertPointsResponseV4 convertPointV4(String from, String to, String transform, double[] xyCoordinates, double[] zCoordinates) {
+		if ((from == null) || (from.isEmpty())
+				|| (to == null) || (to.isEmpty())
+				|| (xyCoordinates == null) || (xyCoordinates.length == 0)
+				|| (zCoordinates == null) || (zCoordinates.length == 0)) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_BAD_INPUT);
+		}
+		if (xyCoordinates.length / 2 != zCoordinates.length) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_INPUT_ARRAY_MISMATCH);
+		}
+		ICrs sourceCRS = null;
+		ICrs targetCRS = null;
+		ITrf explicitTransform = null;
+		IItem raw = parseSpatialReference(from);
+		if (raw instanceof ICrs) {
+			sourceCRS = (ICrs) raw;
+		}
+		raw = parseSpatialReference(to);
+		if (raw instanceof ICrs) {
+			targetCRS = (ICrs) raw;
+		}
+		if (sourceCRS == null || targetCRS == null || !sourceCRS.isValid() || !targetCRS.isValid()) {
+			throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_CRS_SPECIFICATION);
+		}
+		if (transform != null && !transform.isEmpty()) {
+			raw = parseSpatialReference(transform);
+			if (raw instanceof ITrf) {
+				explicitTransform = (ITrf) raw;
+			}
+			if (explicitTransform == null || !explicitTransform.isValid()) {
+				throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
+			}
+		}
+
+		ConvertOperationState opState = new ConvertOperationState(sourceCRS, targetCRS, xyCoordinates, zCoordinates);
+		int successCount = zCoordinates.length;
+		CRSCoordinateOperationFactory opFactory = new CRSCoordinateOperationFactory();
+		List<ICRSCoordinateOperation> operations = opFactory.createOperationsV4(sourceCRS, targetCRS, explicitTransform);
+		boolean shouldEnable3DConversion = shouldEnable3DConversion(operations);
+		double[] initialZCoordinates = new double[zCoordinates.length];
+		System.arraycopy(zCoordinates, 0, initialZCoordinates, 0, zCoordinates.length);
+		for (ICRSCoordinateOperation currentOperation : operations) {
+			if (shouldEnable3DConversion) {
+				currentOperation.enable3DPointConversion(true);
+			}
+			OperationResponse response = currentOperation.convertPoints(xyCoordinates, zCoordinates);
+			opState.getOperations().addAll(response.getOperationsApplied());
+			successCount = response.getSuccessCount();
+		}
+
+		if (shouldEnable3DConversion) {
+			System.arraycopy(initialZCoordinates, 0, zCoordinates, 0, initialZCoordinates.length);
+		}
+
+		ConvertPointsResponseV4 response = new ConvertPointsResponseV4();
+		response.setSuccessCount(successCount);
+		if (opState.getOperations().size() == 0) {
+			opState.getOperations().add("no operation applied");
+		}
+		response.setOperationsApplied(opState.getOperations());
+		return response;
+	}
+
 	private static GeoJsonPoint getGeoJsonPoint(Double dx, Double dy, Double dz) {
         GeoJsonPoint g_pt = new GeoJsonPoint();
         g_pt.setGeoJsonVariant(GeoJsonBase.GeoJsonVariant.GEO_JSON);

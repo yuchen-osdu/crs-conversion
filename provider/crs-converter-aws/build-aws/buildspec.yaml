@@ -40,13 +40,7 @@ phases:
       - java -version
       - mvn -version
       - mkdir -p /root/.m2
-      - cp ./provider/crs-converter-aws/maven/settings.xml /root/.m2/settings.xml # copy the AWS-specific settings.xml to the CodeBuild instance's .m2 folder
-      - export AWS_ACCOUNT_ID=`aws sts get-caller-identity | grep Account | cut -d':' -f 2 | cut -d'"' -f 2`
-      - export AWS_OSDU_DEV_MAVEN_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain $AWS_OSDU_DEV_MAVEN_DOMAIN --domain-owner $AWS_ACCOUNT_ID --query authorizationToken --output text`
-      # Install git secrets
-      #TODO temporarily adding hotfix, due to https://github.com/awslabs/git-secrets/issues/220
-      - export SAY_LOCATION=`ln -s "$(which echo)" say`
-      - export PATH="$PATH:$SAY_LOCATION"
+      - cp ./.mvn/community-maven.settings.xml /root/.m2/settings.xml
 
       - git clone https://github.com/awslabs/git-secrets.git
       - cd git-secrets && make install && cd ..
@@ -78,7 +72,7 @@ phases:
       - echo "Building primary service assemblies..."
       - export SIS_DATA=${CODEBUILD_SRC_DIR}/apachesis_setup/SIS_DATA #needed by unit tests
       - mvn -B test install -pl .,crs-converter-core,provider/crs-converter-aws -Ddeployment.environment=prod  
-      - mvn sonar:sonar -pl .,provider/crs-converter-aws -Dsonar.login=${SONAR_USERNAME} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch.name=${BRANCH_NAME} 
+      - mvn sonar:sonar -pl .,provider/crs-converter-aws -Dsonar.login=${SONAR_USERNAME} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.host.url=${SONAR_URL}
 
       - echo "Building integration testing assemblies and gathering artifacts..."      
       - ./testing/crs_converter_test_aws/build-aws/prepare-dist.sh
@@ -102,9 +96,6 @@ phases:
         python provider/crs-converter-aws/build-aws/build-info.py --branch ${CODEBUILD_SOURCE_VERSION} --commit ${CODEBUILD_RESOLVED_SOURCE_VERSION} \
           --buildid ${CODEBUILD_BUILD_ID} --buildnumber ${CODEBUILD_BUILD_NUMBER} --reponame ${REPO_NAME} --outdir ${OUTPUT_DIR} \
           --artifact ${ECR_IMAGE}
-  post_build:
-    commands:
-      - cp provider/crs-converter-aws/target/dependency-check-report.html ${OUTPUT_DIR}
 reports:
   SurefireReports: # CodeBuild will create a report group called "SurefireReports".
     files: #Store all of the files

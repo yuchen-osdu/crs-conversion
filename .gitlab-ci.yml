@@ -58,15 +58,20 @@ include:
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/core-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/pages.yml"
 
   - local: "devops/gc/pipeline/override-stages.yml"
 
   - local: "devops/aws/pipeline/override-stages.yml"
 
+  - local: "devops/core-plus/pipeline/override-stages.yml"
+
 .maven:
   image: maven:3.8.3-openjdk-17-slim
-  tags: ['osdu-medium']
+  tags: ["osdu-medium"]
   variables:
     MAVEN_REPO_PATH: "$CI_PROJECT_DIR/.m2/repository"
     MAVEN_CLI_OPTS: "--batch-mode --settings=$CI_PROJECT_DIR/.mvn/community-maven.settings.xml"
@@ -163,7 +168,7 @@ include:
     - echo 'xargs -0rI {} $MAVEN_BUILD {} "$@" < $ALL_MAVEN_BUILD_DIRS_Z' >> $MAVEN_FOREACH
 
 gemnasium-maven-dependency_scanning:
- variables:
+  variables:
     DS_JAVA_VERSION: 17
 
 azure_containerize:
@@ -171,7 +176,7 @@ azure_containerize:
     AZURE_CONTAINERIZE_REPOSITORY: "-b jdk-17 https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
 
 fossa-analyze:
- image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
- 
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
 fossa-check-notice:
- image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17

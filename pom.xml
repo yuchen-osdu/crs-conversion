@@ -31,13 +31,14 @@
 
 	<groupId>org.opengroup.osdu.crs-converter-service</groupId>
 	<artifactId>crs-converter-service</artifactId>
-	<version>0.26.0-SNAPSHOT</version>
+	<version>0.27.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>crs-converter-service</name>
 	<description>crs-converter service</description>
 
     <modules>
         <module>crs-converter-core</module>
+        <module>crs-converter-core-plus</module>
         <module>provider/crs-converter-azure/crs-converter-aks</module>
         <module>provider/crs-converter-gc/crs-converter-gke</module>
         <module>provider/crs-converter-aws</module>
@@ -45,11 +46,6 @@
     </modules>
 
     <repositories>
-        <repository>
-            <id>geotoolkit.org</id>
-            <name>Geotoolkit.org repository</name>
-            <url>https://maven.geotoolkit.org</url>
-        </repository>
         <repository>
             <id>${repo.releases.id}</id>
             <url>${repo.releases.url}</url>
@@ -180,9 +176,9 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.5</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>8.0.2</version>
                 <executions>
                     <execution>
                         <goals>

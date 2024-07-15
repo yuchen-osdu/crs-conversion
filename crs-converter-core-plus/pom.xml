@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.opengroup.osdu.crs-converter-service</groupId>
+		<artifactId>crs-converter-service</artifactId>
+		<version>0.27.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<app.version>1</app.version>
+		<app.id>crs-converter-core-plus</app.id>
+		<spring-webmvc.version>5.3.22</spring-webmvc.version>
+		<jackson-databind.version>2.13.4.2</jackson-databind.version>
+	</properties>
+
+	<prerequisites>
+		<maven>3.1.0</maven>
+	</prerequisites>
+
+	<artifactId>crs-converter-core-plus</artifactId>
+	<name>crs-converter-core-plus</name>
+	<description>CRS converter service for Community Implementation</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.opengroup.osdu.crs-converter-service</groupId>
+			<artifactId>crs-converter-core</artifactId>
+			<version>0.27.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+			<version>1.0.10.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring-webmvc.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback.contrib</groupId>
+			<artifactId>logback-jackson</artifactId>
+			<version>0.1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback.contrib</groupId>
+			<artifactId>logback-json-classic</artifactId>
+			<version>0.1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson-databind.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>9.0.68</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.7.4</version>
+				<configuration>
+					<mainClass>
+						org.opengroup.osdu.crs.CRSApplication</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
