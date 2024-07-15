@@ -46,6 +46,14 @@
         <maven>3.1.0</maven>
     </prerequisites>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>

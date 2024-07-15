@@ -24,6 +24,14 @@
     <name>crs-converter-ocp</name>
     <description>CRS converter service Openshift Container Platform deployment</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.opengroup.osdu.crs-converter-service</groupId>

@@ -51,6 +51,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
