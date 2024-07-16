@@ -15,9 +15,9 @@
         <json-smart.version>2.5.0</json-smart.version>
         <log4j2.version>2.17.1</log4j2.version>
         <os-core-common.version>0.26.0-rc2</os-core-common.version>
-        <jackson.version>2.16.1</jackson.version>
-        <spring-boot.version>3.2.3</spring-boot.version>
-        <spring-security.version>6.2.1</spring-security.version>
+        <jackson.version>2.17.1</jackson.version>
+        <spring-boot.version>3.3.1</spring-boot.version>
+        <spring-security.version>6.3.1</spring-security.version>
 
     </properties>
 
@@ -99,7 +99,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-bom</artifactId>
-                <version>6.2.2</version>
+                <version>${spring-security.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
