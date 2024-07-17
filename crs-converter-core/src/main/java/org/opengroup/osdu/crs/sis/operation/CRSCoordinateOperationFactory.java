@@ -17,6 +17,7 @@ import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.SisCrsUtils;
 import org.opengroup.osdu.crs.sis.SisTransformations;
 import org.opengroup.osdu.crs.sis.transform.CompoundFallbackWGS84TransformWithCode;
+import org.opengroup.osdu.crs.sis.transform.ConcatenatedWGS84TransformFromCode;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
 import org.opengroup.osdu.crs.sis.transform.IWGS84Transform;
 import org.opengroup.osdu.crs.sis.transform.SingleWGS84TransformFromCode;
@@ -70,7 +71,7 @@ public class CRSCoordinateOperationFactory {
                         IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(fromBaseCrs, (ISingleTrf) transform, false);
                         operations.add(new CRSTransformToWGS84Operation(transformOperation));
                     } else if (transform.getType() == CRSType.COMPOUND_TRF) {
-                        IWGS84Transform transformOperation = new CompoundFallbackWGS84TransformWithCode(fromBaseCrs, (ICompoundTrf) transform);
+                        IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(fromBaseCrs, (ICompoundTrf) transform);
                         operations.add(new CRSTransformToWGS84Operation(transformOperation));
                     }
                 }
@@ -91,7 +92,7 @@ public class CRSCoordinateOperationFactory {
                         IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, (ISingleTrf) transform, false);
                         operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                     } else if (transform.getType() == CRSType.COMPOUND_TRF) {
-                        IWGS84Transform transformOperation = new CompoundFallbackWGS84TransformWithCode(toBaseCrs, (ICompoundTrf) transform);
+                        IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(toBaseCrs, (ICompoundTrf) transform);
                         operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                     }
                 }
