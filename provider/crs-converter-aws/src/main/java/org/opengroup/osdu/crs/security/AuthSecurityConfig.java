@@ -17,17 +17,19 @@
 package org.opengroup.osdu.crs.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.opengroup.osdu.core.common.model.http.AppError;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -36,13 +38,12 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
+@Configuration
 public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEntryPoint {
       
     private AuthenticationRequestFilter authFilter;
@@ -75,19 +76,17 @@ public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEn
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
-                .and()
-                .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
-                .and()
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement((sess) -> sess.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                .authorizeHttpRequests(request -> request.requestMatchers(AUTH_WHITELIST).permitAll().anyRequest().authenticated())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers(AUTH_WHITELIST);
+        return web -> web.ignoring().requestMatchers(AUTH_WHITELIST);
     }
 
     @Override

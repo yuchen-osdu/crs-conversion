@@ -10,11 +10,15 @@
         <powermock.version>2.0.6</powermock.version>
         <docker.image.prefix>org.opengroup.osdu</docker.image.prefix>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <os-core-common.version>0.26.0</os-core-common.version>
         <snakeyaml.version>2.0</snakeyaml.version>
-        <openapi.version>1.7.0</openapi.version>
+        <openapi.version>2.3.0</openapi.version>
         <json-smart.version>2.5.0</json-smart.version>
         <log4j2.version>2.17.1</log4j2.version>
+        <os-core-common.version>0.26.0-rc2</os-core-common.version>
+        <jackson.version>2.17.1</jackson.version>
+        <spring-boot.version>3.3.1</spring-boot.version>
+        <spring-security.version>6.3.1</spring-security.version>
+
     </properties>
 
     <licenses>
@@ -81,6 +85,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
@@ -88,13 +99,13 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-bom</artifactId>
-                <version>5.8.8</version>
+                <version>${spring-security.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opengroup.osdu</groupId>
-                <artifactId>os-core-common</artifactId>
+                <artifactId>os-core-common-spring6</artifactId>
                 <version>${os-core-common.version}</version>
                 <exclusions>
                     <exclusion>
@@ -113,7 +124,7 @@
             </dependency>
             <dependency>
                 <groupId>org.opengroup.osdu</groupId>
-                <artifactId>os-core-common</artifactId>
+                <artifactId>os-core-common-spring6</artifactId>
                 <version>${os-core-common.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -124,9 +135,10 @@
                 <version>${json-smart.version}</version>
             </dependency>
             <dependency>
-	            <groupId>com.fasterxml.jackson.core</groupId>
-	            <artifactId>jackson-databind</artifactId>
-	            <version>2.13.4.2</version>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
 	        </dependency>
         </dependencies>
     </dependencyManagement>
@@ -135,7 +147,7 @@
         <dependencies>
             <dependency>
     		    <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-ui</artifactId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${openapi.version}</version>
     	    </dependency>
         </dependencies>
@@ -145,7 +157,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>2.7.4</version>
+                    <version>3.2.2</version>
                     <executions>
                         <execution>
                             <goals>
