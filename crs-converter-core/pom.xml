@@ -14,9 +14,6 @@
   <properties>
     <app.version>1</app.version>
     <app.id>crs-converter-core</app.id>
-    <jackson-databind.version>2.13.4.2</jackson-databind.version>
-    <jackson.version>2.13.2</jackson.version>
-    <spring-webmvc.version>5.3.22</spring-webmvc.version>
   </properties>
 
   <prerequisites>
@@ -31,7 +28,8 @@
     <!-- osdu dependencies -->
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
-      <artifactId>os-core-common</artifactId>
+      <artifactId>os-core-common-spring6</artifactId>
+      <version>0.26.0-rc2</version>
     </dependency>
 
     <dependency>
@@ -42,7 +40,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.26</version>
+      <version>1.18.28</version>
       <scope>provided</scope>
     </dependency>
 
@@ -97,13 +95,14 @@
       <version>3.0.1</version>
     </dependency>
     <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>2.3.2</version>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.3.1</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -114,33 +113,6 @@
 	    <groupId>com.googlecode.json-simple</groupId>
 	    <artifactId>json-simple</artifactId>
 	    <version>1.1.1</version>
-	</dependency>
-      
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>${spring-webmvc.version}</version>
-    </dependency>
-    <dependency>
-	    <groupId>org.apache.tomcat.embed</groupId>
-	    <artifactId>tomcat-embed-core</artifactId>
-	    <version>9.0.68</version>
 	</dependency>
   </dependencies>
    <build>
@@ -166,7 +138,7 @@
          </plugin>
              <plugin>
                  <artifactId>maven-surefire-plugin</artifactId>
-                 <version>3.0.0-M5</version>
+                 <version>3.2.5</version>
                  <configuration>
                      <redirectTestOutputToFile>true</redirectTestOutputToFile>
                  </configuration>

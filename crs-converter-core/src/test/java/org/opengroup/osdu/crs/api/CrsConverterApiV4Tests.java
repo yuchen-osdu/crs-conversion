@@ -1,6 +1,6 @@
 package org.opengroup.osdu.crs.api;
 
-import org.apache.commons.lang3.StringUtils;
+import jakarta.validation.ValidationException;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -13,14 +13,10 @@ import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryResponseV4;
 import org.springframework.util.MultiValueMap;
 
-import javax.validation.ValidationException;
-
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CrsConverterApiV4Tests {

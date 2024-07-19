@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -73,7 +73,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @NonNull
     @Override
     public ResponseEntity<Object> handleNoHandlerFoundException(@NonNull NoHandlerFoundException ex, @NonNull HttpHeaders headers,
-                                                                @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         AppError appError = AppError.builder()
                 .code(HttpStatus.NOT_FOUND.value())
                 .message("Resource not found.")
@@ -86,20 +86,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @NonNull
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                  @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         return getBadInputResponse(ex);
     }
 
     @NonNull
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(@NonNull HttpMessageNotReadableException ex, @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatus status, @NonNull WebRequest request) {
+                                                                  @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         return getBadInputResponse(ex);
     }
 
     @ExceptionHandler(value = HttpStatusCodeException.class)
     public ResponseEntity<AppError> handleHttpStatusCodeException(HttpStatusCodeException e) {
-        HttpStatus statusCode = e.getStatusCode();
+        HttpStatusCode statusCode= e.getStatusCode();
         if (statusCode == HttpStatus.METHOD_NOT_ALLOWED) {
             return getResponse(new AppException(statusCode.value(), "Method not allowed.", "Method not allowed.", e));
         }

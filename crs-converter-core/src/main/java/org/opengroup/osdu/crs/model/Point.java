@@ -2,7 +2,7 @@ package org.opengroup.osdu.crs.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.opengroup.osdu.crs.util.Constants;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
