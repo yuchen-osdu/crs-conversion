@@ -33,12 +33,10 @@ public class CompoundWGS84TransformTests {
      */
     @Test
     public void testNad27CompoundTransform() {
-        final double DELTA_A = 0.00001; // Standard delta, but we strive to raise precision to target value
-        //final double DELTA_L = 0.1; //0.1 meters
-        //final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
 
-        String fromCRS = "{\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"NAD27\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"},\"name\":\"USA NAD27 (NADCON CONUS)\",\"type\":\"EBC\",\"authCode\":{\"auth\":\"Other\",\"code\":\"720218\"},\"compoundCT\":{\"cts\":[{\"name\":\"USA NAD27 (NADCON CONUS) - TRFM\",\"type\":\"ST\",\"wkt\":\"GEOGTRAN[\\\"USA NAD27 (NADCON CONUS) - TRFM\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.0174532925199432]],GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],AUTHORITY[\\\"Other\\\",760217]]\",\"authCode\":{\"auth\":\"Other\",\"code\":\"760217\"},\"ver\":\"PE_10_3_1\"},{\"name\":\"USA NAD83 - TRFM\",\"type\":\"ST\",\"wkt\":\"GEOGTRAN[\\\"USA NAD83 - TRFM\\\",GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",0.0],AUTHORITY[\\\"Other\\\",760219]]\",\"authCode\":{\"auth\":\"Other\",\"code\":\"760219\"},\"ver\":\"PE_10_3_1\"}],\"name\":\"USA NAD27 (NADCON CONUS to WGS84) - TRFM\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"authCode\":{\"auth\":\"Other\",\"code\":\"770003\"},\"ver\":\"PE_10_3_1\"},\"ver\":\"PE_10_3_1\"}";
-
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8603\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1241\"},\"name\":\"NAD27 to NAD83 (86)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD27 to NAD83 (86)\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset\\\",0.0],OPERATIONACCURACY[0.15],AUTHORITY[\\\"EPSG\\\",1241]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1719\"},\"name\":\"NAD83 to WGS 84 (1)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD83 to WGS 84 (1)\\\",GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",0.0],OPERATIONACCURACY[1.0],AUTHORITY[\\\"EPSG\\\",1719]]\"}],\"name\":\"NAD27 to WGS 84 (50)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"NAD27\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]\"},\"name\":\"NAD27 to WGS 84 [4267,8603]\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
         String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"WGS 84\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137,298.257223563]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"}";
 
         double[] zCoordinates = new double[]{
@@ -171,22 +169,22 @@ public class CompoundWGS84TransformTests {
      */
     @Test
     public void testFromEgypt1907ToWGS84viaConcatenatedTransformation() {
-        //final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_L = 0.1; //0.1 meters
         final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
 
         String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4229\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8537\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1545\"},\"name\":\"Egypt_1907_To_WGS_1972\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Egypt_1907_To_WGS_1972\\\",GEOGCS[\\\"GCS_Egypt_1907\\\",DATUM[\\\"D_Egypt_1907\\\",SPHEROID[\\\"Helmert_1906\\\",6378200.0,298.3]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-121.8],PARAMETER[\\\"Y_Axis_Translation\\\",98.1],PARAMETER[\\\"Z_Axis_Translation\\\",-15.2],OPERATIONACCURACY[5.0],AUTHORITY[\\\"EPSG\\\",1545]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1237\"},\"name\":\"WGS_1972_To_WGS_1984_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_To_WGS_1984_1\\\",GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",4.5],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.554],PARAMETER[\\\"Scale_Difference\\\",0.2263],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1237]]\"}],\"name\":\"Egypt 1907 to WGS 84 (2)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4229\"},\"name\":\"Egypt 1907\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Egypt_1907\\\",DATUM[\\\"D_Egypt_1907\\\",SPHEROID[\\\"Helmert_1906\\\",6378200.0,298.3]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]\"},\"name\":\"Egypt 1907 to WGS 84 [4229,8537]\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
         String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"WGS 84\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137,298.257223563]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"}";
 
+        double[] xyCoordinates = new double[]{
+                31, 28, 31, 28
+        };
         double[] zCoordinates = new double[]{
                 0, 0
         };
-        double[] xyCoordinates = new double[]{
-                28, 31, 28, 31
-        };
-        double[] expectedXYCoordinates = new double[]{
-                28.00016427, 31.00164654, 28.00016427, 31.00164654
-        };
 
+        double[] expectedXYCoordinates = new double[]{
+                31.00164654, 28.00016427, 31.00164654, 28.00016427
+        };
         double[] expectedZCoordinates = new double[]{
                 0, 0
         };
@@ -305,22 +303,22 @@ public class CompoundWGS84TransformTests {
      */
     @Test
     public void testFromEgypt1907ToWGS84() {
-        //final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_L = 0.1; //0.1 meters
         final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
 
         String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4229\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8537\"},\"name\":\"Egypt 1907 to WGS 84 (2)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4229\"},\"name\":\"Egypt_1907\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Egypt_1907\\\",DATUM[\\\"D_Egypt_1907\\\",SPHEROID[\\\"Helmert_1906\\\",6378200.0,298.3]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]\"},\"name\":\"Egypt 1907 to WGS 84 [4229,8537]\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
         String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"WGS 84\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137,298.257223563]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"}";
 
+        double[] xyCoordinates = new double[]{
+                31, 28, 31, 28
+        };
         double[] zCoordinates = new double[]{
                 0, 0
         };
-        double[] xyCoordinates = new double[]{
-                28, 31, 28, 31
-        };
-        double[] expectedXYCoordinates = new double[]{
-                28.00016427, 31.00164654, 28.00016427, 31.00164654
-        };
 
+        double[] expectedXYCoordinates = new double[]{
+                31.00164654, 28.00016427, 31.00164654, 28.00016427
+        };
         double[] expectedZCoordinates = new double[]{
                 0, 0
         };
@@ -349,12 +347,12 @@ public class CompoundWGS84TransformTests {
     /* ***************************** Backward direction tests ***************************** */
     @Test
     public void testWGS84toNad27CompoundTransform() {
-        final double DELTA_A = 0.00001; // Standard delta, but we strive to raise precision to target value
-        //final double DELTA_L = 0.1; //0.1 meters
-        //final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
+        //final double DELTA_A = 0.00001; // Standard delta, but we strive to raise precision to target value
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004”(arcseconds)
 
         String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"WGS 84\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137,298.257223563]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"}";
-        String toCRS = "{\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"NAD27\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.017453292519943295]]\"},\"name\":\"USA NAD27 (NADCON CONUS)\",\"type\":\"EBC\",\"authCode\":{\"auth\":\"Other\",\"code\":\"720218\"},\"compoundCT\":{\"cts\":[{\"name\":\"USA NAD27 (NADCON CONUS) - TRFM\",\"type\":\"ST\",\"wkt\":\"GEOGTRAN[\\\"USA NAD27 (NADCON CONUS) - TRFM\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0],UNIT[\\\"Degree\\\",0.0174532925199432]],GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset_conus\\\",0.0],AUTHORITY[\\\"Other\\\",760217]]\",\"authCode\":{\"auth\":\"Other\",\"code\":\"760217\"},\"ver\":\"PE_10_3_1\"},{\"name\":\"USA NAD83 - TRFM\",\"type\":\"ST\",\"wkt\":\"GEOGTRAN[\\\"USA NAD83 - TRFM\\\",GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",0.0],AUTHORITY[\\\"Other\\\",760219]]\",\"authCode\":{\"auth\":\"Other\",\"code\":\"760219\"},\"ver\":\"PE_10_3_1\"}],\"name\":\"USA NAD27 (NADCON CONUS to WGS84) - TRFM\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"authCode\":{\"auth\":\"Other\",\"code\":\"770003\"},\"ver\":\"PE_10_3_1\"},\"ver\":\"PE_10_3_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8603\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1241\"},\"name\":\"NAD27 to NAD83 (86)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD27 to NAD83 (86)\\\",GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"NADCON\\\"],PARAMETER[\\\"Dataset\\\",0.0],OPERATIONACCURACY[0.15],AUTHORITY[\\\"EPSG\\\",1241]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1719\"},\"name\":\"NAD83 to WGS 84 (1)\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"NAD83 to WGS 84 (1)\\\",GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",0.0],OPERATIONACCURACY[1.0],AUTHORITY[\\\"EPSG\\\",1719]]\"}],\"name\":\"NAD27 to WGS 84 (50)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"NAD27\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.978698214]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]]\"},\"name\":\"NAD27 to WGS 84 [4267,8603]\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
 
         double[] zCoordinates = new double[]{
                 0, 0};
@@ -443,10 +441,10 @@ public class CompoundWGS84TransformTests {
                 0, 0
         };
         double[] xyCoordinates = new double[]{
-                28.00016427, 31.00164654, 28.00016427, 31.00164654
+                31.00164654, 28.00016427, 31.00164654, 28.00016427
         };
         double[] expectedXYCoordinates = new double[]{
-                28, 31, 28, 31
+                31, 28, 31, 28
         };
         double[] expectedZCoordinates = new double[]{
                 0, 0
@@ -527,10 +525,10 @@ public class CompoundWGS84TransformTests {
                 0, 0
         };
         double[] xyCoordinates  = new double[]{
-                28.00016427, 31.00164654, 28.00016427, 31.00164654
+                31.00164654, 28.00016427, 31.00164654, 28.00016427
         };
         double[] expectedXYCoordinates = new double[]{
-                28, 31, 28, 31
+                31, 28, 31, 28
         };
         double[] expectedZCoordinates = new double[]{
                 0, 0
