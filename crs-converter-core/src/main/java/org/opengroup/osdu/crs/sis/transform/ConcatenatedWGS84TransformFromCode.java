@@ -43,6 +43,7 @@ public class ConcatenatedWGS84TransformFromCode extends AbstractWGS84Transform {
     private MathTransform forwardMathTransform;
     private MathTransform invertedMathTransform;
     private final String crsName;
+    private final String transformName;
 
     public ConcatenatedWGS84TransformFromCode(ISisCrs sisCrs, ICompoundTrf compoundTransform) throws Exception {
         if (!compoundTransform.isValid()) {
@@ -50,6 +51,7 @@ public class ConcatenatedWGS84TransformFromCode extends AbstractWGS84Transform {
         }
 
         this.crsName = sisCrs.getName();
+        this.transformName = compoundTransform.getName();
         ISisMathTransform sisMathTransform = compoundTransform.getTransformOperation();
         if(sisMathTransform != null) {
             forwardMathTransform = normalizeAndConcatenate(sisCrs.getCoordinateReferenceSystem(), sisMathTransform.getFromWGS84Operation());
@@ -119,7 +121,7 @@ public class ConcatenatedWGS84TransformFromCode extends AbstractWGS84Transform {
         }
 
         operations.add(String.format("transformation %s to %s using %s; %d points successfully transformed", crsName, "GCS_WGS_1984",
-                invertedMathTransform.toWKT(), totalSuccessCount));
+                transformName, totalSuccessCount));
 
         System.arraycopy(convertedXYValues, 0, xyValues, 0, xyValues.length);
         System.arraycopy(convertedZValues, 0, zValues, 0, zValues.length);
@@ -158,7 +160,7 @@ public class ConcatenatedWGS84TransformFromCode extends AbstractWGS84Transform {
         }
 
         operations.add(String.format("transformation %s to %s using %s; %d points successfully transformed", crsName, "GCS_WGS_1984",
-                forwardMathTransform.toWKT(), totalSuccessCount));
+                transformName, totalSuccessCount));
 
         System.arraycopy(convertedXYValues, 0, xyValues, 0, xyValues.length);
         System.arraycopy(convertedZValues, 0, zValues, 0, zValues.length);

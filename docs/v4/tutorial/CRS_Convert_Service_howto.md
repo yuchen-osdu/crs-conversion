@@ -20,6 +20,7 @@ application developers accomplish typical tasks using the "`CRS Convert`" endpoi
   * [3.5 inclination-only surveys (stations have no azimuth)](#35-inclination-only-survey(stations have no azimuth))  
   * [3.6 inverse minimum curvature](#36-inverse-minimum-curvature)
 * [4. Explicit Transform](#4-explicit-transform)
+* [5. Compound Transform](#5-compound-transform)
 
 # 1. Introduction
 
@@ -1789,8 +1790,43 @@ Specifying an explicit transformation will override any early binding transforma
   ]
 }
 ```
+### 5. Compound Transform
 
-### 5.2.1 Python script to help generate the Request for test data
+CRS Converter service will now support compound transormations for convert and convertGeoJson apis. The compound transormation needs to be a to WGS84 transformation and can be specified in the fromCRS or toCRS parameter
+
+**Request for v4/convert**
+```
+{
+    "fromCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8517\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1528\"},\"name\":\"Chos_Malal_1914_To_Campo_Inchauspe\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Chos_Malal_1914_To_Campo_Inchauspe\\\",GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",160.0],PARAMETER[\\\"Y_Axis_Translation\\\",26.0],PARAMETER[\\\"Z_Axis_Translation\\\",41.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1528]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1527\"},\"name\":\"Campo_Inchauspe_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Campo_Inchauspe_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-154.5],PARAMETER[\\\"Y_Axis_Translation\\\",150.7],PARAMETER[\\\"Z_Axis_Translation\\\",100.4],OPERATIONACCURACY[0.5],AUTHORITY[\\\"EPSG\\\",1527]]\"}],\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"name\":\"GCS_Chos_Malal_1914\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4160]]\"},\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
+    "toCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}",
+    "points": [
+        {
+            "x": -69.00077939,
+            "y": -38.00089782,
+            "z": 0
+        }
+    ]
+}
+```
+
+**Response for v4/convert**
+```
+{
+    "successCount": 1,
+    "points": [
+        {
+            "x": 120.00000954373071,
+            "y": -37.99999999579002,
+            "z": 0.0
+        }
+    ],
+    "operationsApplied": [
+        "transformation GCS_Chos_Malal_1914 to GCS_WGS_1984 using Chos Malal 1914 to WGS 84 (1); 1 points successfully transformed"
+    ]
+}
+```
+
+### 6.2.1 Python script to help generate the Request for test data
 
 A simply python script is provided below that was used to generate the
 above request from an Excel file.
@@ -1826,7 +1862,6 @@ for rownum in range(1,no_of_rows):
 with open("request.json","w",encoding="utf-8") as write_json_file:
     json.dump(data_list,write_json_file,indent=4,default=str)
 ```
-
 
 ### 7.2.3 Input and output AbstractBinGrid properties
 
