@@ -1,6 +1,22 @@
 package org.opengroup.osdu.crs.converter;
 
+import org.apache.sis.io.wkt.WKTFormat;
+import org.apache.sis.referencing.CRS;
+import org.apache.sis.referencing.crs.AbstractCRS;
+import org.apache.sis.referencing.cs.AxesConvention;
+import org.apache.sis.referencing.operation.matrix.Matrices;
+import org.apache.sis.referencing.operation.transform.DefaultMathTransformFactory;
+import org.apache.sis.referencing.operation.transform.MathTransforms;
+import static org.junit.Assert.assertEquals;
 import org.junit.jupiter.api.Test;
+import org.opengis.referencing.crs.CRSAuthorityFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.AxisDirection;
+import org.opengis.referencing.cs.CoordinateSystemAxis;
+import org.opengis.referencing.operation.CoordinateOperation;
+import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.Matrix;
 import org.opengroup.osdu.crs.model.ConvertPointsResponse;
 import org.assertj.core.api.SoftAssertions;
 
@@ -16,6 +32,560 @@ import static org.assertj.core.api.Assertions.offset;
  * as a single transformation.
  */
 public class CompoundWGS84TransformTests {
+
+
+
+    @Test
+    public void test1() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8517\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1528\"},\"name\":\"Chos_Malal_1914_To_Campo_Inchauspe\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Chos_Malal_1914_To_Campo_Inchauspe\\\",GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",160.0],PARAMETER[\\\"Y_Axis_Translation\\\",26.0],PARAMETER[\\\"Z_Axis_Translation\\\",41.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1528]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1527\"},\"name\":\"Campo_Inchauspe_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Campo_Inchauspe_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-154.5],PARAMETER[\\\"Y_Axis_Translation\\\",150.7],PARAMETER[\\\"Z_Axis_Translation\\\",100.4],OPERATIONACCURACY[0.5],AUTHORITY[\\\"EPSG\\\",1527]]\"}],\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"name\":\"GCS_Chos_Malal_1914\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4160]]\"},\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                -69.00077939, -38.00089782, -69.00077939, -38.00089782
+        };
+        double[] expectedXYCoordinates = new double[]{
+                -69.0, -38.0, -69.0, -38.0
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 1 X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test1B() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String toCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8517\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1528\"},\"name\":\"Chos_Malal_1914_To_Campo_Inchauspe\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Chos_Malal_1914_To_Campo_Inchauspe\\\",GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",160.0],PARAMETER[\\\"Y_Axis_Translation\\\",26.0],PARAMETER[\\\"Z_Axis_Translation\\\",41.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1528]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1527\"},\"name\":\"Campo_Inchauspe_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Campo_Inchauspe_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-154.5],PARAMETER[\\\"Y_Axis_Translation\\\",150.7],PARAMETER[\\\"Z_Axis_Translation\\\",100.4],OPERATIONACCURACY[0.5],AUTHORITY[\\\"EPSG\\\",1527]]\"}],\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"name\":\"GCS_Chos_Malal_1914\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4160]]\"},\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                -69.0, -38.0, -69.0, -38.0
+        };
+        double[] expectedXYCoordinates = new double[]{
+                -69.00077939, -38.00089782, -69.00077939, -38.00089782
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 1 B X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test1RoundTrip() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8517\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1528\"},\"name\":\"Chos_Malal_1914_To_Campo_Inchauspe\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Chos_Malal_1914_To_Campo_Inchauspe\\\",GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",160.0],PARAMETER[\\\"Y_Axis_Translation\\\",26.0],PARAMETER[\\\"Z_Axis_Translation\\\",41.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1528]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1527\"},\"name\":\"Campo_Inchauspe_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Campo_Inchauspe_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-154.5],PARAMETER[\\\"Y_Axis_Translation\\\",150.7],PARAMETER[\\\"Z_Axis_Translation\\\",100.4],OPERATIONACCURACY[0.5],AUTHORITY[\\\"EPSG\\\",1527]]\"}],\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"name\":\"GCS_Chos_Malal_1914\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4160]]\"},\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                -69.00077939, -38.00089782, -69.00077939, -38.00089782
+        };
+        double[] expectedXYCoordinates = new double[]{
+                -69.00077939, -38.00089782, -69.00077939, -38.00089782
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 1 Round Trip X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test3() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8571\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1570\"},\"name\":\"Accra_To_WGS_1972_BE\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Accra_To_WGS_1972_BE\\\",GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-171.16],PARAMETER[\\\"Y_Axis_Translation\\\",17.29],PARAMETER[\\\"Z_Axis_Translation\\\",323.31],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1570]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1240\"},\"name\":\"WGS_1972_BE_To_WGS_1984_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_BE_To_WGS_1984_1\\\",GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",1.9],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.814],PARAMETER[\\\"Scale_Difference\\\",-0.38],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1240]]\"}],\"name\":\"Accra to WGS 84 (2)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"name\":\"GCS_Accra\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4168]]\"},\"name\":\"Accra to WGS 84 (2)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                1, 2, 1, 2
+        };
+        double[] expectedXYCoordinates = new double[]{
+                1.00040835, 2.00289032, 1.00040835, 2.00289032
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 3 X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test3B() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String toCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8571\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1570\"},\"name\":\"Accra_To_WGS_1972_BE\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Accra_To_WGS_1972_BE\\\",GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-171.16],PARAMETER[\\\"Y_Axis_Translation\\\",17.29],PARAMETER[\\\"Z_Axis_Translation\\\",323.31],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1570]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1240\"},\"name\":\"WGS_1972_BE_To_WGS_1984_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_BE_To_WGS_1984_1\\\",GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",1.9],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.814],PARAMETER[\\\"Scale_Difference\\\",-0.38],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1240]]\"}],\"name\":\"Accra to WGS 84 (2)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"name\":\"GCS_Accra\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4168]]\"},\"name\":\"Accra to WGS 84 (2)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                1.00040835, 2.00289032, 1.00040835, 2.00289032
+        };
+        double[] expectedXYCoordinates = new double[]{
+                1, 2, 1, 2
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 3 B X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test3RoundTrip() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8571\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1570\"},\"name\":\"Accra_To_WGS_1972_BE\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Accra_To_WGS_1972_BE\\\",GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-171.16],PARAMETER[\\\"Y_Axis_Translation\\\",17.29],PARAMETER[\\\"Z_Axis_Translation\\\",323.31],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1570]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1240\"},\"name\":\"WGS_1972_BE_To_WGS_1984_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_BE_To_WGS_1984_1\\\",GEOGCS[\\\"GCS_WGS_1972_BE\\\",DATUM[\\\"D_WGS_1972_BE\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",1.9],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.814],PARAMETER[\\\"Scale_Difference\\\",-0.38],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1240]]\"}],\"name\":\"Accra to WGS 84 (2)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4168\"},\"name\":\"GCS_Accra\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Accra\\\",DATUM[\\\"D_Accra\\\",SPHEROID[\\\"War_Office\\\",6378300.0,296.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4168]]\"},\"name\":\"Accra to WGS 84 (2)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                1, 2, 1, 2
+        };
+        double[] expectedXYCoordinates = new double[]{
+                1, 2, 1, 2
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 3 Round Trip X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test4() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8633\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1828\"},\"name\":\"Yoff_To_WGS_1972_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Yoff_To_WGS_1972_1\\\",GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-37.0],PARAMETER[\\\"Y_Axis_Translation\\\",157.0],PARAMETER[\\\"Z_Axis_Translation\\\",85.0],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1828]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1238\"},\"name\":\"WGS_1972_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",4.5],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.554],PARAMETER[\\\"Scale_Difference\\\",0.219],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1238]]\"}],\"name\":\"Yoff to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"name\":\"GCS_Yoff\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4310]]\"},\"name\":\"Yoff to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                15.0, -15.0, 15.0, -15.0
+        };
+        double[] expectedXYCoordinates = new double[]{
+                15.00165293, -14.99763248, 15.00165293, -14.99763248
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 4 X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test4B() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String toCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8633\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1828\"},\"name\":\"Yoff_To_WGS_1972_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Yoff_To_WGS_1972_1\\\",GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-37.0],PARAMETER[\\\"Y_Axis_Translation\\\",157.0],PARAMETER[\\\"Z_Axis_Translation\\\",85.0],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1828]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1238\"},\"name\":\"WGS_1972_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",4.5],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.554],PARAMETER[\\\"Scale_Difference\\\",0.219],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1238]]\"}],\"name\":\"Yoff to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"name\":\"GCS_Yoff\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4310]]\"},\"name\":\"Yoff to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                15.00165293, -14.99763248, 15.00165293, -14.99763248
+        };
+        double[] expectedXYCoordinates = new double[]{
+                15.0, -15.0, 15.0, -15.0
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 4 B X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test4RoundTrip() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8633\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1828\"},\"name\":\"Yoff_To_WGS_1972_1\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Yoff_To_WGS_1972_1\\\",GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-37.0],PARAMETER[\\\"Y_Axis_Translation\\\",157.0],PARAMETER[\\\"Z_Axis_Translation\\\",85.0],OPERATIONACCURACY[25.0],AUTHORITY[\\\"EPSG\\\",1828]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1238\"},\"name\":\"WGS_1972_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"WGS_1972_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_WGS_1972\\\",DATUM[\\\"D_WGS_1972\\\",SPHEROID[\\\"WGS_1972\\\",6378135.0,298.26]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Position_Vector\\\"],PARAMETER[\\\"X_Axis_Translation\\\",0.0],PARAMETER[\\\"Y_Axis_Translation\\\",0.0],PARAMETER[\\\"Z_Axis_Translation\\\",4.5],PARAMETER[\\\"X_Axis_Rotation\\\",0.0],PARAMETER[\\\"Y_Axis_Rotation\\\",0.0],PARAMETER[\\\"Z_Axis_Rotation\\\",0.554],PARAMETER[\\\"Scale_Difference\\\",0.219],OPERATIONACCURACY[2.0],AUTHORITY[\\\"EPSG\\\",1238]]\"}],\"name\":\"Yoff to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4310\"},\"name\":\"GCS_Yoff\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Yoff\\\",DATUM[\\\"D_Yoff\\\",SPHEROID[\\\"Clarke_1880_IGN\\\",6378249.2,293.4660212936265]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4310]]\"},\"name\":\"Yoff to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                15.0, -15.0, 15.0, -15.0
+        };
+        double[] expectedXYCoordinates = new double[]{
+                15.0, -15.0, 15.0, -15.0
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+        result = converter.convertPoint(toCRS, fromCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 4 Round Trip X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test5() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String fromCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4802\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8174\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1755\"},\"name\":\"Bogota_Bogota_To_Bogota\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Bogota_Bogota_To_Bogota\\\",GEOGCS[\\\"GCS_Bogota_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Bogota\\\",-74.08091666666667],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Longitude_Rotation\\\"],OPERATIONACCURACY[0.0],AUTHORITY[\\\"EPSG\\\",1755]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1125\"},\"name\":\"Bogota_To_WGS_1984\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Bogota_To_WGS_1984\\\",GEOGCS[\\\"GCS_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",307.0],PARAMETER[\\\"Y_Axis_Translation\\\",304.0],PARAMETER[\\\"Z_Axis_Translation\\\",-318.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1125]]\"}],\"name\":\"Bogota 1975 (Bogota) to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4802\"},\"name\":\"GCS_Bogota_Bogota\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Bogota_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Bogota\\\",-74.08091666666667],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4802]]\"},\"name\":\"Bogota 1975 (Bogota) to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String toCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                3.07742010, -0.00287589, 3.07742010, -0.00287589
+        };
+        double[] expectedXYCoordinates = new double[]{
+                -71.0, 0.0, -71.0, 0.0
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 5 X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void test5B() {
+        final double DELTA_L = 0.1; //0.1 meters
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        String toCRS =  "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4802\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8174\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1755\"},\"name\":\"Bogota_Bogota_To_Bogota\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Bogota_Bogota_To_Bogota\\\",GEOGCS[\\\"GCS_Bogota_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Bogota\\\",-74.08091666666667],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Longitude_Rotation\\\"],OPERATIONACCURACY[0.0],AUTHORITY[\\\"EPSG\\\",1755]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1125\"},\"name\":\"Bogota_To_WGS_1984\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Bogota_To_WGS_1984\\\",GEOGCS[\\\"GCS_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",307.0],PARAMETER[\\\"Y_Axis_Translation\\\",304.0],PARAMETER[\\\"Z_Axis_Translation\\\",-318.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1125]]\"}],\"name\":\"Bogota 1975 (Bogota) to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4802\"},\"name\":\"GCS_Bogota_Bogota\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Bogota_Bogota\\\",DATUM[\\\"D_Bogota\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Bogota\\\",-74.08091666666667],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4802]]\"},\"name\":\"Bogota 1975 (Bogota) to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}";
+        String fromCRS = "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4326\"},\"name\":\"GCS_WGS_1984\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4326]]\"}";
+
+        double[] zCoordinates = new double[]{
+                0, 0};
+        double[] xyCoordinates = new double[]{
+                -71.0, 0.0, -71.0, 0.0
+        };
+        double[] expectedXYCoordinates = new double[]{
+                3.07742010, -0.00287589, 3.07742010, -0.00287589
+        };
+        double[] expectedZCoordinates = new double[]{
+                0, 0
+        };
+
+        CRSConverter converter = new CRSConverter();
+
+        ConvertPointsResponse result = converter.convertPoint(fromCRS, toCRS, xyCoordinates, zCoordinates);
+
+        SoftAssertions softly = new SoftAssertions();
+
+        softly.assertThat(result.getSuccessCount()).isEqualTo(expectedXYCoordinates.length / 2);
+
+        System.out.println("Test 5 X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        for (int i = 0; i < expectedXYCoordinates.length; i++) {
+
+            softly.assertThat(xyCoordinates[i])
+                    .as("XY Coordinate at index " + i)
+                    .isCloseTo(expectedXYCoordinates[i], offset(DELTA_A));
+
+            softly.assertThat(zCoordinates[i % 2])
+                    .as("Z Coordinate at index " + (i % 2))
+                    .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void testBogota1975BogotaToWGS84_1() throws Exception {
+
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        CRSAuthorityFactory epsgFactory = CRS.getAuthorityFactory("EPSG");
+        CoordinateReferenceSystem crs = epsgFactory.createCoordinateReferenceSystem("EPSG:4802");
+
+        CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
+        CoordinateOperation datumOperation = opFactory.createCoordinateOperation("EPSG:8174");
+        crs = AbstractCRS.castOrCopy(crs).forConvention(AxesConvention.DISPLAY_ORIENTED);
+
+        CoordinateSystemAxis firstAxis = datumOperation.getSourceCRS().getCoordinateSystem().getAxis(0);
+        boolean longLatOrder = firstAxis.getDirection() != AxisDirection.NORTH;
+
+        CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getSourceCRS(), null);
+
+        MathTransform step1 = xyToDatumOperation.getMathTransform();
+        MathTransform step2 = datumOperation.getMathTransform();
+        MathTransform concatMathTransform = MathTransforms.concatenate(step1, step2);
+        if (!longLatOrder) {
+            Matrix swapMatrix = Matrices.createTransform(
+                    new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
+                    new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
+
+            concatMathTransform = MathTransforms.concatenate(concatMathTransform, MathTransforms.linear(swapMatrix));
+        }
+
+        double[] xyCoordinates = new double[]{3.07742010, 0.00287589};
+        double[] expectedXYCoordinates = new double[]{-71.0, 0};
+        concatMathTransform.transform(xyCoordinates, 0, xyCoordinates, 0, 1);
+
+        System.out.println("X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        assertEquals(expectedXYCoordinates[0], xyCoordinates[0], DELTA_A);
+        assertEquals(expectedXYCoordinates[1], xyCoordinates[1], DELTA_A);
+    }
+
+    @Test
+    public void testCase2() throws Exception {
+
+        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
+
+        CRSAuthorityFactory epsgFactory = CRS.getAuthorityFactory("EPSG");
+        CoordinateReferenceSystem crs = epsgFactory.createCoordinateReferenceSystem("EPSG:4289");
+
+        CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
+        CoordinateOperation datumOperation = opFactory.createCoordinateOperation("EPSG:4837");
+        crs = AbstractCRS.castOrCopy(crs).forConvention(AxesConvention.DISPLAY_ORIENTED);
+
+        CoordinateSystemAxis firstAxis = datumOperation.getSourceCRS().getCoordinateSystem().getAxis(0);
+        boolean longLatOrder = firstAxis.getDirection() != AxisDirection.NORTH;
+
+        CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getSourceCRS(), null);
+
+        MathTransform step1 = xyToDatumOperation.getMathTransform();
+        MathTransform step2 = datumOperation.getMathTransform();
+        MathTransform concatMathTransform = MathTransforms.concatenate(step1, step2);
+        if (!longLatOrder) {
+            Matrix swapMatrix = Matrices.createTransform(
+                    new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
+                    new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
+
+            concatMathTransform = MathTransforms.concatenate(concatMathTransform, MathTransforms.linear(swapMatrix));
+        }
+
+        double[] xyCoordinates = new double[]{5.0, 53.0};
+        double[] expectedXYCoordinates = new double[]{5.00094486, 52.99967068};
+        concatMathTransform.transform(xyCoordinates, 0, xyCoordinates, 0, 1);
+
+        System.out.println("X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
+
+        assertEquals(expectedXYCoordinates[0], xyCoordinates[0], DELTA_A);
+        assertEquals(expectedXYCoordinates[1], xyCoordinates[1], DELTA_A);
+    }
 
     /**
      * Test case 0:
