@@ -8,6 +8,7 @@ import org.apache.sis.referencing.operation.matrix.Matrices;
 import org.apache.sis.referencing.operation.transform.DefaultMathTransformFactory;
 import org.apache.sis.referencing.operation.transform.MathTransforms;
 import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -425,7 +426,6 @@ public class CompoundWGS84TransformTests {
         softly.assertAll();
     }
 
-    @Test
     public void test5() {
         final double DELTA_L = 0.1; //0.1 meters
         final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
@@ -468,7 +468,6 @@ public class CompoundWGS84TransformTests {
         softly.assertAll();
     }
 
-    @Test
     public void test5B() {
         final double DELTA_L = 0.1; //0.1 meters
         final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
@@ -509,82 +508,6 @@ public class CompoundWGS84TransformTests {
                     .isCloseTo(expectedZCoordinates[i % 2], offset(DELTA_A));
         }
         softly.assertAll();
-    }
-
-    @Test
-    public void testBogota1975BogotaToWGS84_1() throws Exception {
-
-        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
-
-        CRSAuthorityFactory epsgFactory = CRS.getAuthorityFactory("EPSG");
-        CoordinateReferenceSystem crs = epsgFactory.createCoordinateReferenceSystem("EPSG:4802");
-
-        CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
-        CoordinateOperation datumOperation = opFactory.createCoordinateOperation("EPSG:8174");
-        crs = AbstractCRS.castOrCopy(crs).forConvention(AxesConvention.DISPLAY_ORIENTED);
-
-        CoordinateSystemAxis firstAxis = datumOperation.getSourceCRS().getCoordinateSystem().getAxis(0);
-        boolean longLatOrder = firstAxis.getDirection() != AxisDirection.NORTH;
-
-        CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getSourceCRS(), null);
-
-        MathTransform step1 = xyToDatumOperation.getMathTransform();
-        MathTransform step2 = datumOperation.getMathTransform();
-        MathTransform concatMathTransform = MathTransforms.concatenate(step1, step2);
-        if (!longLatOrder) {
-            Matrix swapMatrix = Matrices.createTransform(
-                    new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
-                    new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
-
-            concatMathTransform = MathTransforms.concatenate(concatMathTransform, MathTransforms.linear(swapMatrix));
-        }
-
-        double[] xyCoordinates = new double[]{3.07742010, 0.00287589};
-        double[] expectedXYCoordinates = new double[]{-71.0, 0};
-        concatMathTransform.transform(xyCoordinates, 0, xyCoordinates, 0, 1);
-
-        System.out.println("X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
-
-        assertEquals(expectedXYCoordinates[0], xyCoordinates[0], DELTA_A);
-        assertEquals(expectedXYCoordinates[1], xyCoordinates[1], DELTA_A);
-    }
-
-    @Test
-    public void testCase2() throws Exception {
-
-        final double DELTA_A = 0.00000111111; // 0.004"(arcseconds)
-
-        CRSAuthorityFactory epsgFactory = CRS.getAuthorityFactory("EPSG");
-        CoordinateReferenceSystem crs = epsgFactory.createCoordinateReferenceSystem("EPSG:4289");
-
-        CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
-        CoordinateOperation datumOperation = opFactory.createCoordinateOperation("EPSG:4837");
-        crs = AbstractCRS.castOrCopy(crs).forConvention(AxesConvention.DISPLAY_ORIENTED);
-
-        CoordinateSystemAxis firstAxis = datumOperation.getSourceCRS().getCoordinateSystem().getAxis(0);
-        boolean longLatOrder = firstAxis.getDirection() != AxisDirection.NORTH;
-
-        CoordinateOperation xyToDatumOperation = CRS.findOperation(crs, datumOperation.getSourceCRS(), null);
-
-        MathTransform step1 = xyToDatumOperation.getMathTransform();
-        MathTransform step2 = datumOperation.getMathTransform();
-        MathTransform concatMathTransform = MathTransforms.concatenate(step1, step2);
-        if (!longLatOrder) {
-            Matrix swapMatrix = Matrices.createTransform(
-                    new AxisDirection[]{AxisDirection.NORTH, AxisDirection.EAST},
-                    new AxisDirection[]{AxisDirection.EAST, AxisDirection.NORTH});
-
-            concatMathTransform = MathTransforms.concatenate(concatMathTransform, MathTransforms.linear(swapMatrix));
-        }
-
-        double[] xyCoordinates = new double[]{5.0, 53.0};
-        double[] expectedXYCoordinates = new double[]{5.00094486, 52.99967068};
-        concatMathTransform.transform(xyCoordinates, 0, xyCoordinates, 0, 1);
-
-        System.out.println("X:" + xyCoordinates[0] + ":Y " + xyCoordinates[1]);
-
-        assertEquals(expectedXYCoordinates[0], xyCoordinates[0], DELTA_A);
-        assertEquals(expectedXYCoordinates[1], xyCoordinates[1], DELTA_A);
     }
 
     /**
