@@ -1,18 +1,29 @@
 package org.opengroup.osdu.crs.model.Impl;
 
 import lombok.Data;
+import org.opengis.util.FactoryException;
 import org.opengroup.osdu.crs.model.CRSType;
 import org.opengroup.osdu.crs.model.ICompoundTrf;
 import org.opengroup.osdu.crs.model.ISingleTrf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.opengroup.osdu.crs.model.ILateBoundCrs;
 import org.opengroup.osdu.crs.model.ITrf;
 import org.opengroup.osdu.crs.sis.AuthorityCodeUtils;
+import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
+import org.opengroup.osdu.crs.sis.transform.SisMathTransformFromCode;
+import org.apache.sis.referencing.CRS;
+import org.opengis.referencing.operation.CoordinateOperation;
+import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory;
 
 @Data
 public class CompoundTrf implements ICompoundTrf {
+
+    private static final Logger LOGGER = Logger.getLogger(CompoundTrf.class.getName());
 
     private org.opengroup.osdu.crs.model.v1.CompoundTRF implementationV1;
     private org.opengroup.osdu.crs.model.v2.CompoundTrf implementationV2;
@@ -65,8 +76,11 @@ public class CompoundTrf implements ICompoundTrf {
         }
         this.policy = parsedItem.getPolicy();
         this.transformations = new ArrayList<>();
-        for (org.opengroup.osdu.crs.model.v2.SingleTrf trf : parsedItem.getTransformationList()) {
-            this.transformations.add(new SingleTrf(trf, crs));
+        List<org.opengroup.osdu.crs.model.v2.SingleTrf> trfs = parsedItem.getTransformationList();
+        if(trfs != null) {
+            for (org.opengroup.osdu.crs.model.v2.SingleTrf trf : trfs) {
+                this.transformations.add(new SingleTrf(trf, crs));
+            }
         }
         this.engineVersion = parsedItem.getVersion();
         if (this.isFallback()) this.validateFallbackTrf();
@@ -82,6 +96,21 @@ public class CompoundTrf implements ICompoundTrf {
     @Override
     public boolean isConcatenated() {
         return this.getPolicy().toLowerCase().equals("concatenated");
+    }
+
+    @Override
+    public ISisMathTransform getTransformOperation() {
+        if (!AuthorityCodeUtils.isEpsgCode(authorityCode)) {
+            return null;
+        }
+        try {
+            CoordinateOperationAuthorityFactory opFactory = (CoordinateOperationAuthorityFactory) CRS.getAuthorityFactory("EPSG");
+            CoordinateOperation operation = opFactory.createCoordinateOperation(authorityCode.getCode());
+            return new SisMathTransformFromCode(operation, false);
+        } catch (FactoryException ex) {
+            LOGGER.log(Level.WARNING, "Can't create EPSG transformation with the code " + authorityCode.getCode(), ex);
+            return null;
+        }
     }
 
     @Override
@@ -105,9 +134,23 @@ public class CompoundTrf implements ICompoundTrf {
         return valid;
     }
 
+    /**
+     * Validates a concatenated transformation by checking the validity of each individual transformation.
+     *
+     * This method iterates through all the individual transformations associated with the current object
+     * and checks if each one is valid. It returns a boolean value indicating the overall validity.
+     *
+     * @return {@code true} if all individual transformations are valid, {@code false} otherwise.
+     */
     private boolean validateConcatenatedTrf() {
-        //right now concatenated trf is not supported for apache sis
-        return false;
+        boolean validated = true;
+
+        if(this.getTransformations() != null) {
+            for (ISingleTrf trf : this.getTransformations()) {
+                validated &= trf.isValid();
+            }
+        }
+        return validated;
     }
 
     private boolean validateFallbackTrf() {
