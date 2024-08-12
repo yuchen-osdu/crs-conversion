@@ -13,7 +13,7 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
-        <core-lib-azure-spring6.version>0.27.0-rc3</core-lib-azure-spring6.version>
+        <core-lib-azure-spring6.version>0.27.0-rc7</core-lib-azure-spring6.version>
     </properties>
 
     <prerequisites>

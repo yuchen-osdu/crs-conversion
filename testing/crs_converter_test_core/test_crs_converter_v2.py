@@ -13,7 +13,7 @@ logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
 
 from crs_converter_test_core.v2.swagger_client import ApiClient, CRSPointConversionApi, TrajectoryComputationAndConversionApi, \
-    TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse, InfoApiApi
+    TrajectoryStationIn, TrajectoryStationOut, Configuration, ConvertTrajectoryResponse, InfoApiApi, InfoApiApiSlash
 from crs_converter_test_core.v2.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point, ConvertTrajectoryRequest, \
     ConvertGeoJsonRequest, AnyCrsGeoJsonFeatureCollection, \
     AnyCrsGeoJsonFeature, AnyCrsGeoJsonPolygon, VersionInfo
@@ -569,6 +569,42 @@ class TestInfo(unittest.TestCase):
         client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
         client.user_agent = 'IntegrationTest'
         cls.api_instance = InfoApiApi(client)
+
+    def test_info_using_get(self):
+        """test info_using_get"""
+        try:
+            api_response = self.api_instance.info_using_get(data_partition_id=self.env.data_partition_id)
+            self.assertIsNotNone(api_response)
+            self.assertIsInstance(api_response, VersionInfo)
+        except ApiException as e:
+            self.fail(str(e))
+
+
+class TestInfoSlash(unittest.TestCase):
+    """Test the info end-points"""
+    @classmethod
+    def setUpClass(cls):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        urllib3.disable_warnings()
+        cls.env = TestEnvironment()
+        if not cls.env.is_ok():
+            raise Exception('Test environment is not properly set up; BASE_URL, ROOT_URL, MY_TENANT not set.')
+        configuration = Configuration()
+        # Set the bearer token; use a service account to do this
+        bearer = jwt_client.get_id_token()
+        configuration.api_key['Authorization'] = 'Bearer ' + bearer
+        configuration.access_token = bearer
+        configuration.verify_ssl = False
+        if 'localhost' in cls.env.root_url:
+            url = 'http://' + cls.env.root_url + cls.env.base_url
+        else:
+            url = 'https://' + cls.env.root_url + cls.env.base_url
+        data_partition_header_name = 'data_partition_id'
+        data_partition_header_value = cls.env.data_partition_id
+        client = ApiClient(host=url)
+        client.set_default_header(header_name=data_partition_header_name, header_value=data_partition_header_value)
+        client.user_agent = 'IntegrationTest'
+        cls.api_instance = InfoApiApiSlash(client)
 
     def test_info_using_get(self):
         """test info_using_get"""

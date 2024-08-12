@@ -42,6 +42,7 @@ from .models.version_info import VersionInfo
 # import apis into sdk package
 from .apis.crs_point_conversion_api import CRSPointConversionApi
 from .apis.info_api_api import InfoApiApi
+from .apis.info_api_api_slash import InfoApiApiSlash
 from .apis.trajectory_computation_and_conversion_api import TrajectoryComputationAndConversionApi
 
 # import ApiClient
