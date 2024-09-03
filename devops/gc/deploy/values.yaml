@@ -6,10 +6,11 @@ global:
   domain: ""
   onPremEnabled: false
   limitsEnabled: true
+  logLevel: "ERROR"
 
 data:
   #configmaps
-  logLevel: "ERROR"
+  logLevel: ""
   sisData: "/crs-converter/apachesis_setup/SIS_DATA"
   storageHost: "http://storage"
   entitlementsHost: "http://entitlements"

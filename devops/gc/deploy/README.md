@@ -31,17 +31,18 @@ First you need to set variables in **values.yaml** file using any code editor. S
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
 **global.domain** | your domain for the external endpoint, ex `example.com` | string | - | yes
-**global.onPremEnabled** | whether on-prem is enabled | boolean | false | yes
-**global.limitsEnabled** | whether CPU and memory limits are enabled | boolean | true | yes
+**global.onPremEnabled** | whether on-prem is enabled | boolean | `false` | yes
+**global.limitsEnabled** | whether CPU and memory limits are enabled | boolean | `true` | yes
+**global.logLevel** | severity of logging level | string | `ERROR` | yes
 
 ### Configmap variables
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**data.logLevel** | logging level | string | INFO | yes
-**data.sisData**  | path to Apache SIS library | string | "/crs-converter/apachesis_setup/SIS_DATA" | yes
-**data.storageHost** | Storage service host address | string | "http://storage" | yes
-**data.entitlementsHost** | Entitlements service host address | string | "http://entitlements" | yes
+**data.logLevel** | logging severity level for this service only  | string | - | yes, only if differs from the `global.logLevel`
+**data.sisData**  | path to Apache SIS library | string | `/crs-converter/apachesis_setup/SIS_DATA` | yes
+**data.storageHost** | Storage service host address | string | `http://storage` | yes
+**data.entitlementsHost** | Entitlements service host address | string | `http://entitlements` | yes
 
 ### Deployment variables
 
@@ -59,17 +60,17 @@ First you need to set variables in **values.yaml** file using any code editor. S
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**conf.configmap** | configmap to be used | string | crs-conversion-config | yes
-**conf.appName** | name of the app | string | crs-conversion | yes
+**conf.configmap** | configmap to be used | string | `crs-conversion-config` | yes
+**conf.appName** | name of the app | string | `crs-conversion` | yes
 
 ### ISTIO variables
 
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
-**istio.proxyCPU** | CPU request for Envoy sidecars | string | 10m | yes
-**istio.proxyCPULimit** | CPU limit for Envoy sidecars | string | 500m | yes
-**istio.proxyMemory** | memory request for Envoy sidecars | string | 100Mi | yes
-**istio.proxyMemoryLimit** | memory limit for Envoy sidecars | string | 512Mi | yes
+**istio.proxyCPU** | CPU request for Envoy sidecars | string | `10m` | yes
+**istio.proxyCPULimit** | CPU limit for Envoy sidecars | string | `500m` | yes
+**istio.proxyMemory** | memory request for Envoy sidecars | string | `100Mi` | yes
+**istio.proxyMemoryLimit** | memory limit for Envoy sidecars | string | `512Mi` | yes
 
 ### Install the helm chart
 
