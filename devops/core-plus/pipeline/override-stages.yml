@@ -1,7 +1,8 @@
 variables:
-  CORE_SERVICE: crs-converter
+  CORE_SERVICE: crs-conversion
   CORE_INT_TEST_TYPE: python
   CORE_BAREMETAL_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_baremetal
+  CORE_BUILD_PATH: "crs-converter-core-plus/build/Dockerfile"
 
 core-containerize-gitlab:
   needs:

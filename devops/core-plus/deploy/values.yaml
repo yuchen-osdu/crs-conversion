@@ -24,7 +24,7 @@ data:
 
 conf:
   configmap: "crs-conversion-config"
-  appName: "crs-converter"
+  appName: "crs-conversion"
   replicas: 1
 
 istio:
