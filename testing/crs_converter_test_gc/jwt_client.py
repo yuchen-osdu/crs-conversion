@@ -16,57 +16,46 @@
 
 import sys
 
-
 def main(argv):
     pass
 
 
 if __name__ == '__main__':
     main(sys.argv)
-import http.client
-import time
-import google.auth.crypt
-import google.auth.jwt
-import urllib
-import json
 import base64
+import json
 import os
 
-def generate_jwt():
-    INTEGRATION_TESTER = str(os.getenv('INTEGRATION_TESTER'))
-    decoded_user_key = base64.b64decode(INTEGRATION_TESTER).decode("utf-8")
-    signer = google.auth.crypt.RSASigner.from_string(json.loads(decoded_user_key)['private_key'])
-    integration_test_service_account = json.loads(decoded_user_key)['client_email']
-    now = int(time.time())
+from google.oauth2 import service_account
+from google.auth.transport.requests import Request
 
-    payload = {
-        'iat': now,
-        "exp": now + 3600,
-        'iss': integration_test_service_account,
-        "target_audience": 'osdu',
-        "aud": "https://www.googleapis.com/oauth2/v4/token"
-    }
+def get_sa_key_content(sa_key: str) -> dict:
+    """
+    Get content of the service account key. 
+    This key can be represented as either a path or a base64 value.
 
-    jwt = google.auth.jwt.encode(signer, payload)
+    Args:
+        sa_key (str): service account's path or base64 value
 
-    return jwt
-
-
+    Returns:
+        str: service account key content
+    """
+    if os.path.exists(sa_key):
+        with open(sa_key) as f:
+            return json.load(f)
+    else:
+        parsed_sa_key = base64.b64decode(sa_key).decode("utf-8")
+        return json.loads(parsed_sa_key)
+    
 def get_id_token():
     try:
-        
-        params = urllib.parse.urlencode({
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion': generate_jwt()
-        })
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        conn = http.client.HTTPSConnection("www.googleapis.com")
-        conn.request("POST", "/oauth2/v4/token", params, headers)
-        res = json.loads(conn.getresponse().read().decode('utf-8'))
-        conn.close()
-        return res['id_token']
+        sa_key = os.environ["INTEGRATION_TESTER"]
+        sa_key_content = get_sa_key_content(sa_key)
+        credentials = service_account.IDTokenCredentials.from_service_account_info(sa_key_content, target_audience="osdu")
+        credentials.refresh(Request())
+        return credentials.token
     except (IOError, KeyError, ValueError) as e:
-        raise ValueError('Bearer token could not be obtained - missing service account file? ' + repr(e) + ' ' + str(e))
+        raise ValueError(f"Bearer token could not be obtained - missing service account file? {repr(e)}  {str(e)}")
 
 def get_invalid_token():
 
