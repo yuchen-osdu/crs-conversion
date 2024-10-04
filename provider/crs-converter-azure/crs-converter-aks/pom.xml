@@ -13,7 +13,7 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
-        <core-lib-azure-spring6.version>0.27.0-rc7</core-lib-azure-spring6.version>
+        <core-lib-azure.version>1.0.2</core-lib-azure.version>
     </properties>
 
     <prerequisites>
@@ -35,8 +35,8 @@
             </dependency>
             <dependency>
                 <groupId>org.opengroup.osdu</groupId>
-                <artifactId>core-lib-azure-spring6</artifactId>
-                <version>${core-lib-azure-spring6.version}</version>
+                <artifactId>core-lib-azure</artifactId>
+                <version>${core-lib-azure.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -56,8 +56,43 @@
         
         <dependency>
             <groupId>org.opengroup.osdu</groupId>
-            <artifactId>core-lib-azure-spring6</artifactId>
-            <version>${core-lib-azure-spring6.version}</version>
+            <artifactId>core-lib-azure</artifactId>
+            <version>${core-lib-azure.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.azure.spring</groupId>

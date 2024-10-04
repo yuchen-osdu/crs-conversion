@@ -13,7 +13,7 @@
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-ocp</app.id>
-        <os-core-lib-ibm.version>0.26.0-rc8</os-core-lib-ibm.version>
+        <os-core-lib-ibm.version>0.27.0-rc2</os-core-lib-ibm.version>
     </properties>
 
     <prerequisites>
