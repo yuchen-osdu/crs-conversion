@@ -18,6 +18,8 @@ The following software have components provided under the terms of this license:
 
 - AMQP 1.0 JMS Spring Boot AutoConfiguration (from https://repo1.maven.org/maven2/org/amqphub/spring/amqp-10-jms-spring-boot-autoconfigure)
 - AMQP 1.0 JMS Spring Boot Starter (from https://repo1.maven.org/maven2/org/amqphub/spring/amqp-10-jms-spring-boot-starter)
+- ASM Commons (from http://asm.ow2.io/, https://repo1.maven.org/maven2/org/ow2/asm/asm-commons)
+- ASM Tree (from http://asm.ow2.io/)
 - ASM based accessors helper used by json-smart (from https://urielch.github.io/)
 - Adapter: RxJava (from https://github.com/square/retrofit)
 - Apache Commons BeanUtils (from http://commons.apache.org/proper/commons-beanutils/, https://commons.apache.org/proper/commons-beanutils/, https://repo1.maven.org/maven2/commons-beanutils/commons-beanutils)
@@ -46,11 +48,31 @@ The following software have components provided under the terms of this license:
 - Bean Validation API (from http://beanvalidation.org)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
+- CDI APIs (from http://cdi-spec.org)
+- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
 - ClassMate (from http://github.com/cowtowncoder/java-classmate)
 - Collections (from https://repo1.maven.org/maven2/commons-collections/commons-collections)
 - Commons Digester (from http://commons.apache.org/digester/)
 - Converter: Jackson (from https://github.com/square/retrofit, https://repo1.maven.org/maven2/com/squareup/retrofit2/converter-jackson)
+- Core :: ALPN :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-alpn-client)
+- Core :: EE Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-ee)
+- Core :: Sessions (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-session)
+- Core :: Websocket :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-client)
+- Core :: Websocket :: Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-common)
+- Core :: Websocket :: Jetty API (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-jetty-api)
+- Core :: Websocket :: Jetty Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-jetty-common)
+- Core :: Websocket :: Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-server)
 - Core functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
+- EE10 :: Plus (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-plus)
+- EE10 :: Servlet (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-servlet)
+- EE10 :: Servlet Annotations (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-annotations)
+- EE10 :: Utility Servlets and Filters (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-servlets)
+- EE10 :: WebApp (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-webapp)
+- EE10 :: Websocket :: Jakarta Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-client)
+- EE10 :: Websocket :: Jakarta Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-common)
+- EE10 :: Websocket :: Jakarta Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-server)
+- EE10 :: Websocket :: Jetty Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jetty-server)
+- EE10 :: Websocket :: Servlet (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-servlet)
 - FindBugs-jsr305 (from http://findbugs.sourceforge.net/)
 - Google HTTP Client Library for Java (from https://repo1.maven.org/maven2/com/google/http-client/google-http-client)
 - Gson (from http://code.google.com/p/google-gson/, https://repo1.maven.org/maven2/com/google/code/gson/gson)
@@ -66,6 +88,9 @@ The following software have components provided under the terms of this license:
 - J2ObjC Annotations (from https://github.com/google/j2objc/)
 - JBoss Logging 3 (from http://www.jboss.org)
 - JCIP Annotations under Apache License (from http://stephenc.github.com/jcip-annotations)
+- JJWT :: API (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt-api)
+- JJWT :: Extensions :: Jackson (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt-jackson)
+- JJWT :: Impl (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt-impl)
 - JJWT :: Legacy Transitive Dependency Jar (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt)
 - JSON Small and Fast Parser (from https://repo1.maven.org/maven2/net/minidev/json-smart, https://urielch.github.io/)
 - JSON library from Android SDK (from http://developer.android.com/sdk)
@@ -91,6 +116,13 @@ The following software have components provided under the terms of this license:
 - JavaBeans Activation Framework (from <http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp>, http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp, https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
 - Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 - JetBrains Java Annotations (from https://github.com/JetBrains/java-annotations)
+- Jetty :: Asynchronous HTTP Client (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-client)
+- Jetty :: Http Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http)
+- Jetty :: IO Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io)
+- Jetty :: Plus (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-plus)
+- Jetty :: Security (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Jetty :: XML utilities (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml)
 - Joda-Time (from http://joda-time.sourceforge.net, http://www.joda.org/joda-time/, https://www.joda.org/joda-time/)
 - Kotlin Stdlib (from https://kotlinlang.org/, https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-stdlib)
 - Kotlin Stdlib Common (from https://kotlinlang.org/)
@@ -150,6 +182,7 @@ The following software have components provided under the terms of this license:
 - Spring Boot Actuator AutoConfigure (from https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-actuator-autoconfigure, https://spring.io/projects/spring-boot)
 - Spring Boot Actuator Starter (from http://projects.spring.io/spring-boot/, https://spring.io/projects/spring-boot)
 - Spring Boot AutoConfigure (from https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-autoconfigure, https://spring.io/projects/spring-boot)
+- Spring Boot Jetty Starter (from http://projects.spring.io/spring-boot/, https://spring.io/projects/spring-boot)
 - Spring Boot Json Starter (from https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-json, https://spring.io/projects/spring-boot)
 - Spring Boot Log4j 2 Starter (from http://projects.spring.io/spring-boot/, https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-log4j2, https://spring.io/projects/spring-boot)
 - Spring Boot Logging Starter (from http://projects.spring.io/spring-boot/, https://projects.spring.io/spring-boot/#/spring-boot-parent/spring-boot-starters/spring-boot-starter-logging, https://spring.io/projects/spring-boot)
@@ -179,6 +212,7 @@ The following software have components provided under the terms of this license:
 - Swagger UI (from <http://webjars.org>, http://webjars.org, https://www.webjars.org)
 - Woodstox (from https://github.com/FasterXML/woodstox)
 - error-prone annotations (from https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
+- io.grpc:grpc-api (from https://github.com/grpc/grpc-java)
 - io.grpc:grpc-context (from https://github.com/grpc/grpc-java)
 - ion-java (from https://github.com/amzn/ion-java/, https://github.com/amznlabs/ion-java/)
 - jackson-databind (from http://github.com/FasterXML/jackson, http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson)
@@ -218,7 +252,6 @@ BSD-2-Clause
 The following software have components provided under the terms of this license:
 
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
-- Hamcrest (from http://hamcrest.org/JavaHamcrest/)
 - Hamcrest Core (from http://hamcrest.org/, http://hamcrest.org/JavaHamcrest/, https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - Jodd Util (from https://util.jodd.org)
@@ -233,7 +266,10 @@ BSD-3-Clause
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- ASM Commons (from http://asm.ow2.io/, https://repo1.maven.org/maven2/org/ow2/asm/asm-commons)
 - ASM Core (from http://asm.ow2.io/, http://asm.ow2.org/)
+- ASM Tree (from http://asm.ow2.io/)
+- Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
 - FindBugs-jsr305 (from http://findbugs.sourceforge.net/)
 - Hamcrest (from http://hamcrest.org/JavaHamcrest/)
@@ -241,11 +277,15 @@ The following software have components provided under the terms of this license:
 - Jackson module: Afterburner (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-modules-base)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+- Jakarta Interceptors (from https://github.com/jakartaee/interceptors)
 - Jakarta Messaging API (from https://projects.eclipse.org/projects/ee4j.jms)
+- Jakarta WebSocket - Client API (from https://projects.eclipse.org/projects/ee4j.websocket)
+- Jakarta WebSocket - Server API (from https://projects.eclipse.org/projects/ee4j.websocket, https://repo1.maven.org/maven2/org/jboss/spec/javax/websocket/jboss-websocket-api_1.1_spec)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
 - Kryo (from https://repo1.maven.org/maven2/com/esotericsoftware/kryo)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
 - Netty/Codec/HTTP (from https://repo1.maven.org/maven2/io/netty/netty-codec-http)
+- Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
 - Redisson (from http://redisson.org)
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
 - Spring Core (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-core)
@@ -289,6 +329,13 @@ The following software have components provided under the terms of this license:
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from <http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp>, http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp, https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
+- Jetty :: Asynchronous HTTP Client (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-client)
+- Jetty :: Http Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http)
+- Jetty :: IO Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io)
+- Jetty :: Plus (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-plus)
+- Jetty :: Security (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Jetty :: XML utilities (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
 
 ========================================================================
@@ -320,6 +367,13 @@ EPL-1.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Jetty :: Asynchronous HTTP Client (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-client)
+- Jetty :: Http Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http)
+- Jetty :: IO Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io)
+- Jetty :: Plus (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-plus)
+- Jetty :: Security (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Jetty :: XML utilities (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml)
 - Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
 - Logback Contrib :: JSON :: Core (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-core)
 - Logback Contrib :: Jackson (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-jackson)
@@ -330,7 +384,28 @@ EPL-2.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
+- CDI APIs (from http://cdi-spec.org)
+- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
+- Core :: ALPN :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-alpn-client)
+- Core :: EE Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-ee)
+- Core :: Sessions (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-session)
+- Core :: Websocket :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-client)
+- Core :: Websocket :: Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-common)
+- Core :: Websocket :: Jetty API (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-jetty-api)
+- Core :: Websocket :: Jetty Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-jetty-common)
+- Core :: Websocket :: Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/websocket/jetty-websocket-core-server)
+- EE10 :: Plus (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-plus)
+- EE10 :: Servlet (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-servlet)
+- EE10 :: Servlet Annotations (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-annotations)
+- EE10 :: Utility Servlets and Filters (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-servlets)
+- EE10 :: WebApp (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/jetty-ee10-webapp)
+- EE10 :: Websocket :: Jakarta Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-client)
+- EE10 :: Websocket :: Jakarta Common (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-common)
+- EE10 :: Websocket :: Jakarta Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jakarta-server)
+- EE10 :: Websocket :: Jetty Server (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-jetty-server)
+- EE10 :: Websocket :: Servlet (from https://repo1.maven.org/maven2/org/eclipse/jetty/ee10/websocket/jetty-ee10-websocket-servlet)
 - JUnit Jupiter (Aggregator) (from https://junit.org/junit5/)
 - JUnit Jupiter API (from http://junit.org/junit5/, https://junit.org/junit5/)
 - JUnit Jupiter Engine (from http://junit.org/junit5/, https://junit.org/junit5/)
@@ -339,10 +414,23 @@ The following software have components provided under the terms of this license:
 - JUnit Platform Engine API (from http://junit.org/junit5/, https://junit.org/junit5/)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+- Jakarta Dependency Injection (from https://github.com/eclipse-ee4j/injection-api)
+- Jakarta Interceptors (from https://github.com/jakartaee/interceptors)
 - Jakarta Messaging API (from https://projects.eclipse.org/projects/ee4j.jms)
 - Jakarta Servlet (from https://projects.eclipse.org/projects/ee4j.servlet)
 - Jakarta Validation API (from https://beanvalidation.org)
+- Jakarta WebSocket - Client API (from https://projects.eclipse.org/projects/ee4j.websocket)
+- Jakarta WebSocket - Server API (from https://projects.eclipse.org/projects/ee4j.websocket, https://repo1.maven.org/maven2/org/jboss/spec/javax/websocket/jboss-websocket-api_1.1_spec)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
+- Jetty :: Asynchronous HTTP Client (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-client)
+- Jetty :: Http Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http)
+- Jetty :: IO Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io)
+- Jetty :: Plus (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-plus)
+- Jetty :: Security (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Jetty :: XML utilities (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml)
+- Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
+- jakarta.transaction API (from https://projects.eclipse.org/projects/ee4j.jta)
 
 ========================================================================
 GPL-2.0-only
@@ -356,14 +444,30 @@ GPL-2.0-with-classpath-exception
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
+- CDI APIs (from http://cdi-spec.org)
+- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+- Jakarta Dependency Injection (from https://github.com/eclipse-ee4j/injection-api)
+- Jakarta Interceptors (from https://github.com/jakartaee/interceptors)
 - Jakarta Messaging API (from https://projects.eclipse.org/projects/ee4j.jms)
 - Jakarta Servlet (from https://projects.eclipse.org/projects/ee4j.servlet)
 - Jakarta Validation API (from https://beanvalidation.org)
+- Jakarta WebSocket - Client API (from https://projects.eclipse.org/projects/ee4j.websocket)
+- Jakarta WebSocket - Server API (from https://projects.eclipse.org/projects/ee4j.websocket, https://repo1.maven.org/maven2/org/jboss/spec/javax/websocket/jboss-websocket-api_1.1_spec)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - JavaBeans Activation Framework (from <http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp>, http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp, https://repo1.maven.org/maven2/com/sun/activation/javax.activation)
+- Jetty :: Asynchronous HTTP Client (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-client)
+- Jetty :: Http Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http)
+- Jetty :: IO Utility (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io)
+- Jetty :: Plus (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-plus)
+- Jetty :: Security (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Jetty :: XML utilities (from http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml)
+- Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
+- jakarta.transaction API (from https://projects.eclipse.org/projects/ee4j.jta)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
 - tomcat-embed-core (from http://tomcat.apache.org/)
 
@@ -379,6 +483,7 @@ LGPL-2.1-only
 ========================================================================
 The following software have components provided under the terms of this license:
 
+- Java Native Access Platform (from https://github.com/java-native-access/jna)
 - Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 - Logback Classic Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-classic)
 - Logback Contrib :: JSON :: Classic (from https://repo1.maven.org/maven2/ch/qos/logback/contrib/logback-json-classic)
@@ -400,7 +505,6 @@ MIT
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Apache HttpClient Cache (from http://hc.apache.org/httpcomponents-client, http://hc.apache.org/httpcomponents-client-ga)
 - Azure Java Client Authentication Library for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for ARM (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Azure Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
@@ -411,6 +515,7 @@ The following software have components provided under the terms of this license:
 - Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 - Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Java JWT (from http://www.jwt.io, https://github.com/auth0/java-jwt)
+- Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
 - Microsoft Application Insights Java Agent (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Azure Java Core AMQP Library (from https://github.com/Azure/azure-sdk-for-java)
 - Microsoft Azure Java Core Library (from https://github.com/Azure/azure-sdk-for-java)
@@ -457,6 +562,13 @@ The following software have components provided under the terms of this license:
 - msal4j-persistence-extension (from https://github.com/AzureAD/microsoft-authentication-extensions-for-java, https://github.com/AzureAD/microsoft-authentication-library-for-java)
 
 ========================================================================
+SAX-PD
+========================================================================
+The following software have components provided under the terms of this license:
+
+- Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
+
+========================================================================
 WTFPL
 ========================================================================
 The following software have components provided under the terms of this license:
@@ -489,6 +601,5 @@ public-domain
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - JBoss Logging 3 (from http://www.jboss.org)
 - JSON in Java (from https://github.com/douglascrockford/JSON-java)
