@@ -24,7 +24,7 @@ public class CompoundFallbackWGS84TransformWithCode implements IWGS84Transform {
         this.transforms = new ArrayList<>();
         for (int i = 0; i < transformDescriptions.size(); i++) {
             ISingleTrf currentDescription = transformDescriptions.get(i);
-            this.transforms.add(new SingleWGS84TransformFromCode(sisCrs, sisCrs, currentDescription, true));
+            this.transforms.add(new SingleWGS84TransformFromCode(sisCrs, null, currentDescription, true));
         }
 
         xyCRSName = sisCrs.getName();
