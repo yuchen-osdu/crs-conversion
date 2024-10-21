@@ -89,7 +89,7 @@ public class CRSCoordinateOperationFactory {
                     operations.add(new CRSTransformFromWGS84Operation(simpleTransform));
                 } else {
                     if (transform.getType() == CRSType.TRF) {
-                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, null, (ISingleTrf) transform, false);
+                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, toBaseCrs, (ISingleTrf) transform, false);
                         operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                     } else if (transform.getType() == CRSType.COMPOUND_TRF) {
                         IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(toBaseCrs, (ICompoundTrf) transform);
@@ -206,7 +206,7 @@ public class CRSCoordinateOperationFactory {
                 operations.add(new CRSTransformFromWGS84Operation(simpleTransform));
             } else {
                 if (transform.getType() == CRSType.TRF) {
-                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, null, (ISingleTrf) transform, false);
+                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, toBaseCrs, (ISingleTrf) transform, false);
                     operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                 } else if (transform.getType() == CRSType.COMPOUND_TRF) {
                     IWGS84Transform transformOperation = new CompoundFallbackWGS84TransformWithCode(toBaseCrs, (ICompoundTrf) transform);
