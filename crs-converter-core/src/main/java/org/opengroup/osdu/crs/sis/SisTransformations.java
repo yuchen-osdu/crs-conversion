@@ -91,8 +91,8 @@ public class SisTransformations {
      * Returns do_reverse=true based on the score i.e. means do reverse direction else forward direction.
      * @param transformSourceCRS - sourceCRS
      * @param transformTargetCRS - targetCRS
-     * @param fromBaseCrs - fromBaseCrs
-     * @param toBaseCrs - toBaseCrs
+     * @param sisCrs - sisCrs
+     * @param iSisCrs - iSisCrs
      * @return - boolean
      */
 
