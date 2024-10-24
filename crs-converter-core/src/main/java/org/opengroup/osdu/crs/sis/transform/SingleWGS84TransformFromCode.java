@@ -54,13 +54,13 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
     private GeographicBoundingBox transformFromWGS84BoundingBox;
     private boolean checkAreaOfUse;
     private boolean use3DPointConversion = false;
-    private ISisCrs fromBaseCrs;
-    private ISisCrs toBaseCrs;
+    private ISisCrs sisCrs;
+    private ISisCrs iSisCrs;
 
-    public SingleWGS84TransformFromCode(ISisCrs sisCrs, ISisCrs toBaseCrs, ISingleTrf transform, boolean checkAreaOfUse) throws Exception {
+    public SingleWGS84TransformFromCode(ISisCrs sisCrs, ISisCrs iSisCrs, ISingleTrf transform, boolean checkAreaOfUse) throws Exception {
 
-        this.fromBaseCrs = sisCrs;
-        this.toBaseCrs = toBaseCrs;
+        this.sisCrs = sisCrs;
+        this.iSisCrs = iSisCrs;
         this.transform = transform;
         this.datumOperation = transform.getTransformOperation().getFromWGS84Operation();
 
@@ -403,7 +403,7 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
             CoordinateReferenceSystem transformSourceCRS = transformCoordinateOperation.getSourceCRS();
             CoordinateReferenceSystem transformTargetCRS = transformCoordinateOperation.getTargetCRS();
 
-            boolean do_reverse = SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, fromBaseCrs, toBaseCrs);
+            boolean do_reverse = SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, sisCrs, iSisCrs);
             return do_reverse;
         }
 
