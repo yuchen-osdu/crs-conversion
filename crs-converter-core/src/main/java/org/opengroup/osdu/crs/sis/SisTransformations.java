@@ -120,8 +120,8 @@ public class SisTransformations {
         }
 
         // If not by code, attempt string matching of GEOGCS string
-        String fromCRS = fromBaseCrs.getName();
-        String toCRS = toBaseCrs.getName();
+        String fromCRS = CrsNameUtils.getCrsNameFromWKT(fromBaseCrs.getWkt());
+        String toCRS = CrsNameUtils.getCrsNameFromWKT(toBaseCrs.getWkt());
         String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
         String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
