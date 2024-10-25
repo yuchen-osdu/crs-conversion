@@ -23,6 +23,7 @@ import org.opengroup.osdu.crs.util.Constants;
 public class SisTransformations {
 
     private static final Logger LOGGER = Logger.getLogger(SisTransformations.class.getName());
+    private static final String WGS_72 = "WGS 72";
 
     public static void projToGeog(ISisCrs projectionSISCrs, int numberOfPoints, double[] xyPoints) {
         try {
@@ -121,7 +122,11 @@ public class SisTransformations {
 
         // If not by code, attempt string matching of GEOGCS string
         String fromCRS = CrsNameUtils.getCrsNameFromWKT(sisCrs.getWkt());
+        if(fromCRS.equals(WGS_72))
+            fromCRS = sisCrs.getName();
         String toCRS = CrsNameUtils.getCrsNameFromWKT(iSisCrs.getWkt());
+        if(toCRS.equals(WGS_72))
+            toCRS = sisCrs.getName();
         String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
         String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
