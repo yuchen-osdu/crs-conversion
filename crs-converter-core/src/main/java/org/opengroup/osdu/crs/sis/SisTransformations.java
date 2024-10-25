@@ -126,7 +126,7 @@ public class SisTransformations {
             fromCRS = sisCrs.getName();
         String toCRS = CrsNameUtils.getCrsNameFromWKT(iSisCrs.getWkt());
         if(toCRS.equals(WGS_72))
-            toCRS = sisCrs.getName();
+            toCRS = iSisCrs.getName();
         String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
         String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
