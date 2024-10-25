@@ -4,8 +4,6 @@ variables:
   GC_VENDOR: gc
   GC_INT_TEST_TYPE: python
   GC_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_gc
-  # Baremetal variable
-  GC_BAREMETAL_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_baremetal
 
 gc-test-python:
   variables:
@@ -14,7 +12,3 @@ gc-test-python:
 gc-dev2-test-python:
   variables:
     VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
-
-gc-baremetal-test-python:
-  variables:
-    VIRTUAL_SERVICE_HOST_NAME: $OSDU_BAREMETAL_CRS_CONVERTER_HOSTNAME
