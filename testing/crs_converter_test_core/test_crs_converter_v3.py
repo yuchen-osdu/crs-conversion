@@ -314,7 +314,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.fail(str(e))
 
     def test_conversion_custom_crs(self):
-        """Read from data/ConversionOnly.json and convert/transform"""
+        """Read from data/Conversion_Custom_Crs.json and convert/transform"""
         reader = TestDataReader('Conversion_Custom_Crs.json')
         self.assertIsNotNone(reader)
         request, response = reader.get_request_response(0)
@@ -336,7 +336,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.fail(str(e))
 
     def test_conversion_custom_crs_Inverse(self):
-        """Read from data/ConversionOnly.json and convert/transform"""
+        """Read from data/Conversion_Custom_Crs_Inverse.json and convert/transform"""
         reader = TestDataReader('Conversion_Custom_Crs_Inverse.json')
         self.assertIsNotNone(reader)
         request, response = reader.get_request_response(0)
