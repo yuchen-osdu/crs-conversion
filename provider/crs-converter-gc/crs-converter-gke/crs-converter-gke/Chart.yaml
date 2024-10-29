@@ -1,5 +1,0 @@
-apiVersion: v1
-appVersion: "1.0"
-description: A Kubernetes Helm chart for crs converter
-name: crs-converter-gke
-version: v2

@@ -7,7 +7,7 @@ EXPOSE 8080
 
 
 # Copy the jar to the production image from the builder stage.
-COPY crs-converter-core-plus/target/crs-converter-core-plus-*.jar crs-converter-core-plus.jar
+COPY crs-converter-core-plus/target/crs-converter-core-plus-*-spring-boot.jar crs-converter-core-plus.jar
 COPY apachesis_setup /crs-converter/apachesis_setup
 
 # Add a non-root user
