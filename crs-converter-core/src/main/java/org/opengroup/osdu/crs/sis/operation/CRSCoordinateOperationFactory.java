@@ -16,7 +16,6 @@ import org.opengroup.osdu.crs.sis.AuthorityCodeUtils;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.SisCrsUtils;
 import org.opengroup.osdu.crs.sis.SisTransformations;
-import org.opengroup.osdu.crs.sis.transform.CompoundFallbackWGS84TransformWithCode;
 import org.opengroup.osdu.crs.sis.transform.ConcatenatedWGS84TransformFromCode;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
 import org.opengroup.osdu.crs.sis.transform.IWGS84Transform;
@@ -166,7 +165,7 @@ public class CRSCoordinateOperationFactory {
         if (!fromTransformOperationsNeeded && !toTransformOperationsNeeded) {
             return;
         }
-        if (explicitTransform != null) {
+        if (explicitTransform != null && explicitTransform.getType() != CRSType.COMPOUND_TRF) {
             addExplicitTransformV4(fromCrs, toCrs, explicitTransform, operations);
             return;
         }
@@ -175,7 +174,11 @@ public class CRSCoordinateOperationFactory {
 
         //add transforms to wgs 84
         if (fromTransformOperationsNeeded) {
-            ITrf transform = getTransformation(fromCrs);
+            ITrf transform;
+            if(explicitTransform != null)
+                transform = explicitTransform;
+            else
+                transform = getTransformation(fromCrs);
             if (transform == null) {
                 throw new IllegalArgumentException(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION);
             }
@@ -196,7 +199,11 @@ public class CRSCoordinateOperationFactory {
 
         //add transforms from wgs 84
         if (toTransformOperationsNeeded) {
-            ITrf transform = getTransformation(toCrs);
+            ITrf transform;
+            if(explicitTransform != null)
+                transform = explicitTransform;
+            else
+                transform = getTransformation(toCrs);
             if (transform == null) {
                 throw new IllegalArgumentException(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION);
             }
@@ -303,7 +310,8 @@ public class CRSCoordinateOperationFactory {
             if (!needExplicitTransform(fromCRS, toCRS, explicitTransform)) {
                 return false;
             }
-            validateExplicitTransform(fromCRS, toCRS, explicitTransform);
+            if(!(explicitTransform instanceof ICompoundTrf))
+                validateExplicitTransform(fromCRS, toCRS, explicitTransform);
             return true;
         }
 
