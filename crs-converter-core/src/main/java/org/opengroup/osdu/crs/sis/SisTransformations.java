@@ -122,11 +122,8 @@ public class SisTransformations {
 
         // If not by code, attempt string matching of GEOGCS string
         String fromCRS = CrsNameUtils.getCrsNameFromWKT(sisCrs.getWkt());
-        if(fromCRS.equals(WGS_72))
-            fromCRS = sisCrs.getName();
         String toCRS = CrsNameUtils.getCrsNameFromWKT(iSisCrs.getWkt());
-        if(toCRS.equals(WGS_72))
-            toCRS = iSisCrs.getName();
+
         String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
         String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
@@ -223,7 +220,15 @@ public class SisTransformations {
         Matcher match = pattern.matcher(input);
         String updatedName = match.replaceAll("");
         updatedName = updatedName.replaceAll("\\s+", "");
+        updatedName = remove(updatedName);
         return updatedName.toUpperCase();
+    }
+
+    private static String remove(String updatedName) {
+
+        Pattern pattern = Pattern.compile("(?<=\\D|^)(\\d{2})(\\d{2})(?=\\D|$)");
+        Matcher matcher = pattern.matcher(updatedName);
+        return matcher.replaceAll("$2");
     }
 
 
