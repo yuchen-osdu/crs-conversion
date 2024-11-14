@@ -23,7 +23,6 @@ import org.opengroup.osdu.crs.util.Constants;
 public class SisTransformations {
 
     private static final Logger LOGGER = Logger.getLogger(SisTransformations.class.getName());
-    private static final String WGS_72 = "WGS 72";
 
     public static void projToGeog(ISisCrs projectionSISCrs, int numberOfPoints, double[] xyPoints) {
         try {
