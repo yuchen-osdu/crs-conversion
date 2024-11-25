@@ -41,8 +41,8 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>
