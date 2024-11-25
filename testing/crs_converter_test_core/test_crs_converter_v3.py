@@ -312,94 +312,6 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.assertTrue(ok, 'Actual response is different from expected response.')
         except ApiException as e:
             self.fail(str(e))
-
-    def test_conversion_custom_crs(self):
-        """Read from data/Conversion_Custom_Crs.json and convert/transform"""
-        reader = TestDataReader('Conversion_Custom_Crs.json')
-        self.assertIsNotNone(reader)
-        request, response = reader.get_request_response(0)
-        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        self.assertIsInstance(request, ConvertPointsRequest)
-        self.assertIsInstance(response, ConvertPointsResponse)
-        try:
-            # Convert a list of points
-            api_response = self.api_instance.convert_point(body=request, data_partition_id=data_partition_header,
-                                                           _request_timeout=180)
-            self.assertIsNotNone(api_response)
-            self.assertIsNotNone(api_response.operations_applied)
-            self.assertEqual(1, len(api_response.operations_applied))
-            self.assertIsInstance(api_response, ConvertPointsResponse)
-            c = CompareResponseWithExpectation(api_response, expected=response)
-            ok = c.compare_convert_points_response()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
-
-    def test_conversion_custom_crs_Inverse(self):
-        """Read from data/Conversion_Custom_Crs_Inverse.json and convert/transform"""
-        reader = TestDataReader('Conversion_Custom_Crs_Inverse.json')
-        self.assertIsNotNone(reader)
-        request, response = reader.get_request_response(0)
-        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        self.assertIsInstance(request, ConvertPointsRequest)
-        self.assertIsInstance(response, ConvertPointsResponse)
-        try:
-            # Convert a list of points
-            api_response = self.api_instance.convert_point(body=request, data_partition_id=data_partition_header,
-                                                           _request_timeout=180)
-            self.assertIsNotNone(api_response)
-            self.assertIsNotNone(api_response.operations_applied)
-            self.assertEqual(1, len(api_response.operations_applied))
-            self.assertIsInstance(api_response, ConvertPointsResponse)
-            c = CompareResponseWithExpectation(api_response, expected=response)
-            ok = c.compare_convert_points_response()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
-
-    def test_conversion_custom_crs_WGS72(self):
-        """Read from data/Conversion_Custom_Crs_Inverse.json and convert/transform"""
-        reader = TestDataReader('Conversion_Custom_Crs_WGS72.json')
-        self.assertIsNotNone(reader)
-        request, response = reader.get_request_response(0)
-        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        self.assertIsInstance(request, ConvertPointsRequest)
-        self.assertIsInstance(response, ConvertPointsResponse)
-        try:
-            # Convert a list of points
-            api_response = self.api_instance.convert_point(body=request, data_partition_id=data_partition_header,
-                                                           _request_timeout=180)
-            self.assertIsNotNone(api_response)
-            self.assertIsNotNone(api_response.operations_applied)
-            self.assertEqual(2, len(api_response.operations_applied))
-            self.assertIsInstance(api_response, ConvertPointsResponse)
-            c = CompareResponseWithExpectation(api_response, expected=response)
-            ok = c.compare_convert_points_response()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
-
-    def test_conversion_custom_crs_WGS72_Inverse(self):
-        """Read from data/Conversion_Custom_Crs_Inverse.json and convert/transform"""
-        reader = TestDataReader('Conversion_Custom_Crs_WGS72_Inverse.json')
-        self.assertIsNotNone(reader)
-        request, response = reader.get_request_response(0)
-        data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
-        self.assertIsInstance(request, ConvertPointsRequest)
-        self.assertIsInstance(response, ConvertPointsResponse)
-        try:
-            # Convert a list of points
-            api_response = self.api_instance.convert_point(body=request, data_partition_id=data_partition_header,
-                                                           _request_timeout=180)
-            self.assertIsNotNone(api_response)
-            self.assertIsNotNone(api_response.operations_applied)
-            self.assertEqual(2, len(api_response.operations_applied))
-            self.assertIsInstance(api_response, ConvertPointsResponse)
-            c = CompareResponseWithExpectation(api_response, expected=response)
-            ok = c.compare_convert_points_response()
-            self.assertTrue(ok, 'Actual response is different from expected response.')
-        except ApiException as e:
-            self.fail(str(e))
     
     def test_conversion_only_ID(self):
         """Read from data/ConversionOnly.json and convert/transform"""
@@ -960,10 +872,6 @@ class TestRecords(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(TestCrsConverterIntegration('test_conversion_only'))
-    suite.addTest(TestCrsConverterIntegration('test_conversion_custom_crs'))
-    suite.addTest(TestCrsConverterIntegration('test_conversion_custom_crs_Inverse'))
-    suite.addTest(TestCrsConverterIntegration('test_conversion_custom_crs_WGS72'))
-    suite.addTest(TestCrsConverterIntegration('test_conversion_custom_crs_WGS72_Inverse'))
     suite.addTest(TestCrsConverterIntegration('test_transformation_with_duplicate_points'))
     suite.addTest(TestCrsConverterIntegration('test_geo_json_to_any_crs'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json'))

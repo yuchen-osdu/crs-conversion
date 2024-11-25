@@ -406,8 +406,6 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
             boolean do_reverse = SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, sisCrs, iSisCrs);
             return do_reverse;
         }
-
-        //return wgs84.equals(wgs84);
     }
 
     private void initializeWGS84ToXYTransform() throws MismatchedDimensionException, FactoryException, NoninvertibleTransformException {

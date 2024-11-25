@@ -157,8 +157,8 @@ public class CRSCoordinateOperationFactory {
         }
 
     }
-    //added for explict transform
 
+    //added for explict transform
     private void addTransformsIfNeededV4(ICrs fromCrs, ICrs toCrs, ITrf explicitTransform,
                                          boolean fromTransformOperationsNeeded, boolean toTransformOperationsNeeded,
                                          List<ICRSCoordinateOperation> operations) throws Exception {
@@ -225,7 +225,6 @@ public class CRSCoordinateOperationFactory {
 
 
     //added for explict transform
-
     private void addExplicitTransformV4(ICrs fromCrs, ICrs toCrs, ITrf explicitTransform, List<ICRSCoordinateOperation> operations) throws Exception {
         if (explicitTransform.getType() != CRSType.TRF) {
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
