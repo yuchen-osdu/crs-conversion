@@ -64,6 +64,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 |------|-------------|------|---------|---------|
 | **conf.configmap** | configmap to be used | string | `crs-conversion-config` | yes |
 | **conf.appName** | name of the app | string | `crs-conversion` | yes |
+| **conf.replicas** | Number of pods for service | integer | 2 | yes |
 
 ### ISTIO variables
 

@@ -28,7 +28,7 @@ data:
 conf:
   configmap: "crs-conversion-config"
   appName: "crs-conversion"
-  replicas: 1
+  replicas: 2
 
 istio:
   proxyCPU: "5m"
