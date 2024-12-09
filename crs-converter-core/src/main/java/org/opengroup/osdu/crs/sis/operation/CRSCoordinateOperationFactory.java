@@ -16,7 +16,6 @@ import org.opengroup.osdu.crs.sis.AuthorityCodeUtils;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.SisCrsUtils;
 import org.opengroup.osdu.crs.sis.SisTransformations;
-import org.opengroup.osdu.crs.sis.transform.CompoundFallbackWGS84TransformWithCode;
 import org.opengroup.osdu.crs.sis.transform.ConcatenatedWGS84TransformFromCode;
 import org.opengroup.osdu.crs.sis.transform.ISisMathTransform;
 import org.opengroup.osdu.crs.sis.transform.IWGS84Transform;
@@ -68,7 +67,7 @@ public class CRSCoordinateOperationFactory {
                     operations.add(new CRSTransformToWGS84Operation(simpleTransform));
                 } else {
                     if (transform.getType() == CRSType.TRF) {
-                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(fromBaseCrs, (ISingleTrf) transform, false);
+                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(fromBaseCrs, toBaseCrs, (ISingleTrf) transform, false);
                         operations.add(new CRSTransformToWGS84Operation(transformOperation));
                     } else if (transform.getType() == CRSType.COMPOUND_TRF) {
                         IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(fromBaseCrs, (ICompoundTrf) transform);
@@ -89,7 +88,7 @@ public class CRSCoordinateOperationFactory {
                     operations.add(new CRSTransformFromWGS84Operation(simpleTransform));
                 } else {
                     if (transform.getType() == CRSType.TRF) {
-                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, (ISingleTrf) transform, false);
+                        IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, fromBaseCrs, (ISingleTrf) transform, false);
                         operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                     } else if (transform.getType() == CRSType.COMPOUND_TRF) {
                         IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(toBaseCrs, (ICompoundTrf) transform);
@@ -158,15 +157,15 @@ public class CRSCoordinateOperationFactory {
         }
 
     }
-    //added for explict transform
 
+    //added for explict transform
     private void addTransformsIfNeededV4(ICrs fromCrs, ICrs toCrs, ITrf explicitTransform,
                                          boolean fromTransformOperationsNeeded, boolean toTransformOperationsNeeded,
                                          List<ICRSCoordinateOperation> operations) throws Exception {
         if (!fromTransformOperationsNeeded && !toTransformOperationsNeeded) {
             return;
         }
-        if (explicitTransform != null) {
+        if (explicitTransform != null && explicitTransform.getType() != CRSType.COMPOUND_TRF) {
             addExplicitTransformV4(fromCrs, toCrs, explicitTransform, operations);
             return;
         }
@@ -175,7 +174,11 @@ public class CRSCoordinateOperationFactory {
 
         //add transforms to wgs 84
         if (fromTransformOperationsNeeded) {
-            ITrf transform = getTransformation(fromCrs);
+            ITrf transform;
+            if(explicitTransform != null)
+                transform = explicitTransform;
+            else
+                transform = getTransformation(fromCrs);
             if (transform == null) {
                 throw new IllegalArgumentException(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION);
             }
@@ -185,10 +188,10 @@ public class CRSCoordinateOperationFactory {
                 operations.add(new CRSTransformToWGS84Operation(simpleTransform));
             } else {
                 if (transform.getType() == CRSType.TRF) {
-                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(fromBaseCrs, (ISingleTrf) transform, false);
+                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(fromBaseCrs, toBaseCrs, (ISingleTrf) transform, false);
                     operations.add(new CRSTransformToWGS84Operation(transformOperation));
                 } else if (transform.getType() == CRSType.COMPOUND_TRF) {
-                    IWGS84Transform transformOperation = new CompoundFallbackWGS84TransformWithCode(fromBaseCrs, (ICompoundTrf) transform);
+                    IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(fromBaseCrs, (ICompoundTrf) transform);
                     operations.add(new CRSTransformToWGS84Operation(transformOperation));
                 }
             }
@@ -196,7 +199,11 @@ public class CRSCoordinateOperationFactory {
 
         //add transforms from wgs 84
         if (toTransformOperationsNeeded) {
-            ITrf transform = getTransformation(toCrs);
+            ITrf transform;
+            if(explicitTransform != null)
+                transform = explicitTransform;
+            else
+                transform = getTransformation(toCrs);
             if (transform == null) {
                 throw new IllegalArgumentException(Constants.ERROR_MSG_NO_SUITABLE_CONVERSION);
             }
@@ -206,10 +213,10 @@ public class CRSCoordinateOperationFactory {
                 operations.add(new CRSTransformFromWGS84Operation(simpleTransform));
             } else {
                 if (transform.getType() == CRSType.TRF) {
-                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, (ISingleTrf) transform, false);
+                    IWGS84Transform transformOperation = new SingleWGS84TransformFromCode(toBaseCrs, fromBaseCrs, (ISingleTrf) transform, false);
                     operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                 } else if (transform.getType() == CRSType.COMPOUND_TRF) {
-                    IWGS84Transform transformOperation = new CompoundFallbackWGS84TransformWithCode(toBaseCrs, (ICompoundTrf) transform);
+                    IWGS84Transform transformOperation = new ConcatenatedWGS84TransformFromCode(toBaseCrs, (ICompoundTrf) transform);
                     operations.add(new CRSTransformFromWGS84Operation(transformOperation));
                 }
             }
@@ -218,7 +225,6 @@ public class CRSCoordinateOperationFactory {
 
 
     //added for explict transform
-
     private void addExplicitTransformV4(ICrs fromCrs, ICrs toCrs, ITrf explicitTransform, List<ICRSCoordinateOperation> operations) throws Exception {
         if (explicitTransform.getType() != CRSType.TRF) {
             throw new IllegalArgumentException(Constants.ERROR_MSG_INVALID_INPUT_TRANSFORM_SPECIFICATION);
@@ -303,7 +309,8 @@ public class CRSCoordinateOperationFactory {
             if (!needExplicitTransform(fromCRS, toCRS, explicitTransform)) {
                 return false;
             }
-            validateExplicitTransform(fromCRS, toCRS, explicitTransform);
+            if(!(explicitTransform instanceof ICompoundTrf))
+                validateExplicitTransform(fromCRS, toCRS, explicitTransform);
             return true;
         }
 
