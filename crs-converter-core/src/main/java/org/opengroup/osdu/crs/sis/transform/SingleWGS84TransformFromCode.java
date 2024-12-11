@@ -34,6 +34,7 @@ import org.opengroup.osdu.crs.model.ISingleTrf;
 import org.opengroup.osdu.crs.sis.AreaOfUseUtils;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.sis.MathTransformUtils;
+import org.opengroup.osdu.crs.sis.SisTransformations;
 import org.opengroup.osdu.crs.sis.operation.OperationResponse;
 
 public class SingleWGS84TransformFromCode implements IWGS84Transform {
@@ -53,8 +54,13 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
     private GeographicBoundingBox transformFromWGS84BoundingBox;
     private boolean checkAreaOfUse;
     private boolean use3DPointConversion = false;
+    private ISisCrs sisCrs;
+    private ISisCrs iSisCrs;
 
-    public SingleWGS84TransformFromCode(ISisCrs sisCrs, ISingleTrf transform, boolean checkAreaOfUse) throws Exception {
+    public SingleWGS84TransformFromCode(ISisCrs sisCrs, ISisCrs iSisCrs, ISingleTrf transform, boolean checkAreaOfUse) throws Exception {
+
+        this.sisCrs = sisCrs;
+        this.iSisCrs = iSisCrs;
         this.transform = transform;
         this.datumOperation = transform.getTransformOperation().getFromWGS84Operation();
 
@@ -390,9 +396,16 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
         Identifier otherIdentifier = IdentifiedObjects.getIdentifier(wgs84, Citations.EPSG);
         if (identifier != null && otherIdentifier != null) {
             return identifier.getCode().equals(otherIdentifier.getCode());
-        }
+        }else{
+            ISingleTrf singleExplicitTransform = this.transform;
+            ISisMathTransform sisTransform = singleExplicitTransform.getTransformOperation();
+            CoordinateOperation transformCoordinateOperation = sisTransform.getFromWGS84Operation();
+            CoordinateReferenceSystem transformSourceCRS = transformCoordinateOperation.getSourceCRS();
+            CoordinateReferenceSystem transformTargetCRS = transformCoordinateOperation.getTargetCRS();
 
-        return wgs84.equals(wgs84);
+            boolean do_reverse = SisTransformations.checkInverseTransformationFromScore(transformSourceCRS, transformTargetCRS, sisCrs, iSisCrs);
+            return do_reverse;
+        }
     }
 
     private void initializeWGS84ToXYTransform() throws MismatchedDimensionException, FactoryException, NoninvertibleTransformException {

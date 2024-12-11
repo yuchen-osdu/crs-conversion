@@ -91,14 +91,14 @@ public class SisTransformations {
      * Returns do_reverse=true based on the score i.e. means do reverse direction else forward direction.
      * @param transformSourceCRS - sourceCRS
      * @param transformTargetCRS - targetCRS
-     * @param fromBaseCrs - fromBaseCrs
-     * @param toBaseCrs - toBaseCrs
+     * @param sisCrs - sisCrs
+     * @param iSisCrs - iSisCrs
      * @return - boolean
      */
 
     public static boolean checkInverseTransformationFromScore(CoordinateReferenceSystem transformSourceCRS,
                                                               CoordinateReferenceSystem transformTargetCRS,
-                                                              ISisCrs fromBaseCrs, ISisCrs toBaseCrs) {
+                                                              ISisCrs sisCrs, ISisCrs iSisCrs) {
         Identifier identifierSource = IdentifiedObjects.getIdentifier(transformSourceCRS, Citations.EPSG);
         Identifier identifierTarget = IdentifiedObjects.getIdentifier(transformTargetCRS, Citations.EPSG);
         boolean do_reverse = false;
@@ -107,21 +107,22 @@ public class SisTransformations {
         if (identifierSource != null && identifierTarget != null) {
             int sourceCode = Integer.parseInt(identifierSource.getCode());
             int targetCode = Integer.parseInt(identifierTarget.getCode());
-            int fromCRSCode = Integer.parseInt(fromBaseCrs.getAuthorityCode().getCode());
-            int toCRSCode = Integer.parseInt(toBaseCrs.getAuthorityCode().getCode());
-            if (sourceCode==fromCRSCode && targetCode==toCRSCode){
+            int sisCRSCode = Integer.parseInt(sisCrs.getAuthorityCode().getCode());
+            int iSisCRSCode = Integer.parseInt(iSisCrs.getAuthorityCode().getCode());
+            if (sourceCode==sisCRSCode && targetCode==iSisCRSCode){
                 do_reverse=false;
                 return do_reverse;
             }
-            if (sourceCode==toCRSCode && targetCode==fromCRSCode){
+            if (sourceCode==iSisCRSCode && targetCode==sisCRSCode){
                 do_reverse=true;
                 return do_reverse;
             }
         }
 
         // If not by code, attempt string matching of GEOGCS string
-        String fromCRS = fromBaseCrs.getName();
-        String toCRS = toBaseCrs.getName();
+        String fromCRS = CrsNameUtils.getCrsNameFromWKT(sisCrs.getWkt());
+        String toCRS = CrsNameUtils.getCrsNameFromWKT(iSisCrs.getWkt());
+
         String sourceCRS = String.valueOf(transformSourceCRS.getName().getCode());
         String targetCRS = String.valueOf(transformTargetCRS.getName().getCode());
         //we are defining a new algorithm if the above conditions is failing. In this method we are comapring the
@@ -218,7 +219,15 @@ public class SisTransformations {
         Matcher match = pattern.matcher(input);
         String updatedName = match.replaceAll("");
         updatedName = updatedName.replaceAll("\\s+", "");
+        updatedName = remove(updatedName);
         return updatedName.toUpperCase();
+    }
+
+    private static String remove(String updatedName) {
+
+        Pattern pattern = Pattern.compile("(?<=\\D|^)(\\d{2})(\\d{2})(?=\\D|$)");
+        Matcher matcher = pattern.matcher(updatedName);
+        return matcher.replaceAll("$2");
     }
 
 
