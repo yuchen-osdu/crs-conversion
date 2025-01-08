@@ -40,7 +40,7 @@ hpa:
   minReplicas: 6
   maxReplicas: 15
   targetType: "AverageValue"
-  targetValue: 195  # 115*0.85*2 rps
+  targetValue: 100
   behaviorScaleUpStabilizationWindowSeconds: 10
   behaviorScaleUpPoliciesValue: 50
   behaviorScaleUpPoliciesPeriodSeconds: 15
@@ -49,6 +49,6 @@ hpa:
   behaviorScaleDownPoliciesPeriodSeconds: 60
 
 limits:
-  maxTokens: 115
-  tokensPerFill: 115
+  maxTokens: 80
+  tokensPerFill: 80
   fillInterval: "1s"
