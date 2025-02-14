@@ -13,8 +13,8 @@ out/
 
 # Python, virtualenv
 /venv
-testing/*/venv/
-testing/*/env/
+.venv
+/**/env
 
 #.pyc files in all directories
 **/*.pyc
