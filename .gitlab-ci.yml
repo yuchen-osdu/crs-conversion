@@ -26,6 +26,8 @@ variables:
   IBM_HELM_CONFIG_PATH: devops/ibm/ibm-crs-conversion-config
   IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-crs-conversion-deploy
 
+  ACCEPTANCE_TEST_DIR: crs-converter-acceptance-tests
+
 include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "standard-setup.yml"
