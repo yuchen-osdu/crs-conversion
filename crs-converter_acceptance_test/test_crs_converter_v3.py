@@ -824,7 +824,8 @@ class TestRecords(unittest.TestCase):
         configuration.access_token = bearer
         configuration.verify_ssl = False
         self.header = {}
-        self.client = ApiClient(host=self.env.storage_url)
+        self.storage_url = self.env.storage_url + 'records'
+        self.client = ApiClient(host=self.storage_url)
         self.header['data-partition-id']=self.env.data_partition_id
         self.header['Content-Type']='application/json'
         self.header['Authorization']='Bearer ' + bearer
@@ -841,7 +842,7 @@ class TestRecords(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         mypath = os.path.join(dir_path, "v3/data/Storagerecords/")
         files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
-        print('Request URL for upsert records: ' + self.env.storage_url)
+        print('Request URL for upsert records: ' + self.storage_url)
         for file_name in files:
             body_str = open(file_name, 'r').read()
             body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
@@ -852,7 +853,7 @@ class TestRecords(unittest.TestCase):
             self.recordIDs.append(temp[0].get('id'))
 
             try:
-                api_response = self.client.request(method='PUT', url=self.env.storage_url, body=json.loads(body_str), headers=self.header)
+                api_response = self.client.request(method='PUT', url=self.storage_url, body=json.loads(body_str), headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
                 self.fail(str(e))
@@ -860,10 +861,10 @@ class TestRecords(unittest.TestCase):
 
     def delete_records(self):
         """test delete records"""
-        print('Request URL for delete records: ' + self.env.storage_url)
+        print('Request URL for delete records: ' + self.storage_url)
         for id in self.recordIDs:
             try:
-                delete_url = self.env.storage_url+'/'+id
+                delete_url = self.storage_url+'/'+id
                 api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
