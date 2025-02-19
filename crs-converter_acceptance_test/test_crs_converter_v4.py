@@ -249,7 +249,13 @@ class TestRecords(unittest.TestCase):
         configuration.access_token = bearer
         configuration.verify_ssl = False
         self.header = {}
-        self.storage_url = self.env.storage_url + 'records'
+
+        # Append the path /records to the storage URL if needed
+        if self.env.storage_url.endswith('records'):
+            self.storage_url = self.env.storage_url
+        else:
+            self.storage_url = self.env.storage_url + 'records'
+            
         self.client = ApiClient(host=self.storage_url)
         self.header['data-partition-id'] = self.env.data_partition_id
         self.header['Content-Type'] = 'application/json'
