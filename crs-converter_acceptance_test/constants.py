@@ -5,7 +5,7 @@ BASE_URL = os.getenv("BASE_URL", '/api/crs/converter')
 if VENDOR == 'ibm':
     ROOT_URL = os.getenv("IBM_VIRTUAL_HOST_CRS_CONVERSION")
 else:
-    ROOT_URL = os.getenv("HOST_URL")
+    ROOT_URL = os.getenv("VIRTUAL_SERVICE_HOST_NAME")
 STORAGE_URL=os.getenv("STORAGE_URL", "NOT_FOUND")
 DATA_DIR = os.getenv("DATA_DIR")
 DATA_PATTERN = os.getenv("DATA_PATTERN")
