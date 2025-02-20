@@ -16,6 +16,9 @@ out/
 .venv
 /**/env
 
+# shemathesis
+.hypothesis/
+
 #.pyc files in all directories
 **/*.pyc
 
