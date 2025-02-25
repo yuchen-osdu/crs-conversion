@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: {{ .Values.conf.appName | quote }}
-    type: helper
+    type: core
     source: java
   name: {{ .Values.conf.appName | quote }}
   namespace: {{ .Release.Namespace | quote }}

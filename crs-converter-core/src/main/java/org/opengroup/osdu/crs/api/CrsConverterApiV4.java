@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppError;
+import org.opengroup.osdu.core.common.model.http.AppException;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.core.common.model.storage.MultiRecordInfo;
 import org.opengroup.osdu.core.common.model.storage.Record;
 import org.opengroup.osdu.crs.GeoJson.GeoJsonFeatureCollection;
 import org.opengroup.osdu.crs.interfaces.ICRSConverter;
@@ -21,6 +23,7 @@ import org.opengroup.osdu.crs.osducoreserviceclient.storage.IStorageClient;
 import org.opengroup.osdu.crs.util.Constants;
 import org.opengroup.osdu.crs.util.RecordCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
@@ -29,11 +32,15 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.opengroup.osdu.crs.util.RecordIdNormalizer;
 
@@ -46,6 +53,7 @@ public class CrsConverterApiV4 {
     private static final String PROJECTED = "Projected";
     private static final String UTF_8 = "UTF-8";
     private static final String RECORD_NOT_FOUND = "record not found:";
+    private static final String UNIT_OF_MEASURE = "UnitOfMeasure";
     private final ITrajectoryConverter crsTrajectoryConverter;
     @Autowired
     private JaxRsDpsLog logger;
@@ -83,17 +91,49 @@ public class CrsConverterApiV4 {
         }
 
         temp = RecordIdNormalizer.normalizeRecordID(temp);
-
-        Record dataRecord = storageClient.getRecord(temp);
-        if (dataRecord == null)
-            throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
-        pr = dataRecord.getData().get("PersistableReference").toString();
-        if (pr != null) {
-            recordCache.put(temp, pr);
-            return pr;
-        } else {
-            throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
+        Record dataRecord;
+        try {
+            dataRecord = storageClient.getRecord(temp);
         }
+        catch(RuntimeException exception){
+            if(temp.contains(UNIT_OF_MEASURE)){
+                String[] parts = temp.split(":");
+                Pattern pattern = Pattern.compile("[!@#\\$%^&*()_+\\-=\\[\\] {};':\"\\\\|,.<>\\/?~`]");
+                Matcher matcher = pattern.matcher(parts[parts.length - 1]);
+                String decodedRecord = URLDecoder.decode(temp, StandardCharsets.UTF_8);
+                if (!temp.equals(decodedRecord) || matcher.find()) {
+                    Collection collection = new ArrayList();
+                    collection.add(temp);
+                    MultiRecordInfo multiDataRecord = storageClient.getRecords(collection);
+                    if (multiDataRecord == null || multiDataRecord.getRecords().size() == 0)
+                        throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
+                    else{
+                        Map<String, Object> data = multiDataRecord.getRecords().get(0).getData();
+                        pr = data.get("PersistableReference").toString();
+                        if (pr != null) {
+                            recordCache.put(temp, pr);
+                            return pr;
+                        } else {
+                            throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
+                        }
+                    }
+                } else
+                    throw new AppException(HttpStatus.BAD_REQUEST.value(), "Error getting record",
+                            "Please check the input type and format and try again.");
+            }else
+                throw new AppException(HttpStatus.BAD_REQUEST.value(), "Error getting record",
+                        "Please check the input type and format and try again.");
+
+        }
+            if (dataRecord == null)
+                throw new ValidationException(String.join(" ", RECORD_NOT_FOUND, temp));
+            pr = dataRecord.getData().get("PersistableReference").toString();
+            if (pr != null) {
+                recordCache.put(temp, pr);
+                return pr;
+            } else {
+                throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
+            }
     }
 
     public String getUnitFromTrajectoryCRS(String trajectoryCRS) {

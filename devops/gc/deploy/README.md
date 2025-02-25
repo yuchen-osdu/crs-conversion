@@ -43,7 +43,6 @@ First you need to set variables in **values.yaml** file using any code editor. S
 |------|-------------|------|---------|---------|
 | **data.logLevel** | logging severity level for this service only  | string | - | yes, only if differs from the `global.logLevel` |
 | **data.sisData**  | path to Apache SIS library | string | `/crs-converter/apachesis_setup/SIS_DATA` | yes |
-| **data.storageHost** | Storage service host address | string | `http://storage` | yes |
 | **data.entitlementsHost** | Entitlements service host address | string | `http://entitlements` | yes |
 
 ### Deployment variables

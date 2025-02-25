@@ -16,7 +16,7 @@
         <log4j2.version>2.17.1</log4j2.version>
         <os-core-common.version>3.0.0</os-core-common.version>
         <jackson.version>2.17.1</jackson.version>
-        <spring-boot.version>3.3.5</spring-boot.version>
+        <spring-boot.version>3.3.7</spring-boot.version>
         <spring-security.version>6.3.4</spring-security.version>
 
     </properties>
@@ -31,7 +31,7 @@
 
 	<groupId>org.opengroup.osdu.crs-converter-service</groupId>
 	<artifactId>crs-converter-service</artifactId>
-	<version>0.28.0-SNAPSHOT</version>
+	<version>0.29.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>crs-converter-service</name>
 	<description>crs-converter service</description>
