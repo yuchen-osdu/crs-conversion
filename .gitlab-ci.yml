@@ -63,14 +63,6 @@ include:
     file: "cloud-providers/core-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/core-variables.yml"
-    ref: "feature/acceptance-tests-python-stage"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/core-gke.yml"
-    ref: "feature/acceptance-tests-python-stage"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/pages.yml"
 
   - local: "devops/gc/pipeline/override-stages.yml"
