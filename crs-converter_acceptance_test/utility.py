@@ -24,9 +24,6 @@ class TestEnvironment(object):
     def __init__(self):
         self.base_url = constants.BASE_URL
         self.root_url = constants.ROOT_URL
-        self.data_dir = constants.DATA_DIR
-        self.data_pattern = constants.DATA_PATTERN
-        self.report_path = constants.REPORT_PATH
         self.data_partition_id = constants.MY_TENANT
         self.storage_url = constants.STORAGE_URL
         self.my_replace_domain = constants.MY_REPLACE_DOMAIN
