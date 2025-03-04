@@ -472,13 +472,6 @@ The following software have components provided under the terms of this license:
 - tomcat-embed-core (from http://tomcat.apache.org/)
 
 ========================================================================
-hsql
-========================================================================
-THe following software have components under the terms of this license:
-
-- HyperSQL Database (from http://hsqldb.org)
-
-========================================================================
 ISC
 ========================================================================
 The following software have components provided under the terms of this license:
@@ -523,6 +516,7 @@ The following software have components provided under the terms of this license:
 - Java Client Runtime for AutoRest (from https://github.com/Azure/autorest-clientruntime-for-java)
 - Java JWT (from http://www.jwt.io, https://github.com/auth0/java-jwt)
 - Jetty :: Utilities (from http://jetty.mortbay.org, http://www.eclipse.org/jetty, https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util, https://repo1.maven.org/maven2/org/mortbay/jetty/jetty-util)
+- Lettuce (from http://github.com/lettuce-io/lettuce-core, http://github.com/mp911de/lettuce/wiki, https://github.com/lettuce-io/lettuce-core/wiki)
 - Microsoft Application Insights Java Agent (from https://github.com/Microsoft/ApplicationInsights-Java)
 - Microsoft Azure Java Core AMQP Library (from https://github.com/Azure/azure-sdk-for-java)
 - Microsoft Azure Java Core Library (from https://github.com/Azure/azure-sdk-for-java)
@@ -595,6 +589,13 @@ gpl-2.0-classpath
 The following software have components provided under the terms of this license:
 
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
+
+========================================================================
+hsql
+========================================================================
+The following software have components provided under the terms of this license:
+
+- HyperSQL Database (from http://hsqldb.org)
 
 ========================================================================
 ogc-1.0
