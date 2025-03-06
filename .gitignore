@@ -13,8 +13,11 @@ out/
 
 # Python, virtualenv
 /venv
-testing/*/venv/
-testing/*/env/
+.venv
+/**/env
+
+# shemathesis
+.hypothesis/
 
 #.pyc files in all directories
 **/*.pyc
