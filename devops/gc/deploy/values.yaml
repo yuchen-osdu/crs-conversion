@@ -14,6 +14,7 @@ data:
   #configmaps
   logLevel: ""
   sisData: "/crs-converter/apachesis_setup/SIS_DATA"
+  storageHost: "http://storage"
   entitlementsHost: "http://entitlements"
   #deployments
   requestsCpu: "5m"
