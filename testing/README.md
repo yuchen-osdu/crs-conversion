@@ -2,13 +2,13 @@
 
 ## Folder structure
 
-testing/  
+testing/
 
-* crs_converter_test_core/  
+* crs_converter_test_core/
   * ...
-* crs_converter_test_$PROVIDER_NAME/  
-  * jwt_client.py  
-  * run_test.py  
+* crs_converter_test_$PROVIDER_NAME/
+  * jwt_client.py
+  * run_test.py
 
 This integration test uses a swagger generated Python client to test a
 deployed crs-converter service. The source is located in this repository
@@ -92,17 +92,7 @@ python3 run_test.py
 
 ### Azure Tests
 
-For the python tests to run in Azure, the CI-CD pipeline copies the SIS_DATA folder to the shared storage for the pods to read. If you are setting up the environment manually and not using Azure CI-CD Pipeline, make sure to copy the folder
-
-Sample code:
-
-```bash
-search_dir="apachesis_setup/SIS_DATA"
-  find "$search_dir/" -type f -print0 | while read -d $'\0' file; do
-        echo "File: $file"
-    az storage file upload --account-name $accountName --account-key $accountKey --share-name $SHARE_NAME --source "$file" --path "$file"
-  done
-```
+For the python tests to run in Azure, the CI-CD pipeline copies the SIS_DATA folder to the shared storage for the pods to read. If you are setting up the environment manually and not using Azure CI-CD Pipeline, make sure to copy the folder following [this](https://community.opengroup.org/osdu/platform/deployment-and-operations/infra-azure-provisioning/-/blob/master/docs/configuration-data.md#crs-conversion).
 
 **Note:** To simulate a runtime exactly as that of the vsts build agent, you can simply exec into the docker image we use for the build agent, and run the tests from inside it. To know how to do this, please follow [this](https://slb-swt.visualstudio.com/data-at-rest/_git/dps-vsts-build-agent?path=%2FREADME.md&version=GBmaster) documentation.
 
