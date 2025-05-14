@@ -5,7 +5,7 @@ variables:
   GC_INT_TEST_TYPE: python
   GC_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_gc
 
-gc-test-python:
+gc-acceptance-test-python:
   variables:
     VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
 
