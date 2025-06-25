@@ -23,7 +23,7 @@ env:
     DOCKER_PASSWORD: /osdu/devops/docker_credentials:password
     SONAR_USERNAME: /osdu/devops/sonar_credentials:username
     SONAR_PASSWORD: /osdu/devops/sonar_credentials:password
-  
+
   parameter-store:
     SONAR_URL: /osdu/devops/sonar_url
 
@@ -71,7 +71,7 @@ phases:
       - mvn -B test install -P core,aws -Ddeployment.environment=prod
       - mvn sonar:sonar -P aws -Dsonar.login=${SONAR_USERNAME} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.host.url=${SONAR_URL}
 
-      - echo "Building integration testing assemblies and gathering artifacts..."      
+      - echo "Building integration testing assemblies and gathering artifacts..."
       - ./testing/crs_converter_test_aws/build-aws/prepare-dist.sh
 
       - echo "Logging into Docker Hub..."
@@ -88,6 +88,16 @@ phases:
         --commitMessage "\"${COMMIT_MESSAGE}\"" --commitAuthor "\"${COMMIT_AUTHOR}\"" --commitDate "\"${COMMIT_DATE}\"" \
         --buildid ${CODEBUILD_BUILD_ID} --buildnumber ${CODEBUILD_BUILD_NUMBER} --reponame ${REPO_NAME} --outdir ${OUTPUT_DIR} \
         --artifact ${ECR_IMAGE}
+
+  post_build:
+    commands:
+      - mkdir -p ${OUTPUT_DIR}/acceptance-tests
+      - cp -r crs-converter_acceptance_test/* ${OUTPUT_DIR}/acceptance-tests
+      - cp testing/crs_converter_test_aws/build-aws/run-acceptance-tests.sh ${OUTPUT_DIR}/acceptance-tests
+      - cp testing/crs_converter_test_aws/build-aws/run_test_v2.py ${OUTPUT_DIR}/acceptance-tests
+      - cp testing/crs_converter_test_aws/build-aws/run_test_v3.py ${OUTPUT_DIR}/acceptance-tests
+      - cp testing/crs_converter_test_aws/build-aws/run_test_v4.py ${OUTPUT_DIR}/acceptance-tests
+
 reports:
   SurefireReports: # CodeBuild will create a report group called "SurefireReports".
     files: #Store all of the files
