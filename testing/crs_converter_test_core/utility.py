@@ -4,7 +4,7 @@ import math
 import os
 import json
 import pprint
-from crs_converter_test_core.v2.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point
+from crs_converter_test_core.v3.swagger_client.models import ConvertPointsResponse, ConvertPointsRequest, Point
 import crs_converter_test_core.constants as constants
 
 
@@ -32,6 +32,7 @@ class TestEnvironment(object):
         self.my_replace_domain = constants.MY_REPLACE_DOMAIN
         self.my_test_id = constants.MY_TEST_ID
         self.my_legal_tag = constants.MY_LEGAL_TAG
+        self.vendor = constants.VENDOR
 
     def is_ok(self):
         """Returns true if all expected environment variables are defined."""

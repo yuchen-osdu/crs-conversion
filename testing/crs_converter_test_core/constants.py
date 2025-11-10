@@ -1,6 +1,6 @@
 import os
 
-VENDOR = os.getenv("VENDOR")
+VENDOR = os.getenv("VENDOR", "NOT_FOUND").lower()
 BASE_URL = os.getenv("BASE_URL", '/api/crs/converter')
 if VENDOR == 'ibm':
     ROOT_URL = os.getenv("IBM_VIRTUAL_HOST_CRS_CONVERSION")
