@@ -1,2 +1,3 @@
 schemathesis
 python-dotenv
+tenacity>=8.2.3

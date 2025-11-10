@@ -4,16 +4,26 @@ import unittest
 import os
 import math
 import json
+
+from http import HTTPStatus
 from os import listdir
 from os.path import isfile, join
-from time import sleep
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 import urllib3
+import uuid
 
 urllib3.disable_warnings()
 import warnings
 import logging
-logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+import time
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logging.Formatter.converter = time.gmtime
+logger = logging.getLogger(__name__)
 
 from v3.swagger_client import ApiClient, CRSConversionApi, \
     TrajectoryComputationAndConversionApi, \
@@ -52,6 +62,13 @@ FROM_CRS_7844003 = "{\"authCode\":{\"auth\":\"OSDU\",\"code\":\"7844003\"},\"lat
                    "PARAMETER[\\\"Z_Axis_Rotation\\\",-0.0328979],PARAMETER[\\\"Scale_Difference\\\",-0.009994]," \
                    "OPERATIONACCURACY[3.1],AUTHORITY[\\\"EPSG\\\",9690]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"} "
 
+STORAGE_DATA_RECORDS_FILE_PATH = os.path.join(os.path.dirname(__file__), "v3/data/Storagerecords/")
+INGEST_PREREQ_DATA_RECORD_FILE_NAME = "coordinateReferenceSystemRecord.json"
+INGEST_PREREQ_DATA_RECORD_FILE_PATH = os.path.join(os.path.dirname(STORAGE_DATA_RECORDS_FILE_PATH), INGEST_PREREQ_DATA_RECORD_FILE_NAME)
+
+MAX_RETRY_ATTEMPTS = 3
+MIN_RETRY_WAIT_IN_SECONDS = 5
+MAX_RETRY_WAIT_IN_SECONDS = 30
 
 def is_close(a, b, rel_tol=1e-09, abs_tol=0.0):
     """Compare a double
@@ -67,7 +84,7 @@ def convertString(str):
     DOMAIN_TO_REPLACE = '{{DOMAIN}}'
     TAG_TO_REPLACE = '{{LEGAL_TAG}}'
     TEST_ID_REPLACE = '{{TEST_ID}}'
-    env = TestEnvironment() 
+    env = TestEnvironment()
     body_str = str
     body_str = body_str.replace(DATA_PARTITION_TO_REPLACE, env.data_partition_id)
     body_str = body_str.replace(DOMAIN_TO_REPLACE, env.my_replace_domain)
@@ -75,6 +92,19 @@ def convertString(str):
     body_str = body_str.replace(TEST_ID_REPLACE, env.my_test_id)
     return body_str
 
+
+def retry_if_status_code(exception):
+    """Retry if the exception contains one of the following status codes"""
+    if isinstance(exception, ApiException):
+        # List of status codes that should trigger retries
+        retry_status_codes = [
+            HTTPStatus.TOO_MANY_REQUESTS,       # 429
+            HTTPStatus.BAD_GATEWAY,             # 502
+            HTTPStatus.SERVICE_UNAVAILABLE,     # 503
+            HTTPStatus.GATEWAY_TIMEOUT,         # 504
+        ]
+        return exception.status in retry_status_codes
+    return False
 
 class TestDataReader(object):
     """Read a test data set and return a dictionary"""
@@ -312,7 +342,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             self.assertTrue(ok, 'Actual response is different from expected response.')
         except ApiException as e:
             self.fail(str(e))
-    
+
     def test_conversion_only_ID(self):
         """Read from data/ConversionOnly.json and convert/transform"""
         reader = TestDataReader('ConversionOnly_ID.json')
@@ -757,13 +787,13 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             # Convert a list of points
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
-        except ApiException as e:   
-            VENDOR = os.getenv("VENDOR")
-            if VENDOR == "azure" or VENDOR == "ibm":
+        except ApiException as e:
+            vendor = os.getenv("vendor")
+            if vendor == "azure" or vendor == "ibm":
                 reason = e.reason
             else:
                 reason = json.loads(e.body)['reason']
-            
+
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue(reason in ["Forbidden", "Unauthorized", "Entitlement Error", "Access denied"])
 
@@ -807,7 +837,7 @@ class TestRecords(unittest.TestCase):
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
     DOMAIN_TO_REPLACE = '{{DOMAIN}}'
     TAG_TO_REPLACE = '{{LEGAL_TAG}}'
-    TEST_ID_REPLACE = '{{TEST_ID}}' 
+    TEST_ID_REPLACE = '{{TEST_ID}}'
     def setup(self):
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
         warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<socket.socket.*>")
@@ -837,6 +867,8 @@ class TestRecords(unittest.TestCase):
         self.header['data-partition-id']=self.env.data_partition_id
         self.header['Content-Type']='application/json'
         self.header['Authorization']='Bearer ' + bearer
+        self.header['correlation-id'] = str(uuid.uuid4())
+
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
         self.put_records()
@@ -845,38 +877,109 @@ class TestRecords(unittest.TestCase):
         #print('delete_records() will be called after v4 test cases complete in test_crs_converter_v4.py file.')
         self.delete_records()
 
+
+
+    def render_record_template(self, record_file_path):
+        """render record template"""
+        body_str = open(record_file_path, 'r').read()
+        body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
+        body_str = body_str.replace(self.DOMAIN_TO_REPLACE, self.env.my_replace_domain)
+        body_str = body_str.replace(self.TAG_TO_REPLACE, self.env.my_legal_tag)
+        body_str = body_str.replace(self.TEST_ID_REPLACE, self.env.my_test_id)
+        temp = json.loads(body_str)
+
+        if len(temp) == 0:
+            self.fail('No records found in the file: ' + record_file_path)
+
+        self.recordIDs.append(temp[0].get('id'))
+        return body_str
+
+    def construct_storage_records_url(self):
+        """construct storage records url"""
+        storage_url = self.env.storage_url.rstrip('/')
+        if storage_url.endswith('/records'):
+            storage_record_url = storage_url
+        else:
+            storage_record_url = storage_url + "/records"
+        return storage_record_url
+
+    @retry(
+        retry=retry_if_exception(retry_if_status_code),
+        stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
+        wait=wait_exponential(min=MIN_RETRY_WAIT_IN_SECONDS, max=MAX_RETRY_WAIT_IN_SECONDS)
+    )
+    def send_api_request(self, url, method="GET", headers=None, body=None):
+        """send api request"""
+        try:
+            api_response = self.client.request(method=method, url=url, headers=headers, body=body)
+            return api_response
+        except ApiException as e:
+            raise
+
+    def check_records(self, expect_records_deletion=False):
+        """check the existent of the records"""
+        for record_id in self.recordIDs:
+            storage_get_record_by_id_url = self.construct_storage_records_url() + '/' + record_id
+            try:
+                api_response = self.send_api_request(
+                    url=storage_get_record_by_id_url,
+                    method="GET",
+                    headers=self.header
+                )
+                self.assertIsNotNone(api_response)
+            except ApiException as e:
+                if not expect_records_deletion:
+                    self.fail(f'Failed to retrieve the record {record_id} due to ' + str(e))
+                self.assertEqual(e.status, HTTPStatus.NOT_FOUND)
+
+    def ingest_prereq_record_for_tests(self):
+        """ingest prerequisite record for tests"""
+
+        logger.info(f'Ingesting initial {INGEST_PREREQ_DATA_RECORD_FILE_NAME} record for tests.')
+        body_str = self.render_record_template(INGEST_PREREQ_DATA_RECORD_FILE_PATH)
+        try:
+            api_response = self.send_api_request(method='PUT', url=self.construct_storage_records_url(), body=json.loads(body_str), headers=self.header)
+            self.assertIsNotNone(api_response)
+        except ApiException as e:
+            self.fail(f'Failed to ingest initial test {INGEST_PREREQ_DATA_RECORD_FILE_NAME} record due to ' + str(e))
+
+        # Ensure that the initial record is available
+        self.check_records()
+
     def put_records(self):
         """test put records"""
-        dir_path = os.path.dirname(__file__)
-        mypath = os.path.join(dir_path, "v3/data/Storagerecords/")
-        files = [os.path.join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
-        print('Request URL for upsert records: ' + self.storage_url)
-        for file_name in files:
-            body_str = open(file_name, 'r').read()
-            body_str = body_str.replace(self.DATA_PARTITION_TO_REPLACE, self.env.data_partition_id)
-            body_str = body_str.replace(self.DOMAIN_TO_REPLACE, self.env.my_replace_domain)
-            body_str = body_str.replace(self.TAG_TO_REPLACE, self.env.my_legal_tag)
-            body_str = body_str.replace(self.TEST_ID_REPLACE, self.env.my_test_id)
-            temp = json.loads(body_str)
-            self.recordIDs.append(temp[0].get('id'))
+        files = [os.path.join(STORAGE_DATA_RECORDS_FILE_PATH, f) for f in listdir(STORAGE_DATA_RECORDS_FILE_PATH)
+                if isfile(join(STORAGE_DATA_RECORDS_FILE_PATH, f)) and f != INGEST_PREREQ_DATA_RECORD_FILE_NAME]
 
+        storage_put_record_url = self.construct_storage_records_url()
+
+        logger.info('Request URL for upsert records: ' + storage_put_record_url)
+        for file_name in files:
+            body_str = self.render_record_template(file_name)
             try:
-                api_response = self.client.request(method='PUT', url=self.storage_url, body=json.loads(body_str), headers=self.header)
+                api_response = self.send_api_request(method='PUT', url=storage_put_record_url, body=json.loads(body_str), headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
                 self.fail(str(e))
-        sleep(30) # Wait for the records to become searchable
+                self.fail(f'Failed to ingest {os.path.basename(file_name)} record due to ' + str(e))
+
+        # Ensure that the records are available
+        self.check_records()
 
     def delete_records(self):
         """test delete records"""
-        print('Request URL for delete records: ' + self.storage_url)
+        storage_delete_record_url = self.construct_storage_records_url()
+        logger.info('Request URL for delete records: ' + storage_delete_record_url)
         for id in self.recordIDs:
             try:
-                delete_url = self.storage_url+'/'+id
-                api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
+                delete_url = storage_delete_record_url + '/' + id
+                api_response = self.send_api_request(method='DELETE', url=delete_url, headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
+                self.fail(f'Failed to delete {id} record due to ' + str(e))
+        # Ensure that the records are deleted
+        self.check_records(expect_records_deletion=True)
+
 
 def suite():
     suite = unittest.TestSuite()

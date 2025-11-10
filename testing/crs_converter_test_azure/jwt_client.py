@@ -1,8 +1,14 @@
 import os
 import msal
 import logging
-logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
-
+import time
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logging.Formatter.converter = time.gmtime
+logger = logging.getLogger(__name__)
 
 def get_id_token():
     # Generate valid Token for given tenant.
@@ -13,6 +19,23 @@ def get_id_token():
     authority_host_uri = 'https://login.microsoftonline.com'
     authority_uri = authority_host_uri + '/' + tenant_id
     scopes = [resource_id + '/.default']
+    integration_tester_access_token = os.getenv('INTEGRATION_TESTER_ACCESS_TOKEN')
+
+    if integration_tester_access_token:
+        logger.info("Using bearer token from environment variable: INTEGRATION_TESTER_ACCESS_TOKEN")
+        return integration_tester_access_token
+    else:
+        logger.info("Generating bearer token using SPN client id and secret since environment variable INTEGRATION_TESTER_ACCESS_TOKEN is null/not defined")
+
+        # Log warnings if any required variable is missing
+        if not tenant_id:
+            logger.warning("AZURE_TENANT_ID is not set or empty.")
+        if not resource_id:
+            logger.warning("AZURE_AD_APP_RESOURCE_ID is not set or empty.")
+        if not client_id:
+            logger.warning("INTEGRATION_TESTER is not set or empty.")
+        if not client_secret:
+            logger.warning("AZURE_TESTER_SERVICEPRINCIPAL_SECRET is not set or empty.")
 
     try:
         app = msal.ConfidentialClientApplication(client_id=client_id, authority=authority_uri, client_credential=client_secret)
