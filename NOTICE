@@ -43,9 +43,9 @@ The following software have components provided under the terms of this license:
 - Apache SIS utilities (from https://repo1.maven.org/maven2/org/apache/sis/core/sis-utility)
 - AssertJ Core (from https://assertj.github.io/doc/#assertj-core)
 - Asynchronous Http Client (from https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client)
-- Asynchronous Http Client Netty Utils (from https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client-netty-utils)
+- Asynchronous Http Client Netty Utils (from http://github.com/AsyncHttpClient/async-http-client, https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client-netty-utils)
 - Awaitility (from http://awaitility.org)
-- Bean Validation API (from http://beanvalidation.org)
+- Bean Validation API (from http://beanvalidation.org, http://beanvalidation.org/)
 - Byte Buddy (without dependencies) (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
 - CDI APIs (from http://cdi-spec.org)
@@ -77,7 +77,7 @@ The following software have components provided under the terms of this license:
 - Google HTTP Client Library for Java (from https://repo1.maven.org/maven2/com/google/http-client/google-http-client)
 - Gson (from http://code.google.com/p/google-gson/, https://repo1.maven.org/maven2/com/google/code/gson/gson)
 - Guava InternalFutureFailureAccess and InternalFutures (from https://repo1.maven.org/maven2/com/google/guava/failureaccess)
-- Guava ListenableFuture only (from https://repo1.maven.org/maven2/com/google/guava/listenablefuture)
+- Guava ListenableFuture only (from https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/listenablefuture)
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HTTP functionality for the Reactor Netty library (from https://github.com/reactor/reactor-netty)
 - Hibernate Validator (from https://hibernate.org/validator, https://repo1.maven.org/maven2/org/hibernate/hibernate-validator, https://repo1.maven.org/maven2/org/hibernate/validator/hibernate-validator)
@@ -86,7 +86,7 @@ The following software have components provided under the terms of this license:
 - IBM COS SDK For Java (from https://github.com/ibm/ibm-cos-sdk-java)
 - IBM COS SDK for Java - Core (from https://github.com/ibm/ibm-cos-sdk-java)
 - J2ObjC Annotations (from https://github.com/google/j2objc/)
-- JBoss Logging 3 (from http://www.jboss.org)
+- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org)
 - JCIP Annotations under Apache License (from http://stephenc.github.com/jcip-annotations)
 - JJWT :: API (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt-api)
 - JJWT :: Extensions :: Jackson (from https://repo1.maven.org/maven2/io/jsonwebtoken/jjwt-jackson)
@@ -159,7 +159,7 @@ The following software have components provided under the terms of this license:
 - Nimbus LangTag (from https://bitbucket.org/connect2id/nimbus-language-tags)
 - Non-Blocking Reactive Foundation for the JVM (from https://github.com/reactor/reactor, https://github.com/reactor/reactor-core)
 - OAuth 2.0 SDK with OpenID Connect extensions (from https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions)
-- Objenesis (from https://repo1.maven.org/maven2/org/objenesis/objenesis, https://repository.cloudera.com/artifactory/cloudera-repos/org/objenesis/objenesis)
+- Objenesis (from https://repo1.maven.org/maven2/org/objenesis/objenesis)
 - OkHttp (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp, https://square.github.io/okhttp/)
 - OkHttp Logging Interceptor (from https://github.com/square/okhttp, https://repo1.maven.org/maven2/com/squareup/okhttp3/logging-interceptor, https://square.github.io/okhttp/)
 - OkHttp URLConnection (from https://repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection, https://square.github.io/okhttp/)
@@ -228,7 +228,7 @@ The following software have components provided under the terms of this license:
 - org.apiguardian:apiguardian-api (from https://github.com/apiguardian-team/apiguardian)
 - org.opentest4j:opentest4j (from https://github.com/ota4j-team/opentest4j)
 - org.xmlunit:xmlunit-core (from http://www.xmlunit.org/, https://www.xmlunit.org/)
-- resilience4j (from https://github.com/resilience4j/resilience4j, https://resilience4j.readme.io, ttps://resilience4j.readme.io)
+- resilience4j (from https://github.com/resilience4j/resilience4j, https://resilience4j.readme.io/, ttps://resilience4j.readme.io)
 - spring-security-oauth2-client (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - spring-security-oauth2-core (from http://spring.io/spring-security, https://spring.io/projects/spring-security, https://spring.io/spring-security)
 - springdoc-openapi-starter-common (from https://repo1.maven.org/maven2/org/springdoc/springdoc-openapi-starter-common)
@@ -283,7 +283,7 @@ The following software have components provided under the terms of this license:
 - Jakarta WebSocket - Client API (from https://projects.eclipse.org/projects/ee4j.websocket)
 - Jakarta WebSocket - Server API (from https://projects.eclipse.org/projects/ee4j.websocket, https://repo1.maven.org/maven2/org/jboss/spec/javax/websocket/jboss-websocket-api_1.1_spec)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
-- Kryo (from https://repo1.maven.org/maven2/com/esotericsoftware/kryo)
+- Kryo (from https://github.com/EsotericSoftware/kryo)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
 - Netty/Codec/HTTP (from https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Old JAXB Core (from <https://eclipse-ee4j.github.io/jaxb-ri/>, https://eclipse-ee4j.github.io/jaxb-ri/, https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl)
@@ -354,7 +354,7 @@ CPL-1.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- JUnit (from http://junit.org)
+- JUnit (from http://junit.org, http://junit.org/)
 
 ========================================================================
 DOC
@@ -426,7 +426,6 @@ The following software have components provided under the terms of this license:
 - Jakarta Interceptors (from https://github.com/jakartaee/interceptors)
 - Jakarta Messaging API (from https://projects.eclipse.org/projects/ee4j.jms)
 - Jakarta Servlet (from https://projects.eclipse.org/projects/ee4j.servlet)
-- Jakarta Validation API (from https://beanvalidation.org)
 - Jakarta WebSocket - Client API (from https://projects.eclipse.org/projects/ee4j.websocket)
 - Jakarta WebSocket - Server API (from https://projects.eclipse.org/projects/ee4j.websocket, https://repo1.maven.org/maven2/org/jboss/spec/javax/websocket/jboss-websocket-api_1.1_spec)
 - Jakarta XML Binding API (from https://repo1.maven.org/maven2/jakarta/xml/bind/jakarta.xml.bind-api, https://repo1.maven.org/maven2/org/jboss/spec/javax/xml/bind/jboss-jaxb-api_2.3_spec)
@@ -632,7 +631,7 @@ public-domain
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- JBoss Logging 3 (from http://www.jboss.org)
+- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org)
 - JSON in Java (from https://github.com/douglascrockford/JSON-java)
 
 ========================================================================
@@ -640,4 +639,4 @@ unknown
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- JUnit (from http://junit.org)
+- JUnit (from http://junit.org, http://junit.org/)
