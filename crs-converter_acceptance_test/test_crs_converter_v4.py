@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+import allure
 import warnings
 
 from os import listdir
@@ -33,6 +34,8 @@ def convertString(str):
     return body_str
 
 
+@allure.feature('CRS Converter Trajectory Conversion')
+@allure.epic('CRS Converter v4 Integration Tests')
 class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
     """Post deployment tests for v4 trajectory-converter service"""
 
@@ -94,10 +97,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.scale_convergence_list[0].scalefactor, 0.999723)
-            self.assertEquals(api_response.scale_convergence_list[0].convergence, -1.47055)
-            self.assertEquals(api_response.scale_convergence_list[1].scalefactor, 0.999699)
-            self.assertEquals(api_response.scale_convergence_list[1].convergence, -1.32361)
+            self.assertEqual(api_response.scale_convergence_list[0].scalefactor, 0.999723)
+            self.assertEqual(api_response.scale_convergence_list[0].convergence, -1.47055)
+            self.assertEqual(api_response.scale_convergence_list[1].scalefactor, 0.999699)
+            self.assertEqual(api_response.scale_convergence_list[1].convergence, -1.32361)
         except ApiException as e:
             self.fail(str(e))
             
@@ -110,8 +113,8 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.stations[len(api_response.stations)-1].dls, 0.0)
-            self.assertEquals(api_response.stations_i[len(api_response.stations_i)-1].dls, 0.0)
+            self.assertEqual(api_response.stations[len(api_response.stations)-1].dls, 0.0)
+            self.assertEqual(api_response.stations_i[len(api_response.stations_i)-1].dls, 0.0)
         except ApiException as e:
             self.fail(str(e))
             
@@ -155,10 +158,10 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.stations[0].dx_tn, 0.0)
-            self.assertEquals(api_response.stations[0].dy_tn, 0.0)
-            self.assertEquals(api_response.stations[0].point.x, 400000.0000000041)
-            self.assertEquals(api_response.stations[0].point.y, 2999999.9999999115)
+            self.assertEqual(api_response.stations[0].dx_tn, 0.0)
+            self.assertEqual(api_response.stations[0].dy_tn, 0.0)
+            self.assertEqual(api_response.stations[0].point.x, 400000.0000000041)
+            self.assertEqual(api_response.stations[0].point.y, 2999999.9999999115)
         except ApiException as e:
             self.fail(str(e))
 
@@ -226,6 +229,8 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
                                                   input_kind=r_dict['inputKind'], interpolate=r_dict['interpolate'])
 
 
+@allure.feature('CRS Converter Records')
+@allure.epic('CRS Converter v4 Integration Tests')
 class TestRecords(unittest.TestCase):
     """Test the info end-points"""
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'
