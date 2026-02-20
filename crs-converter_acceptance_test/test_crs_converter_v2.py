@@ -1,6 +1,7 @@
 # coding: utf-8
 """Integration unit tests for crs-converter"""
 import unittest
+import allure
 import os
 import math
 import json
@@ -198,6 +199,8 @@ class CompareResponseWithExpectation(object):
         return same
 
 
+@allure.feature('CRS Converter Point and GeoJSON Conversion')
+@allure.epic('CRS Converter v2 Integration Tests')
 class TestCrsConverterIntegration(unittest.TestCase):
     """Post deployment tests for crs-converter service"""
 
@@ -303,7 +306,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             api_response = self.api_instance.convert_point(body=body, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
             self.assertIsInstance(api_response, ConvertPointsResponse)
-            self.assertEquals(api_response.success_count, 1)
+            self.assertEqual(api_response.success_count, 1)
             self.assertTrue(is_close(api_response.points[0].x, 586399.4230309083))
             self.assertTrue(is_close(api_response.points[0].y, 448578.26031172264))
             self.assertTrue(is_close(api_response.points[0].z, 0))
@@ -319,12 +322,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a GeoJSON or AnyCrsGeoJson structure
             api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+            self.assertEqual(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
             #  prepare round-trip
             n_request = ConvertGeoJsonRequest(to_crs=WGS84, feature_collection=api_response.feature_collection)
             api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+            self.assertEqual(api_response.feature_collection.type, 'FeatureCollection')
             c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
             ok = c.compare_feature_collections()
             self.assertTrue(ok, 'Actual response is different from expected response.')
@@ -340,12 +343,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
 
         api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'FeatureCollection')
         #  prepare round-trip
         n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
         api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
         c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
         ok = c.compare_feature_collections()
         self.assertTrue(ok, 'Actual response is different from expected response.')
@@ -372,6 +375,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
             fc.bbox = r_dict['featureCollection']['bbox']
         return ConvertGeoJsonRequest(to_crs=r_dict['toCRS'], feature_collection=fc)
 
+@allure.feature('CRS Converter Trajectory Conversion')
+@allure.epic('CRS Converter v2 Integration Tests')
 class TestTrajectoryConverterIntegration(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
 
@@ -490,6 +495,8 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
+@allure.feature('CRS Converter Unauthorized Access')
+@allure.epic('CRS Converter v2 Integration Tests')
 class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
     """Post deployment tests for crs-converter service"""
 
@@ -539,11 +546,21 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             if VENDOR == "azure" or VENDOR == "ibm":
                 reason = e.reason
             else:
-                reason = json.loads(e.body)['reason']
+                # Handle both JSON body and empty/plain text responses
+                try:
+                    if e.body:
+                        body_data = json.loads(e.body)
+                        reason = body_data.get('reason', e.reason)
+                    else:
+                        reason = e.reason
+                except (json.JSONDecodeError, ValueError):
+                    reason = e.reason
             
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue(reason in ["Forbidden", "Unauthorized", "Entitlement Error", "Access denied"])
 
+@allure.feature('CRS Converter Service Info')
+@allure.epic('CRS Converter v2 Integration Tests')
 class TestInfo(unittest.TestCase):
     """Test the info end-points"""
     @classmethod
@@ -580,6 +597,8 @@ class TestInfo(unittest.TestCase):
             self.fail(str(e))
 
 
+@allure.feature('CRS Converter Service Info (with slash)')
+@allure.epic('CRS Converter v2 Integration Tests')
 class TestInfoSlash(unittest.TestCase):
     """Test the info end-points"""
     @classmethod

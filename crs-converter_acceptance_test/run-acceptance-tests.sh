@@ -1,44 +1,31 @@
 #!/usr/bin/env bash
-python3 -m pip install --upgrade pip
 
-python3 -m venv env
-source env/bin/activate
+# Setup Python virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
-python3 -m pip install -r requirements.txt
-
-echo ""
-export API_VER="v2"
-echo ***RUNNING CATALOG API $API_VER SCHEMA TESTS***
-pytest -v run_test_v2.py
-TEST_STATUS_V2=$?
-echo ***FINISHED CATALOG API $API_VER SCHEMA TESTS***
-
-echo "TEST STATUS: $TEST_STATUS_V2"
+# Install Python dependencies
+pip install -q --upgrade pip
+pip install -q -r requirements.txt
+pip install -q -r v2/requirements.txt
 
 echo ""
-export API_VER="v3"
-echo ***RUNNING CATALOG API $API_VER SCHEMA TESTS***
-pytest -v run_test_v3.py
-TEST_STATUS_V3=$?
-echo ***FINISHED CATALOG API $API_VER SCHEMA TESTS***
+echo "***RUNNING CRS CONVERTER TESTS WITH ALLURE REPORTING***"
+echo ""
 
-echo "TEST STATUS: $TEST_STATUS_V3"
+# Run all tests with pytest (handles v2, v3, v4, both pytest and unittest tests)
+pytest test_api_v2.py test_api_v3.py test_api_v4.py \
+    test_crs_converter_v2.py test_crs_converter_v3.py test_crs_converter_v4.py \
+    --alluredir=cimpl/allure-results \
+    --clean-alluredir \
+    -v
+
+TEST_STATUS=$?
 
 echo ""
-export API_VER="v4"
-echo ***RUNNING CATALOG API $API_VER SCHEMA TESTS***
-pytest -v run_test_v4.py
-TEST_STATUS_V4=$?
-echo ***FINISHED CATALOG API $API_VER SCHEMA TESTS***
-
-echo "TEST STATUS: $TEST_STATUS_V4"
+echo "***FINISHED CRS CONVERTER TESTS***"
+echo ""
 
 deactivate
-rm -rf env/
 
-if [ $TEST_STATUS_V2 -ne 0 ] || [ $TEST_STATUS_V3 -ne 0 ] || [ $TEST_STATUS_V4 -ne 0 ]
-then
-  exit 1
-else
-  exit 0
-fi
+exit $TEST_STATUS

@@ -1,6 +1,7 @@
 # coding: utf-8
 """Integration unit tests for crs-converter"""
 import unittest
+import allure
 import os
 import math
 import json
@@ -265,6 +266,8 @@ class CompareResponseWithExpectation(object):
         return same
 
 
+@allure.feature('CRS Converter Point and GeoJSON Conversion')
+@allure.epic('CRS Converter v3 Integration Tests')
 class TestCrsConverterIntegration(unittest.TestCase):
     """Post deployment tests for crs-converter service"""
 
@@ -398,7 +401,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             api_response = self.api_instance.convert_point(body=body, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
             self.assertIsInstance(api_response, ConvertPointsResponse)
-            self.assertEquals(api_response.success_count, 1)
+            self.assertEqual(api_response.success_count, 1)
             self.assertTrue(is_close(api_response.points[0].x, 586399.4230309083))
             self.assertTrue(is_close(api_response.points[0].y, 448578.26031172264))
             self.assertTrue(is_close(api_response.points[0].z, 0))
@@ -417,7 +420,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
             api_response = self.api_instance.convert_point(body=body, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
             self.assertIsInstance(api_response, ConvertPointsResponse)
-            self.assertEquals(api_response.success_count, 1)
+            self.assertEqual(api_response.success_count, 1)
             self.assertTrue(is_close(api_response.points[0].x, 129.99999132871014))
             self.assertTrue(is_close(api_response.points[0].y, -30.000013761762506))
             self.assertTrue(is_close(api_response.points[0].z, 0))
@@ -433,12 +436,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a GeoJSON or AnyCrsGeoJson structure
             api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+            self.assertEqual(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
             #  prepare round-trip
             n_request = ConvertGeoJsonRequest(to_crs=WGS84, feature_collection=api_response.feature_collection)
             api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+            self.assertEqual(api_response.feature_collection.type, 'FeatureCollection')
             c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
             ok = c.compare_feature_collections()
             self.assertTrue(ok, 'Actual response is different from expected response.')
@@ -453,12 +456,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a GeoJSON or AnyCrsGeoJson structure
         api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'FeatureCollection')
         #  prepare round-trip
         n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
         api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
         c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
         ok = c.compare_feature_collections()
         self.assertTrue(ok, 'Actual response is different from expected response.')
@@ -473,12 +476,12 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a GeoJSON or AnyCrsGeoJson structure
         api_response = self.api_instance.convert_geo_json(body=request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'FeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'FeatureCollection')
         #  prepare round-trip
         n_request = ConvertGeoJsonRequest(to_crs=LAS, feature_collection=api_response.feature_collection)
         api_response = self.api_instance.convert_geo_json(body=n_request, data_partition_id=data_partition_header)
         self.assertIsNotNone(api_response)
-        self.assertEquals(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
+        self.assertEqual(api_response.feature_collection.type, 'AnyCrsFeatureCollection')
         c = CompareResponseWithExpectation(api_response.feature_collection, expected=request.feature_collection)
         ok = c.compare_feature_collections()
         self.assertTrue(ok, 'Actual response is different from expected response.')
@@ -514,8 +517,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a BinGrid
             api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.max_mis_location.d_i, 0.0)
-            self.assertEquals(api_response.max_mis_location.d_j, 0.0)
+            self.assertEqual(api_response.max_mis_location.d_i, 0.0)
+            self.assertEqual(api_response.max_mis_location.d_j, 0.0)
         except ApiException as e:
             self.fail(str(e))
 
@@ -527,8 +530,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
             # Convert a BinGrid
             api_response = self.api_instance.convert_bin_grid(body=request, data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
-            self.assertEquals(api_response.max_mis_location.d_i, 0.0)
-            self.assertEquals(api_response.max_mis_location.d_j, 0.38)
+            self.assertEqual(api_response.max_mis_location.d_i, 0.0)
+            self.assertEqual(api_response.max_mis_location.d_j, 0.38)
         except ApiException as e:
             self.fail(str(e))
 
@@ -582,6 +585,8 @@ class TestCrsConverterIntegration(unittest.TestCase):
             else:
                 return ConvertBinGridRequest(to_crs=None, in_bin_grid=inBinGrid)
 
+@allure.feature('CRS Converter Trajectory Conversion')
+@allure.epic('CRS Converter v3 Integration Tests')
 class TestTrajectoryConverterIntegration(unittest.TestCase):
     """Post deployment tests for trajectory-converter service"""
 
@@ -743,6 +748,8 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
+@allure.feature('CRS Converter Unauthorized Access')
+@allure.epic('CRS Converter v3 Integration Tests')
 class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
     """Post deployment tests for crs-converter service"""
 
@@ -797,6 +804,8 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             self.assertTrue(403==e.status or 401==e.status)
             self.assertTrue(reason in ["Forbidden", "Unauthorized", "Entitlement Error", "Access denied"])
 
+@allure.feature('CRS Converter Service Info')
+@allure.epic('CRS Converter v3 Integration Tests')
 class TestInfo(unittest.TestCase):
     """Test the info end-points"""
     @classmethod
@@ -832,6 +841,8 @@ class TestInfo(unittest.TestCase):
         except ApiException as e:
             self.fail(str(e))
 
+@allure.feature('CRS Converter Records')
+@allure.epic('CRS Converter v3 Integration Tests')
 class TestRecords(unittest.TestCase):
     """Test the info end-points"""
     DATA_PARTITION_TO_REPLACE = '{{DATA_PARTITION_ID}}'

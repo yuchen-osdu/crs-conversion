@@ -15,12 +15,19 @@ out/
 /venv
 .venv
 /**/env
+**/venv
 
 # shemathesis
-.hypothesis/
+
+**/__pycache__
+**/.hypothesis/
 
 #.pyc files in all directories
 **/*.pyc
+**/.pytest_cache
+**/allure-results
+**/allure-report
+**/report.html
 
 crs-converter-core/target
 provider/crs-converter-azure/crs-converter-aks/target/
