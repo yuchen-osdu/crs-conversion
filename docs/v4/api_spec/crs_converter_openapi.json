@@ -1,13 +1,14 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.0",
   "info": {
-    "description": "Provides conversion/transformation services from a source to a target CRS. A coordinate operation is a conversion if the source and target CRS share the same datum; the operation is called transformation if datum transformations are involved, i.e. source and target CRS do not share the same datum.",
-    "version": "1.0.0",
-    "title": "CRS Conversion Service"
+    "description": "The CRS Conversion Service provides coordinate conversion and transformation services between different Coordinate Reference Systems (CRS).\n\n## Key Concepts\n\n- **Conversion**: Operation between CRS that share the same datum (no datum shift required)\n- **Transformation**: Operation involving datum transformations when source and target CRS have different datums\n- **Persistable Reference**: A JSON string or OSDU record ID that uniquely identifies a CRS, unit, or transformation\n\n## API Versions\n\nThis is the **v4 API** which adds support for:\n- Explicit transformations to override early binding\n- Enhanced trajectory computation with interpolation\n- Improved GeoJSON/AnyCrsGeoJSON support\n\n## Authentication\n\nAll endpoints require a valid Bearer token in the Authorization header and a data-partition-id header.",
+    "version": "4.0.0",
+    "title": "CRS Conversion Service - V4 API",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
   },
-  "host": "az-osdu1.evd.csp.slb.com",
-  "x-google-allow": "all",
-  "basePath": "/api/crs/v1",
   "security": [
     {
       "Bearer": []
@@ -18,55 +19,40 @@
   ],
   "tags": [
     {
-      "name": "Info Api"
-    },
-    {
-
-      "name": "Trajectory Computation and Conversion",
-      "description": "Convert trajectory stations"
+      "name": "Info Api",
+      "description": "Service information and health check endpoints"
     },
     {
       "name": "Convert",
-      "description": "Convert a list of points"
-    },
-    {
-      "name": "ConvertGeoJson",
-      "description": "Convert a GeoJSON or AnyCrsGeoJson structure"
+      "description": "Coordinate conversion and transformation endpoints. Includes point conversion, trajectory computation, and GeoJSON transformation between different Coordinate Reference Systems (CRS)."
     }
-  ],
-  "schemes": [
-    "https"
   ],
   "paths": {
     "/v4/convertTrajectory": {
       "post": {
         "tags": [
-          "Trajectory Computation and Conversion"
+          "Convert"
         ],
         "summary": "Convert trajectory stations",
-        "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. For survey MD, Incl, Azi input, minimum curvature is used to calculate the local deviations and absolute coordinates. For MD_dX,dY,dZ, the inverse minimum curvature is first applied to compute Inc and Azi, which then are used as input to compute the trajectory.",
+        "description": "Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. For survey MD, Incl, Azi input, minimum curvature is used to calculate the local deviations and absolute coordinates. For MD_dX,dY,dZ, the inverse minimum curvature is first applied to compute Inc and Azi, which then are used as input to compute the trajectory.\n\n**Interpolation Feature**: When `interpolate=true` (default), additional stations can be generated at specified measured depths using the `MD_i` parameter:\n- Use `MD_i.md_i` for explicit MD values, e.g., [50, 75, 150]\n- Use `MD_i.md_interval` for regular spacing, e.g., 25 for every 25 units\n- Interpolated stations use minimum curvature interpolation for inc/azi and position\n- Response stations include `original: true/false` to distinguish survey vs interpolated\n- Set `interpolate=false` to process only original survey stations (MD_i is ignored)\n\n## Request Body Parameters\n\n| Parameter | Type | Required | Description |\n|-----------|------|----------|-------------|\n| **trajectoryCRS** | string | Yes | Coordinate reference system for the reference point. Typically a projected CRS; if geographic CRS, unitXY must be defined and azimuthReference must be TRUE_NORTH. |\n| **referencePoint** | Point | Yes | The well surface location (x, y, z) where MD=0. Coordinates are in trajectoryCRS units. |\n| **inputStations** | array | Yes | Array of input trajectory stations. Required fields depend on inputKind. |\n| **unitZ** | string | Yes | Unit of measure for vertical values (dz) and measured depth. OSDU record ID or persistable reference JSON. |\n| **method** | string | Yes | Computation method: 'AzimuthalEquidistant' (default) or 'LMP' (Lee's Modified Proposal SPE96813). |\n| **azimuthReference** | string | No | Reference for azimuth angles: TRUE_NORTH (TN) or GRID_NORTH (GN). Default: TRUE_NORTH. |\n| **unitXY** | string | No | Unit for horizontal displacements (dx, dy). Required for dX_dY_dZ input kinds. Auto-derived from projected CRS if not specified. |\n| **unitMD** | string | No | Unit for Measured Depth values. Defaults to unitZ if not specified. |\n| **inputKind** | string | No | Input format: MD_Incl_Azim (default), MD_dX_dY_dZ, dX_dY_dZ, MD_Incl, MD_X_Y_Z, X_Y_Z. |\n| **interpolate** | boolean | No | When true (default), interpolates stations at MD_i depths. When false, only original stations processed. |\n| **MD_i** | object | No | Interpolation specification: md_i (array of specific depths) or md_interval (regular spacing). |\n\n## Input Station Fields (TrajectoryStationInV4)\n\n| Field | Description |\n|-------|-------------|\n| **md** | Measured Depth - distance along wellbore from reference point. Unit: unitMD or unitZ. |\n| **inclination** | Wellbore angle from vertical: 0°=down, 90°=horizontal, 180°=up. |\n| **azimuth** | Direction angle: 0°/360°=North, 90°=East, 180°=South, 270°=West. Reference per azimuthReference. |\n| **dx** | East-West displacement from reference point. Positive=East. Unit: unitXY. |\n| **dy** | North-South displacement from reference point. Positive=North. Unit: unitXY. |\n| **dz** | True Vertical Depth from reference point. Positive=deeper. Unit: unitZ. |",
         "operationId": "convertTrajectory",
         "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/ConvertTrajectoryRequestV4"
-            }
-          },
-          {
             "name": "data-partition-id",
             "in": "header",
-            "description": "Tenant Id",
-            "required": false
+            "description": "The OSDU data partition identifier. Determines which tenant's data and CRS configuration to use.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "osdu"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/definitions/ConvertTrajectoryRequestV4"
+                "$ref": "#/components/schemas/ConvertTrajectoryRequestV4"
               }
             }
           },
@@ -75,20 +61,32 @@
         "responses": {
           "200": {
             "description": "Trajectory conversion performed successfully",
-            "schema": {
-              "$ref": "#/definitions/ConvertTrajectoryResponseV4"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertTrajectoryResponseV4"
+                }
+              }
             }
           },
           "400": {
             "description": "Bad input format",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           },
           "503": {
             "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           }
         }
@@ -104,25 +102,21 @@
         "operationId": "convertPointV4",
         "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/ConvertPointsRequestV4"
-            }
-          },
-          {
             "name": "data-partition-id",
             "in": "header",
-            "description": "Tenant Id",
-            "required": false
+            "description": "The OSDU data partition identifier. Determines which tenant's data and CRS configuration to use.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "osdu"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/definitions/ConvertPointsRequestV4"
+                "$ref": "#/components/schemas/ConvertPointsRequestV4"
               }
             }
           },
@@ -131,8 +125,22 @@
         "responses": {
           "200": {
             "description": "Conversion performed successfully",
-            "schema": {
-              "$ref": "#/definitions/ConvertPointsResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertPointsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           },
           "500": {
@@ -140,21 +148,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/definitions/ErrorResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad input format",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
           "503": {
             "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           }
         }
@@ -163,32 +169,28 @@
     "/v4/convertGeoJson": {
       "post": {
         "tags": [
-          "ConvertGeoJson"
+          "Convert"
         ],
         "summary": "Convert a GeoJSON or AnyCrsGeoJson structure",
         "description": "Convert a GeoJSON or AnyCrsGeoJson structure to a specified target CRS. GeoJSON is declared - by definition - to be in the context of WGS 84. The v4 version has benefit of providing explicit transformation as an optional field. Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.",
         "operationId": "convertGeoJsonV4",
         "parameters": [
           {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/ConvertGeoJsonRequestV4"
-            }
-          },
-          {
             "name": "data-partition-id",
             "in": "header",
-            "description": "Tenant Id",
-            "required": false
+            "description": "The OSDU data partition identifier. Determines which tenant's data and CRS configuration to use.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "osdu"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/definitions/ConvertGeoJsonRequestV4"
+                "$ref": "#/components/schemas/ConvertGeoJsonRequestV4"
               }
             }
           },
@@ -197,8 +199,22 @@
         "responses": {
           "200": {
             "description": "Conversion performed successfully",
-            "schema": {
-              "$ref": "#/definitions/ConvertGeoJsonResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertGeoJsonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           },
           "500": {
@@ -206,21 +222,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/definitions/ErrorResponse"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad input format",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
           "503": {
             "description": "CRS-converter overloaded; try again later. See HttpHeader 'Retry-After'.",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           }
         }
@@ -233,27 +247,27 @@
         ],
         "summary": "info",
         "operationId": "infoUsingGET",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
         "parameters": [
           {
             "name": "data-partition-id",
             "in": "header",
-            "description": "tenant",
+            "description": "The OSDU data partition identifier.",
             "required": true,
-            "type": "string",
-            "default": "opendes"
+            "schema": {
+              "type": "string",
+              "default": "opendes"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/VersionInfo"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionInfo"
+                }
+              }
             }
           },
           "401": {
@@ -269,967 +283,1065 @@
       }
     }
   },
-  "securityDefinitions": {
-    "Bearer": {
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header"
-    }
-  },
-  "definitions": {
-    "Point": {
-      "type": "object",
-      "required": [
-        "x",
-        "y",
-        "z"
-      ],
-      "properties": {
-        "x": {
-          "type": "number",
-          "format": "double",
-          "example": 484074.5862320617,
-          "description": "x coordinate or longitude"
-        },
-        "y": {
-          "type": "number",
-          "format": "double",
-          "example": 5499819.191561815,
-          "description": "y coordinate or latitude"
-        },
-        "z": {
-          "type": "number",
-          "format": "double",
-          "example": 0,
-          "description": "z coordinate"
-        }
-      },
-      "description": "Point representation for CRS operations"
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
     },
-    "TrajectoryStationOut": {
-      "type": "object",
-      "required": [
-        "azimuthGN",
-        "azimuthTN",
-        "dxTN",
-        "dyTN",
-        "inclination",
-        "md",
-        "point"
-      ],
-      "properties": {
-        "md": {
-          "type": "number",
-          "format": "double",
-          "example": 2563.56,
-          "description": "MD (measured depth) from vertical reference point in 'unitZ'."
+    "schemas": {
+      "Point": {
+        "type": "object",
+        "title": "Coordinate Point",
+        "required": [
+          "x",
+          "y"
+        ],
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "double",
+            "example": 484074.5862320617,
+            "description": "X coordinate value. For geographic CRS this represents longitude (in degrees). For projected CRS this represents easting (in the CRS unit, typically meters or feet)."
+          },
+          "y": {
+            "type": "number",
+            "format": "double",
+            "example": 5499819.191561815,
+            "description": "Y coordinate value. For geographic CRS this represents latitude (in degrees). For projected CRS this represents northing (in the CRS unit, typically meters or feet)."
+          },
+          "z": {
+            "type": "number",
+            "format": "double",
+            "example": 0,
+            "description": "Z coordinate value representing elevation or depth. Positive values typically indicate height above the reference surface; interpretation depends on the vertical CRS."
+          }
         },
-        "inclination": {
-          "type": "number",
-          "format": "double",
-          "example": 15,
-          "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal."
-        },
-        "azimuthTN": {
-          "type": "number",
-          "format": "double",
-          "example": 355.96,
-          "description": "True North azimuth angle in degrees of arc, 0.0/360.0 is North."
-        },
-        "azimuthGN": {
-          "type": "number",
-          "format": "double",
-          "example": 355,
-          "description": "Grid North azimuth angle in degrees of arc, 0.0/360.0 is North."
-        },
-        "dxTN": {
-          "type": "number",
-          "format": "double",
-          "example": 55.9,
-          "description": "True E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY'."
-        },
-        "dyTN": {
-          "type": "number",
-          "format": "double",
-          "example": -145.3,
-          "description": "True N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with TrueNorth; unit is given by container's 'unitXY'."
-        },
-        "point": {
-          "description": "Trajectory station point in trajectoryCRS and vertical unit as defined in container's 'unitZ'.",
-          "$ref": "#/definitions/Point"
-        },
-        "wgs84Longitude": {
-          "type": "number",
-          "format": "double",
-          "description": "WGS 84 longitude in dega"
-        },
-        "wgs84Latitude": {
-          "type": "number",
-          "format": "double",
-          "description": "WGS 84 latitude in dega"
-        },
-        "dls": {
-          "type": "number",
-          "format": "double",
-          "description": "Curvature, Dog Leg Severity, measured in 'unitDls'."
-        },
-        "original": {
-          "type": "boolean",
-          "description": "Original trajectory station if true, interpolated trajectory station if false."
-        },
-        "dz": {
-          "type": "number",
-          "format": "double"
-        }
+        "description": "A coordinate point in 2D or 3D space. The interpretation of x, y, z values depends on the Coordinate Reference System being used."
       },
-      "description": "Output trajectory station record; context is provided by the container."
-    },
-    "ErrorResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string",
-          "description": "Error message"
-        }
+      "TrajectoryStationOut": {
+        "type": "object",
+        "title": "Output Trajectory Station",
+        "required": [
+          "azimuthGN",
+          "azimuthTN",
+          "dxTN",
+          "dyTN",
+          "inclination",
+          "md",
+          "point"
+        ],
+        "properties": {
+          "md": {
+            "type": "number",
+            "format": "double",
+            "example": 2563.56,
+            "description": "Measured Depth (MD) - the distance along the wellbore path from the vertical reference point (typically kelly bushing or rotary table). Unit is specified by the response's 'unitZ' field."
+          },
+          "inclination": {
+            "type": "number",
+            "format": "double",
+            "example": 15,
+            "minimum": 0,
+            "maximum": 180,
+            "description": "Inclination angle in degrees of arc. 0\u00b0 = vertical (pointing down), 90\u00b0 = horizontal, 180\u00b0 = vertical (pointing up). Range: 0-180 degrees."
+          },
+          "azimuthTN": {
+            "type": "number",
+            "format": "double",
+            "example": 355.96,
+            "minimum": 0,
+            "maximum": 360,
+            "description": "Azimuth angle referenced to True North in degrees of arc. 0\u00b0/360\u00b0 = North, 90\u00b0 = East, 180\u00b0 = South, 270\u00b0 = West. Range: 0-360 degrees."
+          },
+          "azimuthGN": {
+            "type": "number",
+            "format": "double",
+            "example": 355,
+            "minimum": 0,
+            "maximum": 360,
+            "description": "Azimuth angle referenced to Grid North in degrees of arc. Grid North is the northward direction of the map projection's grid. Range: 0-360 degrees."
+          },
+          "dxTN": {
+            "type": "number",
+            "format": "double",
+            "example": 55.9,
+            "description": "East-West horizontal displacement from the well reference point, aligned with True North. Positive = East, Negative = West. Unit is specified by the response's 'unitXY' field."
+          },
+          "dyTN": {
+            "type": "number",
+            "format": "double",
+            "example": -145.3,
+            "description": "North-South horizontal displacement from the well reference point, aligned with True North. Positive = North, Negative = South. Unit is specified by the response's 'unitXY' field."
+          },
+          "dz": {
+            "type": "number",
+            "format": "double",
+            "example": 2500.0,
+            "description": "True Vertical Depth (TVD) - vertical displacement from the well reference point. Positive = deeper. Unit is specified by the response's 'unitZ' field."
+          },
+          "point": {
+            "description": "Absolute coordinates of the trajectory station in the trajectoryCRS. X and Y are in the CRS units; Z (vertical) uses the unit specified in 'unitZ'.",
+            "$ref": "#/components/schemas/Point"
+          },
+          "wgs84Longitude": {
+            "type": "number",
+            "format": "double",
+            "example": -61.45,
+            "description": "WGS 84 longitude of this station in decimal degrees. Range: -180 to +180."
+          },
+          "wgs84Latitude": {
+            "type": "number",
+            "format": "double",
+            "example": 10.65,
+            "description": "WGS 84 latitude of this station in decimal degrees. Range: -90 to +90."
+          },
+          "dls": {
+            "type": "number",
+            "format": "double",
+            "example": 3.5,
+            "description": "Dog Leg Severity (DLS) - the rate of change of wellbore direction, typically measured in degrees per 100 feet or degrees per 30 meters. Unit is specified by the response's 'unitDls' field."
+          },
+          "original": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates whether this station is from the original input (true) or was generated by interpolation (false). Interpolated stations are created when the 'interpolate' parameter is true and MD_i values are specified."
+          }
+        },
+        "description": "Computed output trajectory station containing survey angles, displacements, absolute coordinates, and metadata. All values are computed from the input stations using the specified calculation method."
       },
-      "description": "Response resulting of a failed CRS convertion operation"
-    },
-    "ConvertTrajectoryRequestV4": {
-      "required": [
-        "inputStations",
-        "method",
-        "trajectoryCRS",
-        "unitZ"
-      ],
-      "type": "object",
-      "properties": {
-        "trajectoryCRS": {
-          "type": "string",
-          "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.",
-          "example": "\"{\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\",\"ver\":\"PE_10_3_1\",\"name\":\"WGS_1984_UTM_Zone_31N\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"type\":\"LBC\"}\""
+      "ErrorResponse": {
+        "type": "object",
+        "title": "Error Response",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message describing what went wrong",
+            "example": "Invalid CRS: Unable to parse the provided persistable reference"
+          },
+          "code": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 400
+          },
+          "reason": {
+            "type": "string",
+            "description": "Short error reason",
+            "example": "Bad Request"
+          }
         },
-        "azimuthReference": {
-          "type": "string",
-          "description": "azimuth reference for the input trajectory station azimuth values (TRUE_NORTH or GridNorth)",
-          "example": "TRUE_NORTH"
+        "description": "Standard error response returned when a CRS conversion operation fails. Contains details about the error to help diagnose the issue."
+      },
+      "ConvertTrajectoryRequestV4": {
+        "required": [
+          "inputStations",
+          "method",
+          "trajectoryCRS",
+          "unitZ"
+        ],
+        "type": "object",
+        "properties": {
+          "trajectoryCRS": {
+            "type": "string",
+            "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.",
+            "example": "\"{\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\",\"ver\":\"PE_10_3_1\",\"name\":\"WGS_1984_UTM_Zone_31N\",\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"type\":\"LBC\"}\""
+          },
+          "azimuthReference": {
+            "type": "string",
+            "description": "Reference direction for interpreting azimuth values in the input trajectory stations. TRUE_NORTH (TN): Azimuth measured from geographic/true north. GRID_NORTH (GN): Azimuth measured from the map projection's grid north.",
+            "enum": [
+              "TRUE_NORTH",
+              "TN",
+              "GRID_NORTH",
+              "GN"
+            ],
+            "example": "TRUE_NORTH"
+          },
+          "unitXY": {
+            "type": "string",
+            "description": "Unit of measure for horizontal displacements (dx, dy) in input trajectory stations. Required when inputKind includes deviation values (dX_dY_dZ variants). Can be provided as a persistable reference JSON string or an OSDU record ID (e.g., 'osdu:reference-data--UnitOfMeasure:m:'). For projected CRS types, this is automatically derived from the CRS if not specified.",
+            "example": "osdu:reference-data--UnitOfMeasure:m:"
+          },
+          "unitZ": {
+            "type": "string",
+            "description": "Unit of measure for vertical values (dz, measured depth) in input trajectory stations. Required field. Can be provided as a persistable reference JSON string or an OSDU record ID.",
+            "example": "osdu:reference-data--UnitOfMeasure:m:"
+          },
+          "referencePoint": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "inputStations": {
+            "type": "array",
+            "description": "The array of input trajectory stations",
+            "example": [
+              {
+                "md": 0,
+                "inclination": 0,
+                "azimuth": 0
+              },
+              {
+                "md": 1000,
+                "inclination": 0,
+                "azimuth": 0
+              },
+              {
+                "md": 2000,
+                "inclination": 90,
+                "azimuth": 0
+              },
+              {
+                "md": 3000,
+                "inclination": 90,
+                "azimuth": 0
+              },
+              {
+                "md": 5000,
+                "inclination": 90,
+                "azimuth": 90
+              },
+              {
+                "md": 6000,
+                "inclination": 90,
+                "azimuth": 90
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/TrajectoryStationInV4"
+            }
+          },
+          "method": {
+            "type": "string",
+            "description": "The trajectory computation method to use. AzimuthalEquidistant (default): Standard method using azimuthal equidistant projection centered at the well location. LMP: Lee's Modified Proposal (SPE96813) - an alternative method for improved accuracy in certain scenarios.",
+            "enum": [
+              "AzimuthalEquidistant",
+              "LMP"
+            ],
+            "default": "AzimuthalEquidistant",
+            "example": "AzimuthalEquidistant"
+          },
+          "inputKind": {
+            "type": "string",
+            "description": "Specifies the format of input trajectory station data:\n- **MD_Incl_Azim** (default): Measured Depth, Inclination, and Azimuth angles\n- **MD_dX_dY_dZ**: Measured Depth with local deviations from reference point\n- **dX_dY_dZ**: Local deviations only (MD computed via inverse minimum curvature)\n- **MD_Incl**: Inclination-only surveys (azimuth not provided)\n- **MD_X_Y_Z**: Measured Depth with absolute coordinates\n- **X_Y_Z**: Absolute coordinates only",
+            "enum": [
+              "MD_Incl_Azim",
+              "MD_Inclination_Azimuth",
+              "MD_dX_dY_dZ",
+              "dX_dY_dZ",
+              "MD_Incl",
+              "MD_X_Y_Z",
+              "X_Y_Z"
+            ],
+            "default": "MD_Incl_Azim",
+            "example": "MD_Incl_Azim"
+          },
+          "interpolate": {
+            "type": "boolean",
+            "description": "When true (default), interpolates additional stations at the measured depths specified in MD_i. When false, only the original input stations are processed (MD_i is ignored).",
+            "default": true,
+            "example": true
+          },
+          "MD_i": {
+            "$ref": "#/components/schemas/MeasuredDepthInterval",
+            "description": "Specifies measured depths where additional trajectory stations should be interpolated. Only used when 'interpolate' is true. Provide either explicit MD values (md_i array) or a regular interval (md_interval)."
+          },
+          "unitMD": {
+            "type": "string",
+            "description": "Unit of measure for Measured Depth (MD) values. Optional - defaults to unitZ if not specified. Useful when MD values are in different units than vertical depth values.",
+            "example": "osdu:reference-data--UnitOfMeasure:m:"
+          }
         },
-        "unitXY": {
-          "type": "string",
-          "description": "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example. And the UnitXY is required (for the input dx,dy) ",
-          "example": "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\""
-        },
-        "unitZ": {
-          "type": "string",
-          "description": "The vertical unit of the dz in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.",
-          "example": "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\""
-        },
-        "referencePoint": {
-          "$ref": "#/definitions/Point"
-        },
-        "inputStations": {
-          "type": "array",
-          "description": "The array of input trajectory stations",
-          "example": [
+        "example": {
+          "azimuthReference": "GN",
+          "interpolate": false,
+          "referencePoint": {
+            "x": 400000,
+            "y": 6500000,
+            "z": 100
+          },
+          "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
+          "unitMD": "osdu:reference-data--UnitOfMeasure:m:",
+          "inputStations": [
             {
               "md": 0,
               "inclination": 0,
-              "azimuth": 0
+              "azimuth": 20
             },
             {
-              "md": 1000,
-              "inclination": 0,
-              "azimuth": 0
-            },
-            {
-              "md": 2000,
-              "inclination": 90,
-              "azimuth": 0
-            },
-            {
-              "md": 3000,
-              "inclination": 90,
-              "azimuth": 0
-            },
-            {
-              "md": 5000,
-              "inclination": 90,
-              "azimuth": 90
-            },
-            {
-              "md": 6000,
-              "inclination": 90,
-              "azimuth": 90
+              "md": 100,
+              "inclination": 10,
+              "azimuth": 40
             }
           ],
-          "items": {
-            "$ref": "#/definitions/TrajectoryStationInV4"
-          }
-        },
-        "method": {
-          "type": "string",
-          "description": "The computation method - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)",
-          "example": "AzimuthalEquidistant"
-        },
-        "inputKind": {
-          "type": "string",
-          "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point. MD_Incl for Handling inclination-only surveys",
-          "example": "MD_Inclination_Azimuth"
-        },
-        "interpolate": {
-          "type": "boolean",
-          "description": "Perform trajectory interpolation on demand; default is true.",
-          "example": true
-        },
-        "MD_i": {
-          "$ref": "#/definitions/MinimumDepthInterval"
-        },
-        "unitMD": {
-          "type": "string"
-        }
-      },
-      "example":{
-        "azimuthReference": "GN",
-        "interpolate": false,
-        "referencePoint": {
-          "x": 400000,
-          "y": 6500000,
-          "z": 100
-        },
-        "unitZ": "osdu:reference-data--UnitOfMeasure:m:",
-        "unitMD": "osdu:reference-data--UnitOfMeasure:m:",
-        "inputStations": [
-          {
-            "md": 0,
-            "inclination": 0,
-            "azimuth": 20
+          "MD_i": {
+            "md_i": [
+              50,
+              75
+            ]
           },
-          {
-            "md": 100,
-            "inclination": 10,
-            "azimuth": 40
-          }
-        ],
-        "MD_i": {
-          "md_i": [
-            50,
-            75
-          ]
-        },
-        "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
-        "inputKind": "MD_Incl_Azim",
-        "method": "AzimuthalEquidistant"
-      }
-    },
-    "ConvertGeoJsonRequestV4": {
-      "title": "Convert GeoJson/AnyCrsGeoJson Request",
-      "description": "Request to convert a GeoJSON FeatureCollection or AnyCrsFeatureCollection from WGS 84 or AnyCrsFeatureCollection.persistableReferenceCrs to a target CRS.",
-      "type": "object",
-      "required": [
-        "featureCollection",
-        "toCRS"
-      ],
-      "properties": {
-        "featureCollection": {
-          "$ref": "#/definitions/AnyCrsGeoJsonFeatureCollection"
-        },
-        "toCRS": {
-          "title": "GeoJson Request",
-          "type": "string",
-          "description": "The GeoJSON FeatureCollection or AnyCrsFeatureCollection structure to be converted/transformed. GeoJSON is always based on WGS 84; AnyCrsFeatureCollection carries the CRS context in the persistableReferenceCrs property. This value could be persistable reference string or a record ID"
-        },
-        "transformation": {
-          "title": "Explicit Transformation",
-          "type": "string",
-          "description": "Explicit Transformation as persistable reference string or record id, its optional and if given it will override Bound Transformation."
-        },
-        "toUnitZ": {
-          "type": "string",
-          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string or a record ID)",
-          "title": "Vertical Unit"
+          "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:Projected:EPSG::32631:",
+          "inputKind": "MD_Incl_Azim",
+          "method": "AzimuthalEquidistant"
         }
       },
-      "example": {
-        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
-        "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
-        "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
-        "featureCollection": {
-          "type": "AnyCrsFeatureCollection",
-          "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
-          "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
-          "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
-          "features": [
-            {
-              "type": "AnyCrsFeature",
-              "properties": {},
-              "geometry": {
-                "type": "AnyCrsPolygon",
-                "coordinates": [
-                  [
-                    [697339.525, 7239989.403, 0],
-                    [697339.525, 7239989.500, 0],
-                    [697339.525, 7239989.600, 0],
-                    [697339.525, 7239989.403, 0]
-                  ]
-                ],
-                "bbox": null
-              },
-              "bbox": null
-            }
-          ],
-          "bbox": null,
-          "properties": {}
-        }
-      }
-    },
-    "AnyCrsGeoJsonFeatureCollection": {
-      "title": "AnyCrsGeoJSON FeatureCollection",
-      "type": "object",
-      "required": [
-        "type",
-        "features"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "FeatureCollection",
-            "AnyCrsFeatureCollection"
-          ]
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AnyCrsGeoJsonFeature"
-          }
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
-          }
-        },
-        "persistableReferenceCrs": {
-          "type": "string",
-          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
-          "title": "Spatial Reference"
-        },
-        "CoordinateReferenceSystemID": {
-          "type": "string",
-          "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.",
-          "title": "Spatial Reference"
-        },
-        "VerticalUnitID": {
-          "type": "string",
-          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.",
-          "title": "Vertical Unit"
-        },
-        "persistableReferenceUnitZ": {
-          "type": "string",
-          "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
-          "title": "Vertical Unit"
-        }
-      }
-    },
-    "AnyCrsGeoJsonFeature": {
-      "title": "AnyCrsGeoJSON Feature",
-      "type": "object",
-      "required": [
-        "type",
-        "properties",
-        "geometry"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Feature",
-            "AnyCrsFeature"
-          ]
-        },
+      "ConvertGeoJsonRequestV4": {
+        "title": "Convert GeoJson/AnyCrsGeoJson Request",
+        "description": "Request to convert a GeoJSON FeatureCollection or AnyCrsFeatureCollection from WGS 84 or AnyCrsFeatureCollection.persistableReferenceCrs to a target CRS.",
+        "type": "object",
+        "required": [
+          "featureCollection",
+          "toCRS"
+        ],
         "properties": {
-          "$ref": "#/definitions/AnyProperty"
+          "featureCollection": {
+            "$ref": "#/components/schemas/AnyCrsGeoJsonFeatureCollection"
+          },
+          "toCRS": {
+            "title": "GeoJson Request",
+            "type": "string",
+            "description": "The GeoJSON FeatureCollection or AnyCrsFeatureCollection structure to be converted/transformed. GeoJSON is always based on WGS 84; AnyCrsFeatureCollection carries the CRS context in the persistableReferenceCrs property. This value could be persistable reference string or a record ID"
+          },
+          "transformation": {
+            "title": "Explicit Transformation",
+            "type": "string",
+            "description": "Explicit Transformation as persistable reference string or record id, its optional and if given it will override Bound Transformation."
+          },
+          "toUnitZ": {
+            "type": "string",
+            "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string or a record ID)",
+            "title": "Vertical Unit"
+          }
         },
-        "geometry": {
-          "$ref": "#/definitions/AnyCrsGeoJsonFeatureGeometry"
-        },
-        "bbox": {
-          "type": "array",
-          "minItems": 4,
-          "items": {
-            "type": "number"
+        "example": {
+          "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
+          "toUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+          "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
+          "featureCollection": {
+            "type": "AnyCrsFeatureCollection",
+            "CoordinateReferenceSystemID": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+            "persistableReferenceCrs": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+            "persistableReferenceUnitZ": "osdu:reference-data--UnitOfMeasure:m:",
+            "features": [
+              {
+                "type": "AnyCrsFeature",
+                "properties": {},
+                "geometry": {
+                  "type": "AnyCrsPolygon",
+                  "coordinates": [
+                    [
+                      [
+                        697339.525,
+                        7239989.403,
+                        0
+                      ],
+                      [
+                        697339.525,
+                        7239989.5,
+                        0
+                      ],
+                      [
+                        697339.525,
+                        7239989.6,
+                        0
+                      ],
+                      [
+                        697339.525,
+                        7239989.403,
+                        0
+                      ]
+                    ]
+                  ],
+                  "bbox": null
+                },
+                "bbox": null
+              }
+            ],
+            "bbox": null,
+            "properties": {}
           }
         }
-      }
-    },
-    "AnyProperty": {
-      "title": "Any property extension",
-      "type": "object",
-      "additionalProperties": {
-        "type": "object"
-      }
-    },
-    "AnyCrsGeoJsonFeatureGeometry": {
-      "type": "object",
-      "description": "AnyCrsGeoJSon feature geometry",
-      "discriminator": "type",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Point",
-            "LineString",
-            "Polygon",
-            "MultiPoint",
-            "MultiLineString",
-            "MultiPolygon",
-            "GeometryCollection",
-            "AnyCrsPoint",
-            "AnyCrsLineString",
-            "AnyCrsPolygon",
-            "AnyCrsMultiPoint",
-            "AnyCrsMultiLineString",
-            "AnyCrsMultiPolygon",
-            "AnyCrsGeometryCollection"
-          ],
-          "description": "the geometry type"
-        },
-        "coordinates": {
+      },
+      "AnyCrsGeoJsonFeatureCollection": {
+        "title": "AnyCrsGeoJSON FeatureCollection",
+        "type": "object",
+        "required": [
+          "type",
+          "features"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "FeatureCollection",
+              "AnyCrsFeatureCollection"
+            ]
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnyCrsGeoJsonFeature"
+            }
+          },
+          "bbox": {
+            "type": "array",
+            "minItems": 4,
+            "items": {
+              "type": "number"
+            }
+          },
+          "persistableReferenceCrs": {
+            "type": "string",
+            "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
+            "title": "Spatial Reference"
+          },
+          "CoordinateReferenceSystemID": {
+            "type": "string",
+            "description": "The spatial context of this AnyCrsGeoJsonFeatureCollection as a record ID. If both CoordinateReferenceSystemID and persistableReferenceCrs exist, CoordinateReferenceSystemID takes precedence.",
+            "title": "Spatial Reference"
+          },
+          "VerticalUnitID": {
+            "type": "string",
+            "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as a record ID. If both VerticalUnitID and persistableReferenceUnitZ exist, VerticalUnitID takes precedence.",
+            "title": "Vertical Unit"
+          },
+          "persistableReferenceUnitZ": {
+            "type": "string",
+            "description": "The vertical axis unit for this AnyCrsGeoJsonFeatureCollection as persistable reference string.",
+            "title": "Vertical Unit"
+          }
+        }
+      },
+      "AnyCrsGeoJsonFeature": {
+        "title": "AnyCrsGeoJSON Feature",
+        "type": "object",
+        "required": [
+          "type",
+          "properties",
+          "geometry"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Feature",
+              "AnyCrsFeature"
+            ]
+          },
+          "properties": {
+            "$ref": "#/components/schemas/AnyProperty"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/AnyCrsGeoJsonFeatureGeometry"
+          },
+          "bbox": {
+            "type": "array",
+            "minItems": 4,
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "AnyProperty": {
+        "title": "Any property extension",
+        "type": "object",
+        "additionalProperties": {
           "type": "object"
         }
-      }
-    },
-    "ConvertPointsRequestV4": {
-      "required": [
-        "fromCRS",
-        "points",
-        "toCRS"
-      ],
-      "type": "object",
-      "properties": {
-        "fromCRS": {
-          "type": "string",
-          "description": "Source CRS as persistable reference string or recordId.",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:"
+      },
+      "AnyCrsGeoJsonFeatureGeometry": {
+        "type": "object",
+        "description": "AnyCrsGeoJSon feature geometry",
+        "discriminator": "type",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Point",
+              "LineString",
+              "Polygon",
+              "MultiPoint",
+              "MultiLineString",
+              "MultiPolygon",
+              "GeometryCollection",
+              "AnyCrsPoint",
+              "AnyCrsLineString",
+              "AnyCrsPolygon",
+              "AnyCrsMultiPoint",
+              "AnyCrsMultiLineString",
+              "AnyCrsMultiPolygon",
+              "AnyCrsGeometryCollection"
+            ],
+            "description": "the geometry type"
+          },
+          "coordinates": {
+            "type": "object"
+          }
+        }
+      },
+      "ConvertPointsRequestV4": {
+        "title": "Convert Points Request",
+        "required": [
+          "fromCRS",
+          "points",
+          "toCRS"
+        ],
+        "type": "object",
+        "description": "Request body for converting coordinate points from one CRS to another. Supports explicit transformation specification for precise control over the conversion process.",
+        "properties": {
+          "fromCRS": {
+            "type": "string",
+            "description": "Source Coordinate Reference System. Can be specified as:\n- **OSDU Record ID**: e.g., 'osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:'\n- **Persistable Reference**: JSON string containing WKT and metadata\n\nThe source CRS defines how the input point coordinates should be interpreted.",
+            "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:"
+          },
+          "toCRS": {
+            "type": "string",
+            "description": "Target Coordinate Reference System. Same format options as fromCRS. The output points will be expressed in this CRS.",
+            "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:"
+          },
+          "points": {
+            "type": "array",
+            "description": "Array of coordinate points to convert. Each point contains x, y, and optionally z values interpreted according to the fromCRS. Minimum 1 point required.",
+            "minItems": 1,
+            "example": [
+              {
+                "x": -90,
+                "y": 30,
+                "z": 0
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Points"
+            }
+          },
+          "transformation": {
+            "type": "string",
+            "description": "Optional explicit coordinate transformation to apply. When specified, this overrides any early-bound transformation embedded in the CRS definitions. Use this for precise control when multiple valid transformations exist between the source and target CRS. Can be an OSDU record ID or persistable reference string.",
+            "example": "osdu:reference-data--CoordinateTransformation:EPSG::15851:"
+          }
         },
-        "toCRS": {
-          "type": "string",
-          "description": "Target CRS as persistable reference string or recordId.",
-          "example": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:"
-        },
-        "points": {
-          "type": "array",
-          "description": "List of points to be converted",
-          "example": [
+        "example": {
+          "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
+          "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
+          "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
+          "points": [
             {
-              "x": -90,
-              "y": 30,
+              "x": -90.0,
+              "y": 30.0,
               "z": 0
             }
-          ],
-          "items": {
-            "$ref": "#/definitions/Points"
-          }
-        },
-        "transformation": {
-          "type": "string",
-          "description": "CRS Transform",
-          "example": "osdu:reference-data--CoordinateTransformation:EPSG::15851:"
+          ]
         }
       },
-      "example":{
-        "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4326:",
-        "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
-        "transformation": "osdu:reference-data--CoordinateTransformation:EPSG::15851:",
-        "points": [
-          {
-            "x": -90.0,
-            "y": 30.0,
-            "z": 0
+      "Points": {
+        "title": "Input Point",
+        "required": [
+          "x",
+          "y"
+        ],
+        "type": "object",
+        "description": "A coordinate point for conversion. Coordinate interpretation depends on the source CRS type.",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "X coordinate value. For geographic CRS: longitude in degrees (-180 to +180). For projected CRS: easting in the CRS linear unit.",
+            "format": "double",
+            "example": -90
+          },
+          "y": {
+            "type": "number",
+            "description": "Y coordinate value. For geographic CRS: latitude in degrees (-90 to +90). For projected CRS: northing in the CRS linear unit.",
+            "format": "double",
+            "example": 30
+          },
+          "z": {
+            "type": "number",
+            "description": "Z coordinate value (optional). Represents elevation or depth. The interpretation depends on the vertical CRS or datum being used.",
+            "format": "double",
+            "example": 0.0
           }
-        ]
-      }
-    },
-    "Points": {
-      "required": [
-        "x",
-        "y",
-        "z"
-      ],
-      "type": "object",
-      "properties": {
-        "x": {
-          "type": "number",
-          "description": "x coordinate or longitude",
-          "format": "double",
-          "example": -90
-        },
-        "y": {
-          "type": "number",
-          "description": "y coordinate or latitude",
-          "format": "double",
-          "example": 30
-        },
-        "z": {
-          "type": "number",
-          "description": "z coordinate",
-          "format": "double",
-          "example": 0.0
         }
       },
-      "description": "Point representation for CRS operations"
-    },
-    "ConvertPointsResponse": {
-      "type": "object",
-      "properties": {
-        "successCount": {
-          "type": "integer",
-          "description": "Number of points successfully converted. If the number is less than the request array length conversion/transformation failures occurred.",
-          "example": "1"
+      "ConvertPointsResponse": {
+        "title": "Convert Points Response",
+        "type": "object",
+        "description": "Response containing the converted coordinate points and metadata about the conversion operation.",
+        "properties": {
+          "successCount": {
+            "type": "integer",
+            "description": "Number of points successfully converted. Compare with the input array length to detect conversion failures. Points that fail conversion will have NaN values in the output.",
+            "example": 1
+          },
+          "points": {
+            "type": "array",
+            "description": "Converted points in the target CRS. Array length and order match the input. Failed conversions are represented with NaN (Not a Number) values for coordinates.",
+            "items": {
+              "$ref": "#/components/schemas/Points"
+            },
+            "example": [
+              {
+                "x": -89.99993037859349,
+                "y": 29.999797886559996,
+                "z": 0.0
+              }
+            ]
+          },
+          "operationsApplied": {
+            "type": "array",
+            "description": "Ordered list of coordinate operations (conversions and transformations) that were applied during the conversion. Useful for auditing and understanding the conversion path.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"
+            ]
+          }
         },
-        "points": {
-          "type": "array",
-          "description": "Converted points; length and order of the array is the same as in the request. Points, which failed to convert, are returned as NaN.",
-          "example": [
+        "example": {
+          "successCount": 1,
+          "points": [
             {
               "x": -89.99993037859349,
               "y": 29.999797886559996,
               "z": 0.0
             }
+          ],
+          "operationsApplied": [
+            "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"
           ]
-        },
-        "operationsApplied": {
-          "type": "array",
-          "description": "The list of operations performed on the points as a list of strings",
-          "example": ["transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"]
         }
       },
-      "example":{
-        "successCount": 1,
-        "points": [
-          {
-            "x": -89.99993037859349,
-            "y": 29.999797886559996,
-            "z": 0.0
+      "ConvertGeoJsonResponse": {
+        "title": "Convert GeoJSON/AnyCrsGeoJson response",
+        "description": "Response of a CRS conversion/transformation operation involving GeoJSON FeatureCollection or AnyCrsFeatureCollection.",
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "description": "The total number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection."
+          },
+          "successCount": {
+            "type": "integer",
+            "description": "The number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection successfully converted/transformed. If this number is less than totalCount then conversion/transformation errors have occurred."
+          },
+          "featureCollection": {
+            "$ref": "#/components/schemas/AnyCrsGeoJsonFeatureCollection"
+          },
+          "operationsApplied": {
+            "type": "array",
+            "description": "The list of operations, which have been applied to the points",
+            "items": {
+              "type": "string"
+            }
           }
-        ],
-        "operationsApplied": [
-          "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 1 points successfully transformed"
+        },
+        "example": {
+          "successCount": 4,
+          "totalCount": 4,
+          "featureCollection": {
+            "type": "AnyCrsFeatureCollection",
+            "features": [
+              {
+                "type": "AnyCrsFeature",
+                "geometry": {
+                  "type": "AnyCrsPolygon",
+                  "coordinates": [
+                    [
+                      [
+                        697339.5244002484,
+                        7239989.402995734,
+                        0.0
+                      ],
+                      [
+                        697339.5244002484,
+                        7239989.499995734,
+                        0.0
+                      ],
+                      [
+                        697339.5244002484,
+                        7239989.599995733,
+                        0.0
+                      ],
+                      [
+                        697339.5244002484,
+                        7239989.402995734,
+                        0.0
+                      ]
+                    ]
+                  ]
+                },
+                "properties": {}
+              }
+            ],
+            "properties": {},
+            "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"GCS_North_American_1927\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4267]]\"}",
+            "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
+          },
+          "operationsApplied": [
+            "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 4 points successfully transformed",
+            "No unit conversion for Z-axis"
+          ]
+        }
+      },
+      "MeasuredDepthInterval": {
+        "type": "object",
+        "title": "Measured Depth Interpolation Specification",
+        "description": "Defines where additional trajectory stations should be interpolated. Use either md_i for specific depths or md_interval for regular spacing - not both.",
+        "properties": {
+          "md_i": {
+            "type": "array",
+            "description": "Explicit list of measured depth values where interpolated stations should be generated. Values must be within the range of input station MDs. Units follow unitMD (or unitZ if unitMD not specified).",
+            "items": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": [
+              50,
+              75,
+              100,
+              150,
+              200
+            ]
+          },
+          "md_interval": {
+            "type": "number",
+            "format": "double",
+            "description": "Regular interval for generating interpolated stations. Stations are created from the first input MD to the last at this spacing. Example: 25.0 generates stations at 0, 25, 50, 75, etc.",
+            "example": 25.0,
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        }
+      },
+      "TrajectoryStationInV4": {
+        "title": "Input Trajectory Station",
+        "type": "object",
+        "description": "Input survey station data for trajectory computation. Required fields depend on the inputKind parameter. For MD_Incl_Azim: md, inclination, azimuth. For dX_dY_dZ: dx, dy, dz.",
+        "properties": {
+          "md": {
+            "type": "number",
+            "description": "Measured Depth - distance along the wellbore from the reference point (e.g., kelly bushing). Required for most inputKind values. Unit is specified by unitZ or unitMD.",
+            "format": "double",
+            "example": 2563.56,
+            "minimum": 0
+          },
+          "inclination": {
+            "type": "number",
+            "description": "Wellbore inclination angle in degrees. 0\u00b0 = vertical (down), 90\u00b0 = horizontal, 180\u00b0 = vertical (up). Required for MD_Incl_Azim and MD_Incl inputKind.",
+            "format": "double",
+            "example": 15.0,
+            "minimum": 0,
+            "maximum": 180
+          },
+          "azimuth": {
+            "type": "number",
+            "description": "Wellbore azimuth (direction) angle in degrees. 0\u00b0/360\u00b0 = North, 90\u00b0 = East, 180\u00b0 = South, 270\u00b0 = West. Reference (True North or Grid North) is specified by azimuthReference.",
+            "format": "double",
+            "example": 355.0,
+            "minimum": 0,
+            "maximum": 360
+          },
+          "dx": {
+            "type": "number",
+            "description": "East-West displacement from the well reference point. Positive = East. Used for dX_dY_dZ and MD_dX_dY_dZ inputKind. Unit is specified by unitXY.",
+            "format": "double",
+            "example": 55.9
+          },
+          "dy": {
+            "type": "number",
+            "description": "North-South displacement from the well reference point. Positive = North. Y-axis alignment (True North or Grid North) depends on azimuthReference. Unit is specified by unitXY.",
+            "format": "double",
+            "example": -145.3
+          },
+          "dz": {
+            "type": "number",
+            "description": "Vertical displacement (True Vertical Depth) from the well reference point. Positive = deeper/downward. Unit is specified by unitZ.",
+            "format": "double",
+            "example": 1965.6
+          }
+        },
+        "example": [
+          {
+            "md": 0,
+            "inclination": 0,
+            "azimuth": 0
+          },
+          {
+            "md": 1000,
+            "inclination": 0,
+            "azimuth": 0
+          },
+          {
+            "md": 2000,
+            "inclination": 90,
+            "azimuth": 0
+          },
+          {
+            "md": 3000,
+            "inclination": 90,
+            "azimuth": 0
+          },
+          {
+            "md": 5000,
+            "inclination": 90,
+            "azimuth": 90
+          },
+          {
+            "md": 6000,
+            "inclination": 90,
+            "azimuth": 90
+          }
         ]
-      }
-    },
-    "ConvertGeoJsonResponse": {
-      "title": "Convert GeoJSON/AnyCrsGeoJson response",
-      "description": "Response of a CRS conversion/transformation operation involving GeoJSON FeatureCollection or AnyCrsFeatureCollection.",
-      "type": "object",
-      "properties": {
-        "totalCount": {
-          "type": "integer",
-          "description": "The total number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection."
+      },
+      "ConvertTrajectoryResponseV4": {
+        "required": [
+          "localCRS",
+          "method",
+          "stations",
+          "trajectoryCRS",
+          "unitDls",
+          "unitXY",
+          "unitZ"
+        ],
+        "type": "object",
+        "properties": {
+          "trajectoryCRS": {
+            "type": "string",
+            "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.",
+            "example": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"30200002\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"30200\"},\"name\":\"Trinidad_1903_Trinidad_Grid\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"Trinidad_1903_Trinidad_Grid\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Cassini\\\"],PARAMETER[\\\"False_Easting\\\",430000.0],PARAMETER[\\\"False_Northing\\\",325000.0],PARAMETER[\\\"Central_Meridian\\\",-61.3333333333333],PARAMETER[\\\"Scale_Factor\\\",1.0],PARAMETER[\\\"Latitude_Of_Origin\\\",10.4416666666667],UNIT[\\\"Link_Clarke\\\",0.201166195164],AUTHORITY[\\\"EPSG\\\",30200]]\"},\"name\":\"Trinidad 1903 * EOG-Tto Trin / Trinidad Grid [30200,10085]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"10085\"},\"name\":\"Trinidad_1903_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"Trinidad_1903_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-61.0],PARAMETER[\\\"Y_Axis_Translation\\\",285.2],PARAMETER[\\\"Z_Axis_Translation\\\",471.6],AUTHORITY[\\\"EPSG\\\",10085]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}"
+          },
+          "unitXY": {
+            "type": "string",
+            "description": "The horizontal unit of the dx, dy in the output trajectory stations.",
+            "example": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+          },
+          "unitZ": {
+            "type": "string",
+            "description": "The vertical unit of the dz in the output trajectory stations.",
+            "example": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
+          },
+          "unitDls": {
+            "type": "string",
+            "description": "The unit of the dog leg severity (DLS) in the output trajectory stations.",
+            "example": "%7B%22ScaleOffset%22%3A%7B%22Scale%22%3A5.72614583987641E-4%2C%22Offset%22%3A0.0%7D%2C%22Symbol%22%3A%22deg%2F100ft%22%2C%22BaseMeasurement%22%3A%22%257B%2522Ancestry%2522%253A%2522Rotation_Per_Length%2522%257D%22%7D"
+          },
+          "stations": {
+            "type": "array",
+            "description": "Computed trajectory stations.",
+            "items": {
+              "$ref": "#/components/schemas/TrajectoryStationOut"
+            }
+          },
+          "localCRS": {
+            "type": "string",
+            "description": "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location.",
+            "example": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"30200002\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"30200\"},\"name\":\"Trinidad_1903_Trinidad_Grid\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"Trinidad_1903_Trinidad_Grid\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Cassini\\\"],PARAMETER[\\\"False_Easting\\\",430000.0],PARAMETER[\\\"False_Northing\\\",325000.0],PARAMETER[\\\"Central_Meridian\\\",-61.3333333333333],PARAMETER[\\\"Scale_Factor\\\",1.0],PARAMETER[\\\"Latitude_Of_Origin\\\",10.4416666666667],UNIT[\\\"Link_Clarke\\\",0.201166195164],AUTHORITY[\\\"EPSG\\\",30200]]\"},\"name\":\"Trinidad 1903 * EOG-Tto Trin / Trinidad Grid [30200,10085]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"10085\"},\"name\":\"Trinidad_1903_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"Trinidad_1903_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-61.0],PARAMETER[\\\"Y_Axis_Translation\\\",285.2],PARAMETER[\\\"Z_Axis_Translation\\\",471.6],AUTHORITY[\\\"EPSG\\\",10085]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}"
+          },
+          "method": {
+            "type": "string",
+            "description": "The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813).",
+            "example": "AzimuthalEquidistant"
+          },
+          "operationsApplied": {
+            "type": "array",
+            "description": "The list of operations performed on the points as a list of strings",
+            "items": {
+              "type": "string",
+              "description": "The list of operations performed on the points as a list of strings"
+            }
+          },
+          "stations_i": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrajectoryStationOut"
+            }
+          },
+          "scaleConvergenceList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScaleConvergence"
+            }
+          },
+          "unitMD": {
+            "type": "string",
+            "description": "Unit of measure for Measured Depth (MD) values. Defaults to unitZ if not specified in the request."
+          },
+          "inputKind": {
+            "type": "string",
+            "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.",
+            "example": "MD_Inclination_Azimuth"
+          }
         },
-        "successCount": {
-          "type": "integer",
-          "description": "The number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection successfully converted/transformed. If this number is less than totalCount then conversion/transformation errors have occurred."
-        },
-        "featureCollection": {
-          "$ref": "#/definitions/AnyCrsGeoJsonFeatureCollection"
-        },
-        "operationsApplied": {
-          "type": "array",
-          "description": "The list of operations, which have been applied to the points",
-          "items": {
+        "example": {
+          "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
+          "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+          "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+          "unitDls": "{\"scaleOffset\":{\"scale\":5.72614583987641E-4,\"offset\":0.0},\"symbol\":\"deg/100ft\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
+          "stations": [
+            {
+              "md": 0.0,
+              "inclination": 0.0,
+              "azimuthTN": 18.529449533844627,
+              "azimuthGN": 20.0,
+              "dxTN": 0.0,
+              "dyTN": 0.0,
+              "point": {
+                "x": 399999.99999999936,
+                "y": 6499999.999999927,
+                "z": 100.0
+              },
+              "wgs84Longitude": 1.2778067531835464,
+              "wgs84Latitude": 58.62877104865894,
+              "dls": 0.0,
+              "original": true,
+              "dz": 0.0
+            },
+            {
+              "md": 100.0,
+              "inclination": 10.0,
+              "azimuthTN": 38.52944953384463,
+              "azimuthGN": 40.0,
+              "dxTN": 5.422189533665295,
+              "dyTN": 6.809439428156647,
+              "point": {
+                "x": 400005.59360307665,
+                "y": 6500006.666196379,
+                "z": 0.5069229954701058
+              },
+              "wgs84Longitude": 1.2779000901442394,
+              "wgs84Latitude": 58.62883218086717,
+              "dls": 3.048000000000004,
+              "original": true,
+              "dz": 99.4930770045299
+            }
+          ],
+          "localCRS": "{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=1.27780675;Lat=58.62877105\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",1.2778067531835273],PARAMETER[\\\"Latitude_Of_Origin\\\",58.62877104865958],UNIT[\\\"Meter\\\",1.0]]\"}",
+          "method": "AzimuthalEquidistant",
+          "operationsApplied": [
+            "derived TN from GN azimuth by grid convergence 358.529450",
+            "unitMD Factor value: 1.0 is used for computation of MD",
+            "computed deflections via minimum curvature method",
+            "computation method: AzimuthalEquidistant",
+            "conversion from 'Azimuthal Equidistant' to 'GCS_WGS_1984'",
+            "conversion from 'GCS_WGS_1984' to 'WGS_1984_UTM_Zone_31N'",
+            "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 2 points converted",
+            "Interpolation for MD_i input stations;2 points interpolated",
+            "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 2 points converted"
+          ],
+          "stations_i": [
+            {
+              "md": 50.0,
+              "inclination": 4.999999999999992,
+              "azimuthTN": 38.52944953384463,
+              "azimuthGN": 40.0,
+              "dxTN": 1.35813143348407,
+              "dyTN": 1.7056050280731863,
+              "point": {
+                "x": 400001.40145529207,
+                "y": 6500001.670189307,
+                "z": 50.063437802312535
+              },
+              "wgs84Longitude": 1.2778301383620794,
+              "wgs84Latitude": 58.628786365100225,
+              "dls": 5.0,
+              "original": false,
+              "dz": 49.936562197687465
+            },
+            {
+              "md": 75.0,
+              "inclination": 7.4999999999999645,
+              "azimuthTN": 38.52944953384463,
+              "azimuthGN": 40.0,
+              "dxTN": 3.0533721019185904,
+              "dyTN": 3.834567613423716,
+              "point": {
+                "x": 400003.1507734719,
+                "y": 6500003.754945532,
+                "z": 25.214000698777227
+              },
+              "wgs84Longitude": 1.2778593281324027,
+              "wgs84Latitude": 58.628805483313386,
+              "dls": 7.499999999999999,
+              "original": false,
+              "dz": 74.78599930122277
+            }
+          ],
+          "scaleConvergenceList": [
+            {
+              "scalefactor": 0.999723,
+              "convergence": -1.47055,
+              "point": {
+                "x": 399999.99999999936,
+                "y": 6499999.999999927,
+                "z": 100.0
+              }
+            },
+            {
+              "scalefactor": 0.999723,
+              "convergence": -1.47047,
+              "point": {
+                "x": 400005.59360307665,
+                "y": 6500006.666196379,
+                "z": 0.5069229954701058
+              }
+            }
+          ],
+          "unitMD": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
+          "inputKind": "MD_Incl_Azim"
+        }
+      },
+      "ScaleConvergence": {
+        "type": "object",
+        "properties": {
+          "scalefactor": {
+            "type": "number",
+            "description": "Multiplier to correct a distance along the ellipsoid (\u201cgeodetic distance\u201d) to the grid plane of the map projection (\u201cgrid distance\u201d). Note: only a conformal map projection has the same point scale factor in all directions at a given location",
+            "example": "0.999723",
+            "format": "double"
+          },
+          "convergence": {
+            "type": "number",
+            "description": "Grid convergence is important in wellbore positioning if azimuth angles are reported referenced to Grid North and observations need to be corrected. ",
+            "example": "-1.47055",
+            "format": "double"
+          },
+          "point": {
+            "$ref": "#/components/schemas/Point"
+          }
+        }
+      },
+      "VersionInfo": {
+        "type": "object",
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "buildTime": {
+            "type": "string"
+          },
+          "commitId": {
+            "type": "string"
+          },
+          "commitMessage": {
+            "type": "string"
+          },
+          "connectedOuterServices": {
+            "type": "array"
+          },
+          "groupId": {
+            "type": "string"
+          },
+          "version": {
             "type": "string"
           }
         }
-      },
-      "example": {
-        "successCount": 4,
-        "totalCount": 4,
-        "featureCollection": {
-          "type": "AnyCrsFeatureCollection",
-          "features": [
-            {
-              "type": "AnyCrsFeature",
-              "geometry": {
-                "type": "AnyCrsPolygon",
-                "coordinates": [
-                  [
-                    [
-                      697339.5244002484,
-                      7239989.402995734,
-                      0.0
-                    ],
-                    [
-                      697339.5244002484,
-                      7239989.499995734,
-                      0.0
-                    ],
-                    [
-                      697339.5244002484,
-                      7239989.599995733,
-                      0.0
-                    ],
-                    [
-                      697339.5244002484,
-                      7239989.402995734,
-                      0.0
-                    ]
-                  ]
-                ]
-              },
-              "properties": {}
-            }
-          ],
-          "properties": {},
-          "persistableReferenceCrs": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4267\"},\"name\":\"GCS_North_American_1927\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_North_American_1927\\\",DATUM[\\\"D_North_American_1927\\\",SPHEROID[\\\"Clarke_1866\\\",6378206.4,294.9786982]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4267]]\"}",
-          "persistableReferenceUnitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}"
-        },
-        "operationsApplied": [
-          "transformation GCS_WGS_1984 to GCS_North_American_1927 using NAD_1927_To_WGS_1984_79_CONUS; 4 points successfully transformed",
-          "No unit conversion for Z-axis"
-        ]
-      }
-    },
-    "MinimumDepthInterval": {
-      "type": "object",
-      "properties": {
-        "md_i": {
-          "type": "array",
-          "items": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "md_interval": {
-          "type": "number",
-          "format": "double"
-        }
-      }
-    },
-    "TrajectoryStationInV4": {
-      "required": [
-        "inclination",
-        "md"
-      ],
-      "type": "object",
-      "properties": {
-        "md": {
-          "type": "number",
-          "description": "MD (measured depth) from vertical reference point in 'unitZ'.",
-          "format": "double",
-          "example": 2563.56
-        },
-        "inclination": {
-          "type": "number",
-          "description": "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal.",
-          "format": "double",
-          "example": 15.0
-        },
-        "azimuth": {
-          "type": "number",
-          "description": "Azimuth angle in degrees of arc, 0.0/360.0 is North; reference given by azimuthReference (TRUE_NORTH or GridNorth).",
-          "format": "double",
-          "example": 355.0
-        },
-        "dx": {
-          "type": "number",
-          "description": "E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY' or projected 'trajectoryCRS'.",
-          "format": "double",
-          "example": 55.9
-        },
-        "dy": {
-          "type": "number",
-          "description": "N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with azimuth reference (TRUE_NORTH or projected GridNorth); unit is given by container's 'unitXY' or projected 'trajectoryCRS'.",
-          "format": "double",
-          "example": -145.3
-        },
-        "dz": {
-          "type": "number",
-          "description": "True vertical deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's unitZ; downwards positive.",
-          "format": "double",
-          "example": 1965.6
-        }
-      },
-      "description": "Input trajectory station record; context is provided by the container.",
-      "example": [
-        {
-          "md": 0,
-          "inclination": 0,
-          "azimuth": 0
-        },
-        {
-          "md": 1000,
-          "inclination": 0,
-          "azimuth": 0
-        },
-        {
-          "md": 2000,
-          "inclination": 90,
-          "azimuth": 0
-        },
-        {
-          "md": 3000,
-          "inclination": 90,
-          "azimuth": 0
-        },
-        {
-          "md": 5000,
-          "inclination": 90,
-          "azimuth": 90
-        },
-        {
-          "md": 6000,
-          "inclination": 90,
-          "azimuth": 90
-        }
-      ]
-    },
-    "ConvertTrajectoryResponseV4": {
-      "required": [
-        "localCRS",
-        "method",
-        "stations",
-        "trajectoryCRS",
-        "unitDls",
-        "unitXY",
-        "unitZ"
-      ],
-      "type": "object",
-      "properties": {
-        "trajectoryCRS": {
-          "type": "string",
-          "description": "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.",
-          "example": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"30200002\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"30200\"},\"name\":\"Trinidad_1903_Trinidad_Grid\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"Trinidad_1903_Trinidad_Grid\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Cassini\\\"],PARAMETER[\\\"False_Easting\\\",430000.0],PARAMETER[\\\"False_Northing\\\",325000.0],PARAMETER[\\\"Central_Meridian\\\",-61.3333333333333],PARAMETER[\\\"Scale_Factor\\\",1.0],PARAMETER[\\\"Latitude_Of_Origin\\\",10.4416666666667],UNIT[\\\"Link_Clarke\\\",0.201166195164],AUTHORITY[\\\"EPSG\\\",30200]]\"},\"name\":\"Trinidad 1903 * EOG-Tto Trin / Trinidad Grid [30200,10085]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"10085\"},\"name\":\"Trinidad_1903_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"Trinidad_1903_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-61.0],PARAMETER[\\\"Y_Axis_Translation\\\",285.2],PARAMETER[\\\"Z_Axis_Translation\\\",471.6],AUTHORITY[\\\"EPSG\\\",10085]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}"
-        },
-        "unitXY": {
-          "type": "string",
-          "description": "The horizontal unit of the dx, dy in the output trajectory stations.",
-          "example": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
-        },
-        "unitZ": {
-          "type": "string",
-          "description": "The vertical unit of the dz in the output trajectory stations.",
-          "example": "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}"
-        },
-        "unitDls": {
-          "type": "string",
-          "description": "The unit of the dog leg severity (DLS) in the output trajectory stations.",
-          "example": "%7B%22ScaleOffset%22%3A%7B%22Scale%22%3A5.72614583987641E-4%2C%22Offset%22%3A0.0%7D%2C%22Symbol%22%3A%22deg%2F100ft%22%2C%22BaseMeasurement%22%3A%22%257B%2522Ancestry%2522%253A%2522Rotation_Per_Length%2522%257D%22%7D"
-        },
-        "stations": {
-          "type": "array",
-          "description": "Computed trajectory stations.",
-          "items": {
-            "$ref": "#/definitions/TrajectoryStationOut"
-          }
-        },
-        "localCRS": {
-          "type": "string",
-          "description": "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location.",
-          "example": "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"30200002\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"30200\"},\"name\":\"Trinidad_1903_Trinidad_Grid\",\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"wkt\":\"PROJCS[\\\"Trinidad_1903_Trinidad_Grid\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Cassini\\\"],PARAMETER[\\\"False_Easting\\\",430000.0],PARAMETER[\\\"False_Northing\\\",325000.0],PARAMETER[\\\"Central_Meridian\\\",-61.3333333333333],PARAMETER[\\\"Scale_Factor\\\",1.0],PARAMETER[\\\"Latitude_Of_Origin\\\",10.4416666666667],UNIT[\\\"Link_Clarke\\\",0.201166195164],AUTHORITY[\\\"EPSG\\\",30200]]\"},\"name\":\"Trinidad 1903 * EOG-Tto Trin / Trinidad Grid [30200,10085]\",\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"10085\"},\"name\":\"Trinidad_1903_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"wkt\":\"GEOGTRAN[\\\"Trinidad_1903_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Trinidad_1903\\\",DATUM[\\\"D_Trinidad_1903\\\",SPHEROID[\\\"Clarke_1858\\\",6378293.64520876,294.260676369]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-61.0],PARAMETER[\\\"Y_Axis_Translation\\\",285.2],PARAMETER[\\\"Z_Axis_Translation\\\",471.6],AUTHORITY[\\\"EPSG\\\",10085]]\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\"}"
-        },
-        "method": {
-          "type": "string",
-          "description": "The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813).",
-          "example": "AzimuthalEquidistant"
-        },
-        "operationsApplied": {
-          "type": "array",
-          "description": "The list of operations performed on the points as a list of strings",
-          "items": {
-            "type": "string",
-            "description": "The list of operations performed on the points as a list of strings"
-          }
-        },
-        "stations_i": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/TrajectoryStationOut"
-          }
-        },
-        "scaleConvergenceList": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ScaleConvergence"
-          }
-        },
-        "unitMD": {
-          "type": "string"
-        },
-        "inputKind": {
-          "type": "string",
-          "description": "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.",
-          "example": "MD_Inclination_Azimuth"
-        }
-      },
-      "example":{
-        "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
-        "unitXY": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
-        "unitZ": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
-        "unitDls": "{\"scaleOffset\":{\"scale\":5.72614583987641E-4,\"offset\":0.0},\"symbol\":\"deg/100ft\",\"baseMeasurement\":{\"ancestry\":\"Rotation_Per_Length\",\"type\":\"UM\"},\"type\":\"USO\"}",
-        "stations": [
-          {
-            "md": 0.0,
-            "inclination": 0.0,
-            "azimuthTN": 18.529449533844627,
-            "azimuthGN": 20.0,
-            "dxTN": 0.0,
-            "dyTN": 0.0,
-            "point": {
-              "x": 399999.99999999936,
-              "y": 6499999.999999927,
-              "z": 100.0
-            },
-            "wgs84Longitude": 1.2778067531835464,
-            "wgs84Latitude": 58.62877104865894,
-            "dls": 0.0,
-            "original": true,
-            "dz": 0.0
-          },
-          {
-            "md": 100.0,
-            "inclination": 10.0,
-            "azimuthTN": 38.52944953384463,
-            "azimuthGN": 40.0,
-            "dxTN": 5.422189533665295,
-            "dyTN": 6.809439428156647,
-            "point": {
-              "x": 400005.59360307665,
-              "y": 6500006.666196379,
-              "z": 0.5069229954701058
-            },
-            "wgs84Longitude": 1.2779000901442394,
-            "wgs84Latitude": 58.62883218086717,
-            "dls": 3.048000000000004,
-            "original": true,
-            "dz": 99.4930770045299
-          }
-        ],
-        "localCRS": "{\"name\":\"Azimuthal Equidistant\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"Azimuthal Equidistant Lng=1.27780675;Lat=58.62877105\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Modified Azimuthal_Equidistant\\\"],PARAMETER[\\\"False_Easting\\\",0.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",1.2778067531835273],PARAMETER[\\\"Latitude_Of_Origin\\\",58.62877104865958],UNIT[\\\"Meter\\\",1.0]]\"}",
-        "method": "AzimuthalEquidistant",
-        "operationsApplied": [
-          "derived TN from GN azimuth by grid convergence 358.529450",
-          "unitMD Factor value: 1.0 is used for computation of MD",
-          "computed deflections via minimum curvature method",
-          "computation method: AzimuthalEquidistant",
-          "conversion from 'Azimuthal Equidistant' to 'GCS_WGS_1984'",
-          "conversion from 'GCS_WGS_1984' to 'WGS_1984_UTM_Zone_31N'",
-          "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 2 points converted",
-          "Interpolation for MD_i input stations;2 points interpolated",
-          "to WGS 84: conversion from WGS_1984_UTM_Zone_31N to GCS_WGS_1984; 2 points converted"
-        ],
-        "stations_i": [
-          {
-            "md": 50.0,
-            "inclination": 4.999999999999992,
-            "azimuthTN": 38.52944953384463,
-            "azimuthGN": 40.0,
-            "dxTN": 1.35813143348407,
-            "dyTN": 1.7056050280731863,
-            "point": {
-              "x": 400001.40145529207,
-              "y": 6500001.670189307,
-              "z": 50.063437802312535
-            },
-            "wgs84Longitude": 1.2778301383620794,
-            "wgs84Latitude": 58.628786365100225,
-            "dls": 5.0,
-            "original": false,
-            "dz": 49.936562197687465
-          },
-          {
-            "md": 75.0,
-            "inclination": 7.4999999999999645,
-            "azimuthTN": 38.52944953384463,
-            "azimuthGN": 40.0,
-            "dxTN": 3.0533721019185904,
-            "dyTN": 3.834567613423716,
-            "point": {
-              "x": 400003.1507734719,
-              "y": 6500003.754945532,
-              "z": 25.214000698777227
-            },
-            "wgs84Longitude": 1.2778593281324027,
-            "wgs84Latitude": 58.628805483313386,
-            "dls": 7.499999999999999,
-            "original": false,
-            "dz": 74.78599930122277
-          }
-        ],
-        "scaleConvergenceList": [
-          {
-            "scalefactor": 0.999723,
-            "convergence": -1.47055,
-            "point": {
-              "x": 399999.99999999936,
-              "y": 6499999.999999927,
-              "z": 100.0
-            }
-          },
-          {
-            "scalefactor": 0.999723,
-            "convergence": -1.47047,
-            "point": {
-              "x": 400005.59360307665,
-              "y": 6500006.666196379,
-              "z": 0.5069229954701058
-            }
-          }
-        ],
-        "unitMD": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
-        "inputKind": "MD_Incl_Azim"
-      }
-    },
-    "ScaleConvergence": {
-      "type": "object",
-      "properties": {
-        "scalefactor": {
-          "type": "number",
-          "description":"Multiplier to correct a distance along the ellipsoid (“geodetic distance”) to the grid plane of the map projection (“grid distance”). Note: only a conformal map projection has the same point scale factor in all directions at a given location",
-          "example":"0.999723",
-          "format": "double"
-        },
-        "convergence": {
-          "type": "number",
-          "description":"Grid convergence is important in wellbore positioning if azimuth angles are reported referenced to Grid North and observations need to be corrected. ",
-          "example":"-1.47055",
-          "format": "double"
-        },
-        "point": {
-          "$ref": "#/definitions/Point"
-        }
-      }
-    }
-  },
-  "VersionInfo": {
-    "type": "object",
-    "properties": {
-      "artifactId": {
-        "type": "string"
-      },
-      "branch": {
-        "type": "string"
-      },
-      "buildTime": {
-        "type": "string"
-      },
-      "commitId": {
-        "type": "string"
-      },
-      "commitMessage": {
-        "type": "string"
-      },
-      "connectedOuterServices": {
-        "type": "array"
-      },
-      "groupId": {
-        "type": "string"
-      },
-      "version": {
-        "type": "string"
       }
     }
   }

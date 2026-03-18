@@ -78,8 +78,8 @@ public class CrsConverterApiV4 {
         } catch (Exception e) {
             return str; // try our best to return user input
         }
-        // persistableReference string starts with "{..}"
-        if (temp.startsWith("{") && mustID == false) {
+        // persistableReference string starts with "{..}" - also check for JSON with leading whitespace
+        if ((temp.trim().startsWith("{") || temp.contains("{\"")) && mustID == false) {
             return str;
         }
         // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
@@ -143,6 +143,11 @@ public class CrsConverterApiV4 {
         } catch (Exception e) {
             return trajectoryCRS; // try our best to return user input
         }
+        // If it's a persistable reference JSON, we can't extract HorizontalAxisUnitID from it
+        // The caller should provide unitXY explicitly when using persistable reference
+        if (temp.trim().startsWith("{") || temp.contains("{\"")) {
+            return null; // Signal that unit must be provided separately
+        }
         temp = RecordIdNormalizer.normalizeRecordID(temp);
         Record dataRecord = storageClient.getRecord(temp);
         if (dataRecord == null)
@@ -160,6 +165,12 @@ public class CrsConverterApiV4 {
         } catch (Exception e) {
             return false; // try our best to return user input
         }
+        // If it's a persistable reference JSON, check if it contains "LBC" (LateBoundCRS) type
+        // which indicates a projected CRS
+        if (temp.trim().startsWith("{") || temp.contains("{\"")) {
+            // It's a persistable reference JSON - check for projected CRS indicators
+            return temp.contains("\"type\":\"LBC\"") || temp.contains("PROJCS");
+        }
         temp = RecordIdNormalizer.normalizeRecordID(temp);
         Record dataRecord = storageClient.getRecord(temp);
         if (dataRecord == null)
@@ -173,7 +184,7 @@ public class CrsConverterApiV4 {
 
     @PostMapping(value ="/convertTrajectory", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "${CrsConverterApi.convertTrajectoryV4.summary}", description = "${CrsConverterApi.convertTrajectoryV4.description}",
-            security = {@SecurityRequirement(name = "Authorization")},tags = {"crs-converter-api-v4 (Experimental)"})
+            security = {@SecurityRequirement(name = "Authorization")},tags = {"Convert"})
     @ApiResponses({
             @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponseV4.class),
             @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
@@ -187,15 +198,37 @@ public class CrsConverterApiV4 {
         DpsHeaders dpsHeaders = DpsHeaders.createFromEntrySet(headers.entrySet());
         String trajectorycrs = request.getTrajectoryCRS();
 
-        if (!request.getInputKind().equals(Constants.DX_DY_DZ) && (request.getTrajectoryCRS().contains(BOUND_PROJECTED) || request.getTrajectoryCRS().contains(PROJECTED))) {
-            if (!Strings.isNullOrEmpty(request.getUnitXY())) {
-                throw new ValidationException("unitXY should not be provided for BoundProjected and Projected CRS.");
-            }
-            String unit = getUnitFromTrajectoryCRS(request.getTrajectoryCRS());
-            request.setUnitXY(getPersistableReferenceFromID(unit, false));
-        } else
-            request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
+        // Check CRS type first to determine if it's a projected CRS
         Boolean checkCRSType = checkCRSType(request.getTrajectoryCRS());
+        // Handle unitXY based on CRS type
+        // For projected CRS (BoundProjected/Projected), unitXY is needed for output coordinates
+        if (!Constants.DX_DY_DZ.equals(request.getInputKind()) && checkCRSType) {
+            // Check if trajectoryCRS is a persistable reference (JSON) or a record ID
+            String tempCrs = request.getTrajectoryCRS();
+            try {
+                tempCrs = URLDecoder.decode(tempCrs, UTF_8);
+            } catch (Exception e) {
+                // ignore
+            }
+            boolean isPersistableReference = tempCrs.trim().startsWith("{") || tempCrs.contains("{\"");
+            
+            if (!Strings.isNullOrEmpty(request.getUnitXY())) {
+                // unitXY explicitly provided - use it (works for both CRS ID and persistable reference)
+                request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
+            } else if (isPersistableReference) {
+                // Persistable reference without unitXY - throw error
+                throw new ValidationException("unitXY is required when trajectoryCRS is defined by a persistable reference string.");
+            } else {
+                // CRS record ID without unitXY - derive from record
+                String unit = getUnitFromTrajectoryCRS(request.getTrajectoryCRS());
+                if (unit != null) {
+                    request.setUnitXY(getPersistableReferenceFromID(unit, false));
+                }
+            }
+        } else if (!Strings.isNullOrEmpty(request.getUnitXY())) {
+            request.setUnitXY(getPersistableReferenceFromID(request.getUnitXY(), false));
+        }
+        
         request.setTrajectoryCRS(getPersistableReferenceFromID(request.getTrajectoryCRS(), false));
         request.setUnitZ(getPersistableReferenceFromID(request.getUnitZ(), false));
         if (!Strings.isNullOrEmpty(request.getUnitMD())) {
@@ -215,7 +248,7 @@ public class CrsConverterApiV4 {
                 throw new ValidationException("md_i array values provided are not in range of MD stations.");
             }
         }
-        if (request.getInputKind().equals(Constants.MD_INCL)) {
+        if (Constants.MD_INCL.equals(request.getInputKind())) {
 
             request.getInputStations().stream().forEach(station -> {
                 if (station.getAzimuth() != null)
@@ -245,7 +278,7 @@ public class CrsConverterApiV4 {
             return response;
         }
 
-        if (request.getInputKind().equals(Constants.DX_DY_DZ)) {
+        if (Constants.DX_DY_DZ.equals(request.getInputKind())) {
             request.getInputStations().stream().forEach(station -> {
                 if (station.getAzimuth() != null || station.getInclination()!= null || station.getMd()!= null)
                     throw new ValidationException("Azimuth / Inclination / Minimum Depth data shouldn't be provided for input kind : " + request.getInputKind());
@@ -301,7 +334,7 @@ public class CrsConverterApiV4 {
 
     @PostMapping(value = "/convert", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "${CrsConverterApi.convertPoint.summary}", description = "${CrsConverterApi.convertPoint.description}",
-            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"},
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"Convert"},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)))
     @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
@@ -325,7 +358,7 @@ public class CrsConverterApiV4 {
 
     @PostMapping("/convertGeoJson")
     @Operation(summary = "${CrsConverterApi.geo_json_convert.summary}", description = "${CrsConverterApi.geo_json_convert.description}",
-            security = {@SecurityRequirement(name = "Authorization")}, tags = {"crs-converter-api-v4"})
+            security = {@SecurityRequirement(name = "Authorization")}, tags = {"Convert"})
     @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertGeoJsonResponse.class)) }),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),

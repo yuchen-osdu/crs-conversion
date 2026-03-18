@@ -36,7 +36,7 @@ The following software have components provided under the terms of this license:
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - Apache Log4j JUL Handler (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul)
 - Apache Log4j SLF4J Binding (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl)
-- Apache Log4j to SLF4J Adapter (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-to-slf4j)
+- Apache Log4j to SLF4J Adapter (from https://logging.apache.org/log4j/3.x/, https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-to-slf4j)
 - Apache SIS metadata (from https://repo1.maven.org/maven2/org/apache/sis/core/sis-metadata)
 - Apache SIS referencing (from http://sis.apache.org/)
 - Apache SIS referencing by geographic identifiers (from https://repo1.maven.org/maven2/org/apache/sis/core/sis-referencing-by-identifiers)
@@ -49,7 +49,7 @@ The following software have components provided under the terms of this license:
 - Byte Buddy (without dependencies) (from https://bytebuddy.net/, https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy)
 - Byte Buddy Java agent (from https://bytebuddy.net/, https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent)
 - CDI APIs (from http://cdi-spec.org/)
-- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
+- CDI Language Model (from https://projects.eclipse.org/projects/ee4j)
 - ClassMate (from http://github.com/cowtowncoder/java-classmate)
 - Collections (from https://repo1.maven.org/maven2/commons-collections/commons-collections)
 - Commons Digester (from http://commons.apache.org/digester/)
@@ -86,7 +86,7 @@ The following software have components provided under the terms of this license:
 - IBM COS SDK For Java (from https://github.com/ibm/ibm-cos-sdk-java)
 - IBM COS SDK for Java - Core (from https://github.com/ibm/ibm-cos-sdk-java)
 - J2ObjC Annotations (from https://github.com/google/j2objc/)
-- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org)
+- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org/)
 - JCIP Annotations under Apache License (from http://stephenc.github.com/jcip-annotations)
 - JJWT :: API (from https://github.com/jwtk/jjwt)
 - JJWT :: Extensions :: Jackson (from https://github.com/jwtk/jjwt)
@@ -394,7 +394,7 @@ The following software have components provided under the terms of this license:
 - Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
 - CDI APIs (from http://cdi-spec.org/)
-- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
+- CDI Language Model (from https://projects.eclipse.org/projects/ee4j)
 - Core :: ALPN :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-alpn-client)
 - Core :: EE Common (from https://jetty.org/)
 - Core :: Sessions (from https://jetty.org/)
@@ -452,7 +452,7 @@ The following software have components provided under the terms of this license:
 
 - Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - CDI APIs (from http://cdi-spec.org/)
-- CDI Language Model (from https://repo1.maven.org/maven2/jakarta/enterprise/jakarta.enterprise.lang-model)
+- CDI Language Model (from https://projects.eclipse.org/projects/ee4j)
 - Jakarta Activation API (from https://github.com/eclipse-ee4j/jaf, https://github.com/jakartaee/jaf-api, https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api, https://repo1.maven.org/maven2/javax/activation/javax.activation-api)
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 - Jakarta Dependency Injection (from https://github.com/eclipse-ee4j/injection-api)
@@ -630,7 +630,7 @@ public-domain
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org)
+- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org/)
 - JSON in Java (from https://github.com/douglascrockford/JSON-java)
 
 ========================================================================

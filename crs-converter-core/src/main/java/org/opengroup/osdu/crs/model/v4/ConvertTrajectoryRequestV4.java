@@ -78,13 +78,11 @@ public class ConvertTrajectoryRequestV4 {
     public boolean interpolate;
 
 	@JsonProperty("MD_i")
-	@ApiModelProperty(value=Constants.SWAGGER_TRJ_MD_I,
-			example = Constants.SWAGGER_TRJ_REQ_MD_I_EX)
+	@Schema(description = Constants.SWAGGER_TRJ_MD_I)
 	private MinimumDepthInterval MD_i;
 
     @JsonProperty("unitMD")
-    @ApiModelProperty(value=Constants.SWAGGER_TRJ_UNIT_MD,
-            example = Constants.SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE)
+    @Schema(description = Constants.SWAGGER_TRJ_UNIT_MD, type = "string", example = Constants.SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE)
     private String unitMD;
 
     @Override

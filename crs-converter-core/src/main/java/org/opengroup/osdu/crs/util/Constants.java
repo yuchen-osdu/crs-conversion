@@ -70,13 +70,13 @@ public final class Constants {
     public static final String SWAGGER_GEO_JSON_COORDINATE_COUNT = "The total number of coordinates in the GeoJSON FeatureCollection or AnyCrsFeatureCollection.";
     public static final String SWAGGER_GEO_JSON_CONVERTED = "The converted GeoJSON FeatureCollection or AnyCrsFeatureCollection with 'toCRS' context; length and order of the structure is the same as in the request. Points, which failed to convert, are returned as NaN.";
 
-    public static final String SWAGGER_X_COORDINATE = "x coordinate or longitude";
-    public static final String SWAGGER_Y_COORDINATE = "y coordinate or latitude";
-    public static final String SWAGGER_Z_COORDINATE = "z coordinate";
+    public static final String SWAGGER_X_COORDINATE = "X coordinate value. For geographic CRS: longitude in degrees (-180 to +180). For projected CRS: easting in CRS units (typically meters).";
+    public static final String SWAGGER_Y_COORDINATE = "Y coordinate value. For geographic CRS: latitude in degrees (-90 to +90). For projected CRS: northing in CRS units (typically meters).";
+    public static final String SWAGGER_Z_COORDINATE = "Z coordinate value representing elevation or depth. Unit specified by unitZ. Positive typically indicates height above reference surface.";
     public static final String SWAGGER_X_COORDINATE_EXAMPLE = "-61.043406288714543";
     public static final String SWAGGER_Y_COORDINATE_EXAMPLE = "10.673103179456877";
     public static final String SWAGGER_Z_COORDINATE_EXAMPLE = "0.0";
-    public static final String SWAGGER_POINT_DESCR = "Point representation for CRS operations";
+    public static final String SWAGGER_POINT_DESCR = "A 3D coordinate point. Interpretation of x, y, z depends on the Coordinate Reference System (CRS). For geographic CRS: x=longitude, y=latitude. For projected CRS: x=easting, y=northing.";
     public static final String SWAGGER_CONVERT_REQUEST_DESCR = "Request to convert a set of points from a source CRS to a target CRS";
     public static final String SWAGGER_LIST_OF_POINTS_TO_BE_CONVERTED = "List of points to be converted";
     public static final String SWAGGER_LIST_OF_POINTS_TO_BE_CONVERTED_EXAMPLE = "[\n" +
@@ -95,7 +95,7 @@ public final class Constants {
     public static final String SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE = "Trajectory conversion performed successfully";
     public static final String SWAGGER_TRJ_REQ_DESCRIPTION = "Input trajectory data structure; contains the context (crs, units, azimuth reference, method)";
     public static final String SWAGGER_TRJ_REQ_CRS = "Coordinate reference system for the reference point; typically the CRS is a projected CRS; if a geographic CRS is provided, the unitXY must be defined and the azimuthReference must be TRUE_NORTH.";
-    public static final String SWAGGER_TRJ_REQ_AZIMUTH_REF = "azimuth reference for the input trajectory station azimuth values (TRUE_NORTH or GridNorth)";
+    public static final String SWAGGER_TRJ_REQ_AZIMUTH_REF = "Reference direction for azimuth angles. TRUE_NORTH (TN): measured from geographic true north. GRID_NORTH (GN): measured from map projection grid north. The difference is the grid convergence angle.";
     public static final String SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE = "TRUE_NORTH";
     public static final String SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS = "The array of input trajectory stations";
     public static final String SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX = "[\n" +
@@ -131,58 +131,60 @@ public final class Constants {
             "    }\n" +
             "  ]";
     public static final String SWAGGER_TRF_REQ_REF_POINT = "The 3D reference point in the 'trajectoryCRS' where MD==0.";
-    public static final String SWAGGER_TRJ_REQ_UNIT_XY = "The horizontal unit of the dx, dy in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.";
+    public static final String SWAGGER_TRJ_REQ_UNIT_XY = "Unit of measure for horizontal displacements (dx, dy). Required for dX_dY_dZ input kinds. Can be OSDU record ID (e.g., 'osdu:reference-data--UnitOfMeasure:m:') or persistable reference JSON. Auto-derived from projected CRS if not specified.";
     public static final String SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE = "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\"";
-    public static final String SWAGGER_TRJ_REQ_UNIT_Z = "The vertical unit of the dz in the input trajectory stations; the unit must be a length unit in 'persistable model' format, see example.";
+    public static final String SWAGGER_TRJ_REQ_UNIT_Z = "Unit of measure for vertical values (dz) and measured depth. Required field. Can be OSDU record ID (e.g., 'osdu:reference-data--UnitOfMeasure:m:') or persistable reference JSON.";
     public static final String SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE = "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\"";
     public static final String SWAGGER_TRJ_REQ_UNIT_EXAMPLE = "{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}";
-    public static final String SWAGGER_TRJ_REQ_METHOD = "The computation method - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813)";
+    public static final String SWAGGER_TRJ_REQ_METHOD = "Computation method: 'AzimuthalEquidistant' (default) - standard method using azimuthal equidistant projection centered at well location. 'LMP' - Lee's Modified Proposal (SPE96813) for improved accuracy at extreme latitudes.";
     public static final String SWAGGER_TRJ_REQ_METHOD_EXAMPLE = "AzimuthalEquidistant";
-    public static final String SWAGGER_TRJ_REQ_INPUT_KIND = "The kind of input; one of MD_Inclination_Azimuth (default), MD_X_Y_Z, MD_dX_dY_dZ, X_Y_Z, dX_dY_dZ. MD stands for measured depth; MD_X_Y_Z/X_Y_Z stand for absolute coordinates in the reference CRS, MD_dX_dY_dZ/dX_dY_dZ stand for deviations relative to the reference point.";
+    public static final String SWAGGER_TRJ_REQ_INPUT_KIND = "Format of input data: MD_Incl_Azim (default) - measured depth with inclination and azimuth angles. MD_dX_dY_dZ - measured depth with local deviations. dX_dY_dZ - deviations only (MD computed via inverse minimum curvature). MD_Incl - inclination-only surveys (no azimuth).";
     public static final String SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE = "MD_Inclination_Azimuth";
-    public static final String SWAGGER_TRJ_REQ_INTERPOLATE = "Perform trajectory interpolation on demand; default is true.";
+    public static final String SWAGGER_TRJ_REQ_INTERPOLATE = "When true (default), interpolates additional stations at MD values specified in MD_i. When false, only original input stations are processed and MD_i is ignored.";
     public static final String SWAGGER_TRJ_REQ_INTERPOLATE_EX = "True";
 
-    public static final String SWAGGER_TRJ_STN_IN_DESCRIPTION = "Input trajectory station record; context is provided by the container.";
-    public static final String SWAGGER_MD = "MD (measured depth) from vertical reference point in 'unitZ'.";
+    public static final String SWAGGER_TRJ_STN_IN_DESCRIPTION = "Input trajectory survey station. Required fields depend on inputKind: MD_Incl_Azim requires md, inclination, azimuth. dX_dY_dZ variants require dx, dy, dz.";
+    public static final String SWAGGER_MD = "Measured Depth - distance along the wellbore from the reference point (e.g., kelly bushing). Unit specified by unitMD or unitZ. Required for most inputKind values.";
     public static final String SWAGGER_MD_EXAMPLE = "2563.56";
-    public static final String SWAGGER_INC = "Inclination angle in degrees of arc, 0.0 is vertical, 90.0 is horizontal.";
+    public static final String SWAGGER_INC = "Wellbore inclination angle in degrees. 0° = vertical (down), 90° = horizontal, 180° = vertical (up). Range: 0-180. Required for MD_Incl_Azim and MD_Incl inputKind.";
     public static final String SWAGGER_INC_EXAMPLE = "15.0";
-    public static final String SWAGGER_AZI = "Azimuth angle in degrees of arc, 0.0/360.0 is North; reference given by azimuthReference (TRUE_NORTH or GridNorth).";
+    public static final String SWAGGER_AZI = "Wellbore azimuth (direction) angle in degrees. 0°/360° = North, 90° = East, 180° = South, 270° = West. Range: 0-360. Reference (True North or Grid North) specified by azimuthReference.";
     public static final String SWAGGER_AZI_EXAMPLE = "355.0";
-    public static final String SWAGGER_DX = "E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY' or projected 'trajectoryCRS'.";
+    public static final String SWAGGER_DX = "East-West displacement from well reference point. Positive = East. Used for dX_dY_dZ and MD_dX_dY_dZ inputKind. Unit specified by unitXY.";
     public static final String SWAGGER_DX_EXAMPLE = "55.9";
-    public static final String SWAGGER_DY = "N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with azimuth reference (TRUE_NORTH or projected GridNorth); unit is given by container's 'unitXY' or projected 'trajectoryCRS'.";
+    public static final String SWAGGER_DY = "North-South displacement from well reference point. Positive = North. Y-axis alignment (True North or Grid North) depends on azimuthReference. Unit specified by unitXY.";
     public static final String SWAGGER_DY_EXAMPLE = "-145.3";
-    public static final String SWAGGER_DZ = "True vertical deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's unitZ; downwards positive.";
+    public static final String SWAGGER_DZ = "True Vertical Depth (TVD) from well reference point. Positive = deeper/downward. Unit specified by unitZ.";
     public static final String SWAGGER_DZ_EXAMPLE = "1965.6";
 
-    public static final String SWAGGER_TRJ_RSP_DESCRIPTION = "Trajectory response data structure; contains the context (crs, units).";
-    public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS = "Computed trajectory stations.";
-    public static final String SWAGGER_TRJ_RSP_UNIT_XY = "The horizontal unit of the dx, dy in the output trajectory stations.";
-    public static final String SWAGGER_TRJ_RSP_UNIT_Z = "The vertical unit of the dz in the output trajectory stations.";
-    public static final String SWAGGER_TRJ_RSP_UNIT_DLS = "The unit of the dog leg severity (DLS) in the output trajectory stations.";
+    public static final String SWAGGER_TRJ_RSP_DESCRIPTION = "Trajectory response containing computed stations with positions, deviations, and WGS84 coordinates. Includes scale factor and convergence data for the GNL method.";
+    public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS = "Computed trajectory stations from original input. Each station includes absolute coordinates, local deviations, and WGS84 lat/long.";
+    public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I = "Interpolated trajectory stations at MD_i depths. Only present when interpolation was requested. Same structure as main stations.";
+    public static final String SWAGGER_TRJ_RSP_UNIT_XY = "Unit of measure for horizontal deviations (dxTN, dyTN) in output trajectory stations.";
+    public static final String SWAGGER_TRJ_RSP_UNIT_Z = "Unit of measure for vertical deviation (dZ) and point.z elevation in output trajectory stations.";
+    public static final String SWAGGER_TRJ_RSP_UNIT_DLS = "Unit of measure for Dog Leg Severity (DLS) values. Automatically set to deg/100ft (non-metric) or deg/30m (metric) based on unitZ.";
     public static final String SWAGGER_TRJ_RSP_UNIT_DLS_EXAMPLE = "%7B%22ScaleOffset%22%3A%7B%22Scale%22%3A5.72614583987641E-4%2C%22Offset%22%3A0.0%7D%2C%22Symbol%22%3A%22deg%2F100ft%22%2C%22BaseMeasurement%22%3A%22%257B%2522Ancestry%2522%253A%2522Rotation_Per_Length%2522%257D%22%7D";
-    public static final String SWAGGER_TRJ_RSP_METHOD = "The computation method used - 'AzimuthalEquidistant' (default) or 'LMP' (Lee's modified proposal SPE96813).";
-    public static final String SWAGGER_TRJ_RSP_LOCAL_CRS = "Coordinate Reference System for the local, True North oriented, true distance, engineering CRS with origin at the well's surface location.";
-    public static final String SWAGGER_TRJ_STN_OUT_DESCRIPTION = "Output trajectory station record; context is provided by the container.";
-    public static final String SWAGGER_AZI_TN = "True North azimuth angle in degrees of arc, 0.0/360.0 is North.";
+    public static final String SWAGGER_TRJ_RSP_METHOD = "The computation method used. AzimuthalEquidistant or LMP (Lee's Modified Proposal).";
+    public static final String SWAGGER_TRJ_RSP_LOCAL_CRS = "Local Azimuthal Equidistant CRS centered at the well's surface location. True North oriented, true distance engineering CRS.";
+    public static final String SWAGGER_TRJ_STN_OUT_DESCRIPTION = "Computed output trajectory station with survey angles, displacements, absolute coordinates, WGS84 position, and metadata.";
+    public static final String SWAGGER_AZI_TN = "Wellbore azimuth relative to True North in degrees. Range: 0-360. 0°/360° = True North, 90° = East.";
     public static final String SWAGGER_AZI_TN_EXAMPLE = "355.96";
-    public static final String SWAGGER_AZI_GN = "Grid North azimuth angle in degrees of arc, 0.0/360.0 is North.";
+    public static final String SWAGGER_AZI_GN = "Wellbore azimuth relative to Grid North in degrees. Range: 0-360. Differs from TN azimuth by the grid convergence angle.";
     public static final String SWAGGER_AZI_GN_EXAMPLE = "355.0";
-    public static final String SWAGGER_DX_TN = "True E-W deviation in the local Cartesian engineering CRS from the well reference point; unit is given by container's 'unitXY'.";
+    public static final String SWAGGER_DX_TN = "True East-West displacement from reference point. Positive = East. Aligned with True North reference frame. Unit: unitXY.";
     public static final String SWAGGER_DX_TN_EXAMPLE = "55.9";
-    public static final String SWAGGER_DY_TN = "True N-S deviation in the local Cartesian engineering CRS from the well reference point; Y is aligned with TRUE_NORTH; unit is given by container's 'unitXY'.";
+    public static final String SWAGGER_DY_TN = "True North-South displacement from reference point. Positive = North. Aligned with True North reference frame. Unit: unitXY.";
     public static final String SWAGGER_DY_TN_EXAMPLE = "-145.3";
-    public static final String SWAGGER_TRJ_POINT = "Trajectory station point in trajectoryCRS and vertical unit as defined in container's 'unitZ'.";
-    public static final String SWAGGER_TRJ_RSP_ORIGINAL = "Original trajectory station if true, interpolated trajectory station if false.";
-    public static final String SWAGGER_TRJ_RSP_DLS = "Curvature, Dog Leg Severity, measured in 'unitDls'.";
-    public static final String SWAGGER_TRJ_WGS84_LONGITUDE = "WGS 84 longitude in dega";
-    public static final String SWAGGER_TRJ_WGS84_LATITUDE = "WGS 84 latitude in dega";
-    public static final String SWAGGER_TRJ_SCALE_FACTOR = "Scalefactor";
-    public static final String SWAGGER_TRJ_CONVERGENCE = "convergence";
-    public static final String SWAGGER_TRJ_MD_I = "MD_i";
-    public static final String SWAGGER_TRJ_UNIT_MD = "unitMD";
+    public static final String SWAGGER_TRJ_POINT = "Absolute 3D coordinates in trajectoryCRS. x/y in CRS units, z in unitZ (elevation above reference, negative for depth below).";
+    public static final String SWAGGER_TRJ_RSP_ORIGINAL = "True if this station is from original input. False if generated by interpolation at an MD_i value.";
+    public static final String SWAGGER_TRJ_RSP_DLS = "Dog Leg Severity - rate of change of wellbore direction. Unit specified by unitDls (typically deg/100ft or deg/30m).";
+    public static final String SWAGGER_TRJ_WGS84_LONGITUDE = "WGS 84 longitude in decimal degrees. Range: -180 to +180. Computed from the station's absolute position.";
+    public static final String SWAGGER_TRJ_WGS84_LATITUDE = "WGS 84 latitude in decimal degrees. Range: -90 to +90. Computed from the station's absolute position.";
+    public static final String SWAGGER_TRJ_SCALE_FACTOR = "Point scale factor at this location. Ratio of grid distance to true ground distance. For UTM, typically ~0.9996 at central meridian.";
+    public static final String SWAGGER_TRJ_CONVERGENCE = "Grid convergence angle in degrees. Angle between True North and Grid North at this location. Used to convert between TN and GN azimuths.";
+    public static final String SWAGGER_TRJ_SCALE_CONVERGENCE = "Scale factor and convergence values computed at first and last stations. Used for precise surveying calculations.";
+    public static final String SWAGGER_TRJ_MD_I = "Specifies measured depths where additional trajectory stations should be interpolated. Only used when 'interpolate' is true. Provide either explicit MD values (md_i array) or a regular interval (md_interval).";
+    public static final String SWAGGER_TRJ_UNIT_MD = "Unit of measure for Measured Depth (MD) values. Optional - defaults to unitZ if not specified.";
     public static final String SWAGGER_TRJ_REQ_UNIT_MD_EXAMPLE = "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\":\"USO\"}\"";
     public static final String SWAGGER_TRJ_REQ_MD_I_EX =  "{\n" +
             "    \"MD_i\": {\n" +
@@ -194,13 +196,11 @@ public final class Constants {
             "        ]\n" +
             "    }\n" +
             "}";
-    public static final String SWAGGER_TRJ_MINIMUM_DEPTH_INTERVAL_DESCRIPTION = "Minimum depth interval record; context is provided by the container.";
-    public static final String SWAGGER_MD_I = "MD_I (measured depth)";
+    public static final String SWAGGER_TRJ_MINIMUM_DEPTH_INTERVAL_DESCRIPTION = "Specifies where to interpolate additional trajectory stations. Provide explicit MD values (md_i array) OR a regular interval (md_interval), not both.";
+    public static final String SWAGGER_MD_I = "Explicit list of Measured Depth values where interpolated stations should be computed. Unit specified by unitMD or unitZ.";
     public static final String SWAGGER_MD_I_EXAMPLE = "200";
-    public static final String SWAGGER_MD_INTERVAL = "MD_INTERVAL (measured depth interval)";
-    public static final String SWAGGER_MD_INTERVAL_EXAMPLE = "1.0";
-    public static final String SWAGGER_TRJ_RSP_LIST_OF_STATIONS_I = "Computed trajectory stations i.";
-    public static final String SWAGGER_TRJ_SCALE_CONVERGENCE = "scaleConvergence";
+    public static final String SWAGGER_MD_INTERVAL = "Regular interval for generating interpolated stations. Stations created from first to last input MD at this interval.";
+    public static final String SWAGGER_MD_INTERVAL_EXAMPLE = "25.0";
     public static final String SWAGGER_GEO_JSON_FEATURE_EXAMPLES = "[\n" +
             "      {\n" +
             "        \"geometry\": {\n" +

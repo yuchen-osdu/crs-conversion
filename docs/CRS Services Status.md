@@ -162,6 +162,13 @@ _Coordinate Transformations (CT) enact a change of datum. They are modeled in th
 - There is an API to convert a point(s) with either a list or geojson like i/o.
 - There is an API to convert Bin Grids that should be used when loading data to OSDU.
 - There is an API to compute a wellbore trajectory from directional survey data.
+  - **Trajectory Interpolation (v4)**: The `convertTrajectory` endpoint supports interpolating additional stations at specified measured depths:
+    - Set `interpolate: true` (default) to enable interpolation
+    - Use `MD_i.md_i: [50, 75, 150]` for explicit MD values
+    - Use `MD_i.md_interval: 25` for regular spacing (every 25 units)
+    - Interpolated stations use minimum curvature interpolation for inc/azi and position
+    - Response stations include `original: true/false` to distinguish survey vs interpolated stations
+    - Set `interpolate: false` to process only original survey stations (MD_i is ignored)
 - Geodetic Engine
   - Apache SIS v1.3 is the engine.
   - GIGS tested and passed (Apache SIS engine is "OSDU certified").
