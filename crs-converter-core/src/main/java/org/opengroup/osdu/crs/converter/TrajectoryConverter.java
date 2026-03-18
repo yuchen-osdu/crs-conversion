@@ -115,7 +115,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         response.setUnitZ(request.getUnitZ());
         response.setMethod(request.getMethod());
         response.setInputKind(request.getInputKind());
-        response.setUnitMD(request.getUnitMD());
+        // Default unitMD to unitZ if not provided
+        if (request.getUnitMD() != null && !request.getUnitMD().isEmpty()) {
+            response.setUnitMD(request.getUnitMD());
+        } else {
+            response.setUnitMD(request.getUnitZ());
+        }
 
         //validate request payload and initialize TrajectoryComputationState
         if (isRequestValidV4(request, state)) {
@@ -170,7 +175,20 @@ public class TrajectoryConverter implements ITrajectoryConverter {
                     convertPoints(response, correctionSet.getPeAzimuthalEquidistantCRS(), state);
                     // add method to compute interpolation based on MD_i input
                     if(request.getMD_i()!=null && !request.getMD_i().getMd_i().isEmpty() && flag_check_scaleFactor) {
-                        computeInterpolationForMDiInput(request, response, state,flag_check_projected);
+                        // Calculate conversion factors from unitMD to point coordinate units
+                        // dxTN/dyTN displacements are computed in unitMD, but point.x/y are in unitXY (horizontal)
+                        // and point.z is in unitZ (vertical)
+                        double unitMdToXyFactor = 1.0; // default initialization
+                        double unitMdToZFactor = 1.0; // default initialization
+                        if (state.getUnitMD() != null) {
+                            unitMdToXyFactor = state.getUnitMD().scaleToSI() / state.getHorizontalUnit().scaleToSI();
+                            unitMdToZFactor = state.getUnitMD().scaleToSI() / state.getVerticalUnit().scaleToSI();
+                        } else {
+                            // When unitMD is not specified, MD uses the same unit as Z (vertical unit)
+                            unitMdToXyFactor = state.getVerticalUnit().scaleToSI() / state.getHorizontalUnit().scaleToSI();
+                            unitMdToZFactor = 1.0; // MD and Z are in same unit
+                        }
+                        computeInterpolationForMDiInput(request, response, state, flag_check_projected, unitMdToXyFactor, unitMdToZFactor);
                         state.getOperations().add("Interpolation for MD_i input stations;" +request.getMD_i().getMd_i().size()+ " points interpolated");
                     }
                 }
@@ -224,14 +242,14 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return response;
     }
 
-    public ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state,boolean flag_check_projected) {
+    public ConvertTrajectoryResponseV4 computeInterpolationForMDiInput(ConvertTrajectoryRequestV4 request, ConvertTrajectoryResponseV4 response, TrajectoryComputationStateV4 state, boolean flag_check_projected, double unitMdToXyFactor, double unitMdToZFactor) {
 
         List<TrajectoryStationOut> stationsListOuti = new ArrayList<>();
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
         List<Double> mdiList = minimumDepthInterval.getMd_i();
         List<TrajectoryStationOut> stationsList = response.getStations();
         for (int count = 0; count < mdiList.size(); count++) {
-            TrajectoryStationOut stationsListOut = interpolateMdi(mdiList.get(count), stationsList,flag_check_projected);
+            TrajectoryStationOut stationsListOut = interpolateMdi(mdiList.get(count), stationsList, flag_check_projected, unitMdToXyFactor, unitMdToZFactor);
             stationsListOuti.add(stationsListOut);
         }
         response.setStations_i(stationsListOuti);
@@ -265,7 +283,28 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         return afterMdiStation;
     }
 
-    private TrajectoryStationOut interpolateMdi(Double mdi, List<TrajectoryStationOut> stationsList, boolean flag_check_projected) {
+    private TrajectoryStationOut interpolateMdi(Double mdi, List<TrajectoryStationOut> stationsList, boolean flag_check_projected, double unitMdToXyFactor, double unitMdToZFactor) {
+        // Check if MD_i matches an existing station - no interpolation needed
+        for (TrajectoryStationOut station : stationsList) {
+            if (Math.abs(station.getMd().doubleValue() - mdi.doubleValue()) < 1e-6) {
+                TrajectoryStationOut exactMatch = new TrajectoryStationOut();
+                exactMatch.setMd(station.getMd());
+                exactMatch.setInclination(station.getInclination());
+                exactMatch.setAzimuthTN(station.getAzimuthTN());
+                exactMatch.setAzimuthGN(station.getAzimuthGN());
+                exactMatch.setDxTN(station.getDxTN());
+                exactMatch.setDyTN(station.getDyTN());
+                exactMatch.setDZ(station.getDZ());
+                exactMatch.setDls(station.getDls());
+                exactMatch.setOriginal(true);
+                if (flag_check_projected && station.getPoint() != null) {
+                    // Copy the already-converted UTM point directly
+                    exactMatch.setPoint(new Point(station.getPoint().getX(), station.getPoint().getY(), station.getPoint().getZ()));
+                }
+                return exactMatch;
+            }
+        }
+
         TrajectoryStationOut trajectoryStationOuti = new TrajectoryStationOut();
         Double md_i_minus_md_1;
         Double md_2_minus_md_1;
@@ -314,27 +353,46 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             // this is close enough for small interpolation to assume as constant.
             convergence_deg = azi_TN1 - azi_GN1;
             azi_GN_i = azi_TN_i - Math.toRadians(convergence_deg);
+            // Normalize azi_GN_i to [0, 2*PI) - note: azi_GN_i is in radians
             if (azi_GN_i < 0) {
-                azi_GN_i += 360;
-            } else if (azi_GN_i >= 360) {
-                azi_GN_i -= 360;
+                azi_GN_i += 2 * Math.PI;
+            } else if (azi_GN_i >= 2 * Math.PI) {
+                azi_GN_i -= 2 * Math.PI;
             }
         }
-        double convergence = Math.toRadians((convergence_deg));
+
+        // Convert radians to degrees and normalize to [0, 360)
+        double azi_TN_i_deg = Math.toDegrees(azi_TN_i);
+        if (azi_TN_i_deg < 0) azi_TN_i_deg += 360.0;
+        if (azi_TN_i_deg >= 360.0) azi_TN_i_deg -= 360.0;
+
+        double azi_GN_i_deg = Math.toDegrees(azi_GN_i);
+        if (azi_GN_i_deg < 0) azi_GN_i_deg += 360.0;
+        if (azi_GN_i_deg >= 360.0) azi_GN_i_deg -= 360.0;
+
+        // Compute grid-north rotated increments for point calculation
+        double convergence = Math.toRadians(convergence_deg);
         double e_i_minus_1_GN = Math.cos(convergence) * e_i_minus_1 - Math.sin(convergence) * n_i_minus_1;
         double n_i_minus_1_GN = Math.sin(convergence) * e_i_minus_1 + Math.cos(convergence) * n_i_minus_1;
 
         trajectoryStationOuti.setMd(mdi);
         trajectoryStationOuti.setInclination(Math.toDegrees(inc_i));
-        trajectoryStationOuti.setAzimuthTN(Math.toDegrees(azi_TN_i));
-        trajectoryStationOuti.setAzimuthGN(Math.toDegrees(azi_GN_i));
-        trajectoryStationOuti.setDxTN(e_i_minus_1 +stationOut1.getDxTN());
-        trajectoryStationOuti.setDyTN(n_i_minus_1+ stationOut1.getDyTN());
-        trajectoryStationOuti.setDZ(d_i_minus_1+stationOut1.getDZ());
-        trajectoryStationOuti.setDls(Math.toDegrees(dl_i));
+        trajectoryStationOuti.setAzimuthTN(azi_TN_i_deg);
+        trajectoryStationOuti.setAzimuthGN(azi_GN_i_deg);
+        trajectoryStationOuti.setDxTN(e_i_minus_1 + stationOut1.getDxTN());
+        trajectoryStationOuti.setDyTN(n_i_minus_1 + stationOut1.getDyTN());
+        trajectoryStationOuti.setDZ(d_i_minus_1 + stationOut1.getDZ());
+        // DLS should be constant across the segment (same as the "after" station's DLS)
+        trajectoryStationOuti.setDls(stationOut2.getDls());
         if (flag_check_projected) {
-            trajectoryStationOuti.setPoint(new Point(stationOut1.getPoint().getX() + e_i_minus_1_GN, stationOut1.getPoint().getY() + n_i_minus_1_GN, stationOut1.getPoint().getZ() - d_i_minus_1));
-            //call LMP method
+            // Add grid-north rotated increments to previous station's UTM point
+            // Convert displacement increments from unitMD to appropriate coordinate units:
+            // - X/Y use unitMdToXyFactor (MD units -> horizontal units)
+            // - Z uses unitMdToZFactor (MD units -> vertical units)
+            trajectoryStationOuti.setPoint(new Point(
+                stationOut1.getPoint().getX() + e_i_minus_1_GN * unitMdToXyFactor,
+                stationOut1.getPoint().getY() + n_i_minus_1_GN * unitMdToXyFactor,
+                stationOut1.getPoint().getZ() - d_i_minus_1 * unitMdToZFactor));
         }
         return trajectoryStationOuti;
     }
@@ -597,14 +655,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
             for (int i = 0; i < siResponse.getStations().size(); i++) {
                 TrajectoryStationOut si = siResponse.getStations().get(i);
                 TrajectoryStationOut dn = new TrajectoryStationOut();
-                if(unitMD_Factor!= null){
-                    dn.setMd(si.getMd() * unitMD_Factor);
-                }else{
-                    dn.setMd(si.getMd() * z_Factor);
-                }
-                dn.setDxTN(si.getDxTN() * xyFactor);
-                dn.setDyTN(si.getDyTN() * xyFactor);
-                dn.setDZ(si.getDZ() * z_Factor);
+                // dxTN, dyTN, dZ and MD all use the same unit (unitMD, or unitZ as fallback)
+                double deltaFactor = (unitMD_Factor != null) ? unitMD_Factor : z_Factor;
+                dn.setMd(si.getMd() * deltaFactor);
+                dn.setDxTN(si.getDxTN() * deltaFactor);
+                dn.setDyTN(si.getDyTN() * deltaFactor);
+                dn.setDZ(si.getDZ() * deltaFactor);
                 dn.setAzimuthTN(si.getAzimuthTN() * RAD2DEG);
                 dn.setAzimuthGN(si.getAzimuthGN() * RAD2DEG);
                 dn.setInclination(si.getInclination() * RAD2DEG);
@@ -1173,45 +1229,77 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
     }
 
+    /**
+     * Calculates the position and dogleg severity for a single survey station pair using
+     * the Minimum Curvature Method.
+     *
+     * <p>The minimum curvature method assumes the wellbore follows a smooth circular arc
+     * between two survey stations, providing more accurate position calculations than
+     * simpler methods like tangential or balanced tangential.
+     *
+     * <p><b>IMPORTANT:</b> This method expects inclination and azimuth values to already be
+     * in RADIANS. The upstream {@code normalizeTrajectory()} method performs this conversion
+     * before this method is called.
+     *
+     * <p>References:
+     * <ul>
+     *   <li><a href="http://www.drillingformulas.com/minimum-curvature-method/">Drilling Formulas - Minimum Curvature Method</a></li>
+     *   <li><a href="https://directionaldrillingart.blogspot.com/2015/09/directional-surveying-calculations.html">Directional Drilling Art - Survey Calculations</a></li>
+     *   <li><a href="http://www.drillingformulas.com/dogleg-severity-calculationbased-on-radius-of-curvature-method/">Drilling Formulas - Dogleg Severity</a></li>
+     * </ul>
+     *
+     * @param prf the previous reference point (position of the previous station)
+     * @param stations the list of all trajectory stations (with angles already in radians)
+     * @param index the index of the current station to calculate (must be >= 1)
+     * @return the calculated position of the current station as a Point
+     */
     public Point minimumCurvaturePair(Point prf, List<TrajectoryStationOut> stations, int index) {
-        // Taken from http://www.drillingformulas.com/minimum-curvature-method/
-        // https://directionaldrillingart.blogspot.com/2015/09/directional-surveying-calculations.html
-        double deg2rad = 1.0; // Math.PI / 180.0;
-        double rad2deg = 1.0; // 180.0 / Math.PI;
         TrajectoryStationOut t1 = stations.get(index - 1);
         TrajectoryStationOut t2 = stations.get(index);
-        double dmd = t2.getMd() - t1.getMd();
-        double m2 = (t2.getMd() - t1.getMd()) * 0.5;
-        double i1 = t1.getInclination() * deg2rad;
-        double i2 = t2.getInclination() * deg2rad;
-        double a1 = t1.getAzimuthTN() * deg2rad; // we always compute TN
-        double a2 = t2.getAzimuthTN() * deg2rad; // we always compute TN
-        double tmp_acos_argument = Math.cos(i2 - i1) - Math.sin(i1) * Math.sin(i2) * (1.0 - Math.cos(a2 - a1));
-        if (tmp_acos_argument < -1.0)
-            tmp_acos_argument = -1.0;
-        else if (tmp_acos_argument > +1.0)
-            tmp_acos_argument = +1.0;
 
-        //double b = Math.acos(Math.cos(i2 - i1) - Math.sin(i1) * Math.sin(i2) * (1.0 - Math.cos(a2 - a1)));
-        double b = Math.acos(tmp_acos_argument);
-        double rf = 1.0;
-        if (b != 0.0) {
-            rf = 2.0 * Math.tan(b / 2.0) / b;
+        // Measured depth difference and half-distance between stations
+        double deltaMd = t2.getMd() - t1.getMd();
+        double halfMd = deltaMd * 0.5;
+
+        // Inclination and azimuth values (already in radians from normalizeTrajectory)
+        double incl1 = t1.getInclination();
+        double incl2 = t2.getInclination();
+        double azim1 = t1.getAzimuthTN();  // True North azimuth
+        double azim2 = t2.getAzimuthTN();  // True North azimuth
+
+        // Calculate dogleg angle (beta) - the angle between the two survey directions
+        // Formula: cos(beta) = cos(I2-I1) - sin(I1)*sin(I2)*(1 - cos(A2-A1))
+        double cosDogleq = Math.cos(incl2 - incl1) - Math.sin(incl1) * Math.sin(incl2) * (1.0 - Math.cos(azim2 - azim1));
+        // Clamp to valid range [-1, 1] to handle floating point precision issues
+        cosDogleq = Math.max(-1.0, Math.min(1.0, cosDogleq));
+        double dogleg = Math.acos(cosDogleq);
+
+        // Calculate ratio factor (RF) for minimum curvature
+        // RF = (2/beta) * tan(beta/2), or 1.0 when beta approaches zero
+        double ratioFactor = 1.0;
+        if (dogleg != 0.0) {
+            ratioFactor = 2.0 * Math.tan(dogleg / 2.0) / dogleg;
         }
-        double dx = rf * m2 * (Math.sin(i1) * Math.sin(a1) + Math.sin(i2) * Math.sin(a2));
-        double dy = rf * m2 * (Math.sin(i1) * Math.cos(a1) + Math.sin(i2) * Math.cos(a2));
-        double dz = rf * m2 * (Math.cos(i1) + Math.cos(i2));
+
+        // Calculate displacement components (easting, northing, vertical)
+        double dx = ratioFactor * halfMd * (Math.sin(incl1) * Math.sin(azim1) + Math.sin(incl2) * Math.sin(azim2));
+        double dy = ratioFactor * halfMd * (Math.sin(incl1) * Math.cos(azim1) + Math.sin(incl2) * Math.cos(azim2));
+        double dz = ratioFactor * halfMd * (Math.cos(incl1) + Math.cos(incl2));
+
+        // Update station with cumulative displacements from wellhead
         t2.setDxTN(prf.getX() + dx);
         t2.setDyTN(prf.getY() + dy);
-        t2.setDZ(t1.getDZ() + dz);  // TVD positive downwards
-        Point p = new Point(t2.getDxTN(), t2.getDyTN(), prf.getZ() - dz); // downwards negative
-        t2.setPoint(p); // in local azimuthal equidistant CRS
-        // taken from http://www.drillingformulas.com/dogleg-severity-calculationbased-on-radius-of-curvature-method/
-        // https://directionaldrillingart.blogspot.com/2015/09/directional-surveying-calculations.html
-        // {cos-1 [(cos I1 x cos I2) + (sin I1 x sin I2) x cos (Az2 – Az1)]} x (100 ÷ MD)
-        //double dls = rad2deg * Math.acos(Math.cos(i1) * Math.cos(i2) + Math.sin(i1) * Math.sin(i2) * Math.cos(a2 - a1)) / dmd;
-        double dls = rad2deg*b / dmd;
+        t2.setDZ(t1.getDZ() + dz);  // TVD accumulates positively downward
+
+        // Create point in local azimuthal equidistant CRS (Z is negative downward)
+        Point p = new Point(t2.getDxTN(), t2.getDyTN(), prf.getZ() - dz);
+        t2.setPoint(p);
+
+        // Calculate dogleg severity (DLS) - rate of change of wellbore direction
+        // DLS = dogleg_angle / delta_MD (in radians per unit length)
+        double dls = dogleg / deltaMd;
         t2.setDls(dls);
+
         return p;
     }
     public List<TrajectoryStationInV4> normalizeInverseTrajectoryStations(ConvertTrajectoryRequestV4 request, TrajectoryComputationStateV4 state) {
@@ -1270,53 +1358,103 @@ public class TrajectoryConverter implements ITrajectoryConverter {
         }
         return trajectoryStationInV4sList;
     }
+
+    /**
+     * Calculates MD, inclination, and azimuth from dx/dy/dz coordinates using the
+     * Inverse Minimum Curvature Method for a single station pair.
+     *
+     * <p>This is the inverse of the minimum curvature calculation - given positional
+     * displacements (easting, northing, depth), it computes the survey parameters
+     * (measured depth, inclination, azimuth) that would produce those displacements.
+     *
+     * <p><b>Note:</b> Unlike the forward method, this method expects input angles in DEGREES
+     * and uses {@code Math.toRadians()} for conversions. Output angles are also in DEGREES.
+     *
+     * @param stations the list of trajectory stations with dx/dy/dz values populated
+     * @param index the index of the current station to calculate (must be >= 1)
+     * @return the stations list with MD, inclination, and azimuth populated for station at index
+     */
     public List<TrajectoryStationInV4> populateMdInclAziFromRequestV4ForInverseMinimumCurvaturePair(List<TrajectoryStationInV4> stations, int index) {
-        double deg2rad = 1.0; // Math.PI / 180.0;
-        double rad2deg = 1.0; // 180.0 / Math.PI;
         TrajectoryStationInV4 t1 = stations.get(index - 1);
         TrajectoryStationInV4 t2 = stations.get(index);
-        double delta_e = t2.getDx() - t1.getDx();
-        double delta_n = t2.getDy() - t1.getDy();
-        double delta_d = t2.getDz() - t1.getDz();
-        double r = Math.sqrt(Math.pow(delta_n, 2) + Math.pow(delta_e, 2) + Math.pow(delta_d, 2));
-        double ratioFactor = 0.0;
-        double delta_m = 0.0;
-        double dogLeg = 2 * Math.acos(Math.max(-1, Math.min(1, (delta_n * Math.sin(Math.toRadians(t1.getInclination())) * Math.cos(Math.toRadians(t1.getAzimuth())) +
-                delta_e * Math.sin(Math.toRadians(t1.getInclination())) * Math.sin(Math.toRadians(t1.getAzimuth())) +
-                delta_d * Math.cos(Math.toRadians(t1.getInclination()))) / r)));
-        if (dogLeg == 0.0) {
-            ratioFactor = 1;
-            delta_m = r;
+
+        // Convert previous station angles to radians once (used multiple times below)
+        double incl1Rad = Math.toRadians(t1.getInclination());
+        double azim1Rad = Math.toRadians(t1.getAzimuth());
+        double sinIncl1 = Math.sin(incl1Rad);
+        double cosIncl1 = Math.cos(incl1Rad);
+        double sinAzim1 = Math.sin(azim1Rad);
+        double cosAzim1 = Math.cos(azim1Rad);
+
+        // Calculate displacement deltas between stations
+        double deltaEasting = t2.getDx() - t1.getDx();
+        double deltaNorthing = t2.getDy() - t1.getDy();
+        double deltaDepth = t2.getDz() - t1.getDz();
+
+        // Calculate straight-line distance between stations
+        double straightLineDistance = Math.sqrt(deltaEasting * deltaEasting + deltaNorthing * deltaNorthing + deltaDepth * deltaDepth);
+
+        // Calculate dogleg angle using the dot product of direction vectors
+        double dotProduct = (deltaNorthing * sinIncl1 * cosAzim1 +
+                deltaEasting * sinIncl1 * sinAzim1 +
+                deltaDepth * cosIncl1) / straightLineDistance;
+        double dogleg = 2 * Math.acos(Math.max(-1, Math.min(1, dotProduct)));
+
+        // Calculate ratio factor and measured depth delta
+        double ratioFactor;
+        double deltaMd;
+        if (dogleg == 0.0) {
+            ratioFactor = 1.0;
+            deltaMd = straightLineDistance;
         } else {
-            ratioFactor = 2 * Math.tan(dogLeg / 2) / dogLeg;
-            delta_m = 0.5 * dogLeg * r / Math.sin(dogLeg / 2);
-        }
-        double m2 = t1.getMd() + delta_m;
-        double i2 = Math.acos(Math.max(-1, Math.min(1, delta_d / (0.5 * delta_m * ratioFactor) - Math.cos(Math.toRadians(t1.getInclination())))));
-        double a2 = 0.0;
-        double a2_decimal=0.0;
-        double a2n = 0.0;
-        double a2e = 0.0;
-        t2.setInclination(i2);
-        double i2_deg = Math.toDegrees(i2);
-        DecimalFormat upto3decimal = new DecimalFormat("#.###");
-        if (i2_deg < 0.00001) {
-            a2 = 0.0;
-        } else {
-            a2n = Math.acos(Math.max(-1, Math.min(1, (delta_n / (0.5 * delta_m * ratioFactor) - Math.sin(Math.toRadians(t1.getInclination())) * Math.cos(Math.toRadians(t1.getAzimuth()))) / Math.sin(t2.getInclination()))));
-            a2e = Math.asin(Math.max(-1, Math.min(1, (delta_e / (0.5 * delta_m * ratioFactor) - Math.sin(Math.toRadians(t1.getInclination())) * Math.sin(Math.toRadians(t1.getAzimuth()))) / Math.sin(t2.getInclination()))));
-            a2 = Math.toDegrees(a2n * Math.signum(a2e));
-            a2_decimal=Double.parseDouble(upto3decimal.format(a2));
+            ratioFactor = 2 * Math.tan(dogleg / 2) / dogleg;
+            deltaMd = 0.5 * dogleg * straightLineDistance / Math.sin(dogleg / 2);
         }
 
-        if (a2_decimal < 0) {
-            a2_decimal += 360;
-        } else if (a2_decimal >= 360) {
-            a2_decimal -= 360;
+        // Calculate new measured depth
+        double newMd = t1.getMd() + deltaMd;
+
+        // Common denominator for displacement calculations
+        double halfMdRf = 0.5 * deltaMd * ratioFactor;
+
+        // Calculate new inclination (in radians, then convert to degrees)
+        double inclination2Rad = Math.acos(Math.max(-1, Math.min(1,
+                deltaDepth / halfMdRf - cosIncl1)));
+        double inclination2Deg = Math.toDegrees(inclination2Rad);
+
+        // Calculate new azimuth
+        double azimuth2Deg;
+        if (inclination2Deg < 0.00001) {
+            // Near-vertical: azimuth is undefined, default to 0
+            azimuth2Deg = 0.0;
+        } else {
+            double sinIncl2 = Math.sin(inclination2Rad);
+
+            double azimuthFromNorth = Math.acos(Math.max(-1, Math.min(1,
+                    (deltaNorthing / halfMdRf - sinIncl1 * cosAzim1) / sinIncl2)));
+            double azimuthFromEast = Math.asin(Math.max(-1, Math.min(1,
+                    (deltaEasting / halfMdRf - sinIncl1 * sinAzim1) / sinIncl2)));
+
+            // Combine north and east components to get full azimuth
+            azimuth2Deg = Math.toDegrees(azimuthFromNorth * Math.signum(azimuthFromEast));
+
+            // Round to 3 decimal places
+            DecimalFormat threeDecimals = new DecimalFormat("#.###");
+            azimuth2Deg = Double.parseDouble(threeDecimals.format(azimuth2Deg));
         }
-        t2.setInclination(i2_deg);
-        t2.setAzimuth(a2_decimal);
-        t2.setMd(m2);
+
+        // Normalize azimuth to [0, 360) range
+        if (azimuth2Deg < 0) {
+            azimuth2Deg += 360;
+        } else if (azimuth2Deg >= 360) {
+            azimuth2Deg -= 360;
+        }
+
+        // Set computed values on the station
+        t2.setInclination(inclination2Deg);
+        t2.setAzimuth(azimuth2Deg);
+        t2.setMd(newMd);
+
         return stations;
     }
 }

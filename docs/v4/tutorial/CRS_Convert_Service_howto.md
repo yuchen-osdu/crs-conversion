@@ -10,15 +10,17 @@ application developers accomplish typical tasks using the "`CRS Convert`" endpoi
 * [1. Introduction](#1-introduction)  
 * [2. CRS Convert Overview](#2-crs-convert-overview)  
 * [3. Computing a wellbore trajectory from directional survey data](#3-computing-a-wellbore-trajectory-from-directional-survey-data)  
+    * [Request Parameters](#request-parameters-converttrajectoryrequest)
+    * [Unit Parameters Reference](#unit-parameters-reference)
   * [3.1 Basic example](#31-basic-example)   
   * [3.2 Return point scale factor and grid convergence](#32-return-point-scale-factor-and-grid-convergence)  
   * [3.3 GNL Method](#33-gnl-method)
     * [3.3.1 Unscaling” the calculated wellbore path](#331-unscaling-the-calculated-wellbore-path)
   * [3.4 Wellbore interpolation on MD](#34-wellbore-interpolation-on-md)   
-    * [3.4.1 Interpolation at a list of MD](#341-interpolation-at-a-list-of-MD)
-	* [3.4.2 Interpolation at a regular MD interval](342-interpolation-at-a-regular-MD-interval)
-  * [3.5 inclination-only surveys (stations have no azimuth)](#35-inclination-only-survey(stations have no azimuth))  
-  * [3.6 inverse minimum curvature](#36-inverse-minimum-curvature)
+    * [3.4.1 Interpolation at a list of MD](#341-interpolation-at-a-list-of-md)
+    * [3.4.2 Interpolation at a regular MD interval](#342-interpolation-at-a-regular-md-interval)
+  * [3.5 Inclination-only surveys (stations have no azimuth)](#35-handle-inclination-only-surveys-stations-have-no-azimuth)  
+  * [3.6 Inverse minimum curvature](#36-inverse-minimum-curvature)
 * [4. Explicit Transform](#4-explicit-transform)
 * [5. Compound Transform](#5-compound-transform)
 
@@ -87,10 +89,56 @@ like interpolate MD, MD_Incl only and inverse minimumcurvature implementations.
 - [OSDU_wellbore_trajectory_calculations.xlsx](OSDU_wellbore_trajectory_calculations.xlsx).
 
 
+### Request Parameters (`ConvertTrajectoryRequest`)
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `trajectoryCRS` | string | **Yes** | Coordinate Reference System for the trajectory (e.g., `EPSG::32631` for UTM 31N) |
+| `azimuthReference` | string | **Yes** | Reference for input azimuths: `"TN"` (True North) or `"GN"` (Grid North) |
+| `unitZ` | string | **Yes** | Vertical unit (e.g., `"osdu:reference-data--UnitOfMeasure:m:"`) |
+| `inputStations` | TrajectoryStationIn[] | **Yes** | Array of survey stations with MD, inclination, azimuth |
+| `method` | string | **Yes** | Computation method: `"AzimuthalEquidistant"` (default), `"LeesModifiedProposal"` / `"LMP"`, or `"GridNorthLocal"` / `"GNL"` |
+| `referencePoint` | Point | No | Wellhead location in `trajectoryCRS` coordinates (x, y, z) |
+| `unitXY` | string | No | Horizontal unit (defaults to CRS unit) |
+| `inputKind` | string | No | Input format: `"MD_Incl_Azim"`, `"MD_X_Y_Z"`, `"MD_dX_dY_dZ"`, `"X_Y_Z"`, `"dX_dY_dZ"` |
+| `interpolate` | boolean | No | If `true`, auto-interpolate between stations (see [Interpolation Options](#34-wellbore-interpolation-on-md)) |
+| `MD_i` | MinimumDepthInterval | No | Specific measured depths for interpolation (see [Interpolation Options](#34-wellbore-interpolation-on-md)) |
+
+### Unit Parameters Reference
+
+The `convertTrajectory` endpoint uses several unit parameters to control input interpretation and output formatting:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `unitZ` | string | **Yes** | Unit of measure for **vertical/depth values** (MD, TVD, z-coordinates). Pass as OSDU record ID, e.g., `"osdu:reference-data--UnitOfMeasure:m:"` for meters or `"osdu:reference-data--UnitOfMeasure:ft:"` for feet. |
+| `unitMD` | string | No | Unit of measure for **Measured Depth**. If not provided, defaults to `unitZ`. Only specify if MD uses different units than depth. |
+| `unitXY` | string | No | Unit of measure for **horizontal coordinates** (x, y, dx, dy). For projected CRS (e.g., UTM), this is automatically derived from the CRS definition. **Required only for inverse minimum curvature** when input contains dx/dy/dz values. |
+
+#### Output Units in Response
+
+The response echoes the resolved unit definitions:
+
+| Response Field | Description |
+|----------------|-------------|
+| `unitZ` | Full persistableReference JSON for the vertical unit |
+| `unitXY` | Full persistableReference JSON for the horizontal unit (derived from CRS or input) |
+| `unitDls` | Dog Leg Severity unit, always `"deg/30m"` (degrees per 30 meters) |
+
+#### Common Unit Record IDs
+
+| Unit | OSDU Record ID |
+|------|----------------|
+| Meters | `osdu:reference-data--UnitOfMeasure:m:` |
+| Feet | `osdu:reference-data--UnitOfMeasure:ft:` |
+| US Survey Feet | `osdu:reference-data--UnitOfMeasure:ftUS:` |
+
+> **Note:** The service logs unit resolution in `operationsApplied`, e.g., `"UnitMD set to be equal to unitZ m:"`.
+
+
 ## 3.1 Basic example
 
 A very simplified example is given below with 4 survey stations to
-introduce the request and response..
+introduce the request and response.
 
 - The input in this example uses record id for CRS and UOM (these records need to exist, the API retrieves the persistableReference).
 - The MD unit is given by unitMD.
@@ -100,7 +148,10 @@ introduce the request and response..
   geodetic vertical datum surface).
 - The MD_I is used to calculate the interpolate  .
 
-**Request** _{{osduonaws_base_url}}/api/crs/converter/v4/convertTrajectory_
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
+
+_{{osduonaws_base_url}}/api/crs/converter/v4/convertTrajectory_
 
 ```json
 {
@@ -148,7 +199,10 @@ introduce the request and response..
 ```
 
 
-**Response**
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
 
 ```json
 {
@@ -323,6 +377,7 @@ introduce the request and response..
 }
 ```
 
+</details>
 
 ## 3.2 Return point scale factor and grid convergence
 
@@ -398,7 +453,8 @@ the BHL of the wellbore then the following can be done:
       reason is that grid convergence, like psf, slowly varies with the
       location in the map.
 
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 
 ```json
 {
@@ -448,7 +504,11 @@ the BHL of the wellbore then the following can be done:
 }
 }
 ```
-**Response**
+
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
 
 ```
 {
@@ -601,6 +661,7 @@ the BHL of the wellbore then the following can be done:
 }
 ```
 
+</details>
 
 ## 3.3 GNL Method
 The "GNL" method requires the input survey observables to be grid north referenced, i.e.,
@@ -658,7 +719,8 @@ as follows for i=1:N:
 
 - *y_unscaled\[i\] = y\[1\] + (y\[i\] - y\[1\]) / psf*
 
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 ```
 {
     "azimuthReference": "GN",
@@ -706,7 +768,12 @@ as follows for i=1:N:
     "method": "GNL"
 }
 ```
-**Response**
+
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
+
 ```
 {
     "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
@@ -857,20 +924,24 @@ as follows for i=1:N:
     "inputKind": "MD_Incl_Azim"
 }
 ```
+
+</details>
+
 ## 3.4 Wellbore interpolation on MD
 Interpolation refers to the computation of local coordinates at some given Measured Depth in between two survey stations, on the arc computed by the minimum curvature algorithm.
 We can Pass the interpolate points in the request as a List of MD or interpolation_interval.
 
-###3.4.1 Interpolation at a list of MD
+### 3.4.1 Interpolation at a list of MD
 - The input in this example uses record id for CRS and UOM (these records need to exist, the API retrieves the persistableReference).
-- The MD unit is given by unitMD.
+- The MD unit is given by `unitZ` (or `unitMD` if different).
 - The input unitXY for the Projected trajectoryCrs we no need to pass the unitXY. It will be set from the code except for the inverse minimum curvature..
 - The output “Z” coordinates are always heights and not depths (i.e.,
   they are positive station.points.z values when above the “permanent”
   geodetic vertical datum surface).
 - The MD_I is used to calculate the interpolate. We passed as a list of array from the input
 - Output calculated (incl. interpolated) stations in an array stations_i.
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 ```
 {
     "azimuthReference": "GN",
@@ -916,7 +987,10 @@ We can Pass the interpolate points in the request as a List of MD or interpolati
 }
 ```
 
-**Response**
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
 
 ```
 {
@@ -1090,7 +1164,9 @@ We can Pass the interpolate points in the request as a List of MD or interpolati
     "inputKind": "MD_Incl_Azim"
 }
 ```
-###3.4.2 Interpolation at a regular MD interval
+</details>
+
+### 3.4.2 Interpolation at a regular MD interval
 
 - The input in this example uses record id for CRS and UOM (these records need to exist, the API retrieves the persistableReference).
 - The MD unit is given by unitZ.
@@ -1101,7 +1177,8 @@ We can Pass the interpolate points in the request as a List of MD or interpolati
 - The MD_I is used to calculate the interpolate. We passed as interval i.e.interpolation_interval = Number
 - Output calculated (incl. interpolated) stations in an array stations_i.
 
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 ```
 {
     "azimuthReference": "TN",
@@ -1142,7 +1219,12 @@ We can Pass the interpolate points in the request as a List of MD or interpolati
     "method": "AzimuthalEquidistant"
 }
 ```
-**Response**
+
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
+
 ```
 {
     "trajectoryCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"32631\"},\"name\":\"WGS_1984_UTM_Zone_31N\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"PROJCS[\\\"WGS_1984_UTM_Zone_31N\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"False_Easting\\\",500000.0],PARAMETER[\\\"False_Northing\\\",0.0],PARAMETER[\\\"Central_Meridian\\\",3.0],PARAMETER[\\\"Scale_Factor\\\",0.9996],PARAMETER[\\\"Latitude_Of_Origin\\\",0.0],UNIT[\\\"Meter\\\",1.0],AUTHORITY[\\\"EPSG\\\",32631]]\"}",
@@ -1351,6 +1433,8 @@ We can Pass the interpolate points in the request as a List of MD or interpolati
     "inputKind": "MD_Incl_Azim"
 }
 ```
+</details>
+
 ## 3.5 Handle inclination-only surveys (stations have no azimuth)
 Inclination-only, undefined azimuth, survey data do not have recorded azimuth values. No information is available on the horizontal direction (azimuth, e.g., North or East) in which the wellbore is departing.This survey data are common in both legacy and modern data sets.
 Some software applications cannot deal with missing azimuth and set it to zero during calculations. This results in a path that is going due north, which is obviously incorrect. The path may go North, but it could just as well go into any other direction or have a more or less random azimuth at each station. The horizontal error is given by this offset (and pretty much an indication of the maximum offset that the wellbore could have, assuming random inclination errors).
@@ -1365,7 +1449,8 @@ We calculate the max_horizontal_error and TVD_correction and returned as a part 
   they are positive station.points.z values when above the “permanent”
   geodetic vertical datum surface).
 - In response operationsApplied have the max_horizontal_error and TVD_correction values.
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 ```
 {
     "interpolate": false,
@@ -1399,7 +1484,12 @@ We calculate the max_horizontal_error and TVD_correction and returned as a part 
     "method": "AzimuthalEquidistant"
 }
 ```
-**Response**
+
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
+
 ```
 {
     "unitMD": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
@@ -1517,19 +1607,24 @@ We calculate the max_horizontal_error and TVD_correction and returned as a part 
     "inputKind": "MD_Incl_Azim"
 }
 ```
+
+</details>
+
+
 ## 3.6 inverse minimum curvature
 The normal scenario is to convert directional survey observables to local coordinates and then to a wellpath in 3D geodetic space.  However, sometimes we may only have local coordinates and want to back-compute the (possible) M,I,A observables, e.g., for inertial surveys (for better or worse, and note the requirement to preserve the original inertial survey local coordinates at original frequency) or because only a path was loaded in a subsurface application.
 
-The inputKind we pass in the request is dX_dY_dZ. 
-The UNITXY paramter is mandatory on input for dXdYdZ input. 
-For calculation of the MD,INC,AZI uisng inverse minimum curvature equations dx,dy,dz should be normalized to SI (to meter) temporarily. We use the UNITXY unit from the request we passed in this step.
-The MDs have to be denormalized.
+- The `inputKind` is `dX_dY_dZ`.
+- The `unitXY` parameter is **mandatory** for `dX_dY_dZ` input.
+- For calculation of MD, Inclination, and Azimuth using inverse minimum curvature equations, dx/dy/dz values are normalized to SI (meters) internally.
+- The MD values are denormalized to the requested unit on output.
 We create a dummy request with InputKind "MD_Incl_Azim" and values for md,inc,azi inputStations which are calculated uisng inverse minimumcurvature.
 unitXY : should be removed from the dummy if trajectoryCRS is projected.
 unitMD : (is an optional parameter defaulting to unitZ) - MDs should be converted to unitZ unless unitMD is given by user in request, then convert MDs to that unit.
 Finally on output unitXY is set to projCRS unit, and the stations.XYZ and the output dxTN and dyTN are in that output unit
 
-**Request**
+<details>
+<summary><strong>Request</strong> (click to expand)</summary>
 ```
 {
     "trajectoryCRS": "osdu:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::23032_EPSG::1612:",
@@ -1559,7 +1654,12 @@ Finally on output unitXY is set to projCRS unit, and the stations.XYZ and the ou
     "interpolate": false
 }
 ```
-**Response**
+
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
+
 ```
 {
     "unitMD": "{\"abcd\":{\"a\":0.0,\"b\":1.0,\"c\":1.0,\"d\":0.0},\"symbol\":\"m\",\"baseMeasurement\":{\"ancestry\":\"L\",\"type\":\"UM\"},\"type\":\"UAD\"}",
@@ -1642,20 +1742,20 @@ Finally on output unitXY is set to projCRS unit, and the stations.XYZ and the ou
 }
 ```
 
+</details>
+
 # 4. Explicit Transform
 
-CRS Converter service will now support explicit transformations (overriding any bound transformations) for convert and convertGeoJson apis.
+- CRS Converter service will now support explicit transformations (overriding any bound transformations) for convert and convertGeoJson APIs.
+- OSDU Geomatics wants to be able to support on-demand transformation-bindings (late-bindings) for projects and work maps using local, static datums.
+- Both SIS and Esri support this in principle, however, the CRS Converter's API has been designed to support early-bindings or BoundCRSs.
+- Specifying an explicit transformation will override any early binding transformations in the `fromCRS` and `toCRS`. The CRS Converter will validate that the explicit transformation is valid for the `fromCRS` and `toCRS`.
+- The explicit transformation can be specified by setting the optional `"transformation"` parameter of a CRS conversion request.
+- The `"transformation"` parameter as well as `"fromCRS"` & `"toCRS"` params will be able to accept both recordId and PR string formats in payload.
 
-· OSDU Geomatics wants to be able to support on demand transformation-bindings (late-bindings) for projects and work maps using local, static datums.
+<details>
+<summary><strong>Request for v4/convert</strong> (click to expand)</summary>
 
-· Both SIS and Esri support this in principle, however, the CRS Converter’s API has been designed to support early-bindings or BoundCRSs.
-Specifying an explicit transformation will override any early binding transformations in the fromCRS and toCRS. The CRS Converter will validate that the explicit transformation is valid for the fromCRS and toCRS.
-
-.The explicit transformation can be specified by setting the optional "transformation" parameter of a CRS conversion request.
-
-. The "transformation" parameter as well as "fromCRS" & "toCRS" params will be able to accept both recordId and PR string formats in payload.
-
-**Request for v4/convert**
 ```
 {
     "fromCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4283:",
@@ -1671,7 +1771,11 @@ Specifying an explicit transformation will override any early binding transforma
 }
 ```
 
-**Response for v4/convert**
+</details>
+
+<details>
+<summary><strong>Response for v4/convert</strong> (click to expand)</summary>
+
 ```
 {
     "successCount": 1,
@@ -1688,7 +1792,11 @@ Specifying an explicit transformation will override any early binding transforma
 }
 ```
 
-**Request for v4/convertGeoJson**
+</details>
+
+<details>
+<summary><strong>Request for v4/convertGeoJson</strong> (click to expand)</summary>
+
 ```
 {
   "toCRS": "osdu:reference-data--CoordinateReferenceSystem:Geographic2D:EPSG::4267:",
@@ -1740,7 +1848,11 @@ Specifying an explicit transformation will override any early binding transforma
 }
 ```
 
-**Response for v4/convertGeoJson**
+</details>
+
+<details>
+<summary><strong>Response for v4/convertGeoJson</strong> (click to expand)</summary>
+
 ```
 {
   "successCount": 4,
@@ -1794,7 +1906,11 @@ Specifying an explicit transformation will override any early binding transforma
 
 CRS Converter service will now support compound transormations for convert and convertGeoJson apis. The compound transormation needs to be a to WGS84 transformation and can be specified in the fromCRS or toCRS parameter
 
-**Request for v4/convert**
+</details>
+
+<details>
+<summary><strong>Request for v4/convert</strong> (click to expand)</summary>
+
 ```
 {
     "fromCRS": "{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"compoundCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"8517\"},\"cts\":[{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1528\"},\"name\":\"Chos_Malal_1914_To_Campo_Inchauspe\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Chos_Malal_1914_To_Campo_Inchauspe\\\",GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",160.0],PARAMETER[\\\"Y_Axis_Translation\\\",26.0],PARAMETER[\\\"Z_Axis_Translation\\\",41.0],OPERATIONACCURACY[10.0],AUTHORITY[\\\"EPSG\\\",1528]]\"},{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1527\"},\"name\":\"Campo_Inchauspe_To_WGS_1984_2\",\"type\":\"ST\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGTRAN[\\\"Campo_Inchauspe_To_WGS_1984_2\\\",GEOGCS[\\\"GCS_Campo_Inchauspe\\\",DATUM[\\\"D_Campo_Inchauspe\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-154.5],PARAMETER[\\\"Y_Axis_Translation\\\",150.7],PARAMETER[\\\"Z_Axis_Translation\\\",100.4],OPERATIONACCURACY[0.5],AUTHORITY[\\\"EPSG\\\",1527]]\"}],\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"policy\":\"Concatenated\",\"type\":\"CT\",\"ver\":\"PE_10_9_1\"},\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4160\"},\"name\":\"GCS_Chos_Malal_1914\",\"type\":\"LBC\",\"ver\":\"PE_10_9_1\",\"wkt\":\"GEOGCS[\\\"GCS_Chos_Malal_1914\\\",DATUM[\\\"D_Chos_Malal_1914\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4160]]\"},\"name\":\"Chos Malal 1914 to WGS 84 (1)\",\"type\":\"EBC\",\"ver\":\"PE_10_9_1\"}",
@@ -1809,7 +1925,11 @@ CRS Converter service will now support compound transormations for convert and c
 }
 ```
 
-**Response for v4/convert**
+</details>
+
+<details>
+<summary><strong>Response for v4/convert</strong> (click to expand)</summary>
+
 ```
 {
     "successCount": 1,
@@ -1826,7 +1946,13 @@ CRS Converter service will now support compound transormations for convert and c
 }
 ```
 
+</details>
+
+
 ### 6.2.1 Python script to help generate the Request for test data
+<details>
+<summary><strong>Python script to help generate the Request for test data</strong> (click to expand)</summary>
+
 
 A simply python script is provided below that was used to generate the
 above request from an Excel file.
@@ -1862,6 +1988,8 @@ for rownum in range(1,no_of_rows):
 with open("request.json","w",encoding="utf-8") as write_json_file:
     json.dump(data_list,write_json_file,indent=4,default=str)
 ```
+</details>
+
 
 ### 7.2.3 Input and output AbstractBinGrid properties
 
@@ -1932,4 +2060,3 @@ response messages when parsing the input:
 2.  If toCrs is given
     1. Check that the given `CRS record-id` exists.
 
-</details>
