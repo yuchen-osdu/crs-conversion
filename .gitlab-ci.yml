@@ -26,6 +26,8 @@ variables:
   IBM_HELM_CONFIG_PATH: devops/ibm/ibm-crs-conversion-config
   IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-crs-conversion-deploy
 
+  CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
+
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
 
