@@ -9,6 +9,3 @@ gc-acceptance-test-python:
   variables:
     VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
 
-gc-dev2-test-python:
-  variables:
-    VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
