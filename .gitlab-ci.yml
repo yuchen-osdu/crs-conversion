@@ -20,12 +20,6 @@ variables:
   AWS_DEPLOY_TARGET: TF
   AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
 
-  IBM_BUILD_SUBDIR: provider/crs-converter-ibm/crs-converter-ocp
-  IBM_INT_TEST_PY_SUBDIR: testing/crs_converter_test_ibm
-  IBM_INT_TEST_PY_FILE: run_test.py
-  IBM_HELM_CONFIG_PATH: devops/ibm/ibm-crs-conversion-config
-  IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-crs-conversion-deploy
-
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
@@ -57,9 +51,6 @@ include:
     file: "cloud-providers/aws-python.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm-python-test.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
@@ -76,9 +67,6 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/reporting.yml"
