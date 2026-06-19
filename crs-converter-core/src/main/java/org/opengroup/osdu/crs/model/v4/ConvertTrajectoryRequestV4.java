@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -23,7 +21,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-@ApiModel(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
+@Schema(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
 public class ConvertTrajectoryRequestV4 {
 
     public ConvertTrajectoryRequestV4(){

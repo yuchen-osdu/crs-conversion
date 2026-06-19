@@ -1,12 +1,14 @@
 package org.opengroup.osdu.crs.api;
 
 import com.google.common.base.Strings;
-import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.core.common.model.http.AppError;
 import org.opengroup.osdu.core.common.model.http.AppException;
@@ -44,7 +46,7 @@ import java.util.regex.Pattern;
 
 import org.opengroup.osdu.crs.util.RecordIdNormalizer;
 
-@Api(value = Constants.SWAGGER_TAG_CRS_CONVERSION)
+@Tag(name = Constants.SWAGGER_TAG_CRS_CONVERSION)
 @CrossOrigin
 @RestController
 @RequestMapping("/v4")
@@ -185,13 +187,13 @@ public class CrsConverterApiV4 {
     @PostMapping(value ="/convertTrajectory", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "${CrsConverterApi.convertTrajectoryV4.summary}", description = "${CrsConverterApi.convertTrajectoryV4.description}",
             security = {@SecurityRequirement(name = "Authorization")},tags = {"Convert"})
-    @ApiResponses({
-            @ApiResponse(code = 200, message = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, response = ConvertTrajectoryResponseV4.class),
-            @ApiResponse(code = 400, message = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, response = ErrorResponse.class),
-            @ApiResponse(code = 503, message = Constants.SWAGGER_CONVERT_OVERLOAD, response = ErrorResponse.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Constants.SWAGGER_TRJ_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertTrajectoryResponseV4.class)) }),
+            @ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH, content = { @Content(schema = @Schema(implementation = AppError.class)) }),
+            @ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR, content = { @Content(schema = @Schema(implementation = AppError.class)) }),
+            @ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD, content = { @Content(schema = @Schema(implementation = AppError.class)) })})
     @Parameter(hidden = true)
-    public ConvertTrajectoryResponseV4 convertTrajectory(@ApiParam(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
+    public ConvertTrajectoryResponseV4 convertTrajectory(@Parameter(hidden = true) @RequestHeader MultiValueMap<String, String> headers,
                                                          @NonNull @Valid @RequestBody ConvertTrajectoryRequestV4 request) {
         String message = String.format("Using trajectory: %s", "no");
         logger.info(message);
@@ -336,11 +338,11 @@ public class CrsConverterApiV4 {
     @Operation(summary = "${CrsConverterApi.convertPoint.summary}", description = "${CrsConverterApi.convertPoint.description}",
             security = {@SecurityRequirement(name = "Authorization")}, tags = {"Convert"},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertPointsResponse.class)) }),
+            @ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
     })
     public ConvertPointsResponseV4 convertPointV4(@NonNull @Valid @RequestBody ConvertPointsRequestV4 request) {
         //Added new optional parameter transform for explicit transfrom
@@ -359,11 +361,11 @@ public class CrsConverterApiV4 {
     @PostMapping("/convertGeoJson")
     @Operation(summary = "${CrsConverterApi.geo_json_convert.summary}", description = "${CrsConverterApi.geo_json_convert.description}",
             security = {@SecurityRequirement(name = "Authorization")}, tags = {"Convert"})
-    @io.swagger.v3.oas.annotations.responses.ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertGeoJsonResponse.class)) }),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Constants.SWAGGER_CONVERT_SUCCESS_RESPONSE, content = { @Content(schema = @Schema(implementation = ConvertGeoJsonResponse.class)) }),
+            @ApiResponse(responseCode = "400", description = Constants.SWAGGER_CONVERT_BAD_INPUT_BASE_PATH,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @ApiResponse(responseCode = "500", description = Constants.SWAGGER_CONVERT_UNKNOWN_ERROR,  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
+            @ApiResponse(responseCode = "503", description = Constants.SWAGGER_CONVERT_OVERLOAD,  content = {@Content(schema = @Schema(implementation = AppError.class ))})
     })
     public ConvertGeoJsonResponse convertGeoJsonV4(@NonNull @Valid @RequestBody ConvertGeoJsonRequestV4 request) {
         GeoJsonFeatureCollection features = request.getFeatureCollection();

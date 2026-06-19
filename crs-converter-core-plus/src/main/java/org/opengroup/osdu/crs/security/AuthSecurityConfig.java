@@ -56,6 +56,8 @@ public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEn
     "/v2/api-docs",
     "/v3/api-docs",
     "/api-docs/**",
+    "/api-docs.yaml",
+    "/api-docs.json",
     "/configuration/ui",
     "/swagger-resources/**",
     "/configuration/security",
