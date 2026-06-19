@@ -26,7 +26,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import jakarta.validation.ValidationException;
 
-import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -145,9 +145,10 @@ public class RestExceptionHandlerTest {
     }
 
     @Test
-    public void shouldReturnBadRequestOnMethodNotAllowedException() {
+    public void shouldReturnBadRequestOnMethodNotAllowedException() throws Exception {
         MethodParameter methodParameter = mock(MethodParameter.class);
-        Mockito.when(methodParameter.getExecutable()).thenReturn(mock(Executable.class));
+        Method executable = Object.class.getMethod("toString");
+        Mockito.when(methodParameter.getExecutable()).thenReturn(executable);
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(methodParameter, mock(BindingResult.class));
 
         ResponseEntity<Object> response = restExceptionHandler

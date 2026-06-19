@@ -74,10 +74,9 @@
 			<artifactId>netty-codec</artifactId>
 			<version>4.1.86.Final</version>
 		</dependency>
-        <dependency>
+		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-core</artifactId>
-            <version>10.1.34</version>
 		</dependency>
         <dependency>
 			<groupId>org.opengroup.osdu</groupId>
@@ -91,7 +90,6 @@
             <plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.2.2</version>
 				  <executions>
                     <execution>
                         <goals>

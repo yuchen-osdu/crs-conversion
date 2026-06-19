@@ -70,6 +70,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 **istio.proxyCPULimit** | CPU limit for Envoy sidecars | string | 500m | yes
 **istio.proxyMemory** | memory request for Envoy sidecars | string | 100Mi | yes
 **istio.proxyMemoryLimit** | memory limit for Envoy sidecars | string | 512Mi | yes
+**istio.auth.disable** | Paths excluded from JWT AuthorizationPolicy enforcement, including Swagger UI and grouped API docs | list | see `values.yaml` | yes
 
 ### Install the helm chart
 
