@@ -16,8 +16,8 @@
 
 package org.opengroup.osdu.crs.security;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opengroup.osdu.core.common.entitlements.IEntitlementsFactory;
@@ -34,14 +34,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Enumeration;
 import org.opengroup.osdu.core.common.http.HttpResponse;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationRequestFilterTest {
     @Mock
     HandlerExceptionResolver handlerExceptionResolver;
