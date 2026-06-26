@@ -33,18 +33,24 @@ istio:
   proxyMemory: "50Mi"
   proxyMemoryLimit: "512Mi"
   auth:
+    basePath: /api/crs/converter
+    versions:
+      - v2
+      - v3
+      - v4
     disable:
-      - "/"
-      - "*/index.html"
-      - "*/api-docs"
-      - "*/api-docs/**"
-      - "*/api-docs.yaml"
-      - "*/swagger"
-      - "*/swagger-ui.html"
-      - "*/swagger-ui/**"
-      - "*/swagger-resources"
-      - "*/swagger-config"
-      - "*/actuator/health"
-      - "*/health/liveness"
-      - "*/health/readiness"
-      - "*/_ah/**"
+      # context-root paths (leading / emitted as-is)
+      - "/api/crs/converter/index.html"
+      - "/api/crs/converter/api-docs"
+      - "/api/crs/converter/api-docs/*"
+      - "/api/crs/converter/api-docs.yaml"
+      - "/api/crs/converter/swagger"
+      - "/api/crs/converter/swagger-ui.html"
+      - "/api/crs/converter/swagger-ui/*"
+      - "/api/crs/converter/swagger-resources"
+      - "/api/crs/converter/swagger-config"
+      - "/api/crs/converter/_ah/liveness_check"
+      - "/api/crs/converter/_ah/readiness_check"
+      # versioned paths (expanded to /api/crs/converter/<version>/<path>)
+      - "_ah/liveness_check"
+      - "_ah/readiness_check"
