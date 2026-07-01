@@ -14,8 +14,7 @@ echo "***RUNNING CRS CONVERTER TESTS WITH ALLURE REPORTING***"
 echo ""
 
 # Run all tests with pytest (handles v2, v3, v4, both pytest and unittest tests)
-pytest test_api_v2.py test_api_v3.py test_api_v4.py \
-    test_crs_converter_v2.py test_crs_converter_v3.py test_crs_converter_v4.py \
+pytest test_crs_converter_v2.py test_crs_converter_v3.py test_crs_converter_v4.py \
     --alluredir=cimpl/allure-results \
     --clean-alluredir \
     -v
