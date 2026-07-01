@@ -23,7 +23,7 @@ variables:
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
   # Java service with Python acceptance tests — override the Python->JSON auto-detection
   # so the openapi-spec check fetches the YAML spec served by springdoc
-  CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs.yaml
+  CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs/v4
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
@@ -74,6 +74,9 @@ include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/reporting.yml"
 
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/schemathesis.yml"
+
   - local: "devops/gc/pipeline/override-stages.yml"
 
   - local: "devops/aws/pipeline/override-stages.yml"
@@ -93,3 +96,6 @@ fossa-analyze:
 
 fossa-check-notice:
   image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
+schemathesis-tests:
+  extends: .schemathesis-tests-template
