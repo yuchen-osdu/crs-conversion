@@ -25,12 +25,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationTokenTest {
+class AuthenticationTokenTest {
     @Mock
     Object principal;
 
     @Test
-    public void should_return_success_constructor(){
+    void should_return_success_constructor(){
         AuthenticationToken authenticationToken = new AuthenticationToken(principal,Collections.emptyList());
         assertNotNull(authenticationToken);
         assertNotNull(authenticationToken.getPrincipal());

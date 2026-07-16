@@ -34,7 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 @ExtendWith(MockitoExtension.class)
-public class UnauthorizedErrorResponseTest {
+class UnauthorizedErrorResponseTest {
 
     @Mock
     AuthenticationService authenticationService;
@@ -51,14 +51,14 @@ public class UnauthorizedErrorResponseTest {
     private PrintWriter writer;
 
     @Test
-    public void shouldReturnUnauthorizedWhenAuthenticationException() throws IOException {
+    void shouldReturnUnauthorizedWhenAuthenticationException() throws IOException {
         when(response.getWriter()).thenReturn(writer);
         sut.commence(request, response, authenticationException);
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void shouldReturnUnauthorizedWhenAccessDenied() throws IOException {
+    void shouldReturnUnauthorizedWhenAccessDenied() throws IOException {
         when(response.getWriter()).thenReturn(writer);
         sut.handle(request, response, null);
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
