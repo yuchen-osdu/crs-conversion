@@ -42,7 +42,7 @@ import java.util.Enumeration;
 import org.opengroup.osdu.core.common.http.HttpResponse;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationRequestFilterTest {
+class AuthenticationRequestFilterTest {
     @Mock
     HandlerExceptionResolver handlerExceptionResolver;
 
@@ -62,14 +62,14 @@ public class AuthenticationRequestFilterTest {
     IEntitlementsFactory entitlementsFactory;
 
     @Test
-    public void should_successfully_constructor() {
+    void should_successfully_constructor() {
         AuthenticationRequestFilter authenticationRequestFilter = new AuthenticationRequestFilter("entitlementUrl",
                 handlerExceptionResolver);
         assertNotNull(authenticationRequestFilter);
     } 
     
     @Test
-    public void shouldFilteWhenAuthenticated()
+    void shouldFilteWhenAuthenticated()
             throws ServletException, IOException, EntitlementsException, Exception {
         Enumeration<String> headerNames = Mockito.mock(Enumeration.class);
         Mockito.when(headerNames.hasMoreElements()).thenReturn(false);
@@ -91,7 +91,7 @@ public class AuthenticationRequestFilterTest {
     }
    
     @Test
-    public void shouldThrowEntitlementsExceptionWhenUnAuthenticated()
+    void shouldThrowEntitlementsExceptionWhenUnAuthenticated()
             throws ServletException, IOException, EntitlementsException, Exception {
 
         Enumeration<String> headerNames = Mockito.mock(Enumeration.class);
@@ -116,7 +116,7 @@ public class AuthenticationRequestFilterTest {
     }
 
     @Test
-    public void shouldThrowNullExceptionWhenUnAuthenticated()
+    void shouldThrowNullExceptionWhenUnAuthenticated()
             throws ServletException, IOException, EntitlementsException, Exception {
 
         Enumeration<String> headerNames = Mockito.mock(Enumeration.class);
