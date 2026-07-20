@@ -139,6 +139,7 @@ The following software have components provided under the terms of this license:
 - Netty Reactive Streams Implementation (from https://repo1.maven.org/maven2/com/typesafe/netty/netty-reactive-streams)
 - Netty/Buffer (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-buffer)
 - Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
 - Netty/Codec/DNS (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-dns)
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Codec/HTTP2 (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http2)
@@ -255,6 +256,7 @@ The following software have components provided under the terms of this license:
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
 - Hamcrest Core (from http://hamcrest.org/, http://hamcrest.org/JavaHamcrest/, https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 - Jodd Util (from https://util.jodd.org/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - MinLog (from https://github.com/EsotericSoftware/minlog)
@@ -292,6 +294,13 @@ The following software have components provided under the terms of this license:
 - ReflectASM (from https://github.com/EsotericSoftware/reflectasm)
 - Spring Core (from http://www.springframework.org, https://github.com/spring-projects/spring-framework, https://repo1.maven.org/maven2/org/springframework/spring-core)
 - Units of Measurement API (from http://unitsofmeasurement.github.io/unit-api/, https://unitsofmeasurement.github.io/unit-api/)
+
+========================================================================
+BSL-1.0
+========================================================================
+The following software have components provided under the terms of this license:
+
+- Jackson-core (from http://wiki.fasterxml.com/JacksonHome, https://github.com/FasterXML/jackson-core)
 
 ========================================================================
 BouncyCastle
@@ -394,8 +403,6 @@ The following software have components provided under the terms of this license:
 
 - Angus Activation Registries (from https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation)
 - AspectJ Weaver (from http://www.aspectj.org, https://www.eclipse.org/aspectj/)
-- CDI APIs (from http://cdi-spec.org/)
-- CDI Language Model (from https://projects.eclipse.org/projects/ee4j)
 - Core :: ALPN :: Client (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-alpn-client)
 - Core :: EE Common (from https://jetty.org/)
 - Core :: JNDI (from https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-jndi)
@@ -607,6 +614,7 @@ The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
+- Netty/Codec/Base (from https://netty.io/)
 
 ========================================================================
 gpl-2.0-classpath
