@@ -1,0 +1,101 @@
+variables:
+  SIS_DATA: $CI_PROJECT_DIR/apachesis_setup/SIS_DATA
+
+  AZURE_SERVICE: crs_converter
+  AZURE_BUILD_SUBDIR: provider/crs-converter-azure/crs-converter-aks
+  AZURE_TEST_SUBDIR: testing/crs_converter_test_azure
+  AZURE_TEST_TYPE: python
+  ESRI_DATA_PATH: /crs
+  SHARE_NAME: crs-conversion
+  AZURE_SWAGGER_PATH: api/crs/converter/swagger-ui/index.html#/
+  AZURE_SKIP_INTEGRATION_TEST: "true"
+
+  AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
+  AWS_TEST_SUBDIR: testing/crs_converter_test_aws
+  AWS_CHART_SUBDIR: devops/aws/chart
+  AWS_SERVICE: crs-conversion
+  AWS_SERVICE_GATEWAY: osdu-gateway
+  AWS_ENVIRONMENT: dev
+  AWS_INT_TEST_TYPE: python
+  AWS_DEPLOY_TARGET: TF
+  AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
+
+  CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
+  # Java service with Python acceptance tests — override the Python->JSON auto-detection
+  # so the openapi-spec check fetches the YAML spec served by springdoc
+  CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs/v4
+
+  ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
+  CORE_BUILD_SUBDIR: crs-converter-core
+
+include:
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "standard-setup.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "build/maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/fossa-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/gitlab-ultimate.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/azure.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-python.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/gc-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/cimpl-global.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "publishing/pages.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/aws-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/azure-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "cloud-providers/gc-one-pipeline.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/reporting.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/schemathesis.yml"
+
+  - local: "devops/gc/pipeline/override-stages.yml"
+
+  - local: "devops/aws/pipeline/override-stages.yml"
+
+  - local: "devops/core-plus/pipeline/override-stages.yml"
+
+gemnasium-maven-dependency_scanning:
+  variables:
+    DS_JAVA_VERSION: 17
+
+azure_containerize:
+  variables:
+    AZURE_CONTAINERIZE_REPOSITORY: "https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
+
+fossa-analyze:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
+fossa-check-notice:
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
+schemathesis-tests:
+  extends: .schemathesis-tests-template

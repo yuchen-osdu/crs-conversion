@@ -1,0 +1,11 @@
+variables:
+  BUILD_PATH: "provider/crs-converter-$GC_VENDOR/cloudbuild/Dockerfile.cloudbuild"
+  GC_SERVICE: crs-conversion
+  GC_VENDOR: gc
+  GC_INT_TEST_TYPE: python
+  GC_PYTHON_INT_TEST_SUBDIR: testing/crs_converter_test_gc
+
+gc-acceptance-test-python:
+  variables:
+    VIRTUAL_SERVICE_HOST_NAME: $GC_CRS_CONVERTER_HOSTNAME
+

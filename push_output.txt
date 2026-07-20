@@ -1,0 +1,11 @@
+remote: warning: See https://gh.io/lfs for more information.        
+remote: warning: File apachesis_setup/SIS_DATA/DatumChanges/GDA94_GDA2020_conformal_and_distortion.gsb is 79.18 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: File apachesis_setup/SIS_DATA/DatumChanges/GDA94_GDA2020_conformal.gsb is 79.18 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB        
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.        
+remote: 
+remote: Create a pull request for 'fork_upstream' on GitHub by visiting:        
+remote:      https://github.com/yuchen-osdu/crs-conversion/pull/new/fork_upstream        
+remote: 
+To https://github.com/yuchen-osdu/crs-conversion
+ * [new branch]      fork_upstream -> fork_upstream
+branch 'fork_upstream' set up to track 'origin/fork_upstream'.

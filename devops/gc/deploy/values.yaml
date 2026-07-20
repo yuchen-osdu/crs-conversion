@@ -1,0 +1,69 @@
+# Default values for crs-conversion-deploy.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  domain: ""
+  limitsEnabled: true
+  logLevel: "ERROR"
+  tier: ""
+  autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
+
+data:
+  #configmaps
+  logLevel: ""
+  sisData: "/crs-converter/apachesis_setup/SIS_DATA"
+  storageHost: "http://storage"
+  entitlementsHost: "http://entitlements"
+  otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
+  #deployments
+  requestsCpu: "65m"
+  requestsMemory: "230Mi"
+  limitsCpu: "1"
+  limitsMemory: "1G"
+  serviceAccountName: "crs-conversion"
+  imagePullPolicy: "IfNotPresent"
+  image: ""
+  affinityLabelsSpot:
+    cloud.google.com/gke-provisioning:
+      - spot
+  affinityLabelsStandard:
+    cloud.google.com/gke-provisioning:
+      - standard
+
+conf:
+  configmap: "crs-conversion-config"
+  appName: "crs-conversion"
+
+istio:
+  proxyCPU: "5m"
+  proxyCPULimit: "500m"
+  proxyMemory: "50Mi"
+  proxyMemoryLimit: "512Mi"
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 6
+  cpu:
+    utilization: 200
+    scaleUpStabilizationWindowSeconds: 30
+    scaleUpValue: 200
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 150
+    scaleDownValue: 100
+    scaleDownPeriod: 15
+  requests:
+    targetType: "AverageValue"
+    targetValue: 100
+    scaleUpStabilizationWindowSeconds: 10
+    scaleUpValue: 50
+    scaleUpPeriod: 15
+    scaleDownStabilizationWindowSeconds: 60
+    scaleDownValue: 25
+    scaleDownPeriod: 60
+
+limits:
+  maxTokens: 80
+  tokensPerFill: 80
+  fillInterval: "1s"
