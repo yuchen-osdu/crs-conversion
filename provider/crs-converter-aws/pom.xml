@@ -35,7 +35,6 @@
         <app.id>crs-converter-aws</app.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-        <netty.version>4.1.124.Final</netty.version>
     </properties>
 
     <prerequisites>
@@ -47,16 +46,6 @@
             <dependency>
                 <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
