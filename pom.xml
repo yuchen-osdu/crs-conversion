@@ -6,7 +6,7 @@
         <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-        <powermock.version>2.0.6</powermock.version>
+        <powermock.version>2.0.9</powermock.version>
         <docker.image.prefix>org.opengroup.osdu</docker.image.prefix>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
