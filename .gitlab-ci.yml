@@ -27,7 +27,6 @@ variables:
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
-
 include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "standard-setup.yml"
