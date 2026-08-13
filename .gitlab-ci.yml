@@ -20,10 +20,11 @@ variables:
   AWS_DEPLOY_TARGET: TF
   AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
 
+  # Fetch Java springdoc at /api-docs/v4 (not /api-docs.yaml/v4 from swagger-config rewrite).
+  # SPEC_PATH overrides the template default Local path docs/api/community/v1/.
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
-  # Java service with Python acceptance tests — override the Python->JSON auto-detection
-  # so the openapi-spec check fetches the YAML spec served by springdoc
   CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs/v4
+  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v4/openapi.yaml
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core

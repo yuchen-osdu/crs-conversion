@@ -1,6 +1,6 @@
 [
     {
-        "id": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+        "id": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:",
         "kind": "{{DATA_PARTITION_ID}}:wks:reference-data--UnitOfMeasure:1.0.0",
         "acl": {
             "owners": [
