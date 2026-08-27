@@ -103,12 +103,6 @@
             </modules>
         </profile>
         <profile>
-            <id>aws</id>
-            <modules>
-                <module>provider/crs-converter-aws</module>
-            </modules>
-        </profile>
-        <profile>
             <id>azure</id>
             <modules>
                 <module>provider/crs-converter-azure/crs-converter-aks</module>

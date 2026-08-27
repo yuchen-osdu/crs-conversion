@@ -10,16 +10,6 @@ variables:
   AZURE_SWAGGER_PATH: api/crs/converter/swagger-ui/index.html#/
   AZURE_SKIP_INTEGRATION_TEST: "true"
 
-  AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
-  AWS_TEST_SUBDIR: testing/crs_converter_test_aws
-  AWS_CHART_SUBDIR: devops/aws/chart
-  AWS_SERVICE: crs-conversion
-  AWS_SERVICE_GATEWAY: osdu-gateway
-  AWS_ENVIRONMENT: dev
-  AWS_INT_TEST_TYPE: python
-  AWS_DEPLOY_TARGET: TF
-  AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
-
   # Fetch Java springdoc at /api-docs/v4 (not /api-docs.yaml/v4 from swagger-config rewrite).
   # SPEC_PATH overrides the template default Local path docs/api/community/v1/.
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
@@ -45,15 +35,6 @@ include:
     file: "cloud-providers/azure.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-global.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-maven.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-python.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
@@ -61,9 +42,6 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "publishing/pages.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure-one-pipeline.yml"
@@ -78,8 +56,6 @@ include:
     file: "reporting/schemathesis.yml"
 
   - local: "devops/gc/pipeline/override-stages.yml"
-
-  - local: "devops/aws/pipeline/override-stages.yml"
 
   - local: "devops/core-plus/pipeline/override-stages.yml"
 
