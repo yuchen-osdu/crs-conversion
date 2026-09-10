@@ -79,11 +79,6 @@ fossa-check-notice:
           - "/api/crs/converter/api-docs/v3"
           - "/api/crs/converter/api-docs/v4"
 
-schemathesis-tests:
-  extends:
-    - .schemathesis-tests-template
-    - .schemathesis-crs-conversion-matrix
-
 schemathesis-dev-tests:
   extends:
     - .cimpl-dev-variables
