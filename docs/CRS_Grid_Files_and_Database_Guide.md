@@ -153,16 +153,7 @@ Upload to Azure File Share. **No image rebuild or pod restart required**
 
 ### AWS 
 
-- **Architecture**: Grid files copied into Docker image at build time.
-
-- **Adding Custom Grids**:
-    1. Add grid files to `apachesis_setup/SIS_DATA/DatumChanges/`
-    2. Rebuild the Docker image
-    3. Push to ECR and redeploy
-
-**Requires image rebuild and redeployment**
-
-
+The AWS provider has been removed from this repository.
 
 ---
 

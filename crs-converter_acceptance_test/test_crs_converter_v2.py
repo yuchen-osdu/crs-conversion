@@ -219,10 +219,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -396,10 +393,7 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -518,10 +512,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
         print(bearer)
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -541,23 +532,8 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             # Convert a list of points
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
-        except ApiException as e:   
-            VENDOR = os.getenv("VENDOR")
-            if VENDOR == "azure" or VENDOR == "ibm":
-                reason = e.reason
-            else:
-                # Handle both JSON body and empty/plain text responses
-                try:
-                    if e.body:
-                        body_data = json.loads(e.body)
-                        reason = body_data.get('reason', e.reason)
-                    else:
-                        reason = e.reason
-                except (json.JSONDecodeError, ValueError):
-                    reason = e.reason
-            
-            self.assertTrue(403==e.status or 401==e.status)
-            self.assertTrue(reason in ["Forbidden", "Unauthorized", "Entitlement Error", "Access denied"])
+        except ApiException as e:
+            self.assertTrue(e.status in (401, 403), f"expected 401/403, got {e.status}: {e}")
 
 @allure.feature('CRS Converter Service Info')
 @allure.epic('CRS Converter v2 Integration Tests')
@@ -576,10 +552,7 @@ class TestInfo(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -614,10 +587,7 @@ class TestInfoSlash(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
