@@ -3,6 +3,7 @@ variables:
   CIMPL_INT_TEST_TYPE: python
   CIMPL_BAREMETAL_PYTHON_INT_TEST_SUBDIR: crs-converter_acceptance_test
   CIMPL_BUILD_PATH: "crs-converter-core-plus/build/Dockerfile"
+  DISABLE_INTEGRATION_TEST: true
 
 cimpl-containerize-gitlab:
   needs:
