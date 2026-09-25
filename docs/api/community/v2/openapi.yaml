@@ -11,25 +11,28 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 4.0.0
+  version: 2.0.0
 servers:
 - url: /api/crs/converter/
 security:
 - Authorization: []
 tags:
+- name: health-check-api
+  description: Health related endpoints
 - name: info-api
   description: Version info endpoint
-- name: Convert
-  description: Coordinate conversion endpoints
+- name: crs-converter-api-v2
+  description: Converter related endpoints
+- name: convert-trajectory-api-v2
+  description: Convert trajectory stations
 paths:
-  /v4/convert:
+  /v2/convert:
     post:
       tags:
-      - CRS Point Conversion
-      - Convert
+      - crs-converter-api-v2
       summary: Convert a list of points
       description: Convert a list of points
-      operationId: convertPointV4
+      operationId: convertPoint
       parameters:
       - name: data-partition-id
         in: header
@@ -41,7 +44,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConvertPointsRequestV4"
+              $ref: "#/components/schemas/ConvertPointsRequest"
         required: true
       responses:
         "200":
@@ -70,48 +73,14 @@ paths:
                 $ref: "#/components/schemas/AppError"
       security:
       - Authorization: []
-  /v4/convertTrajectory:
+  /v2/convertTrajectory:
     post:
       tags:
-      - CRS Point Conversion
-      - Convert
+      - convert-trajectory-api-v2
       summary: Convert trajectory stations
-      description: |-
-        Convert a list of trajectory stations, given the unit and spatial context and a reference point in 3D where MD==0. For survey MD, Incl, Azi input, minimum curvature is used to calculate the local deviations and absolute coordinates. For MD_dX,dY,dZ, the inverse minimum curvature is first applied to compute Inc and Azi.
-
-         **Interpolation Feature**: When `interpolate=true` (default), additional stations can be generated at specified measured depths using the `MD_i` parameter:
-         - Use `MD_i.md_i` for explicit MD values, e.g., [50, 75, 150]
-         - Use `MD_i.md_interval` for regular spacing, e.g., 25 for every 25 units
-         - Interpolated stations use minimum curvature interpolation for inc/azi and position
-         - Response stations include `original: true/false` to distinguish survey vs interpolated
-         - Set `interpolate=false` to process only original survey stations (MD_i is ignored)
-
-         ## Request Body Parameters
-
-         | Parameter | Type | Required | Description |
-         |-----------|------|----------|-------------|
-         | **trajectoryCRS** | string | Yes | Coordinate reference system for the reference point. Typically a projected CRS; if geographic CRS, unitXY must be defined and azimuthReference must be TRUE_NORTH. |
-         | **referencePoint** | Point | Yes | The well surface location (x, y, z) where MD=0. Coordinates are in trajectoryCRS units. |
-         | **inputStations** | array | Yes | Array of input trajectory stations. Required fields depend on inputKind. |
-         | **unitZ** | string | Yes | Unit of measure for vertical values (dz) and measured depth. OSDU record ID or persistable reference JSON. |
-         | **method** | string | Yes | Computation method: 'AzimuthalEquidistant' (default) or 'LMP' (Lee's Modified Proposal SPE96813). |
-         | **azimuthReference** | string | No | Reference for azimuth angles: TRUE_NORTH (TN) or GRID_NORTH (GN). Default: TRUE_NORTH. |
-         | **unitXY** | string | No | Unit for horizontal displacements (dx, dy). Required for dX_dY_dZ input kinds. Auto-derived from projected CRS if not specified. |
-         | **unitMD** | string | No | Unit for Measured Depth values. Defaults to unitZ if not specified. |
-         | **inputKind** | string | No | Input format: MD_Incl_Azim (default), MD_dX_dY_dZ, dX_dY_dZ, MD_Incl, MD_X_Y_Z, X_Y_Z. |
-         | **interpolate** | boolean | No | When true (default), interpolates stations at MD_i depths. When false, only original stations processed. |
-         | **MD_i** | object | No | Interpolation specification: md_i (array of specific depths) or md_interval (regular spacing). |
-
-         ## Input Station Fields (TrajectoryStationInV4)
-
-         | Field | Description |
-         |-------|-------------|
-         | **md** | Measured Depth - distance along wellbore from reference point. Unit: unitMD or unitZ. |
-         | **inclination** | Wellbore angle from vertical: 0Â°=down, 90Â°=horizontal, 180Â°=up. |
-         | **azimuth** | Direction angle: 0Â°/360Â°=North, 90Â°=East, 180Â°=South, 270Â°=West. Reference per azimuthReference. |
-         | **dx** | East-West displacement from reference point. Positive=East. Unit: unitXY. |
-         | **dy** | North-South displacement from reference point. Positive=North. Unit: unitXY. |
-         | **dz** | True Vertical Depth from reference point. Positive=deeper. Unit: unitZ. |
+      description: "Convert a list of trajectory stations, given the unit and spatial\
+        \ context and a reference point in 3D where MD==0. \n + Note: To get WGS 84\
+        \ output the trajectoryCRS needs to be a BoundCRS (unless it is WGS 84 based)"
       operationId: convertTrajectory
       parameters:
       - name: data-partition-id
@@ -124,7 +93,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConvertTrajectoryRequestV4"
+              $ref: "#/components/schemas/ConvertTrajectoryRequest"
         required: true
       responses:
         "200":
@@ -132,7 +101,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConvertTrajectoryResponseV4"
+                $ref: "#/components/schemas/ConvertTrajectoryResponse"
         "400":
           description: Bad input format
           content:
@@ -153,15 +122,14 @@ paths:
                 $ref: "#/components/schemas/AppError"
       security:
       - Authorization: []
-  /v4/convertGeoJson:
+  /v2/convertGeoJson:
     post:
       tags:
-      - CRS Point Conversion
-      - Convert
+      - crs-converter-api-v2
       summary: Convert a GeoJSON or AnyCrsGeoJson structure
       description: Convert a GeoJSON or AnyCrsGeoJson structure to a specified target
         CRS. GeoJSON is declared - by definition - to be in the context of WGS 84.
-      operationId: convertGeoJsonV4
+      operationId: convertGeoJson
       parameters:
       - name: data-partition-id
         in: header
@@ -173,7 +141,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConvertGeoJsonRequestV4"
+              $ref: "#/components/schemas/ConvertGeoJsonRequest"
         required: true
       responses:
         "200":
@@ -202,9 +170,75 @@ paths:
                 $ref: "#/components/schemas/AppError"
       security:
       - Authorization: []
+  /v2/info:
+    get:
+      tags:
+      - info-api
+      summary: info
+      description: "For deployment available public `/info` endpoint, which provides\
+        \ build and git related information."
+      operationId: info
+      parameters:
+      - name: data-partition-id
+        in: header
+        description: Tenant Id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Version info.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionInfo"
+  /v2/_ah/readiness_check:
+    get:
+      tags:
+      - health-check-api
+      summary: Readiness Check endpoint
+      description: "For deployment available public `/readiness_check` endpoint, which\
+        \ provides `CRS Conversion Service is ready` message."
+      operationId: readinessCheck
+      parameters:
+      - name: data-partition-id
+        in: header
+        description: Tenant Id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: CRS Conversion service is ready
+          content:
+            application/json:
+              schema:
+                type: string
+  /v2/_ah/liveness_check:
+    get:
+      tags:
+      - health-check-api
+      summary: Liveness Check endpoint
+      description: "For deployment available public `/liveness_check` endpoint, which\
+        \ provides `CRS Conversion Service is alive` message."
+      operationId: livenessCheck
+      parameters:
+      - name: data-partition-id
+        in: header
+        description: Tenant Id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: CRS Conversion service is alive
+          content:
+            application/json:
+              schema:
+                type: string
 components:
   schemas:
-    ConvertPointsRequestV4:
+    ConvertPointsRequest:
       type: object
       description: Request to convert a set of points from a source CRS to a target
         CRS
@@ -268,19 +302,6 @@ components:
           items:
             $ref: "#/components/schemas/Point"
           minItems: 1
-        transformation:
-          type: string
-          description: CRS Transform
-          example: "\"{\"wkt\":\"GEOGTRAN[\\\"PSAD_1956_To_WGS_1984_9\\\",GEOGCS[\\\
-            \"GCS_Provisional_S_American_1956\\\",DATUM[\\\"D_Provisional_S_American_1956\\\
-            \",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\
-            \",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\
-            \",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\
-            \"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\
-            \"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-295.0],PARAMETER[\\\
-            \"Y_Axis_Translation\\\",173.0],PARAMETER[\\\"Z_Axis_Translation\\\",-371.0],AUTHORITY[\\\
-            \"EPSG\\\",1209]]\",\"ver\":\"PE_10_3_1\",\"name\":\"PSAD_1956_To_WGS_1984_9\"\
-            ,\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1209\"},\"type\":\"ST\"}\""
       required:
       - fromCRS
       - points
@@ -351,13 +372,11 @@ components:
           type: string
           description: Detailed error message.
           example: Invalid record format.
-    ConvertTrajectoryRequestV4:
+    ConvertTrajectoryRequest:
       type: object
       description: "Input trajectory data structure; contains the context (crs, units,\
         \ azimuth reference, method)"
       properties:
-        md_i:
-          $ref: "#/components/schemas/MinimumDepthInterval"
         trajectoryCRS:
           type: string
           description: "Coordinate reference system for the reference point; typically\
@@ -379,6 +398,7 @@ components:
             \ from geographic true north. GRID_NORTH (GN): measured from map projection\
             \ grid north. The difference is the grid convergence angle."
           example: TRUE_NORTH
+          minLength: 1
         unitXY:
           type: string
           description: "Unit of measure for horizontal displacements (dx, dy). Required\
@@ -401,11 +421,28 @@ components:
           $ref: "#/components/schemas/Point"
           description: The 3D reference point in the 'trajectoryCRS' where MD==0.
         inputStations:
-          type: array
+          type: string
           description: The array of input trajectory stations
-          items:
-            $ref: "#/components/schemas/TrajectoryStationInV4"
-          minItems: 1
+          example:
+          - md: 0
+            inclination: 0
+            azimuth: 0
+          - md: 1000
+            inclination: 0
+            azimuth: 0
+          - md: 2000
+            inclination: 90
+            azimuth: 0
+          - md: 3000
+            inclination: 90
+            azimuth: 0
+          - md: 5000
+            inclination: 90
+            azimuth: 90
+          - md: 6000
+            inclination: 90
+            azimuth: 90
+          minLength: 1
         method:
           type: string
           description: "Computation method: 'AzimuthalEquidistant' (default) - standard\
@@ -427,100 +464,18 @@ components:
             \ values specified in MD_i. When false, only original input stations are\
             \ processed and MD_i is ignored."
           example: "True"
-        MD_i:
-          $ref: "#/components/schemas/MinimumDepthInterval"
-          description: Specifies measured depths where additional trajectory stations
-            should be interpolated. Only used when 'interpolate' is true. Provide
-            either explicit MD values (md_i array) or a regular interval (md_interval).
-        unitMD:
-          type: string
-          description: Unit of measure for Measured Depth (MD) values. Optional -
-            defaults to unitZ if not specified.
-          example: "\"{\"scaleOffset\":{\"scale\":1.0,\"offset\":0.0},\"symbol\":\"\
-            m\",\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"},\"type\"\
-            :\"USO\"}\""
       required:
+      - azimuthReference
       - inputStations
       - method
       - trajectoryCRS
       - unitZ
-    MinimumDepthInterval:
-      type: object
-      description: "Specifies where to interpolate additional trajectory stations.\
-        \ Provide explicit MD values (md_i array) OR a regular interval (md_interval),\
-        \ not both."
-      properties:
-        md_i:
-          type: array
-          description: Explicit list of Measured Depth values where interpolated stations
-            should be computed. Unit specified by unitMD or unitZ.
-          example: "200"
-          items:
-            type: number
-            format: double
-        md_interval:
-          type: number
-          format: double
-          description: Regular interval for generating interpolated stations. Stations
-            created from first to last input MD at this interval.
-          example: "25.0"
-    TrajectoryStationInV4:
-      type: object
-      description: "Input trajectory survey station. Required fields depend on inputKind:\
-        \ MD_Incl_Azim requires md, inclination, azimuth. dX_dY_dZ variants require\
-        \ dx, dy, dz."
-      properties:
-        md:
-          type: string
-          format: double
-          description: "Measured Depth - distance along the wellbore from the reference\
-            \ point (e.g., kelly bushing). Unit specified by unitMD or unitZ. Required\
-            \ for most inputKind values."
-          example: "2563.56"
-        inclination:
-          type: string
-          format: double
-          description: "Wellbore inclination angle in degrees. 0° = vertical (down),\
-            \ 90° = horizontal, 180° = vertical (up). Range: 0-180. Required for MD_Incl_Azim\
-            \ and MD_Incl inputKind."
-          example: "15.0"
-        azimuth:
-          type: string
-          format: double
-          description: "Wellbore azimuth (direction) angle in degrees. 0°/360° = North,\
-            \ 90° = East, 180° = South, 270° = West. Range: 0-360. Reference (True\
-            \ North or Grid North) specified by azimuthReference."
-          example: "355.0"
-        dx:
-          type: string
-          format: double
-          description: East-West displacement from well reference point. Positive
-            = East. Used for dX_dY_dZ and MD_dX_dY_dZ inputKind. Unit specified by
-            unitXY.
-          example: "55.9"
-        dy:
-          type: string
-          format: double
-          description: North-South displacement from well reference point. Positive
-            = North. Y-axis alignment (True North or Grid North) depends on azimuthReference.
-            Unit specified by unitXY.
-          example: "-145.3"
-        dz:
-          type: string
-          format: double
-          description: True Vertical Depth (TVD) from well reference point. Positive
-            = deeper/downward. Unit specified by unitZ.
-          example: "1965.6"
-    ConvertTrajectoryResponseV4:
+    ConvertTrajectoryResponse:
       type: object
       description: "Trajectory response containing computed stations with positions,\
         \ deviations, and WGS84 coordinates. Includes scale factor and convergence\
         \ data for the GNL method."
       properties:
-        unitMD:
-          type: string
-          description: Unit of measure for Measured Depth (MD) values. Optional -
-            defaults to unitZ if not specified.
         trajectoryCRS:
           type: string
           description: "Coordinate reference system for the reference point; typically\
@@ -657,18 +612,6 @@ components:
             strings
           items:
             type: string
-        stations_i:
-          type: array
-          description: Interpolated trajectory stations at MD_i depths. Only present
-            when interpolation was requested. Same structure as main stations.
-          items:
-            $ref: "#/components/schemas/TrajectoryStationOut"
-        scaleConvergenceList:
-          type: array
-          description: Scale factor and convergence values computed at first and last
-            stations. Used for precise surveying calculations.
-          items:
-            $ref: "#/components/schemas/ScaleConvergence"
         inputKind:
           type: string
           description: "Format of input data: MD_Incl_Azim (default) - measured depth\
@@ -684,32 +627,6 @@ components:
       - unitDls
       - unitXY
       - unitZ
-    ScaleConvergence:
-      type: object
-      description: Scale factor and convergence values computed at first and last
-        stations. Used for precise surveying calculations.
-      properties:
-        scalefactor:
-          type: string
-          format: double
-          description: "Point scale factor at this location. Ratio of grid distance\
-            \ to true ground distance. For UTM, typically ~0.9996 at central meridian."
-          example: "Point scale factor at this location. Ratio of grid distance to\
-            \ true ground distance. For UTM, typically ~0.9996 at central meridian."
-        convergence:
-          type: string
-          format: double
-          description: Grid convergence angle in degrees. Angle between True North
-            and Grid North at this location. Used to convert between TN and GN azimuths.
-          example: Grid convergence angle in degrees. Angle between True North and
-            Grid North at this location. Used to convert between TN and GN azimuths.
-        point:
-          type: string
-          format: double
-          description: "Absolute 3D coordinates in trajectoryCRS. x/y in CRS units,\
-            \ z in unitZ (elevation above reference, negative for depth below)."
-          example: "Absolute 3D coordinates in trajectoryCRS. x/y in CRS units, z\
-            \ in unitZ (elevation above reference, negative for depth below)."
     TrajectoryStationOut:
       type: object
       description: "Computed output trajectory station with survey angles, displacements,\
@@ -781,7 +698,7 @@ components:
         dz:
           type: number
           format: double
-    ConvertGeoJsonRequestV4:
+    ConvertGeoJsonRequest:
       type: object
       description: Request to convert a GeoJSON FeatureCollection or AnyCrsFeatureCollection
         from WGS 84 or 'AnyCrsFeatureCollection.persistableReferenceCrs to a target
@@ -802,11 +719,6 @@ components:
           example: "\"{\"baseMeasurement\":{\"ancestry\":\"Length\",\"type\":\"UM\"\
             },\"scaleOffset\":{\"offset\":0.0,\"scale\":1.0},\"symbol\":\"m\",\"type\"\
             :\"USO\"}\""
-        transformation:
-          type: string
-          description: "Explicit Transformation as persistable reference string or\
-            \ record id, its optional and if given it will override Bound Transformation "
-          example: "osdu:reference-data--CoordinateTransformation:EPSG::15851:"
         featureCollection:
           $ref: "#/components/schemas/GeoJsonFeatureCollection"
           description: The GeoJSON FeatureCollection or AnyCrsFeatureCollection structure
@@ -1045,6 +957,81 @@ components:
             strings
           items:
             type: string
+    ConnectedOuterService:
+      type: object
+      description: Name and version of an external service that this OSDU service
+        connects to.
+      properties:
+        name:
+          type: string
+          description: Name of the connected external service.
+          example: storage
+        version:
+          type: string
+          description: Version of the connected external service.
+          example: 2.0.0
+    FeatureFlagState:
+      type: object
+      description: State of a feature flag for a given partition and source.
+      properties:
+        name:
+          type: string
+          description: Name of the feature flag.
+          example: collaborations-api
+        enabled:
+          type: boolean
+          description: Whether the feature flag is currently enabled.
+          example: true
+        partition:
+          type: string
+          description: Data partition this flag applies to.
+          example: opendes
+        source:
+          type: string
+          description: Source configuration that provided this flag state.
+          example: runtime
+    VersionInfo:
+      type: object
+      description: Version and build information for an OSDU service.
+      properties:
+        groupId:
+          type: string
+          description: Maven group ID of the service artifact.
+          example: org.opengroup.osdu
+        artifactId:
+          type: string
+          description: Maven artifact ID of the service.
+          example: os-search
+        version:
+          type: string
+          description: Semantic version of the deployed service.
+          example: 0.27.0
+        buildTime:
+          type: string
+          description: ISO 8601 timestamp of the build.
+          example: 2021-01-26T02:24:13.843Z
+        branch:
+          type: string
+          description: Source control branch from which the service was built.
+          example: main
+        commitId:
+          type: string
+          description: Short commit SHA of the build.
+          example: "7777777"
+        commitMessage:
+          type: string
+          description: Commit message of the build.
+          example: initial commit
+        connectedOuterServices:
+          type: array
+          description: List of external services this service depends on.
+          items:
+            $ref: "#/components/schemas/ConnectedOuterService"
+        featureFlagStates:
+          type: array
+          description: "Current feature flag states for this partition, if any."
+          items:
+            $ref: "#/components/schemas/FeatureFlagState"
   securitySchemes:
     Authorization:
       type: http

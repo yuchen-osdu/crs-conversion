@@ -13,8 +13,6 @@ variables:
   # Fetch Java springdoc at /api-docs/v4 (not /api-docs.yaml/v4 from swagger-config rewrite).
   # SPEC_PATH overrides the template default Local path docs/api/community/v1/.
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
-  CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs/v4
-  CIMPL_OPENAPI_SPEC_PATH: docs/api/community/v4/openapi.yaml
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
@@ -72,3 +70,29 @@ fossa-analyze:
 
 fossa-check-notice:
   image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+
+.schemathesis-crs-conversion-matrix:
+  parallel:
+    matrix:
+      - SCHEMATHESIS_OPENAPI_YAML_ROUTE:
+          - "/api/crs/converter/api-docs/v2"
+          - "/api/crs/converter/api-docs/v3"
+          - "/api/crs/converter/api-docs/v4"
+
+schemathesis-dev-tests:
+  extends:
+    - .cimpl-dev-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix
+
+schemathesis-dev-backup-tests:
+  extends:
+    - .cimpl-dev-backup-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix
+
+schemathesis-prod-tests:
+  extends:
+    - .cimpl-prod-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix
