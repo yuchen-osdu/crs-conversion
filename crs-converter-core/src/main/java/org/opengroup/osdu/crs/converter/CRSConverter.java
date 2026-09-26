@@ -180,7 +180,9 @@ public class CRSConverter implements ICRSConverter {
 			if (targetIsWGS84(toCrs)) {
 				targetVariant = GeoJsonBase.GeoJsonVariant.GEO_JSON;
 				featureCollection.setPersistableReferenceCrs(null);
-				toUnitZ = METER;
+                if(toUnitZ == null) {
+                    toUnitZ = METER;
+                }
 			} else {
 				targetVariant = GeoJsonBase.GeoJsonVariant.ANY_CRS_GEO_JSON;
 				featureCollection.setPersistableReferenceCrs(toCrs);

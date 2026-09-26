@@ -103,13 +103,13 @@ public class CrsConverterApiV3 {
 		Record record =  StorageClient.getRecord(temp);
 		if (record == null)
 			throw new ValidationException(String.join(" ", "record not found:", temp));
-        pr = record.getData().get("PersistableReference").toString();
-		if(pr != null){
-			recordCache.put(temp, pr);
-			return pr;
-		} else {
+		Object persistableReference = record.getData().get("PersistableReference");
+		if (persistableReference == null) {
 			throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
 		}
+		pr = persistableReference.toString();
+		recordCache.put(temp, pr);
+		return pr;
     }
 
 	private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
@@ -128,7 +128,13 @@ public class CrsConverterApiV3 {
 			throw new ValidationException(String.join(" ", "record not found:", temp));
 		Map<String,Object> data = record.getData();
 		Map<String,Object> coordinateSystem = (Map<String, Object>) data.get("CoordinateSystem");
+		if (coordinateSystem == null) {
+			throw new ValidationException(String.join(" ", "record does not have CoordinateSystem:", temp));
+		}
 		String horizontalAxisUnitID = (String) coordinateSystem.get("HorizontalAxisUnitID");
+		if (horizontalAxisUnitID == null || horizontalAxisUnitID.isBlank()) {
+			throw new ValidationException(String.join(" ", "record does not have CoordinateSystem.HorizontalAxisUnitID:", temp));
+		}
 		return horizontalAxisUnitID;
 	}
 
