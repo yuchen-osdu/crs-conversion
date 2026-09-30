@@ -92,7 +92,3 @@ requires the following environment variables:
 | ENTITLEMENT_URL | Required | |
 | SIS_DATA | Required | ${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA |
 
-## Google Cloud
-
-Instructions for Google Cloud implementation can be found [here](./provider/crs-converter-gc/crs-converter-gke/README.md).
-

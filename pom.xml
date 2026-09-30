@@ -123,12 +123,6 @@
                 <module>provider/crs-converter-ibm/crs-converter-ocp</module>
             </modules>
         </profile>
-        <profile>
-            <id>gc</id>
-            <modules>
-                <module>provider/crs-converter-gc/crs-converter-gke</module>
-            </modules>
-        </profile>
     </profiles>
 
     <dependencyManagement>
