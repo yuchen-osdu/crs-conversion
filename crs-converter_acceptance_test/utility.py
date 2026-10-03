@@ -26,14 +26,27 @@ class TestEnvironment(object):
         self.root_url = constants.ROOT_URL
         self.data_partition_id = constants.MY_TENANT
         self.storage_url = constants.STORAGE_URL
+        self.legal_url = constants.LEGAL_URL
         self.my_replace_domain = constants.MY_REPLACE_DOMAIN
         self.my_test_id = constants.MY_TEST_ID
         self.my_legal_tag = constants.MY_LEGAL_TAG
-        self.vendor = constants.VENDOR
+
+    def service_url(self):
+        """CRS Converter host URL (scheme + host + BASE_URL)."""
+        return constants.service_base_url(self.root_url, self.base_url)
 
     def is_ok(self):
         """Returns true if all expected environment variables are defined."""
-        return self.base_url is not None and self.root_url is not None and self.data_partition_id is not None
+        return (
+            self.base_url is not None
+            and self.root_url is not None
+            and self.data_partition_id is not None
+            and self.service_url() is not None
+        )
+
+    def legal_tag_short_name(self):
+        """Short name used when creating the LegalTag via Legal API."""
+        return constants.legal_tag_short_name(self.my_legal_tag, self.data_partition_id)
 
 
 class TestDataReader(object):

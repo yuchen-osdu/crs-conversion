@@ -54,3 +54,4 @@ istio:
       # versioned paths (expanded to /api/crs/converter/<version>/<path>)
       - "_ah/liveness_check"
       - "_ah/readiness_check"
+      - "/api/crs/converter/api-docs.yaml/*"

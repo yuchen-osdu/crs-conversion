@@ -6,14 +6,14 @@
     <parent>
         <groupId>org.opengroup.osdu.crs-converter-service</groupId>
         <artifactId>crs-converter-service</artifactId>
-        <version>0.30.0-SNAPSHOT</version>
+        <version>0.31.0-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
     <properties>
         <app.version>1</app.version>
         <app.id>crs-converter-aks</app.id>
-        <core-lib-azure.version>1.0.2</core-lib-azure.version>
+        <core-lib-azure.version>3.0.3</core-lib-azure.version>
     </properties>
 
     <prerequisites>
@@ -21,6 +21,7 @@
     </prerequisites>
 
     <artifactId>crs-converter-aks</artifactId>
+    <version>0.31.0-SNAPSHOT</version>
     <name>crs-converter-aks</name>
     <description>CRS converter service Azure Kubernetes Deployment</description>
 
@@ -61,6 +62,21 @@
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
             <version>${lettuce.version}</version>
+        </dependency>
+        <!-- Declared here so this exclusion shadows every transitive copy; core-lib-azure supplies the Log4j2 binding. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

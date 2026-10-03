@@ -55,10 +55,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -255,22 +252,47 @@ class TestRecords(unittest.TestCase):
         configuration.verify_ssl = False
         self.header = {}
 
-        # Append the path /records to the storage URL if needed
-        if self.env.storage_url.endswith('records'):
-            self.storage_url = self.env.storage_url
-        else:
-            self.storage_url = self.env.storage_url + 'records'
-            
+        self.storage_url = self.construct_storage_records_url()
         self.client = ApiClient(host=self.storage_url)
         self.header['data-partition-id'] = self.env.data_partition_id
         self.header['Content-Type'] = 'application/json'
         self.header['Authorization'] = 'Bearer ' + bearer
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
+        self.ensure_legal_tag()
         self.put_records()
 
     def teardown(self):
         self.delete_records()
+
+    def ensure_legal_tag(self):
+        """Create MY_LEGAL_TAG via Legal API when missing (201/409 OK)."""
+        if not self.env.my_legal_tag or self.env.my_legal_tag == 'NOT_FOUND':
+            return
+        if not self.env.legal_url or self.env.legal_url == 'NOT_FOUND':
+            self.fail('LEGAL_URL could not be resolved from VIRTUAL_SERVICE_HOST_NAME')
+        short_name = self.env.legal_tag_short_name()
+        if not short_name:
+            self.fail('MY_LEGAL_TAG is empty after stripping partition prefix')
+        template_path = os.path.join(os.path.dirname(__file__), 'v3', 'data', 'LegalTag.json')
+        body = json.loads(open(template_path, 'r').read().replace('{{legal_tag_name}}', short_name))
+        print(f'Ensuring legal tag {short_name} via {self.env.legal_url}')
+        try:
+            self.client.request(
+                method='POST', url=self.env.legal_url, body=body, headers=self.header
+            )
+        except ApiException as e:
+            if e.status == 409:
+                print(f'Legal tag {short_name} already exists (409)')
+                return
+            self.fail(f'Failed to create legal tag {short_name}: {e}')
+
+    def construct_storage_records_url(self):
+        """construct storage records url"""
+        storage_url = self.env.storage_url.rstrip('/')
+        if storage_url.endswith('/records'):
+            return storage_url
+        return storage_url + "/records"
 
     def put_records(self):
         """test put records"""
@@ -286,14 +308,24 @@ class TestRecords(unittest.TestCase):
             body_str = body_str.replace(self.TAG_TO_REPLACE, self.env.my_legal_tag)
             body_str = body_str.replace(self.TEST_ID_REPLACE, self.env.my_test_id)
             temp = json.loads(body_str)
-            self.recordIDs.append(temp[0].get('id'))
+            record_id = temp[0].get('id')
+            self.recordIDs.append(record_id)
 
             try:
                 api_response = self.client.request(method='PUT', url=self.storage_url, body=json.loads(body_str), headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
-        sleep(30) # Wait for the records to become searchable
+                self.fail(f'Failed to ingest {os.path.basename(file_name)} record {record_id} due to {e}')
+
+        # Verify records are readable via Storage GET before tests run
+        for record_id in self.recordIDs:
+            try:
+                get_url = self.storage_url + '/' + record_id
+                api_response = self.client.request(method='GET', url=get_url, headers=self.header, body=None)
+                self.assertIsNotNone(api_response)
+            except ApiException as e:
+                self.fail(f'Record {record_id} not readable after PUT: {e}')
+        sleep(5)
 
     """deleting records for v3 & v4 test cases"""
     def delete_records(self):
@@ -305,7 +337,10 @@ class TestRecords(unittest.TestCase):
                 api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
+                if e.status == 404:
+                    print(f'Record {id} already absent during teardown')
+                    continue
+                self.fail(f'Failed to delete {id} record due to {e}')
 
 
 def suite():
