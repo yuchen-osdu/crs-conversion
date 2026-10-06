@@ -536,6 +536,7 @@ The following software have components provided under the terms of this license:
 - Netty/Codec/HTTP (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec-http)
 - Netty/Common (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-common)
 - Project Lombok (from http://projectlombok.org, https://projectlombok.org, https://projectlombok.org/)
+- Redis AuthX Core (from https://github.com/redis/redis-authx-core)
 - SLF4J API Module (from http://www.slf4j.org, http://www.slf4j.org/)
 - Spring Cloud Azure AutoConfigure (from https://microsoft.github.io/spring-cloud-azure)
 - Spring Cloud Azure Core (from https://microsoft.github.io/spring-cloud-azure)
@@ -546,14 +547,20 @@ The following software have components provided under the terms of this license:
 - adal4j (from https://github.com/AzureAD/azure-activedirectory-library-for-java)
 - javamsalruntime (from https://github.com/AzureAD/microsoft-authentication-library-for-cpp)
 - jwks-rsa-java (from https://github.com/auth0/jwks-rsa-java)
-- micrometer-commons (from https://github.com/micrometer-metrics/micrometer-commercial)
+- micrometer-commons (from https://github.com/micrometer-metrics/micrometer)
 - micrometer-core (from https://github.com/micrometer-metrics/micrometer)
 - mockito-junit-jupiter (from https://github.com/mockito/mockito)
 - msal4j (from https://github.com/AzureAD/microsoft-authentication-library-for-java)
 - msal4j-brokers (from https://github.com/AzureAD/microsoft-authentication-library-for-java)
 - msal4j-persistence-extension (from https://github.com/AzureAD/microsoft-authentication-extensions-for-java, https://github.com/AzureAD/microsoft-authentication-library-for-java)
-- redis-authx-core (from https://github.com/redis/redis-authx-core)
 - webjars-locator-lite (from https://webjars.org/)
+
+========================================================================
+MPL-2.0
+========================================================================
+The following software have components provided under the terms of this license:
+
+- Asynchronous Http Client (from https://github.com/AsyncHttpClient/async-http-client, https://repo1.maven.org/maven2/org/asynchttpclient/async-http-client)
 
 ========================================================================
 SAX-PD
