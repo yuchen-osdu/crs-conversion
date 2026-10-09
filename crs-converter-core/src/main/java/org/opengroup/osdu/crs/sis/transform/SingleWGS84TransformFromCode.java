@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.sis.internal.system.DefaultFactories;
 import org.apache.sis.metadata.iso.citation.Citations;
 import org.apache.sis.referencing.CRS;
 import org.apache.sis.referencing.IdentifiedObjects;
@@ -452,7 +451,7 @@ public class SingleWGS84TransformFromCode implements IWGS84Transform {
         String oldName = ((SingleOperation) operation).getMethod().getName().getCode();
         String newName = oldName.replace("geog2D", "geog3D");
 
-        MathTransformFactory mtFactory = DefaultFactories.forClass(MathTransformFactory.class);
+        MathTransformFactory mtFactory = MathTransformUtils.MATH_TRANSFORM_FACTORY;
         ParameterValueGroup tgtp = mtFactory.getDefaultParameters(newName);
         Ellipsoid sourceEllipsoid = ((GeographicCRS) operation.getSourceCRS()).getDatum().getEllipsoid();
         Ellipsoid targetEllipsoid = ((GeographicCRS) operation.getTargetCRS()).getDatum().getEllipsoid();
