@@ -1,6 +1,6 @@
 package org.opengroup.osdu.crs.sis;
 
-import org.apache.sis.referencing.operation.transform.DefaultMathTransformFactory;
+import org.apache.sis.internal.system.DefaultFactories;
 import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -11,8 +11,6 @@ import org.opengis.referencing.operation.SingleOperation;
 import org.opengis.referencing.operation.TransformException;
 
 public class MathTransformUtils {
-
-    public static final MathTransformFactory MATH_TRANSFORM_FACTORY = new DefaultMathTransformFactory();
 
     public static double[] transformSinglePoint(MathTransform transform, double x, double y, double z)
             throws TransformException {
@@ -77,7 +75,7 @@ public class MathTransformUtils {
         String oldName = operation.getMethod().getName().getCode();
         String newName = oldName.replace("geog2D", "geog3D");
 
-        MathTransformFactory mtFactory = MATH_TRANSFORM_FACTORY;
+        MathTransformFactory mtFactory = DefaultFactories.forClass(MathTransformFactory.class);
         ParameterValueGroup tgtp = mtFactory.getDefaultParameters(newName);
         Ellipsoid sourceEllipsoid = ((GeographicCRS) operation.getSourceCRS()).getDatum().getEllipsoid();
         Ellipsoid targetEllipsoid = ((GeographicCRS) operation.getTargetCRS()).getDatum().getEllipsoid();

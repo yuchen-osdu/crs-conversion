@@ -1,6 +1,5 @@
 package org.opengroup.osdu.crs.model.Impl;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -135,7 +134,7 @@ public class SingleTrf implements ISingleTrf {
     }
 
     private ISisMathTransform createTransformFromWKT() throws Exception {
-        WKTFormat format = new WKTFormat(null, (ZoneId) null);
+        WKTFormat format = new WKTFormat(null, null);
         WktParser parser = new WktParser();
         String correctedWellKnownText = correctFileParametersIfNeeded();
         CoordinateOperation operation = (CoordinateOperation) format.parseObject(correctedWellKnownText);
