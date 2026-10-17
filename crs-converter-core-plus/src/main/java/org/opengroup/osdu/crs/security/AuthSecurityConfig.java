@@ -71,7 +71,8 @@ public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEn
     "/api/crs/converter/actuator/**",
     "/api/crs/converter/actuator/health",
     "/health/readiness",
-    "/health/liveness"
+    "/health/liveness",
+    "/api-docs.yaml/**"
   };
 
   // AuthenticationRequestFilter is not a recognized bean, so construct it manually
