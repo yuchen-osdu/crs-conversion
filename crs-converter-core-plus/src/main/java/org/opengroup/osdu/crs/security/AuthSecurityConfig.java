@@ -65,6 +65,8 @@ public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEn
     "/swagger-ui/**",
     "/api-docs/swagger-config",
     "/v2/info",
+    "/v3/info",
+    "/v4/info",
     "/webjars/**",
     "/csrf",
     "/api/crs/converter/actuator",
