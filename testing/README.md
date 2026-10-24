@@ -38,12 +38,6 @@ This test is intended as a simple sanity test. It is quick but doesn't challenge
 
 The following parameters are expected as environment variables:
 
-## Google Cloud auth provider (crs_converter_test_gc/jwt_client.py)
-
-| Variable | Contents |
-|----------|----------|
-| INTEGRATION_TESTER | GC Service account key - either a path or a base64 encoded value. |
-
 ## Baremetal auth provider (crs_converter_test_baremetal/jwt_client.py)
 
 | Variable | Contents |

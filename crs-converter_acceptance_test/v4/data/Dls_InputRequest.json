@@ -1,5 +1,5 @@
 {
-    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:",
     "azimuthReference": "GN",
     "inputKind": "MD_Incl_Azim",
         "MD_i": {
@@ -10,7 +10,7 @@
         ]
     },
     "method": "AzimuthalEquidistant",
-    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615_{{TEST_ID}}:",
     "interpolate": false,
     "inputStations": [
         {
