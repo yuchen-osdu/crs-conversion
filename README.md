@@ -36,6 +36,10 @@ mvn clean install
 java -jar provider/crs-converter-azure/crs-converter-aks/target/crs-converter-aks-1.0.0.jar
 ```
 
+The core coverage job requires 80% JaCoCo instruction coverage. With `SIS_DATA`
+set as above, run `mvn -f crs-converter-core/pom.xml clean test jacoco:report`
+and check [the coverage report](crs-converter-core/target/site/jacoco/index.html).
+
 ### Debug CRS Conversion Service locally
 - Perform build as instructed in the Build and run Converter Service locally section
 - Start the application:
@@ -91,4 +95,3 @@ requires the following environment variables:
 |----------|----------|----------|
 | ENTITLEMENT_URL | Required | |
 | SIS_DATA | Required | ${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA |
-
