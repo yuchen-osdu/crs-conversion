@@ -118,12 +118,6 @@
                 <module>provider/crs-converter-azure/crs-converter-aks</module>
             </modules>
         </profile>
-        <profile>
-            <id>ibm</id>
-            <modules>
-                <module>provider/crs-converter-ibm/crs-converter-ocp</module>
-            </modules>
-        </profile>
     </profiles>
 
     <dependencyManagement>
