@@ -154,8 +154,9 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             self.assertIsNotNone(api_response)
             self.assertEqual(api_response.stations[0].dx_tn, 0.0)
             self.assertEqual(api_response.stations[0].dy_tn, 0.0)
-            self.assertEqual(api_response.stations[0].point.x, 400000.0000000041)
-            self.assertEqual(api_response.stations[0].point.y, 2999999.9999999115)
+            # JDK 25 can differ from JDK 17 by 1 ULP on these coordinates; compare to 6 decimal places.
+            self.assertAlmostEqual(api_response.stations[0].point.x, 400000.0000000041, places=6)
+            self.assertAlmostEqual(api_response.stations[0].point.y, 2999999.9999999115, places=6)
         except ApiException as e:
             self.fail(str(e))
 

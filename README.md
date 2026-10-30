@@ -11,8 +11,9 @@ This document presents useful information about common development activities fo
 See also the test's [README.md](testing/README.md)
 
 ## Prerequisites
-1. The project builds with [maven](https://maven.apache.org/). Make sure maven is installed locally.
-1. The project requires the [Lombok](https://projectlombok.org/) plug-in installed for your IDE.
+1. The project builds with [Maven](https://maven.apache.org/) **3.9.16+**.
+1. Community modules (`crs-converter-core`, `crs-converter-core-plus`) require **JDK 25** (Epic 82).
+1. The project requires the [Lombok](https://projectlombok.org/) plug-in installed for your IDE (**1.18.40+** for JDK 25).
 
 ### Make the below change for a successful local build. Do not commit this change.
 - **Comment the following in "crs-converter-core/pom.xml"**
