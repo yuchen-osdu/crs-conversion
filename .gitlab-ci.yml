@@ -16,6 +16,9 @@ variables:
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
+
+  MAVEN_IMAGE_TAG: "3.9.16-eclipse-temurin-25"
+
 include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "standard-setup.yml"
@@ -28,6 +31,9 @@ include:
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "scanners/gitlab-ultimate.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/sbom-maven.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure.yml"
@@ -49,19 +55,15 @@ include:
 
   - local: "devops/core-plus/pipeline/override-stages.yml"
 
-gemnasium-maven-dependency_scanning:
-  variables:
-    DS_JAVA_VERSION: 17
-
 azure_containerize:
   variables:
     AZURE_CONTAINERIZE_REPOSITORY: "https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
 
 fossa-analyze:
-  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
 
 fossa-check-notice:
-  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
 
 .schemathesis-crs-conversion-matrix:
   parallel:
