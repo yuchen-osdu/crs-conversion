@@ -85,14 +85,13 @@ public class CrsConverterApiV4 {
             return str;
         }
         // set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
-        temp = str;
-        // check the cache for recordID with its persistableReference string
+        // normalize before the cache lookup so get/put and the storage call all use the same key
+        temp = RecordIdNormalizer.normalizeRecordID(str);
         String pr = recordCache.get(temp);
         if (pr != null) {
             return pr;
         }
 
-        temp = RecordIdNormalizer.normalizeRecordID(temp);
         Record dataRecord;
         try {
             dataRecord = storageClient.getRecord(temp);
@@ -236,10 +235,22 @@ public class CrsConverterApiV4 {
         if (!Strings.isNullOrEmpty(request.getUnitMD())) {
             request.setUnitMD(getPersistableReferenceFromID(request.getUnitMD(), false));
         }
+        if (request.getInputStations() != null && request.getInputStations().contains(null)) {
+            throw new ValidationException("inputStations must not contain null stations.");
+        }
         MinimumDepthInterval minimumDepthInterval = request.getMD_i();
-        if (minimumDepthInterval != null) {
+        // MD_i is ignored when interpolate=false; dX_dY_dZ stations have no md until inverse minimum curvature runs.
+        if (minimumDepthInterval != null && request.isInterpolate() && !Constants.DX_DY_DZ.equals(request.getInputKind())) {
             if (minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0 && minimumDepthInterval.getMd_i() != null && !minimumDepthInterval.getMd_i().isEmpty()) {
                 throw new ValidationException("Both md_i array and md_interval values are provided in the input.");
+            } else if (minimumDepthInterval.getMd_i() != null && minimumDepthInterval.getMd_i().contains(null)) {
+                throw new ValidationException("md_i array must not contain null values.");
+            } else if (((minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0)
+                    || (minimumDepthInterval.getMd_i() != null && !minimumDepthInterval.getMd_i().isEmpty()))
+                    && (request.getInputStations() == null || request.getInputStations().isEmpty()
+                    || request.getInputStations().get(0).getMd() == null
+                    || request.getInputStations().get(request.getInputStations().size() - 1).getMd() == null)) {
+                throw new ValidationException("The first and last inputStations must include an md value when md_i or md_interval is provided.");
             } else if (minimumDepthInterval.getMd_interval() != null && minimumDepthInterval.getMd_interval() > 0) {
                 List<Double> mdiList = computeMinimumDepthPointsUsingInterval(request.getInputStations().get(0).getMd(),
                         request.getInputStations().get(request.getInputStations().size() - 1).getMd(), minimumDepthInterval.getMd_interval());

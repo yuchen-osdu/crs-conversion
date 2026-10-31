@@ -11,8 +11,9 @@ This document presents useful information about common development activities fo
 See also the test's [README.md](testing/README.md)
 
 ## Prerequisites
-1. The project builds with [maven](https://maven.apache.org/). Make sure maven is installed locally.
-1. The project requires the [Lombok](https://projectlombok.org/) plug-in installed for your IDE.
+1. The project builds with [Maven](https://maven.apache.org/) **3.9.16+**.
+1. Community modules (`crs-converter-core`, `crs-converter-core-plus`) require **JDK 25** (Epic 82).
+1. The project requires the [Lombok](https://projectlombok.org/) plug-in installed for your IDE (**1.18.40+** for JDK 25).
 
 ### Make the below change for a successful local build. Do not commit this change.
 - **Comment the following in "crs-converter-core/pom.xml"**
@@ -35,6 +36,10 @@ mvn clean install
 ```bash
 java -jar provider/crs-converter-azure/crs-converter-aks/target/crs-converter-aks-1.0.0.jar
 ```
+
+The core coverage job requires 80% JaCoCo instruction coverage. With `SIS_DATA`
+set as above, run `mvn -f crs-converter-core/pom.xml clean test jacoco:report`
+and check [the coverage report](crs-converter-core/target/site/jacoco/index.html).
 
 ### Debug CRS Conversion Service locally
 - Perform build as instructed in the Build and run Converter Service locally section
@@ -91,8 +96,3 @@ requires the following environment variables:
 |----------|----------|----------|
 | ENTITLEMENT_URL | Required | |
 | SIS_DATA | Required | ${SRC_ROOT_DIR}/apachesis_setup/SIS_DATA |
-
-## Google Cloud
-
-Instructions for Google Cloud implementation can be found [here](./provider/crs-converter-gc/crs-converter-gke/README.md).
-

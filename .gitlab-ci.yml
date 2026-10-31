@@ -10,23 +10,14 @@ variables:
   AZURE_SWAGGER_PATH: api/crs/converter/swagger-ui/index.html#/
   AZURE_SKIP_INTEGRATION_TEST: "true"
 
-  AWS_BUILD_SUBDIR: provider/crs-converter-aws/build-aws
-  AWS_TEST_SUBDIR: testing/crs_converter_test_aws
-  AWS_CHART_SUBDIR: devops/aws/chart
-  AWS_SERVICE: crs-conversion
-  AWS_SERVICE_GATEWAY: osdu-gateway
-  AWS_ENVIRONMENT: dev
-  AWS_INT_TEST_TYPE: python
-  AWS_DEPLOY_TARGET: TF
-  AWS_EKS_DEPLOYMENT_NAME: os-crs-conversion
-
+  # Fetch Java springdoc at /api-docs/v4 (not /api-docs.yaml/v4 from swagger-config rewrite).
+  # SPEC_PATH overrides the template default Local path docs/api/community/v1/.
   CIMPL_OPENAPI_CONFIG_ROUTE: /api/crs/converter/api-docs/swagger-config
-  # Java service with Python acceptance tests — override the Python->JSON auto-detection
-  # so the openapi-spec check fetches the YAML spec served by springdoc
-  CIMPL_OPENAPI_YAML_ROUTE: /api/crs/converter/api-docs/v4
 
   ACCEPTANCE_TEST_DIR: crs-converter_acceptance_test
   CORE_BUILD_SUBDIR: crs-converter-core
+
+  MAVEN_IMAGE_TAG: "3.9.16-eclipse-temurin-25"
 
 include:
   - project: "osdu/platform/ci-cd-pipelines"
@@ -42,19 +33,10 @@ include:
     file: "scanners/gitlab-ultimate.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
+    file: "scanners/sbom-maven.yml"
+
+  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-global.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-maven.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-python.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-global.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/cimpl-global.yml"
@@ -63,13 +45,7 @@ include:
     file: "publishing/pages.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/aws-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/azure-one-pipeline.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/gc-one-pipeline.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/reporting.yml"
@@ -77,25 +53,40 @@ include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "reporting/schemathesis.yml"
 
-  - local: "devops/gc/pipeline/override-stages.yml"
-
-  - local: "devops/aws/pipeline/override-stages.yml"
-
   - local: "devops/core-plus/pipeline/override-stages.yml"
-
-gemnasium-maven-dependency_scanning:
-  variables:
-    DS_JAVA_VERSION: 17
 
 azure_containerize:
   variables:
     AZURE_CONTAINERIZE_REPOSITORY: "https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
 
 fossa-analyze:
-  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
 
 fossa-check-notice:
-  image: $CI_REGISTRY/divido/fossa-with-cache:v0.9-jdk17
+  image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
 
-schemathesis-tests:
-  extends: .schemathesis-tests-template
+.schemathesis-crs-conversion-matrix:
+  parallel:
+    matrix:
+      - SCHEMATHESIS_OPENAPI_YAML_ROUTE:
+          - "/api/crs/converter/api-docs/v2"
+          - "/api/crs/converter/api-docs/v3"
+          - "/api/crs/converter/api-docs/v4"
+
+schemathesis-dev-tests:
+  extends:
+    - .cimpl-dev-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix
+
+schemathesis-dev-backup-tests:
+  extends:
+    - .cimpl-dev-backup-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix
+
+schemathesis-prod-tests:
+  extends:
+    - .cimpl-prod-variables
+    - .schemathesis-osdu-main-tests-template
+    - .schemathesis-crs-conversion-matrix

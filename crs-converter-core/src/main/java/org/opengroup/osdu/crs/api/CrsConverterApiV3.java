@@ -91,25 +91,23 @@ public class CrsConverterApiV3 {
 		}
 	
 		// set temp as str as we don't want to decode. for example UnitOfMeasure:ft%5BUS%5D in record id
-		temp = str;	
-		// check the cache for recordID with its persistableReference string
+		// normalize before the cache lookup so get/put and the storage call all use the same key
+		temp = RecordIdNormalizer.normalizeRecordID(str);
         String pr = recordCache.get(temp);
         if (pr != null){
 			return pr; 
 		}
 
-		temp = RecordIdNormalizer.normalizeRecordID(temp);
-
 		Record record =  StorageClient.getRecord(temp);
 		if (record == null)
 			throw new ValidationException(String.join(" ", "record not found:", temp));
-        pr = record.getData().get("PersistableReference").toString();
-		if(pr != null){
-			recordCache.put(temp, pr);
-			return pr;
-		} else {
+		Object persistableReference = record.getData().get("PersistableReference");
+		if (persistableReference == null) {
 			throw new ValidationException(String.join(" ", "record does not have PersistableReference:", temp));
 		}
+		pr = persistableReference.toString();
+		recordCache.put(temp, pr);
+		return pr;
     }
 
 	private String getUnitFromTrajectoryCRS(String trajectoryCRS)  {
@@ -128,7 +126,13 @@ public class CrsConverterApiV3 {
 			throw new ValidationException(String.join(" ", "record not found:", temp));
 		Map<String,Object> data = record.getData();
 		Map<String,Object> coordinateSystem = (Map<String, Object>) data.get("CoordinateSystem");
+		if (coordinateSystem == null) {
+			throw new ValidationException(String.join(" ", "record does not have CoordinateSystem:", temp));
+		}
 		String horizontalAxisUnitID = (String) coordinateSystem.get("HorizontalAxisUnitID");
+		if (horizontalAxisUnitID == null || horizontalAxisUnitID.isBlank()) {
+			throw new ValidationException(String.join(" ", "record does not have CoordinateSystem.HorizontalAxisUnitID:", temp));
+		}
 		return horizontalAxisUnitID;
 	}
 

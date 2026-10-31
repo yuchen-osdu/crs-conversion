@@ -65,13 +65,16 @@ public class AuthSecurityConfig implements AccessDeniedHandler, AuthenticationEn
     "/swagger-ui/**",
     "/api-docs/swagger-config",
     "/v2/info",
+    "/v3/info",
+    "/v4/info",
     "/webjars/**",
     "/csrf",
     "/api/crs/converter/actuator",
     "/api/crs/converter/actuator/**",
     "/api/crs/converter/actuator/health",
     "/health/readiness",
-    "/health/liveness"
+    "/health/liveness",
+    "/api-docs.yaml/**"
   };
 
   // AuthenticationRequestFilter is not a recognized bean, so construct it manually
