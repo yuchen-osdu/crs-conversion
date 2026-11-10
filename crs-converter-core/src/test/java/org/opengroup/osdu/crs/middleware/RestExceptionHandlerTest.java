@@ -19,6 +19,8 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.MediaType;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
@@ -126,6 +128,23 @@ public class RestExceptionHandlerTest {
         assertEquals(500, body.getCode());
         assertEquals("Server error.", body.getReason());
         assertEquals("An unknown error has occurred.", body.getMessage());
+        jaxRsDpsLog.error(exception.getMessage(), exception);
+    }
+
+    @Test
+    public void shouldReturnAppErrorWhenMediaTypeIsUnsupported() {
+        HttpMediaTypeNotSupportedException exception = new HttpMediaTypeNotSupportedException("text/plain");
+
+        ResponseEntity<Object> response = restExceptionHandler.handleHttpMediaTypeNotSupported(
+                exception, new HttpHeaders(), HttpStatusCode.valueOf(415), mock(WebRequest.class));
+
+        assertEquals(415, response.getStatusCodeValue());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        AppError body = (AppError) response.getBody();
+        assertNotNull(body);
+        assertEquals(415, body.getCode());
+        assertEquals("Unsupported Media Type", body.getReason());
+        assertEquals("Content-Type must be application/json", body.getMessage());
         jaxRsDpsLog.error(exception.getMessage(), exception);
     }
 

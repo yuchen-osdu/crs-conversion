@@ -47,6 +47,8 @@ fossa-check-notice:
   image: $CI_REGISTRY/divido/fossa-with-cache:v0.11
 
 .schemathesis-crs-conversion-matrix:
+  variables:
+    PYTHONPATH: "${CI_PROJECT_DIR}/schemathesis-tests"
   parallel:
     matrix:
       - SCHEMATHESIS_OPENAPI_YAML_ROUTE:

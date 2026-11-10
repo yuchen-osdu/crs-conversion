@@ -3,6 +3,7 @@ package org.opengroup.osdu.crs.GeoJson;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,6 +45,7 @@ public abstract class GeoJsonBase {
     private String type;
 
     @JsonProperty("bbox")
+    @JsonSetter(contentNulls = Nulls.FAIL)
     private double[] bbox;
 
     private int dimension;
@@ -100,7 +102,12 @@ public abstract class GeoJsonBase {
         return GeoJsonVariant.GEO_JSON;
     }
 
-    private void setGeoJsonVariantInternal(GeoJsonVariant gj_variant){
+    @JsonSetter(value = "geoJsonVariantInternal", nulls = Nulls.FAIL)
+    @JsonDeserialize(using = GeoJsonVariantDeserializer.class)
+    public void setGeoJsonVariantInternal(GeoJsonVariant gj_variant){
+        if (gj_variant == null) {
+            throw new IllegalArgumentException("geoJsonVariantInternal cannot be null");
+        }
         if (gj_variant == GeoJsonVariant.ANY_CRS_GEO_JSON) {
             if (!this.getType().startsWith(ANY_CRS_PREFIX)) {
                 this.setType(ANY_CRS_PREFIX+this.getType());
