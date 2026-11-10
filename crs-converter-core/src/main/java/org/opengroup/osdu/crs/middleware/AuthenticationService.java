@@ -64,7 +64,7 @@ public class AuthenticationService {
             httpServletResponse.addHeader(DpsHeaders.CORRELATION_ID, dpsHeaders.getCorrelationId());
         } catch (EntitlementsException e) {
             logger.error(String.format(String.format("User not authenticated. Response: %s", e.getHttpResponse()), e));
-            AppException unauthorized = new AppException(e.getHttpResponse().getResponseCode(), "Entitlement Error", e.getMessage(), e);
+            AppException unauthorized = new AppException(authenticationStatus(e), "Entitlement Error", e.getMessage(), e);
             handlerExceptionResolver.resolveException(httpServletRequest, httpServletResponse, null, unauthorized);
             return false;
         } catch (NullPointerException e) { // Common library throws null pointer exception when auth permission is denied.
@@ -74,6 +74,13 @@ public class AuthenticationService {
             return false;
         }
         return true;
+    }
+
+    private static int authenticationStatus(EntitlementsException exception) {
+        if (exception.getHttpResponse() == null) {
+            return HttpStatus.SC_UNAUTHORIZED;
+        }
+        return exception.getHttpResponse().getResponseCode();
     }
 
     private HttpHeaders getHttpHeaders(@NonNull HttpServletRequest httpRequest) {

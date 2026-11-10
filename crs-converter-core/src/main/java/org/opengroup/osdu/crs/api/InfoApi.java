@@ -18,6 +18,7 @@
 package org.opengroup.osdu.crs.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,6 +35,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping(value={"/v2", "/v3", "/v4"})
+@SecurityRequirements
 public class InfoApi {
 
   @Autowired

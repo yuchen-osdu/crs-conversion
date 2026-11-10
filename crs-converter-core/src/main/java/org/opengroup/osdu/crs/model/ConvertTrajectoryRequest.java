@@ -2,16 +2,23 @@ package org.opengroup.osdu.crs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.opengroup.osdu.crs.util.StrictBooleanDeserializer;
+import org.opengroup.osdu.crs.util.StrictStringDeserializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import org.opengroup.osdu.crs.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -25,28 +32,38 @@ public class ConvertTrajectoryRequest {
 		inputKind = TrajectoryInputKind.MD_INCL_AZIM.toString();
 	}
     @JsonProperty("trajectoryCRS")
+	@JsonSetter(nulls = Nulls.FAIL)
+	@JsonDeserialize(using = StrictStringDeserializer.class)
 	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_EX)
+	@Schema(format = "osdu-crs-reference", description = Constants.SWAGGER_TRJ_REQ_CRS, type = "string",example = Constants.SWAGGER_TARGET_CRS_EX)
 	@Parameter(required = true)
 	private String trajectoryCRS;
 
     @JsonProperty("azimuthReference")
+	@JsonSetter(nulls = Nulls.FAIL)
+	@JsonDeserialize(using = StrictStringDeserializer.class)
 	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF, type = "string",example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
+	@Schema(allowableValues = {"TRUE_NORTH", "TN", "GRID_NORTH", "GN"}, description = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF, type = "string",example = Constants.SWAGGER_TRJ_REQ_AZIMUTH_REF_EXAMPLE)
 	@Parameter(required = true)
 	private String azimuthReference;
 
     @JsonProperty("unitXY")
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_UNIT_XY, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE)
+    @JsonSetter(nulls = Nulls.FAIL)
+    @JsonDeserialize(using = StrictStringDeserializer.class)
+	@Schema(format = "osdu-unit-reference", description = Constants.SWAGGER_TRJ_REQ_UNIT_XY, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_XY_EXAMPLE)
 	private String unitXY;
 
     @JsonProperty("unitZ")
+	@JsonSetter(nulls = Nulls.FAIL)
+	@JsonDeserialize(using = StrictStringDeserializer.class)
 	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_UNIT_Z, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE)
+	@Schema(format = "osdu-unit-reference", description = Constants.SWAGGER_TRJ_REQ_UNIT_Z, type = "string",example = Constants.SWAGGER_TRJ_REQ_UNIT_Z_EXAMPLE)
 	@Parameter(required = true)
 	private String unitZ;
 
     @JsonProperty("referencePoint")
+    @Valid
+    @NotNull
 	@Schema(description = Constants.SWAGGER_TRF_REQ_REF_POINT)
 	@Parameter(required = true)
 	private Point referencePoint;
@@ -54,22 +71,30 @@ public class ConvertTrajectoryRequest {
     @JsonProperty("inputStations")
 	@Valid
 	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS, type = "string",example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX)
+	@ArraySchema(minItems = 1, schema = @Schema(implementation = TrajectoryStationIn.class),
+			arraySchema = @Schema(description = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS,
+					example = Constants.SWAGGER_TRJ_REQ_LIST_OF_INPUT_STATIONS_EX))
 	@Parameter(required = true)
-	private List<TrajectoryStationIn> inputStations;
+	private List<@NotNull TrajectoryStationIn> inputStations;
 
     @JsonProperty("method")
+	@JsonSetter(nulls = Nulls.FAIL)
+	@JsonDeserialize(using = StrictStringDeserializer.class)
 	@NotEmpty
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_METHOD, type = "string",example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
+	@Schema(allowableValues = {"AzimuthalEquidistant", "LMP", "LeesModifiedProposal", "GNL"}, description = Constants.SWAGGER_TRJ_REQ_METHOD, type = "string",example = Constants.SWAGGER_TRJ_REQ_METHOD_EXAMPLE)
 	@Parameter(required = true)
 	private String method;
 
 	@JsonProperty("inputKind")
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, type = "string",example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
+	@JsonSetter(nulls = Nulls.FAIL)
+	@JsonDeserialize(using = StrictStringDeserializer.class)
+	@Schema(allowableValues = {"MD_Incl_Azim", "MD_Inclination_Azimuth"}, description = Constants.SWAGGER_TRJ_REQ_INPUT_KIND, type = "string",example = Constants.SWAGGER_TRJ_REQ_INPUT_KIND_EXAMPLE)
 	public String inputKind;
 
     @JsonProperty("interpolate")
-	@Schema(description = Constants.SWAGGER_TRJ_REQ_INTERPOLATE, type = "boolean",example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX)
+    @JsonSetter(nulls = Nulls.FAIL)
+    @JsonDeserialize(using = StrictBooleanDeserializer.class)
+	@Schema(description = Constants.SWAGGER_TRJ_REQ_INTERPOLATE, type = "boolean", types = {"boolean"},example = Constants.SWAGGER_TRJ_REQ_INTERPOLATE_EX)
 	public boolean interpolate;
 
     @Override
