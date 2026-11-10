@@ -1,16 +1,14 @@
 package org.opengroup.osdu.crs.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /** Preserves the JSON number type required by the request contract. */
-public class StrictDoubleDeserializer extends JsonDeserializer<Double> {
+public class StrictDoubleDeserializer extends ValueDeserializer<Double> {
     @Override
-    public Double deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public Double deserialize(JsonParser parser, DeserializationContext context) {
         if (parser.hasToken(JsonToken.VALUE_NUMBER_INT) || parser.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return parser.getDoubleValue();
         }

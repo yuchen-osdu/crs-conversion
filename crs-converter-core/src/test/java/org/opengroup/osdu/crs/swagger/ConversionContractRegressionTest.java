@@ -1,7 +1,8 @@
 package org.opengroup.osdu.crs.swagger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -46,7 +47,7 @@ public class ConversionContractRegressionTest {
     @Test
     public void interpolatedSingleStationTrajectoryConverts() throws Exception {
         Config.setDpsTrajectoryFeature(false);
-        ObjectNode crs = (ObjectNode) new ObjectMapper().readTree(Constants.WGS84);
+        ObjectNode crs = (ObjectNode) new JsonMapper().readTree(Constants.WGS84);
         crs.remove("authCode");
         ConvertTrajectoryRequest request = new ConvertTrajectoryRequest();
         request.setTrajectoryCRS(crs.toString());
@@ -94,9 +95,9 @@ public class ConversionContractRegressionTest {
         assertEquals(0.0, response.getStations().get(0).getPoint().getY(), 1e-9);
     }
 
-    @Test(expected = com.fasterxml.jackson.databind.exc.MismatchedInputException.class)
+    @Test(expected = tools.jackson.databind.exc.MismatchedInputException.class)
     public void missingPointCoordinateIsRejectedDuringDeserialization() throws Exception {
-        new ObjectMapper().readValue("{\"y\":0.3048,\"z\":0.0}", Point.class);
+        new JsonMapper().readValue("{\"y\":0.3048,\"z\":0.0}", Point.class);
     }
 
     @Test

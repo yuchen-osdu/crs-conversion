@@ -1,7 +1,7 @@
 package org.opengroup.osdu.crs.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeodeticCRS;
 import org.opengis.referencing.datum.Ellipsoid;
@@ -439,11 +439,12 @@ public class TrajectoryConverter implements ITrajectoryConverter {
 
     public ConvertTrajectoryRequestV4 prepareDummyPayload(ConvertTrajectoryRequestV4 request){
         String dummyRequestTemplate = "{ \"azimuthReference\": \"GN\", \"inputStations\": [   {      \"md\": 0,     \"azimuth\": 0,      \"inclination\": 90    },    {      \"md\": 20,        \"azimuth\": 0,      \"inclination\": 90    }  ],  \"inputKind\": \"MD_Incl_Azim\",  \"interpolate\": false,  \"method\": \"AzimuthalEquidistant\"}";
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.builderWithJackson2Defaults()
+                .build();
         ConvertTrajectoryRequestV4  requestV4 = null;
         try {
             requestV4 = mapper.readValue(dummyRequestTemplate, ConvertTrajectoryRequestV4.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
         requestV4.setTrajectoryCRS(request.getTrajectoryCRS());

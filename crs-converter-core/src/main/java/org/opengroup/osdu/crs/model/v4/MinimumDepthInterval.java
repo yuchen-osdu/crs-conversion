@@ -1,8 +1,9 @@
 package org.opengroup.osdu.crs.model.v4;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,8 @@ import org.opengroup.osdu.crs.util.StrictDoubleDeserializer;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
+// Jackson 3 would otherwise bind via the all-args constructor and treat omitted properties as null
+@NoArgsConstructor(onConstructor_ = @JsonCreator)
 @AllArgsConstructor
 @Schema(description = Constants.SWAGGER_TRJ_MINIMUM_DEPTH_INTERVAL_DESCRIPTION)
 public class MinimumDepthInterval {

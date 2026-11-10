@@ -1,10 +1,11 @@
 package org.opengroup.osdu.crs.swagger;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.exc.InvalidNullException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -37,7 +38,7 @@ import org.opengroup.osdu.crs.model.v4.ConvertTrajectoryRequestV4;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RequestScalarTypesTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new JsonMapper();
 
     @Test
     void boundingBoxRejectsNullItems() throws Exception {
@@ -65,12 +66,13 @@ class RequestScalarTypesTest {
 
     @Test
     void geoJsonVariantInternalRejectsNull() throws Exception {
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
         String prefix = "{\"type\":\"FeatureCollection\",\"features\":[],\"geoJsonVariantInternal\":";
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue(prefix + "null}", GeoJsonFeatureCollection.class));
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue(prefix + "1}", GeoJsonFeatureCollection.class));
         assertEquals("FeatureCollection", springLike.readValue(prefix + "\"GEO_JSON\"}",
                 GeoJsonFeatureCollection.class).getType());
@@ -80,7 +82,7 @@ class RequestScalarTypesTest {
                 "{\"type\":\"FeatureCollection\",\"features\":[]}", GeoJsonFeatureCollection.class).getType());
 
         String requestPrefix = "{\"toCRS\":\"crs\",\"featureCollection\":" + prefix;
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue(requestPrefix + "null}}", ConvertGeoJsonRequest.class));
         assertEquals("FeatureCollection", springLike.readValue(requestPrefix + "\"GEO_JSON\"}}",
                 ConvertGeoJsonRequest.class).getFeatureCollection().getType());
@@ -98,8 +100,9 @@ class RequestScalarTypesTest {
 
     @Test
     void referenceStringsRejectNullAndNonStringsOnEveryVersion() throws Exception {
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
         assertRejectsNullAndNonString(springLike, ConvertPointsRequest.class, "toCRS");
         assertRejectsNullAndNonString(springLike, ConvertPointsRequest.class, "fromCRS");
         assertRejectsNullAndNonString(springLike, ConvertPointsRequestV4.class, "toCRS");
@@ -128,7 +131,7 @@ class RequestScalarTypesTest {
 
     private static void assertRejectsNullAndNonString(ObjectMapper mapper, Class<?> type, String field) {
         for (String value : new String[]{"null", "false", "1"}) {
-            assertThrows(JsonMappingException.class,
+            assertThrows(DatabindException.class,
                     () -> mapper.readValue("{\"" + field + "\":" + value + "}", type),
                     type.getSimpleName() + "." + field + "=" + value);
         }
@@ -137,13 +140,14 @@ class RequestScalarTypesTest {
 
     @Test
     void toUnitZRejectsNullButAllowsOmission() throws Exception {
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
         String collection = "{\"type\":\"FeatureCollection\",\"features\":[]}";
         for (Class<?> type : new Class<?>[]{ConvertGeoJsonRequest.class, ConvertGeoJsonRequestV4.class}) {
-            assertThrows(JsonMappingException.class, () -> springLike.readValue(
+            assertThrows(DatabindException.class, () -> springLike.readValue(
                     "{\"toCRS\":\"crs\",\"toUnitZ\":null,\"featureCollection\":" + collection + "}", type));
-            assertThrows(JsonMappingException.class, () -> springLike.readValue(
+            assertThrows(DatabindException.class, () -> springLike.readValue(
                     "{\"toCRS\":\"crs\",\"toUnitZ\":1,\"featureCollection\":" + collection + "}", type));
             Object omitted = springLike.readValue(
                     "{\"toCRS\":\"crs\",\"featureCollection\":" + collection + "}", type);
@@ -210,14 +214,15 @@ class RequestScalarTypesTest {
 
     @Test
     void camelCaseGeoJsonIdsRejectNull() throws Exception {
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
         String prefix = "{\"type\":\"FeatureCollection\",\"features\":[],";
         for (String field : new String[]{"verticalUnitID", "coordinateReferenceSystemID"}) {
-            assertThrows(JsonMappingException.class,
+            assertThrows(DatabindException.class,
                     () -> springLike.readValue(prefix + "\"" + field + "\":null}", GeoJsonFeatureCollection.class),
                     field);
-            assertThrows(JsonMappingException.class,
+            assertThrows(DatabindException.class,
                     () -> springLike.readValue(prefix + "\"" + field + "\":1}", GeoJsonFeatureCollection.class),
                     field);
             GeoJsonFeatureCollection collection = springLike.readValue(prefix + "\"" + field + "\":\"m\"}",
@@ -277,15 +282,16 @@ class RequestScalarTypesTest {
                         .read(PropertiesBinGridCorners.class).get("PropertiesBinGridCorners")
                         .getProperties().get("PointProperties");
         assertEquals(Integer.valueOf(1), pointProperties.getMaxItems());
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        assertThrows(JsonMappingException.class, () -> springLike.readValue(
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
+        assertThrows(DatabindException.class, () -> springLike.readValue(
                 "{\"type\":\"AnyCrsPoint\",\"coordinates\":[null,0]}", Geometry.class));
         assertEquals(2, springLike.readValue(
                 "{\"type\":\"AnyCrsPoint\",\"coordinates\":[0,1]}", Geometry.class).getCoordinates().size());
-        assertThrows(JsonMappingException.class, () -> springLike.readValue(
+        assertThrows(DatabindException.class, () -> springLike.readValue(
                 "{\"PointProperties\":[null]}", PropertiesBinGridCorners.class));
-        assertThrows(JsonMappingException.class, () -> springLike.readValue(
+        assertThrows(DatabindException.class, () -> springLike.readValue(
                 "{\"P6BinNodeIncrementOnJaxis\":null}", AbstractBinGrid.class));
         assertNull(springLike.readValue("{}", AbstractBinGrid.class).getP6BinNodeIncrementOnJaxis());
         assertNull(springLike.readValue("{\"abcdbinGridSpatialLocation\":{}}", AbstractBinGrid.class)
@@ -310,22 +316,23 @@ class RequestScalarTypesTest {
 
     @Test
     void measuredDepthIntervalRejectsNullAndMutualPresence() throws Exception {
-        ObjectMapper springLike = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        assertThrows(JsonMappingException.class,
+        ObjectMapper springLike = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue("{\"md_interval\":null}", MinimumDepthInterval.class));
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue("{\"md_interval\":false}", MinimumDepthInterval.class));
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> springLike.readValue("{\"md_i\":null}", MinimumDepthInterval.class));
         assertNull(springLike.readValue("{}", MinimumDepthInterval.class).getMd_interval());
         assertEquals(25.0, springLike.readValue("{\"md_interval\":25}", MinimumDepthInterval.class).getMd_interval());
         for (String name : new String[]{"MD_i", "md_i", "mD_i"}) {
-            assertThrows(JsonMappingException.class, () -> springLike.readValue(
+            assertThrows(DatabindException.class, () -> springLike.readValue(
                     "{\"" + name + "\":{\"md_i\":[],\"md_interval\":null}}", ConvertTrajectoryRequestV4.class), name);
         }
         for (String name : new String[]{"MD_i", "md_i", "mD_i"}) {
-            assertThrows(JsonMappingException.class, () -> springLike.readValue(
+            assertThrows(DatabindException.class, () -> springLike.readValue(
                     "{\"" + name + "\":null}", ConvertTrajectoryRequestV4.class), name + " null");
         }
         assertEquals(25.0, springLike.readValue("{\"md_i\":{\"md_interval\":25}}",

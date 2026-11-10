@@ -1,5 +1,6 @@
 package org.opengroup.osdu.crs.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.util.Constants;
@@ -14,6 +15,8 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 @Schema(description = Constants.SWAGGER_TRJ_STN_IN_DESCRIPTION)
 public class TrajectoryStationIn {
+	// Jackson 3 would otherwise bind via the all-args constructor and skip these defaults
+	@JsonCreator
 	public TrajectoryStationIn(){
 		// set the optional values to NaN
 		dx = Double.NaN;
