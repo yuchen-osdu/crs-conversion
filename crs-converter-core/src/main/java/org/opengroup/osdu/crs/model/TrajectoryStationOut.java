@@ -1,12 +1,15 @@
 package org.opengroup.osdu.crs.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.opengroup.osdu.crs.swagger.PointResponse;
 import org.opengroup.osdu.crs.swagger.NonFiniteNumber;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.opengroup.osdu.crs.util.Constants;
 
 @Data
@@ -41,6 +44,9 @@ public class TrajectoryStationOut {
 
     @Schema(description = Constants.SWAGGER_DZ, types = {"number", "string"}, oneOf = {Double.class, NonFiniteNumber.class},example = Constants.SWAGGER_DZ_EXAMPLE)
     @Parameter(required = true)
+    // Jackson 2 legacy bean naming exposed getDZ() as "dz"; keep it for the API contract
+    @Getter(onMethod_ = @JsonProperty("dz"))
+    @Setter(onMethod_ = @JsonProperty("dz"))
     private Double dZ;
 
     @Schema(description = Constants.SWAGGER_TRJ_POINT, implementation = PointResponse.class)

@@ -1,6 +1,7 @@
 package org.opengroup.osdu.crs.swagger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class ContractNullabilityAndProjectionTest {
         String template = "{\"trajectoryCRS\":%s,\"unitXY\":%s,\"unitZ\":%s,"
                 + "\"azimuthReference\":\"GN\",\"method\":\"AzimuthalEquidistant\","
                 + "\"referencePoint\":{\"x\":0,\"y\":0,\"z\":0},\"inputStations\":[%s]}";
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new JsonMapper();
         TrajectoryConverter converter = new TrajectoryConverter();
         for (String station : new String[]{"null", "{\"md\":null,\"inclination\":0,\"azimuth\":0}",
                 "{\"md\":1e309,\"inclination\":0,\"azimuth\":0}",
@@ -46,14 +47,14 @@ public class ContractNullabilityAndProjectionTest {
         assertTrue(point.getProperties().get("x").getTypes().contains("number"));
     }
 
-    @Test(expected = com.fasterxml.jackson.databind.exc.InvalidNullException.class)
+    @Test(expected = tools.jackson.databind.exc.InvalidNullException.class)
     public void explicitNullInterpolateIsRejected() throws Exception {
-        new ObjectMapper().readValue("{\"interpolate\":null}", ConvertTrajectoryRequest.class);
+        new JsonMapper().readValue("{\"interpolate\":null}", ConvertTrajectoryRequest.class);
     }
 
     @Test
     public void omittedInterpolateKeepsDefault() throws Exception {
-        assertTrue(new ObjectMapper().readValue("{}", ConvertTrajectoryRequest.class).isInterpolate());
+        assertTrue(new JsonMapper().readValue("{}", ConvertTrajectoryRequest.class).isInterpolate());
     }
 
     @Test

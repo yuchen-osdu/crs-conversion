@@ -1,6 +1,6 @@
 package org.opengroup.osdu.crs.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -84,7 +84,7 @@ class CrsConverterApiV3BinGridBehaviorTests {
 
     @Test
     void coincidentCornersAreRejected() throws Exception {
-        ConvertBinGridRequest request = new ObjectMapper().readValue("""
+        ConvertBinGridRequest request = new JsonMapper().readValue("""
                 {
                   "toCRS": "",
                   "inBinGrid": {
@@ -126,7 +126,7 @@ class CrsConverterApiV3BinGridBehaviorTests {
 
     @Test
     void missingIngestedGeometryTypeIsRejected() throws Exception {
-        ConvertBinGridRequest request = new ObjectMapper().readValue("""
+        ConvertBinGridRequest request = new JsonMapper().readValue("""
                 {
                   "toCRS": "",
                   "inBinGrid": {
@@ -168,7 +168,7 @@ class CrsConverterApiV3BinGridBehaviorTests {
                   }
                 }
                 """;
-        ConvertBinGridRequest request = new ObjectMapper().readValue(json, ConvertBinGridRequest.class);
+        ConvertBinGridRequest request = JsonMapper.builderWithJackson2Defaults().build().readValue(json, ConvertBinGridRequest.class);
         AbstractAnyCrsFeatureCollection coordinates = request.getInBinGrid().getABCDBinGridSpatialLocation()
                 .getAsIngestedcoordinates();
         coordinates.setCoordinateReferenceSystemID(CRS_ID);

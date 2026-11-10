@@ -1,17 +1,18 @@
 package org.opengroup.osdu.crs.model.v4;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import org.opengroup.osdu.crs.util.StrictBooleanDeserializer;
 import org.opengroup.osdu.crs.util.StrictStringDeserializer;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -26,7 +27,6 @@ import org.opengroup.osdu.crs.util.Constants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.List;
 
 @Data
@@ -34,6 +34,8 @@ import java.util.List;
 @Schema(description = Constants.SWAGGER_TRJ_REQ_DESCRIPTION)
 public class ConvertTrajectoryRequestV4 {
 
+    // Jackson 3 would otherwise bind via the all-args constructor and skip these defaults
+    @JsonCreator
     public ConvertTrajectoryRequestV4(){
         this.interpolate = true;
         this.inputKind = TrajectoryInputKind.MD_INCL_AZIM.toString();
@@ -145,12 +147,13 @@ public class ConvertTrajectoryRequestV4 {
     @Override
     public String toString() {
         String result = null;
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        JsonMapper mapper = JsonMapper.builderWithJackson2Defaults()
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.NON_NULL))
+                .build();
         try {
             result = mapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return result;
         }
         return result;
@@ -159,12 +162,13 @@ public class ConvertTrajectoryRequestV4 {
     public static ConvertTrajectoryRequestV4 createInstance(String json) {
         ConvertTrajectoryRequestV4 result = null;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+            JsonMapper mapper = JsonMapper.builderWithJackson2Defaults()
+                    .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                    .build();
             JsonNode node = mapper.readTree(json);
             result = mapper.treeToValue(node, ConvertTrajectoryRequestV4.class);
 
-        } catch (IOException e) {
+        } catch (JacksonException e) {
         	return result;
         }
         return result;

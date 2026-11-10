@@ -1,6 +1,7 @@
 package org.opengroup.osdu.crs.swagger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class OpenApiExamplesTest {
         for (String reference : new String[]{Constants.SWAGGER_SOURCE_CRS_EXAMPLE,
                 Constants.SWAGGER_CONVERT_TARGET_CRS_EXAMPLE, Constants.SWAGGER_TARGET_CRS_EX,
                 Constants.SWAGGER_TARGET_CRS_GEO_EXAMPLE, Constants.SWAGGER_TRANSFORM_EXAMPLE}) {
-            assertTrue(new ObjectMapper().readTree(reference).isObject());
+            assertTrue(new JsonMapper().readTree(reference).isObject());
             org.opengroup.osdu.crs.model.v2.PersistableReference parsed =
                     org.opengroup.osdu.crs.model.v2.PersistableReference.createInstance(reference);
             assertNotNull(parsed);

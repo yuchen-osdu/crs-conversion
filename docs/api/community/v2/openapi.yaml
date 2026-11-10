@@ -362,19 +362,19 @@ components:
           format: double
           description: "X coordinate value. For geographic CRS: longitude in degrees\
             \ (-180 to +180). For projected CRS: easting in CRS units (typically meters)."
-          example: "-61.043406288714543"
+          example: -61.04340628871454
         "y":
           type: number
           format: double
           description: "Y coordinate value. For geographic CRS: latitude in degrees\
             \ (-90 to +90). For projected CRS: northing in CRS units (typically meters)."
-          example: "10.673103179456877"
+          example: 10.673103179456877
         z:
           type: number
           format: double
           description: Z coordinate value representing elevation or depth. Unit specified
             by unitZ. Positive typically indicates height above reference surface.
-          example: "0.0"
+          example: 0.0
       required:
       - x
       - "y"
@@ -617,41 +617,41 @@ components:
           description: "Measured Depth - distance along the wellbore from the reference\
             \ point (e.g., kelly bushing). Unit specified by unitMD or unitZ. Required\
             \ for most inputKind values."
-          example: "2563.56"
+          example: 2563.56
         inclination:
           type: number
           format: double
           description: "Wellbore inclination angle in degrees. 0° = vertical (down),\
             \ 90° = horizontal, 180° = vertical (up). Range: 0-180. Required for MD_Incl_Azim\
             \ and MD_Incl inputKind."
-          example: "15.0"
+          example: 15.0
         azimuth:
           type: number
           format: double
           description: "Wellbore azimuth (direction) angle in degrees. 0°/360° = North,\
             \ 90° = East, 180° = South, 270° = West. Range: 0-360. Reference (True\
             \ North or Grid North) specified by azimuthReference."
-          example: "355.0"
+          example: 355.0
         dx:
           type: number
           format: double
           description: East-West displacement from well reference point. Positive
             = East. Used for dX_dY_dZ and MD_dX_dY_dZ inputKind. Unit specified by
             unitXY.
-          example: "55.9"
+          example: 55.9
         dy:
           type: number
           format: double
           description: North-South displacement from well reference point. Positive
             = North. Y-axis alignment (True North or Grid North) depends on azimuthReference.
             Unit specified by unitXY.
-          example: "-145.3"
+          example: -145.3
         dz:
           type: number
           format: double
           description: True Vertical Depth (TVD) from well reference point. Positive
             = deeper/downward. Unit specified by unitZ.
-          example: "1965.6"
+          example: 1965.6
       required:
       - azimuth
       - inclination
@@ -826,7 +826,7 @@ components:
           description: "Measured Depth - distance along the wellbore from the reference\
             \ point (e.g., kelly bushing). Unit specified by unitMD or unitZ. Required\
             \ for most inputKind values."
-          example: "2563.56"
+          example: 2563.56
           oneOf:
           - type: number
             format: double
@@ -843,7 +843,7 @@ components:
           description: "Wellbore inclination angle in degrees. 0° = vertical (down),\
             \ 90° = horizontal, 180° = vertical (up). Range: 0-180. Required for MD_Incl_Azim\
             \ and MD_Incl inputKind."
-          example: "15.0"
+          example: 15.0
           oneOf:
           - type: number
             format: double
@@ -859,7 +859,7 @@ components:
           format: double
           description: "Wellbore azimuth relative to True North in degrees. Range:\
             \ 0-360. 0°/360° = True North, 90° = East."
-          example: "355.96"
+          example: 355.96
           oneOf:
           - type: number
             format: double
@@ -875,7 +875,7 @@ components:
           format: double
           description: "Wellbore azimuth relative to Grid North in degrees. Range:\
             \ 0-360. Differs from TN azimuth by the grid convergence angle."
-          example: "355.0"
+          example: 355.0
           oneOf:
           - type: number
             format: double
@@ -891,7 +891,7 @@ components:
           format: double
           description: "True East-West displacement from reference point. Positive\
             \ = East. Aligned with True North reference frame. Unit: unitXY."
-          example: "55.9"
+          example: 55.9
           oneOf:
           - type: number
             format: double
@@ -907,7 +907,7 @@ components:
           format: double
           description: "True North-South displacement from reference point. Positive\
             \ = North. Aligned with True North reference frame. Unit: unitXY."
-          example: "-145.3"
+          example: -145.3
           oneOf:
           - type: number
             format: double
@@ -1075,8 +1075,7 @@ components:
           - $ref: "#/components/schemas/GeoJsonMultiPolygon"
           - $ref: "#/components/schemas/GeoJsonPoint"
           - $ref: "#/components/schemas/GeoJsonPolygon"
-        properties:
-          type: object
+        properties: {}
         geoJsonVariantInternal:
           type: string
           enum:
@@ -1111,8 +1110,7 @@ components:
           type:
           - object
           - "null"
-          additionalProperties:
-            type: object
+          additionalProperties: {}
         persistableReferenceCrs:
           type:
           - string

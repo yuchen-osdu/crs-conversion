@@ -1,8 +1,9 @@
 package org.opengroup.osdu.crs.converter;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -18,7 +19,6 @@ import org.opengroup.osdu.crs.model.v4.TrajectoryStationInV4;
 import org.opengroup.osdu.crs.sis.ISisCrs;
 import org.opengroup.osdu.crs.util.Constants;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertNotEquals;
@@ -201,11 +201,12 @@ public class TrajectoryConverterV4Tests {
     public static ConvertTrajectoryResponseV4 createResponse(String json) {
         ConvertTrajectoryResponseV4 result;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            JsonMapper mapper = JsonMapper.builderWithJackson2Defaults()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .build();
             JsonNode node = mapper.readTree(json);
             result = mapper.treeToValue(node, ConvertTrajectoryResponseV4.class);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return null;
         }
         return result;
@@ -214,11 +215,12 @@ public class TrajectoryConverterV4Tests {
     public static String createPersistenceReferenceUnitXY(String json) {
         String result;
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            JsonMapper mapper = JsonMapper.builderWithJackson2Defaults()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .build();
             JsonNode node = mapper.readTree(json);
             result = mapper.treeToValue(node, String.class);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return null;
         }
         return result;

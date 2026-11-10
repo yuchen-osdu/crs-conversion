@@ -1,7 +1,7 @@
 package org.opengroup.osdu.crs.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -39,7 +39,7 @@ public final class ProjectedAxisUnit {
 
     private static String wkt(String persistableReference) {
         try {
-            JsonNode node = new ObjectMapper().readTree(persistableReference);
+            JsonNode node = JsonMapper.shared().readTree(persistableReference);
             JsonNode wkt = node.get("wkt");
             if (wkt != null && wkt.isTextual()) {
                 return wkt.asText();
