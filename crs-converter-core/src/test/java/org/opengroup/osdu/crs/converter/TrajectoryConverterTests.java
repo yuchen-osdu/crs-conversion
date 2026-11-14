@@ -1,7 +1,6 @@
 package org.opengroup.osdu.crs.converter;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.crs.interfaces.ITrajectoryConverter;
@@ -16,7 +15,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class TrajectoryConverterTests {
 
     @BeforeClass
@@ -591,6 +589,28 @@ public class TrajectoryConverterTests {
         assertEquals(request.getInputKind(), response.getInputKind());
         assertTrue(inStations.size() <= response.getStations().size());
         compareAllOriginalSamples(expected, response);
+    }
+
+    @Test
+    public void interpolationPastTheStationBudgetIsReported() {
+        List<TrajectoryStationIn> inStations = new ArrayList<>();
+        inStations.add(new TrajectoryStationIn(0.0, 0.0, 0.0, Double.NaN, Double.NaN, 0.0));
+        inStations.add(new TrajectoryStationIn(20_000_000.0, 10.0, 20.0, Double.NaN, Double.NaN, 0.0));
+        ConvertTrajectoryRequest request = new ConvertTrajectoryRequest();
+        request.setInputStations(inStations);
+        request.setTrajectoryCRS(ConstantsTests.EPSG_3395[ConstantsTests.V1]);
+        request.setUnitXY(ConstantsTests.UNIT_M);
+        request.setUnitZ(ConstantsTests.UNIT_M);
+        request.setMethod(METHOD_AZI_EQU);
+        request.setAzimuthReference(TN);
+        request.setReferencePoint(getReferencePoint3395());
+        request.setInterpolate(true);
+
+        ConvertTrajectoryResponse response = new TrajectoryConverter().convertTrajectory(getDpsHeaders(), request);
+
+        assertEquals(inStations.size(), response.getStations().size());
+        assertTrue(response.getOperationsApplied().contains(
+                "interpolation skipped for a segment that would exceed the 100000 station budget"));
     }
 
     @Test

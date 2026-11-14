@@ -1,6 +1,6 @@
 [
   {
-    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundGeographic2D:EPSG::4230_EPSG::1612",
+    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundGeographic2D:EPSG::4230_EPSG::1612_{{TEST_ID}}",
     "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
     "acl": {
       "owners": [

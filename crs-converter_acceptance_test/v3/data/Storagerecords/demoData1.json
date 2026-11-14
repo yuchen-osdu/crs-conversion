@@ -1,6 +1,6 @@
 [
   {
-    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851",
+    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:BoundProjected:EPSG::32064_EPSG::15851_{{TEST_ID}}",
     "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
     "acl": {
       "owners": [

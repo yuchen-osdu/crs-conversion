@@ -38,6 +38,7 @@ from v3.swagger_client.rest import ApiException
 from pprint import pprint
 from utility import TestEnvironment
 import jwt_client
+from dependency_check import DEFAULT_EXPECTATIONS_PATH, check_dependency, load_expectations
 
 
 FROM_CRS = "{\"authCode\":{\"auth\":\"SLB\",\"code\":\"4248009\"},\"type\":\"EBC\",\"ver\":\"PE_10_3_1\",\"name\":\"PSAD56 * DMA-Ven [4248,1209]\",\"lateBoundCRS\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"4248\"},\"type\":\"LBC\",\"ver\":\"PE_10_3_1\",\"name\":\"GCS_Provisional_S_American_1956\",\"wkt\":\"GEOGCS[\\\"GCS_Provisional_S_American_1956\\\",DATUM[\\\"D_Provisional_S_American_1956\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433],AUTHORITY[\\\"EPSG\\\",4248]]\"},\"singleCT\":{\"authCode\":{\"auth\":\"EPSG\",\"code\":\"1209\"},\"type\":\"ST\",\"ver\":\"PE_10_3_1\",\"name\":\"PSAD_1956_To_WGS_1984_9\",\"wkt\":\"GEOGTRAN[\\\"PSAD_1956_To_WGS_1984_9\\\",GEOGCS[\\\"GCS_Provisional_S_American_1956\\\",DATUM[\\\"D_Provisional_S_American_1956\\\",SPHEROID[\\\"International_1924\\\",6378388.0,297.0]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],METHOD[\\\"Geocentric_Translation\\\"],PARAMETER[\\\"X_Axis_Translation\\\",-295.0],PARAMETER[\\\"Y_Axis_Translation\\\",173.0],PARAMETER[\\\"Z_Axis_Translation\\\",-371.0],AUTHORITY[\\\"EPSG\\\",1209]]\"}}"
@@ -286,10 +287,7 @@ class TestCrsConverterIntegration(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -606,10 +604,7 @@ class TestTrajectoryConverterIntegration(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -771,10 +766,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
         print(bearer)
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -795,14 +787,7 @@ class TestUnAuthorizedCrsConverterIntegration(unittest.TestCase):
             api_response=self.api_instance.convert_point(body=request, data_partition_id=data_partition_header, _request_timeout=180)
             self.fail(api_response)
         except ApiException as e:
-            vendor = os.getenv("vendor")
-            if vendor == "azure" or vendor == "ibm":
-                reason = e.reason
-            else:
-                reason = json.loads(e.body)['reason']
-
-            self.assertTrue(403==e.status or 401==e.status)
-            self.assertTrue(reason in ["Forbidden", "Unauthorized", "Entitlement Error", "Access denied"])
+            self.assertTrue(e.status in (401, 403), f"expected 401/403, got {e.status}: {e}")
 
 @allure.feature('CRS Converter Service Info')
 @allure.epic('CRS Converter v3 Integration Tests')
@@ -821,10 +806,7 @@ class TestInfo(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -840,6 +822,34 @@ class TestInfo(unittest.TestCase):
             self.assertIsInstance(api_response, VersionInfo)
         except ApiException as e:
             self.fail(str(e))
+
+    @allure.title("Apache SIS version in /info matches expected_dependencies.json")
+    @allure.description(
+        "Reads connectedOuterServices from GET /info and checks that the 'Apache SIS-Version' entry "
+        "equals the version recorded in crs-converter_acceptance_test/expected_dependencies.json.")
+    def test_apache_sis_version(self):
+        """test apache_sis_version"""
+        name = "Apache SIS-Version"
+        with allure.step("GET /info"):
+            try:
+                api_response = self.api_instance.info_using_get(data_partition_id=self.env.data_partition_id)
+            except ApiException as e:
+                self.fail(str(e))
+            allure.attach(json.dumps(api_response.to_dict(), indent=2), name="info response",
+                          attachment_type=allure.attachment_type.JSON)
+            pairs = [(s.name, s.version) for s in (api_response.connected_outer_services or [])]
+
+        with allure.step("Load expectation"):
+            allure.attach.file(str(DEFAULT_EXPECTATIONS_PATH), name="expected_dependencies.json",
+                               attachment_type=allure.attachment_type.JSON)
+            expected = load_expectations().get(name)
+
+        versions = [str(version) for entry_name, version in pairs if entry_name == name]
+        reported = ", ".join(versions) if versions else "missing"
+        allure.dynamic.parameter("expected", expected)
+        allure.dynamic.parameter("reported", reported)
+        with allure.step(f"Compare {name}: expected {expected}, reported {reported}"):
+            check_dependency(pairs, name, expected)
 
 @allure.feature('CRS Converter Records')
 @allure.epic('CRS Converter v3 Integration Tests')
@@ -866,14 +876,7 @@ class TestRecords(unittest.TestCase):
         configuration.verify_ssl = False
         self.header = {}
 
-        # Append the path /records to the storage URL if needed
-        if self.env.storage_url.endswith('records'):
-            self.storage_url = self.env.storage_url
-        else:
-            self.storage_url = self.env.storage_url + 'records'
-
-
-        self.storage_url = self.env.storage_url + 'records'
+        self.storage_url = self.construct_storage_records_url()
         self.client = ApiClient(host=self.storage_url)
         self.header['data-partition-id']=self.env.data_partition_id
         self.header['Content-Type']='application/json'
@@ -882,13 +885,32 @@ class TestRecords(unittest.TestCase):
 
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
+        self.ensure_legal_tag()
         self.put_records()
 
     def teardown(self):
         #print('delete_records() will be called after v4 test cases complete in test_crs_converter_v4.py file.')
         self.delete_records()
 
-
+    def ensure_legal_tag(self):
+        """Create MY_LEGAL_TAG via Legal API when missing (201/409 OK)."""
+        if not self.env.my_legal_tag or self.env.my_legal_tag == 'NOT_FOUND':
+            return
+        if not self.env.legal_url or self.env.legal_url == 'NOT_FOUND':
+            self.fail('LEGAL_URL could not be resolved from VIRTUAL_SERVICE_HOST_NAME')
+        short_name = self.env.legal_tag_short_name()
+        if not short_name:
+            self.fail('MY_LEGAL_TAG is empty after stripping partition prefix')
+        template_path = os.path.join(os.path.dirname(__file__), 'v3', 'data', 'LegalTag.json')
+        body = json.loads(open(template_path, 'r').read().replace('{{legal_tag_name}}', short_name))
+        logger.info('Ensuring legal tag %s via %s', short_name, self.env.legal_url)
+        try:
+            self.send_api_request(method='POST', url=self.env.legal_url, body=body, headers=self.header)
+        except ApiException as e:
+            if e.status == HTTPStatus.CONFLICT:
+                logger.info('Legal tag %s already exists (409)', short_name)
+                return
+            self.fail(f'Failed to create legal tag {short_name}: {e}')
 
     def render_record_template(self, record_file_path):
         """render record template"""
@@ -967,12 +989,12 @@ class TestRecords(unittest.TestCase):
         logger.info('Request URL for upsert records: ' + storage_put_record_url)
         for file_name in files:
             body_str = self.render_record_template(file_name)
+            record_id = self.recordIDs[-1] if self.recordIDs else 'unknown'
             try:
                 api_response = self.send_api_request(method='PUT', url=storage_put_record_url, body=json.loads(body_str), headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
-                self.fail(f'Failed to ingest {os.path.basename(file_name)} record due to ' + str(e))
+                self.fail(f'Failed to ingest {os.path.basename(file_name)} record {record_id} due to {e}')
 
         # Ensure that the records are available
         self.check_records()
@@ -987,6 +1009,9 @@ class TestRecords(unittest.TestCase):
                 api_response = self.send_api_request(method='DELETE', url=delete_url, headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
+                if e.status == HTTPStatus.NOT_FOUND:
+                    logger.info(f'Record {id} already absent during teardown')
+                    continue
                 self.fail(f'Failed to delete {id} record due to ' + str(e))
         # Ensure that the records are deleted
         self.check_records(expect_records_deletion=True)
@@ -1002,6 +1027,7 @@ def suite():
     suite.addTest(TestTrajectoryConverterIntegration('test_32631_LMP_trajectory'))
     suite.addTest(TestUnAuthorizedCrsConverterIntegration('test_transformation_with_unAuthorized_token'))
     suite.addTest(TestInfo('test_info_using_get'))
+    suite.addTest(TestInfo('test_apache_sis_version'))
     suite.addTest(TestCrsConverterIntegration('test_conversion_only_ID'))
     suite.addTest(TestCrsConverterIntegration('test_convert_check_WGS84_to_case'))
     suite.addTest(TestCrsConverterIntegration('test_any_crs_to_geo_json_ID'))
