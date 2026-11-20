@@ -1,6 +1,6 @@
 [
   {
-    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615",
+    "id": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615_{{TEST_ID}}",
     "kind": "osdu:wks:reference-data--CoordinateReferenceSystem:1.1.0",
     "acl": {
       "owners": [
@@ -37,7 +37,7 @@
           "Code": 4400
         },
         "Name": "Cartesian 2D CS. Axes: easting, northing (E,N). Orientations: east, north. UoM: m.",
-        "HorizontalAxisUnitID": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:"
+        "HorizontalAxisUnitID": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:"
       },
       "Datum": {},
       "ID": "Projected:EPSG::32615",

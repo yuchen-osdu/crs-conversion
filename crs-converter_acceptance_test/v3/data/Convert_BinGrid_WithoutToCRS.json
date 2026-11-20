@@ -8,7 +8,7 @@
     "ABCDBinGridSpatialLocation": {
       "AsIngestedCoordinates": {
         "type": "AnyCrsFeatureCollection",
-        "CoordinateReferenceSystemID": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+        "CoordinateReferenceSystemID": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615_{{TEST_ID}}:",
         "features": [
           {
             "type": "AnyCrsFeature",

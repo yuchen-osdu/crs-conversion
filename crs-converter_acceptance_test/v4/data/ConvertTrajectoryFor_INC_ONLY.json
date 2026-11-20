@@ -5,8 +5,8 @@
         "y": 3000000,
         "z": 100
     },
-    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
-    "unitMD": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+    "unitZ": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:",
+    "unitMD": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:",
     "inputStations": [
         {
             "md": 0,
@@ -25,7 +25,7 @@
             "inclination": 1.0
         }
     ],
-    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615:",
+    "trajectoryCRS": "{{DATA_PARTITION_ID}}:reference-data--CoordinateReferenceSystem:Projected:EPSG::32615_{{TEST_ID}}:",
     "inputKind": "MD_Incl",
     "method": "AzimuthalEquidistant"
 }

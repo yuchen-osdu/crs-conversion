@@ -78,7 +78,7 @@
             "Projection.AuthorityCode.Authority": "EPSG",
             "SourceCRS.AuthorityCode.Authority": "EPSG",
             "VerticalCRS.VerticalCRSID": null,
-            "CoordinateSystem.HorizontalAxisUnitID": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m:",
+            "CoordinateSystem.HorizontalAxisUnitID": "{{DATA_PARTITION_ID}}:reference-data--UnitOfMeasure:m_{{TEST_ID}}:",
             "Transformation.Name": "ED50 to WGS 84 (24)",
             "PreferredUsage.Extent.BoundingBoxNorthBoundLatitude": 62.0,
             "AttributionPublication": null,
