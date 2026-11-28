@@ -55,10 +55,7 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         configuration.api_key['Authorization'] = 'Bearer ' + bearer
         configuration.access_token = bearer
         configuration.verify_ssl = False
-        if 'localhost' in cls.env.root_url:
-            url = 'http://' + cls.env.root_url + cls.env.base_url
-        else:
-            url = 'https://' + cls.env.root_url + cls.env.base_url
+        url = cls.env.service_url()
         data_partition_header_name = 'data_partition_id'
         data_partition_header_value = cls.env.data_partition_id
         client = ApiClient(host=url)
@@ -109,10 +106,13 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             'v4/data/Dls_InputRequest.json')
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         self.assertIsNotNone(request)
+        # MD_i is only applied when interpolate is true
+        self.assertTrue(request.interpolate)
         try:
             api_response = self.api_instance.convert_trajectory(body=request,
                                                                 data_partition_id=data_partition_header)
             self.assertIsNotNone(api_response)
+            self.assertEqual([0, 17500, 22167], [round(station.md, 6) for station in api_response.stations_i])
             self.assertEqual(api_response.stations[len(api_response.stations)-1].dls, 0.0)
             self.assertEqual(api_response.stations_i[len(api_response.stations_i)-1].dls, 0.0)
         except ApiException as e:
@@ -124,14 +124,11 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         error_msg = 'Both md_i array and md_interval values are provided in the input.'
         self.assertIsNotNone(request)
-        try:
+        with self.assertRaises(ApiException) as context:
             # convert_trajectory
-            api_response = self.api_instance.convert_trajectory(body=request,
-                                                                data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-        except ApiException as e:
-            self.assertTrue(400 == json.loads(e.body)['code'])
-            self.assertTrue(error_msg == json.loads(e.body)['message'])
+            self.api_instance.convert_trajectory(body=request, data_partition_id=data_partition_header)
+        self.assertEqual(400, json.loads(context.exception.body)['code'])
+        self.assertEqual(error_msg, json.loads(context.exception.body)['message'])
     
     def test_convertTrajectoryForMDI_Out_Of_Range(self):
         request = self.__read_v4_convert_trajectory_request(
@@ -139,14 +136,11 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
         data_partition_header = self.api_instance.api_client.default_headers['data_partition_id']
         error_msg = 'md_i array values provided are not in range of MD stations.'
         self.assertIsNotNone(request)
-        try:
+        with self.assertRaises(ApiException) as context:
             # convert_trajectory
-            api_response = self.api_instance.convert_trajectory(body=request,
-                                                                data_partition_id=data_partition_header)
-            self.assertIsNotNone(api_response)
-        except ApiException as e:
-            self.assertTrue(400 == json.loads(e.body)['code'])
-            self.assertTrue(error_msg == json.loads(e.body)['message'])
+            self.api_instance.convert_trajectory(body=request, data_partition_id=data_partition_header)
+        self.assertEqual(400, json.loads(context.exception.body)['code'])
+        self.assertEqual(error_msg, json.loads(context.exception.body)['message'])
 
     def test_convertTrajectoryFor_INC_ONLY_Success(self):
         request = self.__read_v4_convert_trajectory_request(
@@ -160,8 +154,9 @@ class TestTrajectoryConverterIntegrationV4(unittest.TestCase):
             self.assertIsNotNone(api_response)
             self.assertEqual(api_response.stations[0].dx_tn, 0.0)
             self.assertEqual(api_response.stations[0].dy_tn, 0.0)
-            self.assertEqual(api_response.stations[0].point.x, 400000.0000000041)
-            self.assertEqual(api_response.stations[0].point.y, 2999999.9999999115)
+            # JDK 25 can differ from JDK 17 by 1 ULP on these coordinates; compare to 6 decimal places.
+            self.assertAlmostEqual(api_response.stations[0].point.x, 400000.0000000041, places=6)
+            self.assertAlmostEqual(api_response.stations[0].point.y, 2999999.9999999115, places=6)
         except ApiException as e:
             self.fail(str(e))
 
@@ -255,22 +250,47 @@ class TestRecords(unittest.TestCase):
         configuration.verify_ssl = False
         self.header = {}
 
-        # Append the path /records to the storage URL if needed
-        if self.env.storage_url.endswith('records'):
-            self.storage_url = self.env.storage_url
-        else:
-            self.storage_url = self.env.storage_url + 'records'
-            
+        self.storage_url = self.construct_storage_records_url()
         self.client = ApiClient(host=self.storage_url)
         self.header['data-partition-id'] = self.env.data_partition_id
         self.header['Content-Type'] = 'application/json'
         self.header['Authorization'] = 'Bearer ' + bearer
         self.client.user_agent = 'IntegrationTest'
         self.recordIDs = []
+        self.ensure_legal_tag()
         self.put_records()
 
     def teardown(self):
         self.delete_records()
+
+    def ensure_legal_tag(self):
+        """Create MY_LEGAL_TAG via Legal API when missing (201/409 OK)."""
+        if not self.env.my_legal_tag or self.env.my_legal_tag == 'NOT_FOUND':
+            return
+        if not self.env.legal_url or self.env.legal_url == 'NOT_FOUND':
+            self.fail('LEGAL_URL could not be resolved from VIRTUAL_SERVICE_HOST_NAME')
+        short_name = self.env.legal_tag_short_name()
+        if not short_name:
+            self.fail('MY_LEGAL_TAG is empty after stripping partition prefix')
+        template_path = os.path.join(os.path.dirname(__file__), 'v3', 'data', 'LegalTag.json')
+        body = json.loads(open(template_path, 'r').read().replace('{{legal_tag_name}}', short_name))
+        print(f'Ensuring legal tag {short_name} via {self.env.legal_url}')
+        try:
+            self.client.request(
+                method='POST', url=self.env.legal_url, body=body, headers=self.header
+            )
+        except ApiException as e:
+            if e.status == 409:
+                print(f'Legal tag {short_name} already exists (409)')
+                return
+            self.fail(f'Failed to create legal tag {short_name}: {e}')
+
+    def construct_storage_records_url(self):
+        """construct storage records url"""
+        storage_url = self.env.storage_url.rstrip('/')
+        if storage_url.endswith('/records'):
+            return storage_url
+        return storage_url + "/records"
 
     def put_records(self):
         """test put records"""
@@ -286,14 +306,24 @@ class TestRecords(unittest.TestCase):
             body_str = body_str.replace(self.TAG_TO_REPLACE, self.env.my_legal_tag)
             body_str = body_str.replace(self.TEST_ID_REPLACE, self.env.my_test_id)
             temp = json.loads(body_str)
-            self.recordIDs.append(temp[0].get('id'))
+            record_id = temp[0].get('id')
+            self.recordIDs.append(record_id)
 
             try:
                 api_response = self.client.request(method='PUT', url=self.storage_url, body=json.loads(body_str), headers=self.header)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
-        sleep(30) # Wait for the records to become searchable
+                self.fail(f'Failed to ingest {os.path.basename(file_name)} record {record_id} due to {e}')
+
+        # Verify records are readable via Storage GET before tests run
+        for record_id in self.recordIDs:
+            try:
+                get_url = self.storage_url + '/' + record_id
+                api_response = self.client.request(method='GET', url=get_url, headers=self.header, body=None)
+                self.assertIsNotNone(api_response)
+            except ApiException as e:
+                self.fail(f'Record {record_id} not readable after PUT: {e}')
+        sleep(5)
 
     """deleting records for v3 & v4 test cases"""
     def delete_records(self):
@@ -305,7 +335,10 @@ class TestRecords(unittest.TestCase):
                 api_response = self.client.request('DELETE', url=delete_url, headers=self.header, body=None)
                 self.assertIsNotNone(api_response)
             except ApiException as e:
-                self.fail(str(e))
+                if e.status == 404:
+                    print(f'Record {id} already absent during teardown')
+                    continue
+                self.fail(f'Failed to delete {id} record due to {e}')
 
 
 def suite():

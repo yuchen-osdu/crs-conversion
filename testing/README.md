@@ -38,12 +38,6 @@ This test is intended as a simple sanity test. It is quick but doesn't challenge
 
 The following parameters are expected as environment variables:
 
-## Google Cloud auth provider (crs_converter_test_gc/jwt_client.py)
-
-| Variable | Contents |
-|----------|----------|
-| INTEGRATION_TESTER | GC Service account key - either a path or a base64 encoded value. |
-
 ## Baremetal auth provider (crs_converter_test_baremetal/jwt_client.py)
 
 | Variable | Contents |
@@ -89,12 +83,6 @@ To run:
 ```bash
 python3 run_test.py
 ```
-
-### Azure Tests
-
-For the python tests to run in Azure, the CI-CD pipeline copies the SIS_DATA folder to the shared storage for the pods to read. If you are setting up the environment manually and not using Azure CI-CD Pipeline, make sure to copy the folder following [this](https://community.opengroup.org/osdu/platform/deployment-and-operations/infra-azure-provisioning/-/blob/master/docs/configuration-data.md#crs-conversion).
-
-**Note:** To simulate a runtime exactly as that of the vsts build agent, you can simply exec into the docker image we use for the build agent, and run the tests from inside it. To know how to do this, please follow [this](https://slb-swt.visualstudio.com/data-at-rest/_git/dps-vsts-build-agent?path=%2FREADME.md&version=GBmaster) documentation.
 
 ## Suite Test: ```test_suite.py```
 
